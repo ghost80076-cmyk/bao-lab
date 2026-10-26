@@ -426,8 +426,13 @@
   root.addEventListener('bao:control-center-visibility', event => {
     const open = Boolean(event.detail?.open);
     if (open) {
-      if (mode !== 'studio') setMode('studio');
-      else syncSurfaceNavigation();
+      // The drawer is already open. Reflect its destination state without
+      // calling setMode('studio'), whose compact-layout compatibility path
+      // would try to open the same drawer a second time.
+      mode = 'studio';
+      root.dataset.baoSurface = mode;
+      syncStatusButtonContract();
+      syncSurfaceNavigation();
       return;
     }
     if (mode === 'studio') setMode('play');
