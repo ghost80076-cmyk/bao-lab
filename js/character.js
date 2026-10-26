@@ -223,7 +223,7 @@ const CharacterEngine = {
     }).filter(Boolean).join("\n");
   },
 
-  npcPrompt(npcs = []) {
+  npcPrompt(npcs = [], { current = false } = {}) {
     if (!Array.isArray(npcs) || !npcs.length) return "";
     return npcs.map((npc, i) => {
       const parts = [
@@ -234,8 +234,8 @@ const CharacterEngine = {
         npc.outfit ? `當前穿著：${npc.outfit}` : "",
         npc.personality ? `個性：${npc.personality}` : "",
         npc.relationship ? `關係：${npc.relationship}` : "",
-        npc.mood ? `初始情緒：${npc.mood}` : "",
-        npc.location ? `初始位置：${npc.location}` : "",
+        npc.mood ? `${current ? "目前" : "初始"}情緒：${npc.mood}` : "",
+        npc.location ? `${current ? "目前" : "初始"}位置：${npc.location}` : "",
         npc.notes ? `補充：${npc.notes}` : ""
       ].filter(Boolean);
       return parts.join("；");
@@ -319,9 +319,10 @@ const CharacterEngine = {
       `玩家角色：${playerName}（controlled_by=user）`,
       `「${c.name}」代表目前作品／角色卡主體；它可能是一名 AI 主角色，也可能是一個多 NPC 世界，不能因此被視為玩家角色。`,
       `來自 user 的輸入一律視為「${playerName}」的台詞、行動或意圖；不得誤認為是「${c.name}」或其他 AI 人物的輸入。`,
-      `AI 可以扮演 controlled_by=assistant 的角色與 NPC，但不能扮演或控制玩家「${playerName}」（controlled_by=user）。`,
-      "controlled_by=user 的角色之台詞、心理、決定與行動只能由玩家提供；不得因其出現在「人物／角色／NPC」文字區塊中就改變控制權。",
-      "除非忠實引用玩家已輸入的原話，不得生成玩家的新台詞。",
+      `AI 可以扮演 controlled_by=assistant 的角色與 NPC；玩家「${playerName}」（controlled_by=user）保有重要決策權。`,
+      "controlled_by=user 表示玩家持有角色的重要決策權；不得因其出現在「人物／角色／NPC」文字區塊中就改變控制權。",
+      "玩家台詞、心理與行動的補述範圍依本故事的「玩家角色演繹授權」執行；未提供明確授權時，不補寫玩家未輸入的台詞、心理、意圖或主動行動。只有平台明確附上的「本輪觀賞授權」可暫時擴大本輪日常演繹範圍。",
+      "任何演繹授權都不得代作玩家的重大承諾、關係定案、同意或不可逆選擇，不得把拒絕改成同意；玩家本輪明示的限制與修正優先。",
       "角色只能依已知資訊行動，不得無理由獲得玩家未公開的資訊。",
       "玩家資料、開局選項與結構化初始狀態若已提供，視為既定事實；不得要求玩家重新填寫、重新選擇或重演建立流程。",
       "作品名稱、世界名稱、狀態模組與介面標籤不是 NPC；除非作品明確把它設定成世界內人物。"
@@ -363,22 +364,24 @@ const CharacterEngine = {
       const discoveredNPCs = mergedNPCs.filter(npc => !initialNames.has(String(npc?.name || "").trim()));
 
       if (initialNPCs.length > 0 && initialNPCs.length <= 4) {
-        const currentInitialNPCs = initialNPCs.map(initial => mergedNPCs.find(npc =>
-          String(npc?.name || "").trim() === String(initial?.name || "").trim()) || initial);
-        const npcText = this.npcPrompt(currentInitialNPCs);
-        if (npcText) blocks.push(`【重要 NPC｜controlled_by=assistant】\n${npcText}`);
+        // Card baselines stay cacheable; live overrides belong to the turn tail.
+        const npcText = this.npcPrompt(initialNPCs);
+        if (npcText) blocks.push(`【重要 NPC｜controlled_by=assistant】\n${npcText}\n以上為初始設定；本輪相關 NPC 資料若有更新，以本輪資料為準。`);
       }
 
+      const currentInitialNPCs = initialNPCs.length <= 4
+        ? mergedNPCs.filter(npc => initialNames.has(npc.name) && runtimeNPCs.some(runtime =>
+          String(runtime?.name || "").trim() === npc.name))
+        : [];
+      const relevantPool = initialNPCs.length > 4 ? mergedNPCs : discoveredNPCs;
+      const relevantNPCs = [...currentInitialNPCs, ...this.relevantNPCs(relevantPool, context, 4)];
       const useRosterIndex = initialNPCs.length > 4 || discoveredNPCs.length > 0;
       if (useRosterIndex) {
         const roster = this.npcIndexPrompt(initialNPCs.length > 4 ? mergedNPCs : discoveredNPCs);
         if (roster) blocks.push(`【NPC 名冊索引】\n${roster}\n名冊只表示故事中已登記的人物與身分，不代表目前在場，也不改變玩家控制權。`);
-
-        const relevantPool = initialNPCs.length > 4 ? mergedNPCs : discoveredNPCs;
-        const relevantNPCs = this.relevantNPCs(relevantPool, context, 4);
-        const relevantText = this.npcPrompt(relevantNPCs);
-        if (relevantText) blocks.push(`【本輪相關 NPC】\n${relevantText}\n以上皆為 controlled_by=assistant；只在本輪情境相關時使用。`);
       }
+      const relevantText = this.npcPrompt(relevantNPCs, { current: true });
+      if (relevantText) blocks.push(`【本輪相關 NPC】\n${relevantText}\n以上皆為 controlled_by=assistant；情緒、位置與穿著等為目前資料，優先於初始設定；只在本輪情境相關時使用，不代表所有人都在場。`);
       if (c.npc_rules) blocks.push(`【NPC 運作規則】\n${c.npc_rules}`);
     }
 

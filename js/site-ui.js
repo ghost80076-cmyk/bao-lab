@@ -215,7 +215,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/context-pack-resume.js"))
     .then(() => loadBAOScript("js/story-backup.js?v=4"))
     .then(() => loadBAOOptionalGroup("google-drive", ["js/google-drive-config.js", "js/google-drive-sync.js"]))
-    .then(() => loadBAOScript("js/prompt-cache.js?v=9"))
+    .then(() => loadBAOScript("js/prompt-cache.js?v=10"))
     .then(() => loadBAOScript("js/prompt-orchestrator.js?v=7"))
     .then(() => loadBAOScript("js/episodic-memory.js?v=4"))
     .then(() => worldModulesReady)

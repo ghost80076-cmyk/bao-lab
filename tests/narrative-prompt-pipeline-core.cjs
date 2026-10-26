@@ -60,7 +60,11 @@ global.App = {
       memory: { cache: true }
     };
   },
-  buildSystemPrompt() { return "BASE CHARACTER PROMPT"; },
+  buildSystemPrompt() {
+    return CharacterEngine.composeSystemPrompt({
+      id: "pipeline-test", name: "測試作品", system_prompt: "角色保持自己的生活。"
+    }, { persona: { name: "旅人" } });
+  },
   renderChatShell() {},
   openBuilder() {},
   saveStory() {},
@@ -79,6 +83,7 @@ const run = file => vm.runInThisContext(
   { filename: file }
 );
 
+run("js/character.js");
 run("js/narrative-settings.js");
 
 BAONarrativeSettings.set({
@@ -168,6 +173,8 @@ assert.equal(
       assert.equal((system.match(/【玩家角色演繹授權/g) || []).length, 1);
       assert.match(system, /重大承諾、關係定案、同意或不可逆選擇/);
       assert.match(system, /NPC 自主與資訊邊界/);
+      assert.match(system, /controlled_by=user 表示玩家持有角色的重要決策權/);
+      assert.doesNotMatch(system, /不能扮演或控制玩家|角色之台詞、心理、決定與行動只能由玩家提供|除非忠實引用玩家已輸入的原話，不得生成玩家的新台詞/);
       if (mode === "coauthor") {
         assert.match(system, /玩家已授權小說共創/);
         assert.doesNotMatch(system, /不替玩家補寫未輸入|不得替玩家描述心理/);

@@ -34,7 +34,9 @@ test.describe('YoruBay official identity and concise community entry', () => {
       .evaluateAll(nodes => nodes.map(node => node.dataset.homeCharacter).filter(Boolean));
     const adultLeaks = await page.evaluate(ids => ids.filter(id => {
       const character = (App.characters || []).find(item => String(item?.id || '') === String(id));
-      return window.BAOContentPreferences?.isAdult?.(character);
+      // Homepage exposure follows the reviewed public rating, which can differ
+      // from the work's internal capability/content classification.
+      return window.BAOContentPreferences?.isDiscoveryAdult?.(character);
     }), homeWorkIds);
     expect(adultLeaks).toEqual([]);
     await expect(page.locator('#home-view .brand-intro')).toHaveText('替你留了一盞燈。');
