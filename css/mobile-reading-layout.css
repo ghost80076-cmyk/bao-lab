@@ -284,9 +284,10 @@
   #chat-view .story-message-tools [data-copy]{order:70}
   #chat-view .story-variant-switcher{min-height:35px}
 
-  /* Composer ＋ is the single mobile entry to story tools.
-     Keep Header「資訊」for reading context; hide the duplicate Header「工具」. */
-  #chat-view #bao-surface-mode-toggle{display:none!important}
+  /* Story is already the base mobile surface. Keep one Header「舞臺」entry
+     and use Composer ＋ for Control Center; hide duplicate Story/Control tabs. */
+  #chat-view #bao-surface-mode-toggle,
+  #chat-view #bao-story-surface-story{display:none!important}
   #chat-view #bao-surface-controls{
     padding:0!important;
     border:0!important;
