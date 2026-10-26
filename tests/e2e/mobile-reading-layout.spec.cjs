@@ -58,8 +58,10 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
 
     await info.click();
     await expect(page.locator('#chat-view')).toHaveClass(/bao-play-status-open/);
-    await page.locator('#bao-play-status-close').click();
+    await expect(page.locator('#game-ui')).toBeVisible();
+    await page.locator('#bao-mobile-panel-close').click();
     await expect(page.locator('#chat-view')).not.toHaveClass(/bao-play-status-open/);
+    await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-experience-surface', 'story');
 
     await composerTools.click();
     const toolDialog = page.getByRole('dialog', { name: '故事功能選單' });
@@ -80,7 +82,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     await page.locator('.bao-status-close').click();
 
     await composerTools.click();
-    await page.getByRole('button', { name: '人物／事件' }).click();
+    await page.getByRole('button', { name: '舞臺資訊' }).click();
     await expect(page.locator('#game-ui')).toBeVisible();
     await page.locator('#bao-mobile-panel-close').click();
     await expect(page.locator('#game-ui')).toBeHidden();
