@@ -92,7 +92,7 @@ test.describe('Player 2.0 shell', () => {
     await page.locator('#start-story').click();
 
     await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'play');
-    await expect(page.locator('#bao-surface-mode-toggle')).toHaveText('工具');
+    await expect(page.locator('#bao-surface-mode-toggle')).toHaveText('控制中心');
     await expect(page.locator('#chat-view .usage-bar')).toBeHidden();
     await expect(page.locator('#chat-view .chat-layout > aside').first()).toBeHidden();
     await expect(page.locator('#chat-stream')).toHaveAttribute('aria-label', '故事內容');
