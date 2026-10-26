@@ -10,7 +10,7 @@
   const CLOSE = '[[/YORUBAY_PHONE_V1]]';
   const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
   const LIMIT = 8192;
-  const empty = () => ({ version:1, chat:[], tweets:[], calls:[], events:[], instagram:{messages:[]}, seenIds:[] });
+  const empty = () => ({ version:1, contacts:[], threads:[], photos:[], notes:[], storyTime:'', storyDate:'', chat:[], tweets:[], calls:[], events:[], instagram:{messages:[]}, seenIds:[] });
   const safeEvents = list => Array.isArray(list) ? list.slice(0, 3).filter(object).map(item => ({
     time: String(item.time ?? '').slice(0,24),
     title: String(item.title ?? '').slice(0,120)
@@ -18,6 +18,18 @@
   function normalizePatch(raw) {
     if (!PhoneCore || !object(raw) || raw.version && raw.version !== 1) return null;
     const patch = {};
+    const normalized = PhoneCore.normalize(raw);
+    if (!normalized) return null;
+    for (const key of ['contacts','threads','photos','notes']) {
+      if (Array.isArray(raw[key])) patch[key] = normalized[key].slice(0,3);
+    }
+    if (patch.threads) patch.threads = patch.threads.map(item => {
+      const source = raw.threads.find(thread => String(thread?.id ?? '').trim().slice(0,80) === item.id) || {};
+      const next = {...item, messages:item.messages.slice(0,5)};
+      for (const key of ['name','participants']) if (!(key in source)) delete next[key];
+      return next;
+    });
+    for (const key of ['storyTime','storyDate']) if (normalized[key].trim()) patch[key] = normalized[key];
     if (Array.isArray(raw.chat)) patch.chat = PhoneCore.normalize({chat:raw.chat}).chat.slice(0,5).filter(item => item.text.trim());
     if (Array.isArray(raw.tweets)) patch.tweets = PhoneCore.normalize({tweets:raw.tweets}).tweets.slice(0,3).filter(item => item.text.trim());
     if (Array.isArray(raw.calls)) patch.calls = PhoneCore.normalize({calls:raw.calls}).calls.slice(0,3).filter(item => item.items.length);
@@ -25,7 +37,7 @@
     if (object(raw.instagram) && Array.isArray(raw.instagram.messages)) {
       patch.instagram = {messages:PhoneCore.normalize({instagram:{messages:raw.instagram.messages}}).instagram.messages.slice(0,4).filter(item=>item.text.trim())};
     }
-    if (!Object.values(patch).some(x => Array.isArray(x) ? x.length : x?.messages?.length)) return null;
+    if (!Object.values(patch).some(x => typeof x === 'string' ? x.length : Array.isArray(x) ? x.length : x?.messages?.length)) return null;
     return patch;
   }
   function extract(text) {
@@ -46,6 +58,8 @@
   const bound = (list,max) => Array.isArray(list) ? list.slice(-max) : [];
   function apply(state, patch, messageId) {
     if (!object(state) || !patch || !object(patch)) return false;
+    patch = normalizePatch(patch);
+    if (!patch) return false;
     const id=String(messageId || '').slice(0,120);
     if (!id) return false;
     const prior = object(state.phoneUI) && state.phoneUI.version===1 ? state.phoneUI : empty();
@@ -60,6 +74,10 @@
       ...(Array.isArray(prior.instagram?.messages) ? prior.instagram.messages : []),
       ...(Array.isArray(patch.instagram?.messages) ? patch.instagram.messages : [])
     ],80);
+    for (const [key,max] of [['contacts',30],['threads',30],['photos',80],['notes',80]]) {
+      result[key] = PhoneCore.mergeRecords(prior[key],patch[key],max,key==='threads');
+    }
+    for (const key of ['storyTime','storyDate']) result[key] = patch[key] || prior[key] || '';
     state.phoneUI = result;
     return true;
   }
@@ -76,6 +94,10 @@
         ...base.instagram.messages,...(Array.isArray(overlay.instagram?.messages)?overlay.instagram.messages:[])
       ],80)}
     };
+    for (const [key,max] of [['contacts',30],['threads',30],['photos',80],['notes',80]]) {
+      input[key] = PhoneCore.mergeRecords(base[key],overlay[key],max,key==='threads');
+    }
+    for (const key of ['storyTime','storyDate']) input[key] = overlay[key] || base[key];
     return PhoneCore.normalize(input);
   }
   const PROMPT = [
@@ -85,6 +107,8 @@
     OPEN,
     '{"chat":[{"from":"them","time":"23:41","text":"..."}],"tweets":[{"text":"...","date":"今天"}],"calls":[{"group":"今天","items":[{"name":"...","type":"未接","time":"23:40","count":"1"}]}],"events":[{"time":"明天","title":"..."}],"instagram":{"messages":[{"from":"them","text":"...","delay":0}]}}',
     CLOSE,
+    '可選擴充：contacts:[{id,name,avatar}]；threads:[{id,name,participants:[聯絡人ID],messages:[{from,senderId,time,text}]}]；photos:[{id,src,title,caption}]；notes:[{id,title,text}]；storyTime、storyDate 為故事內顯示時間與日期。',
+    '以上欄位同樣放進該 JSON 區塊。沿用人物覆寫中的 ID；多人或群聊請用 threads，勿混入主要聯絡人的 chat。新聊天室須提供 name 與 participants；既有聊天室只附新訊息。照片與筆記依 ID 更新，照片只能使用故事已提供的真實圖片網址，不得編造網址。照片與筆記只屬於手機主人可取得的資料。',
     '只保留真正新增的欄位和紀錄；不要重複既有內容。上述是 JSON 格式範例，不是實際事件。from=me 只能記錄玩家明確提供過的訊息。區塊外照常寫故事，且不要附任何 HTML/JavaScript。'
   ].join('\n');
   return Object.freeze({OPEN,CLOSE,extract,normalizePatch,apply,mergeDisplay,empty,PROMPT});

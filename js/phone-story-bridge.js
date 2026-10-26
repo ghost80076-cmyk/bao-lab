@@ -30,7 +30,7 @@
     App.wrapBuildSystemPrompt('phone-ui:optional-event-contract', function(next,...args) {
       const text=next(...args);
       if (!enabled()) return text;
-      const detail=window.BAOPhonePlayerCore?.ownerDescription(GameState.current,App.activeCharacter?.phone_ui) || '';
+      const detail=window.BAOPhonePlayerCore?.ownerDescription(GameState.current,App.activeCharacter?.phone_ui,Core.mergeDisplay(activePhone(),GameState.current.phoneUI)) || '';
       // Phone contract is stable; the story owner's editable identity is a
       // dynamic prompt-cache partition rather than part of the stable prefix.
       return text + '\n\n' + Core.PROMPT +

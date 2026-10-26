@@ -184,7 +184,7 @@
   $('studio-add-dialogue-person')?.addEventListener('click', () => {addDialoguePerson(); dirty=true;});
 
   // Simple fields edit the same JSON source, never a second configuration store.
-  const phoneNames = ['userName', 'contactName', 'twitterHandle'];
+  const phoneNames = ['userName', 'contactName', 'twitterHandle', 'storyTime', 'storyDate', 'locale'];
   form.addEventListener('input', event => {
     const name = event.target?.name;
     if (phoneNames.some(key => name === 'phone_' + key)) {
@@ -197,7 +197,7 @@
     } else if (name === 'phone_ui_json') {
       try {
         const data = JSON.parse(event.target.value || '{}');
-        for (const key of phoneNames) field('phone_' + key).value = String(data?.[key] || '').slice(0,80);
+        for (const key of phoneNames) field('phone_' + key).value = String(data?.[key] || (key === 'locale' ? 'zh-TW' : '')).slice(0,80);
       } catch (_) { /* Keep invalid input visible for the author to correct. */ }
     }
   });
@@ -253,7 +253,7 @@
     field('tags').value = (c.tags || []).join(', ');
     field('mode').value = c.supported_modes?.world ? 'world' : 'immersive';
     field('phone_ui_enabled').checked = Boolean(c.phone_ui);
-    for (const key of phoneNames) field('phone_' + key).value = c.phone_ui?.[key] || '';
+    for (const key of phoneNames) field('phone_' + key).value = c.phone_ui?.[key] || (key === 'locale' ? 'zh-TW' : '');
     field('recommended_styles').value = (Array.isArray(c.narrative_profile?.recommended_styles) ? c.narrative_profile.recommended_styles : []).join(', ');
     field('phone_ui_json').value = JSON.stringify(c.phone_ui || phoneCore?.defaultConfig?.() || {}, null, 2);
     field('profile').value = typeof c.profile === 'object' ? (c.profile['AI 主角色設定'] || c.profile['人物設定'] || engine.profilePrompt(c.profile)) : String(c.profile || '');

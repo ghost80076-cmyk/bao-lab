@@ -20,7 +20,7 @@
       const normalized=PhoneCore?.normalize(source);
       if(normalized){
         data={};
-        for(const key of ['wallpaper','events','calls','chat','tweets','apps']){
+        for(const key of ['wallpaper','events','calls','chat','tweets','apps','locale','storyTime','storyDate','contacts','threads','photos','notes']){
           if(has(value.data,key)) data[key]=normalized[key];
         }
         for(const group of ['weather','instagram','spotify']){
@@ -60,14 +60,19 @@
     }
     return PhoneCore.normalize(source);
   };
-  const ownerDescription = (story,author) => {
-    const config=resolve(author,story);
+  const ownerDescription = (story,author,display) => {
+    const config=display || resolve(author,story);
     if (!config) return '';
     const owner=config.userName || '未指定';
     const contact=config.contactName || '未指定';
     return [
       '手機主人：'+owner,
       '主要聯絡人：'+contact,
+      '聯絡人 ID：'+JSON.stringify(config.contacts.map(({id,name})=>({id,name}))),
+      '聊天室 ID：'+JSON.stringify(config.threads.map(({id,name,participants})=>({id,name,participants}))),
+      '照片 ID：'+JSON.stringify(config.photos.map(({id,title})=>({id,title}))),
+      '筆記 ID：'+JSON.stringify(config.notes.map(({id,title})=>({id,title}))),
+      '故事手機時間：'+config.storyTime+' '+config.storyDate,
       '手機主人未指定時，不得推定是玩家或任何特定 NPC。',
       '這是可見資訊範圍，不代表玩家能讀取其他 NPC 私密內容。'
     ].join('\n');

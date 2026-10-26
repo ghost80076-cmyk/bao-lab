@@ -70,3 +70,24 @@ test('legacy cards and author greetings never interpret phone data',async({page}
   expect(intro.text).toContain(OPEN);
   expect(intro.phone).toBeUndefined();
 });
+
+test('story updates persist group messages, notes and photos and retain IDs in the next prompt',async({page})=>{
+  await ready(page);
+  const result=await page.evaluate(({OPEN,CLOSE})=>{
+    Chat.add('user','看看群裡的新動態');
+    Chat.add('assistant','手機亮起。'+OPEN+JSON.stringify({
+      contacts:[{id:'xia',name:'小夏'}],threads:[{id:'group',name:'朋友群',participants:['xia'],messages:[{senderId:'xia',text:'晚安'}]}],
+      notes:[{id:'memo',title:'行程',text:'週六見面'}],photos:[{id:'rain',src:'assets/rain.jpg',title:'雨景'}],storyTime:'23:17'
+    })+CLOSE);
+    App.saveStory(false);
+    const saved=Storage.loadStory();
+    const display=BAOPhoneStoryCore.mergeDisplay(App.activeCharacter.phone_ui,saved.state.phoneUI);
+    return {saved:saved.state.phoneUI,display,prompt:App.buildSystemPrompt(),prose:Chat.messages.at(-1).content};
+  },{OPEN,CLOSE});
+  expect(result.saved.threads[0].messages[0].senderId).toBe('xia');
+  expect(result.display.notes[0].text).toBe('週六見面');
+  expect(result.display.photos[0].id).toBe('rain');
+  expect(result.display.storyTime).toBe('23:17');
+  expect(result.prompt).toContain('"id":"group"');
+  expect(result.prose).toBe('手機亮起。');
+});
