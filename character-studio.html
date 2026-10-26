@@ -31,10 +31,14 @@
 <div class="studio-grid">
 <label>手機主人<input name="phone_userName" maxlength="80" placeholder="留白表示未指定"></label>
 <label>主要聯絡人<input name="phone_contactName" maxlength="80" placeholder="作者決定這支手機屬於誰"></label>
+<label>故事時間<input name="phone_storyTime" maxlength="30" placeholder="例：23:17；留白使用目前時間"></label>
+<label>故事日期<input name="phone_storyDate" maxlength="80" placeholder="例：大燁三年・冬月初九"></label>
+<label>日期格式<select name="phone_locale"><option value="zh-TW">繁體中文</option><option value="ko-KR">韓文</option><option value="ja-JP">日文</option><option value="en-US">英文</option></select></label>
 <label>X 帳號<input name="phone_twitterHandle" maxlength="80" placeholder="例：@secret"></label>
 </div>
 <label>手機資料（JSON）<textarea name="phone_ui_json" rows="9" spellcheck="false" placeholder='{"userName":"","contactName":"","chat":[],"tweets":[]}'></textarea></label>
-<p class="note">可填 wallpaper、weather、events、calls、chat、tweets、instagram、spotify。聊天室送出的文字會交給夜灣原有故事流程處理。外部影片或音訊需要提供可直接存取的 HTTPS 檔案。</p>
+<p class="note">可填 wallpaper、weather、events、calls、chat、tweets、instagram、spotify，以及 contacts（聯絡人）、threads（獨立聊天室與群聊）、photos（相簿）、notes（備忘錄）。apps 可指定桌面要顯示的 App；未填或空陣列會顯示所有支援的 App。聊天室送出的文字會交給夜灣原有故事流程處理。外部影片或音訊需要提供可直接存取的 HTTPS 檔案。</p>
+<details><summary>多人聊天與記事格式</summary><p class="note">每位聯絡人、聊天室、照片與筆記需要固定 id，方便故事持續更新。participants 填聯絡人 id；messages 的 senderId 表示發話者。照片 src 填可存取的圖片網址，筆記 text 填內容；它們都只呈現手機主人可看見的資料。</p><pre>{"contacts":[{"id":"friend","name":"好友"}],"threads":[{"id":"friends","name":"朋友群","participants":["friend"],"messages":[{"from":"them","senderId":"friend","text":"晚點見。"}]}],"photos":[],"notes":[{"id":"memo","title":"待辦","text":"下班買牛奶。"}],"apps":["kakao","photos","notes"]}</pre></details>
 </section>
 
 <label>建議文風（逗號或換行分隔，選填）<textarea name="recommended_styles" rows="2" placeholder="例：電影感, 自然口語"></textarea><small>保存為作品的文風建議，不會自動開啟文風包，也不會替玩家選擇演繹授權。</small></label>
@@ -118,7 +122,7 @@
 </form><section id="studio-preview" class="studio-preview hidden" aria-label="角色卡預覽"><h3>本機預覽（不會呼叫 AI）</h3><img id="studio-preview-image" alt="角色圖片預覽" src="assets/bao-bun.svg"><h4 id="studio-preview-name"></h4><p id="studio-preview-description"></p><div class="studio-preview-label">初始訊息</div><p id="studio-preview-greeting"></p><div class="studio-preview-label">核心設定摘要</div><p id="studio-preview-prompt"></p></section>
 </section></div>
 </main><footer><b>夜灣 YoruBay</b><span>本機製作 · 自主備份 · 選擇是否分享</span></footer></div>
-<script src="js/phone-ui-core.js?v=1"></script>
+<script src="js/phone-ui-core.js?v=3"></script>
 <script src="js/avatar-chat-core.js?v=1"></script>
 <script src="js/portrait-input.js?v=1"></script>
 <script src="js/character.js?v=6"></script>
@@ -132,7 +136,7 @@
 <script src="js/character-studio-flow-core.js"></script>
 <script src="js/character-studio-lifecycle-core.js"></script>
 <script src="js/character-studio-actions-core.js"></script>
-<script src="js/character-studio.js?v=2"></script>
+<script src="js/character-studio.js?v=3"></script>
 <script src="js/character-studio-flow.js?v=3"></script>
 <script src="js/npc-personality-helper-core.js?v=1"></script>
 <script src="js/npc-personality-helper.js?v=1"></script>

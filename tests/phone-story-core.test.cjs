@@ -68,3 +68,24 @@ test('update instructions are fixed and do not require extra model calls', () =>
   assert.ok(Core.PROMPT.includes(Core.OPEN));
   assert.ok(Core.PROMPT.includes(Core.CLOSE));
 });
+
+test('thread updates keep recipients and authorship separate, upsert documents and persist safely', () => {
+  const base={contacts:[{id:'a',name:'小夏'}],threads:[{id:'group',name:'朋友群',participants:['a'],messages:[{senderId:'a',text:'開場'}]}],
+    notes:[{id:'memo',title:'待辦',text:'舊筆記'}]};
+  const state={};
+  const patch=Core.normalizePatch({threads:[{id:'group',messages:[{senderId:'a',text:'新訊息'}]}],
+    notes:[{id:'memo',title:'待辦',text:'新筆記'}],photos:[{id:'rain',src:'https://example.com/rain.jpg',caption:'收到的照片'}],storyTime:'23:17'});
+  assert.equal(Core.apply(state,patch,'reply-1'),true);
+  assert.equal(Core.apply(state,patch,'reply-1'),false);
+  const loaded=JSON.parse(JSON.stringify(state));
+  const display=Core.mergeDisplay(base,loaded.phoneUI);
+  assert.equal(display.threads[0].name,'朋友群');
+  assert.deepEqual(display.threads[0].participants,['a']);
+  assert.deepEqual(display.threads[0].messages.map(x=>x.text),['開場','新訊息']);
+  assert.equal(display.chat.length,0);
+  assert.equal(display.notes.length,1);
+  assert.equal(display.notes[0].text,'新筆記');
+  assert.equal(display.photos[0].caption,'收到的照片');
+  assert.equal(display.storyTime,'23:17');
+  assert.equal(Core.apply(state,{enabled:false,threads:[{id:'x'}]},'bad'),false);
+});

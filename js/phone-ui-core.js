@@ -8,18 +8,39 @@
   const obj = value => !!value && typeof value === 'object' && !Array.isArray(value);
   const txt = (value, max = 300) => String(value ?? '').slice(0, max);
   const arr = (value, max = 30) => Array.isArray(value) ? value.slice(0, max) : [];
-  const allowedApps = ['phone', 'kakao', 'x', 'instagram', 'spotify'];
+  const allowedApps = ['phone', 'kakao', 'x', 'instagram', 'spotify', 'photos', 'notes'];
   // No active content, executable URLs, or arbitrary remote HTTP media.
   function media(value) {
-    const url = txt(value, 2048).trim();
-    if (/^https:\/\/[^\s<>"']+$/i.test(url)) return url;
+    const url = String(value ?? '').trim();
+    if (url.length > 350000) return '';
+    if (url.length <= 2048 && /^https:\/\/[^\s<>"']+$/i.test(url)) return url;
     if (/^data:image\/(?:png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/i.test(url) && url.length <= 350000) return url;
-    if (/^(?:(?:assets|media|uploads)\/)?[a-zA-Z0-9_./-]+\.(?:png|jpe?g|webp|gif|mp3|m4a|ogg|wav|mp4|webm)$/i.test(url) && !url.split('/').includes('..')) return url;
+    if (url.length <= 2048 && /^(?:(?:assets|media|uploads)\/)?[a-zA-Z0-9_./-]+\.(?:png|jpe?g|webp|gif|mp3|m4a|ogg|wav|mp4|webm)$/i.test(url) && !url.split('/').includes('..')) return url;
     return '';
+  }
+  const id = value => txt(value, 80).trim();
+  const unique = list => list.filter((item, index) => item.id && list.findIndex(other => other.id === item.id) === index);
+  const messages = value => arr(value, 150).filter(obj).map(item => ({
+    from: ['me', '我', '나'].includes(item.from) ? 'me' : 'them',
+    time: txt(item.time, 30), text: txt(item.text, 1600),
+    senderId: id(item.senderId), senderName: txt(item.senderName, 80)
+  }));
+  // IDs are compared as values, never used as object properties or HTML.
+  function mergeRecords(base, updates, max, thread = false) {
+    const result = arr(base, max).map(item => ({...item}));
+    for (const item of arr(updates, max)) {
+      const index = result.findIndex(old => old.id === item.id);
+      if (index < 0) result.push(item);
+      else result[index] = {...result[index], ...item,
+        ...(thread ? {messages: [...(result[index].messages || []), ...(item.messages || [])].slice(-150)} : {})};
+    }
+    return result.slice(-max);
   }
   const defaultConfig = () => ({
     enabled: true, wallpaper: '', userName: '', contactName: '', twitterHandle: '',
     weather: { place: '', temp: '', desc: '', high: '', low: '' },
+    locale: 'zh-TW', storyTime: '', storyDate: '', apps: [...allowedApps],
+    contacts: [], threads: [], photos: [], notes: [],
     events: [], calls: [], chat: [], tweets: [],
     instagram: { callerName: '', avatar: '', video: '', selfVideo: '', messages: [] },
     spotify: { cover: '', playlistName: '', creator: '', tracks: [] }
@@ -31,6 +52,22 @@
     const sp = obj(value.spotify) ? value.spotify : {};
     return {
       enabled: true,
+      locale: ['zh-TW', 'ko-KR', 'ja-JP', 'en-US'].includes(value.locale) ? value.locale : 'zh-TW',
+      storyTime: txt(value.storyTime, 30), storyDate: txt(value.storyDate, 80),
+      contacts: unique(arr(value.contacts, 30).filter(obj).map(item => ({
+        id: id(item.id), name: txt(item.name, 80), avatar: media(item.avatar)
+      }))),
+      threads: unique(arr(value.threads, 30).filter(obj).map(item => ({
+        id: id(item.id), name: txt(item.name, 80),
+        participants: [...new Set(arr(item.participants, 30).map(id).filter(Boolean))],
+        messages: messages(item.messages)
+      }))),
+      photos: unique(arr(value.photos, 80).filter(obj).map(item => ({
+        id: id(item.id), src: media(item.src), title: txt(item.title, 120), caption: txt(item.caption, 1600)
+      })).filter(item => item.src)),
+      notes: unique(arr(value.notes, 80).filter(obj).map(item => ({
+        id: id(item.id), title: txt(item.title, 120), text: txt(item.text, 6000)
+      }))),
       wallpaper: media(value.wallpaper),
       userName: txt(value.userName, 80),
       contactName: txt(value.contactName, 80),
@@ -44,10 +81,7 @@
           time: txt(item.time, 32), count: txt(item.count, 10)
         }))
       })),
-      chat: arr(value.chat, 150).filter(obj).map(item => ({
-        from: item.from === 'me' || item.from === '我' || item.from === '나' ? 'me' : 'them',
-        time: txt(item.time, 30), text: txt(item.text, 1600)
-      })),
+      chat: messages(value.chat),
       tweets: arr(value.tweets, 80).map(item => typeof item === 'string'
         ? { text: txt(item, 2000), date: '', likes: '', replies: '', reposts: '' }
         : obj(item) ? { text: txt(item.text, 2000), date: txt(item.date, 40),
@@ -70,8 +104,10 @@
           duration: Math.max(1, Math.min(36000, Number(item.duration) || 180))
         }))
       },
-      apps: arr(value.apps, 12).map(item => txt(item, 30)).filter(item => allowedApps.includes(item))
+      // Earlier studio exports wrote apps:[] even when no selection was made.
+      apps: Array.isArray(value.apps) && value.apps.some(item => allowedApps.includes(item))
+        ? [...new Set(arr(value.apps, 12).map(item => txt(item, 30)).filter(item => allowedApps.includes(item)))] : [...allowedApps]
     };
   }
-  return Object.freeze({ normalize, defaultConfig, media, allowedApps });
+  return Object.freeze({ normalize, defaultConfig, media, allowedApps, mergeRecords });
 });

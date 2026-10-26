@@ -58,3 +58,33 @@ test('entry points load the core before character and runtime scripts', () => {
   assert.match(editor,/phone_ui: readPhoneUI\(\)/);
   assert.match(editor,/presentation: \{[^\n]+phone_ui:/);
 });
+
+test('independent conversations and documents survive normalization and player overrides', () => {
+  const seed={contacts:[{id:'a',name:'小夏'},{id:'a',name:'duplicate'}],
+    threads:[{id:'group',participants:['a'],messages:[{senderId:'a',text:'群聊'}]}],
+    photos:[{id:'photo',src:'assets/rain.jpg',caption:'雨夜'},{id:'bad',src:'javascript:alert(1)'}],
+    notes:[{id:'memo',title:'待辦',text:'<script>literal</script>'}],apps:['notes','photos','unknown','notes'],
+    storyTime:'23:17',storyDate:'大燁三年',locale:'ja-JP'};
+  const config=Core.normalize(seed);
+  assert.equal(config.contacts.length,1);
+  assert.equal(config.threads[0].messages[0].senderId,'a');
+  assert.equal(config.photos.length,1);
+  assert.equal(config.notes[0].text,'<script>literal</script>');
+  assert.deepEqual(config.apps,['notes','photos']);
+  assert.deepEqual(Core.normalize({apps:[]}).apps,Core.allowedApps);
+  assert.ok(Core.normalize({}).apps.includes('photos'));
+  assert.deepEqual(Core.normalize(config),config);
+  const player=require('../js/phone-player-core.js');
+  const state={phoneSurface:{version:1,enabled:true,data:seed}};
+  const resolved=player.resolve({chat:[{text:'原作'}]},state);
+  assert.equal(resolved.chat[0].text,'原作');
+  assert.equal(resolved.threads[0].id,'group');
+  assert.equal(resolved.notes[0].title,'待辦');
+  assert.equal(resolved.storyTime,'23:17');
+});
+
+test('photo data URLs are preserved within the media limit without being cut mid-image',()=>{
+  const src='data:image/png;base64,'+'A'.repeat(3000);
+  assert.equal(Core.normalize({photos:[{id:'p',src}]}).photos[0].src,src);
+  assert.equal(Core.media('https://example.com/'+'x'.repeat(3000)), '');
+});

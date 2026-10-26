@@ -6,7 +6,9 @@
   let root = null, screen = null, config = null, page = 'lock', subpage = '';
   let clock = null, callTimer = null, callStart = 0, messageTimers = [], messageFade = null;
   let audio = null, trackIndex = -1, playing = false, position = 0, expanded = false, shuffle = false, loop = false;
-  let prevFocus = null, selfDragging = null;
+  let prevFocus = null, selfDragging = null, activeThread = '';
+  const selectedThread = () => config.threads.find(item => item.id === activeThread);
+  const threadName = thread => thread?.name || thread?.participants.map(id => config.contacts.find(c => c.id === id)?.name || id).join('、') || displayName();
   const $ = (tag, cls = '', value) => {
     const node = document.createElement(tag);
     if (cls) node.className = cls;
@@ -23,7 +25,7 @@
     if (!url) return $('div', cls + ' bp-image-fallback', fallback);
     const el = $('img', cls); el.src = url; el.alt = ''; el.loading = 'lazy'; el.addEventListener('error', () => el.replaceWith($('div', cls + ' bp-image-fallback', fallback)), {once:true}); return el;
   };
-  const displayName = () => config.contactName || config.instagram.callerName || '친구';
+  const displayName = () => config.contactName || config.instagram.callerName || '聯絡人';
   const phoneSource = () => {
     const state = window.GameState?.current;
     if (!state || !App.activeCharacter) return null;
@@ -47,7 +49,7 @@
     if (existing) return;
     const main = document.querySelector('#chat-view .chat-main');
     if (!main) return;
-    const launch = button('📱 휴대폰 · 手機介面', 'launch', 'bao-phone-launch secondary');
+    const launch = button('📱 手機介面', 'launch', 'bao-phone-launch secondary');
     launch.id = 'bao-phone-launch'; launch.setAttribute('aria-label', '開啟作品手機介面');
     launch.addEventListener('click', open);
     const host = main.querySelector('.chat-topline') || main;
@@ -75,12 +77,13 @@
     if (!config) return;
     close(); config = phoneSource();
     if (!config) return;
-    prevFocus = document.activeElement; page = 'lock'; subpage = '';
+    prevFocus = document.activeElement; page = 'lock'; subpage = ''; activeThread = '';
     const overlay = $('div', 'bao-phone-overlay');
     overlay.setAttribute('role', 'dialog'); overlay.setAttribute('aria-modal', 'true'); overlay.setAttribute('aria-label', '作品手機介面');
     const frame = $('div', 'bp-frame');
     screen = $('div', 'bp-screen');
-    add(frame, screen); add(overlay, frame); document.body.append(overlay); root = overlay;
+    const dismiss=button('×','close','bp-close');dismiss.setAttribute('aria-label','關閉手機');
+    add(frame, screen, dismiss); add(overlay, frame); document.body.append(overlay); root = overlay;
     overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
     overlay.addEventListener('click', onAction);
     overlay.addEventListener('submit', onSubmit);
@@ -96,8 +99,8 @@
   function updateClock() {
     if (!root) return;
     const now = new Date();
-    const time = now.toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit',hour12:false});
-    const date = new Intl.DateTimeFormat('ko-KR', {month:'long',day:'numeric',weekday:'long'}).format(now);
+    const time = config.storyTime || now.toLocaleTimeString(config.locale, {hour:'2-digit',minute:'2-digit',hour12:false});
+    const date = config.storyDate || new Intl.DateTimeFormat(config.locale, {month:'long',day:'numeric',weekday:'long'}).format(now);
     root.querySelectorAll('[data-phone-clock]').forEach(node => { node.textContent = time; });
     root.querySelectorAll('[data-phone-date]').forEach(node => { node.textContent = date; });
   }
@@ -110,7 +113,7 @@
     const time = $('span', '', ''); time.dataset.phoneClock = '';
     add(bar, time, $('span', '', '▂▄▆  ▰')); return bar;
   }
-  function handle() { return button('', 'home', 'bp-home-handle'); }
+  function handle() { const node=button('', 'home', 'bp-home-handle');node.setAttribute('aria-label','返回手機桌面');return node; }
   function render() {
     if (!screen || !config) return;
     screen.replaceChildren();
@@ -122,6 +125,7 @@
     else renderBasicApp();
     if (page !== 'instagram' || subpage !== 'video') add(screen, handle());
     updateClock();
+    if (!clock) clock=window.setInterval(updateClock,1000);
   }
   function renderLock() {
     wallpaper(screen); add(screen, statusbar());
@@ -129,38 +133,37 @@
     const stamp = $('div', 'bp-lock-clock'); stamp.dataset.phoneClock = '';
     const date = $('div', 'bp-lock-date'); date.dataset.phoneDate = '';
     add(stack, date, stamp, $('div', 'bp-lock-label', config.userName));
-    add(screen, stack, $('div', 'bp-lock-hint', '위로 쓸어 올려 잠금 해제'));
+    add(screen, stack, $('div', 'bp-lock-hint', '向上滑動解鎖'));
   }
   function renderHome() {
     wallpaper(screen); add(screen, statusbar());
     const widgets = $('div', 'bp-widgets');
     const weather = $('section', 'bp-widget');
-    add(weather, $('div','bp-widget-label', '날씨 · ' + (config.weather.place || '—')),
+    add(weather, $('div','bp-widget-label', '天氣 · ' + (config.weather.place || '—')),
       $('div','bp-temp',config.weather.temp || '—'),
       $('div','',config.weather.desc || ' '),
-      $('div','bp-muted','최고 ' + (config.weather.high || '—') + '  최저 ' + (config.weather.low || '—')));
+      $('div','bp-muted','最高 ' + (config.weather.high || '—') + '  最低 ' + (config.weather.low || '—')));
     const agenda = $('section', 'bp-widget');
-    add(agenda, $('div','bp-widget-label','오늘 일정'));
-    (config.events.length ? config.events.slice(0,2) : [{time:'—',title:'일정 없음'}]).forEach(ev =>
+    add(agenda, $('div','bp-widget-label','行程'));
+    (config.events.length ? config.events.slice(0,2) : [{time:'—',title:'沒有行程'}]).forEach(ev =>
       add(agenda,$('div','bp-agenda', (ev.time || '') + '  ' + (ev.title || ''))));
     add(widgets,weather,agenda); add(screen,widgets);
     const grid = $('div', 'bp-apps');
     const apps = [
-      ['phone','☎','전화'],['kakao','●','KakaoTalk'],['x','𝕏','X'],['instagram','◎','Instagram'],
-      ['spotify','♫','Spotify'],['photos','✿','사진'],['notes','▤','메모'],['maps','⌖','지도'],
-      ['youtube','▶','YouTube'],['settings','⚙','설정'],['camera','◉','카메라'],['messages','▤','메시지']
-    ];
+      ['phone','☎','電話'],['kakao','●','KakaoTalk'],['x','𝕏','X'],['instagram','◎','Instagram'],
+      ['spotify','♫','Spotify'],['photos','✿','相簿'],['notes','▤','備忘錄']
+    ].filter(([id]) => config.apps.includes(id));
     apps.forEach(([id,glyph,label]) => {
       const wrap = $('div','bp-app-wrap');
       const icon = button(glyph,'app:'+id,'bp-icon bp-icon-'+id);
-      if (!['phone','kakao','x','instagram','spotify'].includes(id)) icon.disabled = true;
+      icon.setAttribute('aria-label',label);
       add(wrap, icon, $('span','bp-app-name',label)); grid.append(wrap);
     });
     add(screen,grid);
     const dock = $('div','bp-dock');
-    [['phone','☎'],['kakao','●'],['messages','▤'],['camera','◉']].forEach(([id,glyph]) => {
+    apps.slice(0,4).map(([id,glyph])=>[id,glyph]).forEach(([id,glyph]) => {
       const b = button(glyph,'app:'+id,'bp-icon bp-icon-'+id);
-      if (!['phone','kakao'].includes(id)) b.disabled = true;
+      b.setAttribute('aria-label',apps.find(app=>app[0]===id)[2]);
       dock.append(b);
     });
     add(screen,dock);
@@ -175,60 +178,93 @@
     add(screen,statusbar(dark));
     const area = $('div','bp-app-page '+(dark?'bp-dark-app':''));
     if (page === 'phone') {
-      add(area,appHeader('최근 통화'),$('h1','','최근 통화'));
+      add(area,appHeader('最近通話'),$('h1','','最近通話'));
       config.calls.forEach(group => {
         add(area,$('h4','bp-group-heading',group.group));
         group.items.forEach(call => {
           const row = $('div','bp-list-row');
           const missed = /未接|miss|부재중/.test(call.type);
           add(row,$('span','bp-call-dot'+(missed?' bp-red':''),missed?'●':'↗'),
-            $('div','bp-flex',call.name || displayName() || '알 수 없음'),
+            $('div','bp-flex',call.name || displayName() || '未知'),
             $('small','bp-muted',(call.count ? '('+call.count+') ' : '') + call.time));
           area.append(row);
         });
       });
       const tabs = $('div','bp-phone-tabs');
-      ['즐겨찾기','최근 통화','연락처','키패드'].forEach(x => tabs.append($('span','',x)));
+      ['常用聯絡人','最近通話','聯絡人','撥號鍵盤'].forEach(x => tabs.append($('span','',x)));
       area.append(tabs);
     } else if (page === 'kakao') {
       const chat = subpage === 'chat', profile = subpage === 'profile';
       if (chat) {
-        add(area,appHeader(displayName()),$('div','bp-thread'));
+        add(area,appHeader(threadName(selectedThread())),$('div','bp-thread'));
+        area.classList.add('bp-chat-page');
         const thread = area.querySelector('.bp-thread');
-        config.chat.forEach(item => {
+        (selectedThread()?.messages || config.chat).forEach(item => {
           const row = $('div','bp-chat-row '+(item.from === 'me'?'bp-mine':''));
+          const sender = item.senderName || config.contacts.find(c=>c.id===item.senderId)?.name || item.senderId;
+          if (item.from !== 'me' && sender) row.append($('small','bp-sender',sender));
           add(row,$('span','bp-bubble',item.text),$('small','bp-muted',item.time || ''));
           thread.append(row);
         });
         const form = $('form','bp-composer'); form.dataset.phoneForm = 'message';
-        const input = $('input'); input.name='text'; input.maxLength=1600; input.placeholder='輸入要傳給角色的訊息…'; input.setAttribute('aria-label','手機訊息'); input.required=true;
+        const input = $('input'); input.name='text'; input.maxLength=1600; input.placeholder='傳給 '+threadName(selectedThread())+'…'; input.setAttribute('aria-label','手機訊息'); input.required=true;
         const send = $('button','', '傳送至故事'); send.type='submit';
         add(form,input,send); area.append(form);
         window.setTimeout(()=>{ if (thread.isConnected) thread.scrollTop = thread.scrollHeight; },0);
       } else if (profile) {
-        add(area,appHeader('프로필'),image(config.instagram.avatar,'bp-profile-avatar',config.userName.slice(0,1)||'●'),
-          $('h2','bp-centered',config.userName || '나'));
+        add(area,appHeader('個人檔案'),image(config.instagram.avatar,'bp-profile-avatar',config.userName.slice(0,1)||'●'),
+          $('h2','bp-centered',config.userName || '我'));
       } else {
-        add(area,appHeader('친구'),$('h1','','친구'));
+        add(area,appHeader('聯絡人'),$('h1','','聯絡人'));
         const mine = button('', 'kakao-profile','bp-friend');
-        add(mine,image(config.instagram.avatar,'bp-friend-avatar',config.userName.slice(0,1)||'나'),
-          $('span','',config.userName || '나')); area.append(mine);
-        add(area,$('h4','bp-group-heading','친구'));
-        const friend = button('', 'kakao-chat','bp-friend');
-        add(friend,image(config.instagram.avatar,'bp-friend-avatar',displayName().slice(0,1)||'●'),
-          $('span','',displayName())); area.append(friend);
+        add(mine,image(config.instagram.avatar,'bp-friend-avatar',config.userName.slice(0,1)||'我'),
+          $('span','',config.userName || '我')); area.append(mine);
+        add(area,$('h4','bp-group-heading','聯絡人'));
+        if (config.chat.length || config.contactName || !config.threads.length) {
+          const friend = button('', 'kakao-chat','bp-friend');
+          add(friend,image(config.instagram.avatar,'bp-friend-avatar',displayName().slice(0,1)||'●'),
+            $('span','',displayName())); area.append(friend);
+        }
+        config.threads.forEach((thread,index) => {
+          const friend=button('', 'thread:'+index,'bp-friend');
+          add(friend,$('span','bp-friend-avatar bp-image-fallback',thread.participants.length>2?'群':threadName(thread).slice(0,1)),
+            add($('span','bp-track-meta'),$('strong','',threadName(thread)),
+              $('small','bp-muted',thread.messages.at(-1)?.text || '尚無訊息')));
+          area.append(friend);
+        });
+      }
+    } else if (page === 'photos' || page === 'notes') {
+      const photos = page === 'photos';
+      const items = photos ? config.photos : config.notes;
+      add(area,appHeader(photos ? '相簿' : '備忘錄'));
+      const selected = subpage ? items.find(item=>item.id===subpage) : null;
+      if (selected) {
+        add(area,$('h1','',selected.title || (photos?'照片':'筆記')));
+        if (photos) add(area,image(selected.src,'bp-photo-full','照片'),$('p','bp-document',selected.caption));
+        else add(area,$('p','bp-document',selected.text));
+      } else {
+        const list=$('div',photos?'bp-photo-grid':'bp-notes-list');
+        if (!items.length) list.append($('p','bp-muted',photos?'尚無照片':'尚無筆記'));
+        items.forEach((item,index)=>{
+          const row=button('', 'document:'+index,photos?'bp-photo-item':'bp-note-item');
+          if (photos) row.append(image(item.src,'bp-photo-thumb','照片'));
+          add(row,$('strong','',item.title || (photos?'照片':'筆記')));
+          if (!photos) row.append($('small','bp-muted',item.text.slice(0,100)));
+          list.append(row);
+        });
+        area.append(list);
       }
     } else if (page === 'x') {
-      add(area,appHeader('프로필',true));
+      add(area,appHeader('個人檔案',true));
       const banner=$('div','bp-x-banner');
       const profile=$('div','bp-x-profile');
       add(profile,image(config.instagram.avatar,'bp-profile-avatar',config.userName.slice(0,1)||'X'),
-        $('h2','', (config.userName || '프로필') + ' 🔒'),
+        $('h2','', (config.userName || '個人檔案') + ' 🔒'),
         $('div','bp-muted',config.twitterHandle || '@user'));
       add(area,banner,profile);
       config.tweets.forEach(tweet => {
         const row = $('article','bp-tweet');
-        add(row,$('strong','',config.userName || '사용자'),
+        add(row,$('strong','',config.userName || '使用者'),
           $('small','bp-muted','  '+(config.twitterHandle || '@user')+' · '+(tweet.date || '')),
           $('p','',tweet.text),
           $('div','bp-muted','♡ '+(tweet.likes || '0')+'    ↩ '+(tweet.replies || '0')+'    ↻ '+(tweet.reposts || '0')));
@@ -243,7 +279,7 @@
     if (subpage !== 'video') {
       add(area,image(config.instagram.avatar,'bp-insta-avatar',config.instagram.callerName.slice(0,1)||'●'),
         $('h2','',config.instagram.callerName || displayName()),
-        $('p','','Instagram 영상 통화'),$('p','bp-call-ringing','전화 오는 중…'));
+        $('p','','Instagram 視訊通話'),$('p','bp-call-ringing','來電中…'));
       const actions=$('div','bp-call-actions');
       add(actions,button('✕','hangup','bp-round bp-danger'),button('✓','accept','bp-round bp-accept'));
       area.append(actions);
@@ -260,11 +296,11 @@
       const timer=$('span','', '00:00'); timer.dataset.phoneDuration='';
       add(name,$('strong','',config.instagram.callerName || displayName()),timer);
       area.append(name);
-      const self=$('div','bp-self-video'); self.setAttribute('aria-label','내 화면');
+      const self=$('div','bp-self-video'); self.setAttribute('aria-label','我的畫面');
       if(config.instagram.selfVideo) {
         const video=$('video');video.src=config.instagram.selfVideo;video.muted=true;video.loop=true;video.autoplay=true;video.playsInline=true;
         self.append(video);void video.play().catch(()=>{});
-      } else self.textContent='나';
+      } else self.textContent='我';
       self.addEventListener('pointerdown',startDrag);
       area.append(self);
       const float=$('div','bp-video-messages');float.setAttribute('aria-live','polite');
@@ -290,7 +326,7 @@
   function pushVideoMessage(text,from) {
     const host=root?.querySelector('.bp-video-messages');
     if (!host) return;
-    const el=$('p','bp-video-msg', (from==='me'?'나: ':config.instagram.callerName+': ')+text);
+    const el=$('p','bp-video-msg', (from==='me'?'我: ':config.instagram.callerName+': ')+text);
     host.append(el);
     while(host.childElementCount>3) host.firstElementChild.remove();
     messageTimers.push(window.setTimeout(()=>el.remove(),6500));
@@ -315,7 +351,7 @@
     add(screen,statusbar(true));
     const area=$('div','bp-spotify');
     if (expanded && trackIndex>=0) {
-      add(area,appHeader('지금 재생 중'),image(currentTrack().cover || config.spotify.cover,'bp-now-cover','♫'));
+      add(area,appHeader('正在播放'),image(currentTrack().cover || config.spotify.cover,'bp-now-cover','♫'));
       add(area,$('h2','',currentTrack().title),$('p','bp-muted',currentTrack().artist));
       const seek=$('input','bp-seek');seek.type='range';seek.min='0';seek.max=String(currentTrack().duration);seek.value=String(Math.floor(position));seek.dataset.phoneSeek='';
       area.append(seek);
@@ -327,8 +363,8 @@
       area.append(controls);
     } else {
       const cover=image(config.spotify.cover,'bp-playlist-cover','♫');
-      add(area,cover,$('h1','',config.spotify.playlistName || '내 플레이리스트'),
-        $('p','bp-muted',(config.spotify.creator||config.userName||'나')+' · '+config.spotify.tracks.length+'곡'));
+      add(area,cover,$('h1','',config.spotify.playlistName || '我的播放清單'),
+        $('p','bp-muted',(config.spotify.creator||config.userName||'我')+' · '+config.spotify.tracks.length+' 首'));
       const controls=$('div','bp-spotify-tools');
       add(controls,$('span','', '↓   ↗   ···'),button('▶','play-first','bp-spotify-play'));area.append(controls);
       config.spotify.tracks.forEach((track,i) => {
@@ -398,8 +434,9 @@
     const composer=document.getElementById('user-input');
     if (!composer) return;
     if (composer.value.trim() && !window.confirm('目前故事輸入框有尚未送出的內容，要用手機訊息取代嗎？')) return;
-    const recipient=medium==='Instagram' ? (config.instagram.callerName||displayName()) : displayName();
-    composer.value='【'+medium+'｜對 '+recipient+' 發送訊息】'+text;
+    const recipient=medium.startsWith('Instagram') ? (config.instagram.callerName||displayName()) : threadName(selectedThread());
+    const threadContext=medium==='KakaoTalk' && selectedThread() ? '｜聊天室 ID：'+selectedThread().id : '';
+    composer.value='【'+medium+'｜對 '+recipient+' 發送訊息'+threadContext+'】'+text;
     close();
     void App.sendMessage();
   }
@@ -420,16 +457,24 @@
     if (action==='home')return enterHome();
     if (action==='back') {
       if(page==='spotify' && expanded){expanded=false;return render();}
-      if(page==='kakao' && subpage){subpage='';return render();}
+      if(['kakao','photos','notes'].includes(page) && subpage){subpage='';return render();}
       return enterHome();
     }
     if (action.startsWith('app:')) {
       const next=action.slice(4);
-      if(!['phone','kakao','x','instagram','spotify'].includes(next))return;
+      if(!config.apps.includes(next))return;
       page=next;subpage='';render();return;
     }
     if (action==='kakao-profile'){subpage='profile';return render();}
-    if (action==='kakao-chat'){subpage='chat';return render();}
+    if (action==='kakao-chat'){activeThread='';subpage='chat';return render();}
+    if (action.startsWith('thread:')) {
+      const thread=config.threads[Number(action.slice(7))];
+      if(thread){activeThread=thread.id;subpage='chat';render();}return;
+    }
+    if (action.startsWith('document:') && ['photos','notes'].includes(page)) {
+      const item=config[page][Number(action.slice(9))];
+      if(item){subpage=item.id;render();}return;
+    }
     if (action==='hangup')return enterHome();
     if (action==='accept'){clearTimers(); subpage='video';return render();}
     if (action==='flip'){const self=root?.querySelector('.bp-self-video');if(self)self.classList.toggle('bp-self-flipped');return;}
@@ -468,7 +513,7 @@
     if (!updated) { close(); return; }
     config = updated;
     // Keep active media and focused messaging surfaces intact.
-    if (page === 'home' || page === 'lock' || page === 'phone' || page === 'x' ||
+    if ((page === 'photos' || page === 'notes') || page === 'home' || page === 'lock' || page === 'phone' || page === 'x' ||
         (page === 'kakao' && subpage !== 'chat')) render();
   };
   window.BAOPhoneUI=Object.freeze({open,close,refresh:makeLauncher,refreshFromState});
