@@ -102,7 +102,7 @@ test.describe('Player 2.0 shell', () => {
 
     await page.locator('#bao-surface-mode-toggle').click();
     await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'studio');
-    await expect(page.locator('#bao-surface-mode-toggle')).toHaveText('返回故事');
+    await expect(page.locator('#bao-surface-mode-toggle')).toHaveText('控制中心');
     await expect(page.locator('#chat-view .usage-bar')).toBeVisible();
   });
 
