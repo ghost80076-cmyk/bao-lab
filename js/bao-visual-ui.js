@@ -265,7 +265,7 @@
     syncStatusButtonContract();
     if (mode === 'studio') {
       closeStatus();
-      if (previousMode !== mode) setTimeout(() => {
+      if (previousMode !== mode && !desktop.matches) setTimeout(() => {
         if (mode !== 'studio' || !root.classList.contains('active')) return;
         if (window.matchMedia('(max-width:820px)').matches && window.BAOMobileReadingLayout) {
           window.BAOMobileReadingLayout.openTools();
@@ -351,9 +351,7 @@
       surface.type = 'button';
       surface.id = 'bao-surface-mode-toggle';
       surface.addEventListener('click', () => {
-        const reopen = mode === 'studio';
-        setMode('studio');
-        if (!reopen) return;
+        closeStatus();
         if (window.BAOStoryControlCenter?.open) window.BAOStoryControlCenter.open();
         else window.BAOChatToolNavigation?.openDrawer?.({ overview:true });
       });
@@ -424,6 +422,16 @@
     document.getElementById('bao-play-status-toggle')
       ?.setAttribute('aria-expanded', String(statusOpen));
     syncSurfaceNavigation();
+  });
+  root.addEventListener('bao:control-center-visibility', event => {
+    const open = Boolean(event.detail?.open);
+    if (open) {
+      if (mode !== 'studio') setMode('studio');
+      else syncSurfaceNavigation();
+      return;
+    }
+    if (mode === 'studio') setMode('play');
+    else syncSurfaceNavigation();
   });
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && statusOpen) closeStatus();
