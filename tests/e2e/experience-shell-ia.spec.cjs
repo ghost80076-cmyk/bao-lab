@@ -75,6 +75,10 @@ test('desktop exposes one Story / Stage / Control Center navigation without chan
   await expect(drawer).toBeVisible();
   await expect(drawer.locator('header h2')).toHaveText('控制中心');
   await expect(drawer.locator('[data-story-settings-hub]')).toBeVisible();
+  await drawer.getByRole('button', { name: '關閉故事總覽' }).click();
+  await expect(drawer).toHaveCount(0);
+  await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'play');
+  await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-experience-surface', 'story');
 
   const after = await page.evaluate(() => ({
     api: JSON.stringify(App.config.api),
@@ -112,5 +116,8 @@ test('mobile keeps Story as the base surface and routes Stage / Control Center o
   await expect(drawer.locator('header h2')).toHaveText('控制中心');
   await expect(drawer.getByRole('button', { name: '目前故事設定' })).toBeVisible();
   await expect(drawer.getByRole('button', { name: '舞臺資訊' })).toBeVisible();
+  await drawer.getByRole('button', { name: '關閉 ×' }).click();
+  await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'play');
+  await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-experience-surface', 'story');
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
 });
