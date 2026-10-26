@@ -288,3 +288,44 @@ test('model connection keeps optional discovery secondary and support clear of p
   expect(order.slice(0,3)).toEqual(['bao-builder-discovery-protocol','base-url','model-id']);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
 });
+
+
+test('Bao guide translates top-up and API choices without creating a second config path', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  await openBuilder(page);
+
+  const guide = page.locator('#bao-guided-setup');
+  await expect(guide).toBeVisible();
+  await expect(guide).toContainText('不用先懂 API');
+  await expect(guide.locator('[data-bao-guide="route-hosted"]')).toContainText('我只想儲值就玩');
+  await expect(guide.locator('[data-bao-guide="route-byok"]')).toContainText('我有 API Key');
+
+  await guide.locator('[data-bao-guide="route-hosted"]').click();
+  await expect(page.locator('#api-type')).toHaveValue('bao-credits');
+  await expect(guide).toContainText('最像一般儲值平台');
+  await expect(guide.locator('a[href="account.html"]')).toBeVisible();
+
+  await guide.locator('[data-bao-guide="route-byok"]').click();
+  await expect(guide).toContainText('Google Gemini');
+  await guide.locator('[data-bao-guide="provider-gemini"]').click();
+  await expect(page.locator('#api-type')).toHaveValue('gemini');
+  await expect(page.locator('#api-key')).toBeFocused();
+  const selected = await page.evaluate(() => ({
+    provider: document.getElementById('api-type').value,
+    model: document.getElementById('model-id').value,
+    baseUrl: document.getElementById('base-url').value
+  }));
+  expect(selected.provider).toBe('gemini');
+  expect(selected.model).toBeTruthy();
+  expect(selected.baseUrl).toBeTruthy();
+
+  await page.locator('#api-key').fill('guide-e2e-secret');
+  await expect(guide).toContainText('金鑰已經貼好了');
+  expect(await page.evaluate(() => JSON.stringify(Storage.buildStoryPayload?.('guide') || {}))).not.toContain('guide-e2e-secret');
+
+  await guide.locator('[data-bao-guide="dismiss"]').first().click();
+  await expect(guide).toBeHidden();
+  await expect(page.locator('#bao-guide-reopen')).toBeVisible();
+  await page.locator('#bao-guide-reopen').click();
+  await expect(guide).toBeVisible();
+});
