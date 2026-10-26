@@ -196,6 +196,12 @@
     watcher.observe(sidebar, { childList: true, subtree: true });
   };
 
+  const notifyControlCenter = open => {
+    document.getElementById('chat-view')?.dispatchEvent(new CustomEvent(
+      'bao:control-center-visibility',
+      { detail:{ open:Boolean(open) } }
+    ));
+  };
   const closeDrawer = () => {
     const backdrop = document.getElementById('bao-chat-tool-drawer');
     if (!backdrop) return;
@@ -203,6 +209,7 @@
     if (slots) move(slots, aside()?.querySelector('[data-chat-tool-body="story"]'));
     backdrop.remove();
     document.removeEventListener('keydown', drawerKeys);
+    notifyControlCenter(false);
   };
   const drawerKeys = event => { if (event.key === 'Escape') closeDrawer(); };
 
@@ -441,6 +448,7 @@
     };
     searchInput.addEventListener('input', filterTools);
     document.body.append(backdrop);
+    notifyControlCenter(true);
     document.addEventListener('keydown', drawerKeys);
     close.focus();
   };
