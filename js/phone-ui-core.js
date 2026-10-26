@@ -1,9 +1,10 @@
 /* Optional phone presentation data adapter. No model calls, storage or HTML execution. */
 (function(root, factory) {
-  const api = factory();
+  const api = factory(typeof module === 'object' && module.exports
+    ? require('./phone-interaction-core.js') : root?.BAOPhoneInteractionCore);
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.BAOPhoneUICore = api;
-})(typeof window !== 'undefined' ? window : null, function() {
+})(typeof window !== 'undefined' ? window : null, function(Interactions) {
   'use strict';
   const obj = value => !!value && typeof value === 'object' && !Array.isArray(value);
   const txt = (value, max = 300) => String(value ?? '').slice(0, max);
@@ -40,7 +41,7 @@
     enabled: true, wallpaper: '', userName: '', contactName: '', twitterHandle: '',
     weather: { place: '', temp: '', desc: '', high: '', low: '' },
     locale: 'zh-TW', storyTime: '', storyDate: '', apps: [...allowedApps],
-    contacts: [], threads: [], photos: [], notes: [],
+    contacts: [], threads: [], photos: [], notes: [], interactions:null,
     events: [], calls: [], chat: [], tweets: [],
     instagram: { callerName: '', avatar: '', video: '', selfVideo: '', messages: [] },
     spotify: { cover: '', playlistName: '', creator: '', tracks: [] }
@@ -52,6 +53,7 @@
     const sp = obj(value.spotify) ? value.spotify : {};
     return {
       enabled: true,
+      interactions: Interactions?.normalize(value.interactions,value) || null,
       locale: ['zh-TW', 'ko-KR', 'ja-JP', 'en-US'].includes(value.locale) ? value.locale : 'zh-TW',
       storyTime: txt(value.storyTime, 30), storyDate: txt(value.storyDate, 80),
       contacts: unique(arr(value.contacts, 30).filter(obj).map(item => ({

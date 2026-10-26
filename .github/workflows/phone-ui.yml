@@ -4,6 +4,9 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - 'js/phone-interaction-core.js'
+      - 'tests/phone-interaction-core.test.cjs'
+      - 'tests/e2e/phone-interactions.spec.cjs'
       - 'js/phone-ui*.js'
       - 'js/phone-story-*.js'
       - 'js/phone-player-*.js'
@@ -22,6 +25,9 @@ on:
   push:
     branches: [main]
     paths:
+      - 'js/phone-interaction-core.js'
+      - 'tests/phone-interaction-core.test.cjs'
+      - 'tests/e2e/phone-interactions.spec.cjs'
       - 'js/phone-ui*.js'
       - 'js/phone-story-*.js'
       - 'js/phone-player-*.js'
@@ -50,6 +56,7 @@ jobs:
         with:
           node-version: 22
       - run: |
+          node --check js/phone-interaction-core.js
           node --check js/phone-ui-core.js
           node --check js/phone-ui.js
           node --check js/phone-story-core.js
@@ -58,7 +65,7 @@ jobs:
           node --check js/phone-player-settings.js
           node --check js/character-studio.js
           node --check js/character.js
-          node --test tests/phone-ui.test.cjs tests/phone-story-core.test.cjs tests/phone-player-core.test.cjs
+          node --test tests/phone-interaction-core.test.cjs tests/phone-ui.test.cjs tests/phone-story-core.test.cjs tests/phone-player-core.test.cjs
   browser:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -72,4 +79,4 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx playwright test tests/e2e/phone-ui.spec.cjs tests/e2e/phone-story-sync.spec.cjs tests/e2e/phone-player-settings.spec.cjs --project=chromium
+      - run: npx playwright test tests/e2e/phone-interactions.spec.cjs tests/e2e/phone-ui.spec.cjs tests/e2e/phone-story-sync.spec.cjs tests/e2e/phone-player-settings.spec.cjs --project=chromium

@@ -25,7 +25,7 @@ function client(values=new Map()){
   c.window=c;vm.createContext(c);
   const load=name=>vm.runInContext(fs.readFileSync(`js/${name}.js`,'utf8')+(name==='api'?';window.API=API;':''),c,{filename:name});
   vm.runInContext(fs.readFileSync('js/storage.js','utf8').replace(/Storage\.init\(\);\s*$/,'')+';window.Storage=Storage;',c);
-  for(const name of ['api','player-settings','narrative-settings','prompt-cache','prompt-orchestrator','worldbook-library','actor-mode-core','actor-mode','phone-ui-core','phone-player-core','phone-story-core','phone-story-bridge'])load(name);
+  for(const name of ['api','player-settings','narrative-settings','prompt-cache','prompt-orchestrator','worldbook-library','actor-mode-core','actor-mode','phone-interaction-core','phone-ui-core','phone-player-core','phone-story-core','phone-story-bridge'])load(name);
   c.App.characters=[c.App.activeCharacter];
   return {c,values,requests};
 }
@@ -96,5 +96,18 @@ const prompt=c=>c.App.buildMessages(c.App.config);
     }
     browserCount++;
   }
+  // Puzzle codes are story data; API credentials still scrub normally during portable save/restore.
+  const puzzle=client();seed(puzzle.c);
+  puzzle.c.GameState.current.phoneSurface.data={notes:[{id:'safe',text:'puzzle'}],interactions:{version:1,locks:[{target:{app:'notes',id:'safe'},code:'0427'}],events:[]}};
+  const phone=puzzle.c.BAOPhonePlayerCore.resolve(null,puzzle.c.GameState.current);
+  puzzle.c.GameState.current.phoneInteractions=puzzle.c.BAOPhoneInteractionCore.open(phone,null,{app:'notes',id:'safe'},'0427').progress;
+  const saved=puzzle.c.Storage.buildStoryPayload('puzzle');
+  assert.doesNotMatch(JSON.stringify(saved),/NEVER_EXPORT_KEY/);
+  assert.equal(saved.state.phoneSurface.data.interactions.locks[0].code,'0427');
+  const loaded=client();const imported=await loaded.c.Storage.importFile({text:async()=>JSON.stringify(saved)});
+  assert.equal(loaded.c.Storage.restoreStory(imported),true);
+  const restored=loaded.c.BAOPhonePlayerCore.resolve(null,loaded.c.GameState.current);
+  assert.equal(loaded.c.BAOPhoneInteractionCore.access(restored,loaded.c.GameState.current.phoneInteractions,{app:'notes',id:'safe'}).locked,false);
+  assert.equal(loaded.requests.length,0);
   console.log(`PASS ${count} narrative + ${browserCount} browser choices × import/switch/runtime reload × 3 protocol sends, combined controls, legacy authorization and no extra calls`);
 })().catch(error=>{console.error(error);process.exitCode=1;});

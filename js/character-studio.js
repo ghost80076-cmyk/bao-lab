@@ -208,6 +208,8 @@
     try { parsed = JSON.parse(field('phone_ui_json').value || '{}'); }
     catch (_) { throw new Error('手機介面 JSON 格式錯誤，請檢查逗號與引號。'); }
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('手機介面設定必須是 JSON 物件。');
+    const errors=window.BAOPhoneInteractionCore?.validate(parsed) || [];
+    if(errors.length) throw new Error('手機機關：'+errors.join('；'));
     const normalized = phoneCore?.normalize({ ...parsed, enabled: true });
     if (!normalized) throw new Error('手機介面設定無效。');
     return normalized;

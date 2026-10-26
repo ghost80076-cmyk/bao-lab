@@ -37,7 +37,7 @@ c.App = { config: { api: {}, narrative: {}, memory: {} }, activeCharacter: { id:
 };
 vm.createContext(c);
 const load = file => vm.runInContext(fs.readFileSync(`js/${file}.js`, 'utf8') + (file === 'api' ? ';window.API=API;' : ''), c, { filename: file });
-for (const f of ['api', 'narrative-settings', 'prompt-cache', 'prompt-orchestrator', 'episodic-memory-core', 'episodic-memory', 'worldbook-library', 'actor-mode-core', 'actor-mode', 'phone-ui-core', 'phone-player-core', 'phone-story-core', 'phone-story-bridge', 'story-revision-state']) load(f);
+for (const f of ['api', 'narrative-settings', 'prompt-cache', 'prompt-orchestrator', 'episodic-memory-core', 'episodic-memory', 'worldbook-library', 'actor-mode-core', 'actor-mode', 'phone-interaction-core','phone-ui-core', 'phone-player-core', 'phone-story-core', 'phone-story-bridge', 'story-revision-state']) load(f);
 const api = protocol => ({ protocol, type: protocol, model: 'audit-model', key: 'test-key',
   baseUrl: 'https://provider.invalid/v1', retryEnabled: false, maxOutputTokens: 2048 });
 const text = messages => messages.map(m => m.content).join('\n\n');
@@ -120,11 +120,26 @@ const variants = require('./fixtures/narrative-variants.cjs');
   delete c.Chat.messages[1].revisionBase;
   await c.API.send({ ...api('openai'), __storyTool: true }, toolMessages);
   assert.match(serializeText(requests.at(-1).body), /AUDIT_IDENTITY/);
+  // Phone puzzle state is dynamic; codes and locked source material stay out of all provider bodies.
+  c.GameState.current.phoneSurface.data={notes:[{id:'clue',title:'CLUE',text:'public'},{id:'safe',title:'AUDIT_LOCKED_TITLE',text:'AUDIT_LOCKED_TEXT'}],
+    interactions:{version:1,locks:[{target:{app:'notes',id:'safe'},code:'AUDIT_PUZZLE_CODE'}],events:[]}};
+  const locked=await c.App.buildMessages(c.App.config);
+  assert.doesNotMatch(text(locked),/AUDIT_LOCKED_TITLE|AUDIT_LOCKED_TEXT|AUDIT_PUZZLE_CODE/);
+  const phone=c.BAOPhonePlayerCore.resolve(null,c.GameState.current);
+  c.GameState.current.phoneInteractions=c.BAOPhoneInteractionCore.open(phone,null,{app:'notes',id:'safe'},'AUDIT_PUZZLE_CODE').progress;
+  const unlocked=await c.App.buildMessages(c.App.config);
+  assert.equal(unlocked[0].content,locked[0].content,'unlock cannot invalidate the fixed cache prefix');
+  assert.match(unlocked.at(-1).content,/AUDIT_LOCKED_TITLE/);
+  for(const protocol of ['openai','anthropic','gemini']){
+    await c.API.send(api(protocol),unlocked);
+    assert.doesNotMatch(serializeText(requests.at(-1).body),/AUDIT_LOCKED_TEXT|AUDIT_PUZZLE_CODE/);
+  }
+  delete c.GameState.current.phoneSurface.data;delete c.GameState.current.phoneInteractions;
   c.GameState.current.phoneSurface.enabled = false;
   c.GameState.current.actorMode.enabled = false;
   c.GameState.current.worldbookLibrary.enabled = [];
   const off = text(await c.App.buildMessages(c.App.config));
   assert.doesNotMatch(off, /AUDIT_IDENTITY|AUDIT_FIXED|AUDIT_SELECTED|AUDIT_PHONE_OWNER|YORUBAY_PHONE_V1/);
-  assert.equal(requests.length, cases * 3 + 6, 'one transport call per requested operation; assembly is free');
+  assert.equal(requests.length, cases * 3 + 9, 'one transport call per requested operation; assembly is free');
   console.log(`PASS ${cases} preference variants × 3 protocol bodies, disable/repeat bytes, combined partitions, regeneration, rewrite, legacy controls and inspiration isolation`);
 })().catch(error => { console.error(error); process.exitCode = 1; });

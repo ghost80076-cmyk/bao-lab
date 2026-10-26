@@ -39,6 +39,7 @@
 <label>手機資料（JSON）<textarea name="phone_ui_json" rows="9" spellcheck="false" placeholder='{"userName":"","contactName":"","chat":[],"tweets":[]}'></textarea></label>
 <p class="note">可填 wallpaper、weather、events、calls、chat、tweets、instagram、spotify，以及 contacts（聯絡人）、threads（獨立聊天室與群聊）、photos（相簿）、notes（備忘錄）。apps 可指定桌面要顯示的 App；未填或空陣列會顯示所有支援的 App。聊天室送出的文字會交給夜灣原有故事流程處理。外部影片或音訊需要提供可直接存取的 HTTPS 檔案。</p>
 <details><summary>多人聊天與記事格式</summary><p class="note">每位聯絡人、聊天室、照片與筆記需要固定 id，方便故事持續更新。participants 填聯絡人 id；messages 的 senderId 表示發話者。照片 src 填可存取的圖片網址，筆記 text 填內容；它們都只呈現手機主人可看見的資料。</p><pre>{"contacts":[{"id":"friend","name":"好友"}],"threads":[{"id":"friends","name":"朋友群","participants":["friend"],"messages":[{"from":"them","senderId":"friend","text":"晚點見。"}]}],"photos":[],"notes":[{"id":"memo","title":"待辦","text":"下班買牛奶。"}],"apps":["kakao","photos","notes"]}</pre></details>
+<details><summary>密碼與跨 App 解鎖機關</summary><p class="note">在手機 JSON 加入 interactions，即可設定讀完筆記後顯示照片，或輸入故事密碼後開啟聊天室。已讀、解鎖和事件進度只儲存在目前故事；不會額外呼叫模型。密碼是故事機關，原始檔可查看設定，請勿填入真實帳號密碼。</p><p class="note">version 填 1；locks 指定 target（app 與內容 id）、code（故事密碼）、hidden（解鎖前隱藏）及 hint。events 設定 id、when（read 或 unlock）、選填 requires（全部條件需成立）、unlock（解鎖目標）與 notification。kakao 對應 threads 的 id，photos／notes 對應各自內容 id。每個事件只觸發一次；引用錯誤時無法匯出。</p><pre>{"interactions":{"version":1,"locks":[{"target":{"app":"kakao","id":"friends"},"code":"0427","hint":"四位數故事密碼"}],"events":[{"id":"read-memo","when":{"action":"read","target":{"app":"notes","id":"memo"}},"unlock":[{"app":"kakao","id":"friends"}],"notification":"聊天室已解鎖"}]}}</pre><p class="note">此範例沿用上方 friends 聊天室與 memo 筆記。讀取 memo 或輸入正確密碼都能解鎖 friends；若只允許密碼，移除對應事件。hidden 為 true 的內容只能由事件解鎖。</p></details>
 </section>
 
 <label>建議文風（逗號或換行分隔，選填）<textarea name="recommended_styles" rows="2" placeholder="例：電影感, 自然口語"></textarea><small>保存為作品的文風建議，不會自動開啟文風包，也不會替玩家選擇演繹授權。</small></label>
@@ -122,7 +123,8 @@
 </form><section id="studio-preview" class="studio-preview hidden" aria-label="角色卡預覽"><h3>本機預覽（不會呼叫 AI）</h3><img id="studio-preview-image" alt="角色圖片預覽" src="assets/bao-bun.svg"><h4 id="studio-preview-name"></h4><p id="studio-preview-description"></p><div class="studio-preview-label">初始訊息</div><p id="studio-preview-greeting"></p><div class="studio-preview-label">核心設定摘要</div><p id="studio-preview-prompt"></p></section>
 </section></div>
 </main><footer><b>夜灣 YoruBay</b><span>本機製作 · 自主備份 · 選擇是否分享</span></footer></div>
-<script src="js/phone-ui-core.js?v=3"></script>
+<script src="js/phone-interaction-core.js?v=1"></script>
+<script src="js/phone-ui-core.js?v=4"></script>
 <script src="js/avatar-chat-core.js?v=1"></script>
 <script src="js/portrait-input.js?v=1"></script>
 <script src="js/character.js?v=6"></script>
@@ -136,7 +138,7 @@
 <script src="js/character-studio-flow-core.js"></script>
 <script src="js/character-studio-lifecycle-core.js"></script>
 <script src="js/character-studio-actions-core.js"></script>
-<script src="js/character-studio.js?v=3"></script>
+<script src="js/character-studio.js?v=4"></script>
 <script src="js/character-studio-flow.js?v=3"></script>
 <script src="js/npc-personality-helper-core.js?v=1"></script>
 <script src="js/npc-personality-helper.js?v=1"></script>

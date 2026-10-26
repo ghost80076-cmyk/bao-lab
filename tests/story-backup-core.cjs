@@ -44,7 +44,7 @@ const payload = (chapterId, label, parentChapterId, location, summary, secret = 
     { id: chapterId + '-a', role: 'assistant', content: label + '回覆' }
   ], summary, summarizedUntil: 0, usage: {}, lastStoryPromptTokens: 0 },
   contextPack: { summary: label + ' Context Pack' },
-  state: { location, time: label + '時間', characterStatuses: { hero: { trust: label } }, modules: { inventory: [{ name: label + '物品' }] } },
+  state: { phoneInteractions:{version:1,read:['notes:'+chapterId],unlocked:chapterId==='branch'?['notes:safe']:[],fired:chapterId==='branch'?['unlock-photo']:[]}, location, time: label + '時間', characterStatuses: { hero: { trust: label } }, modules: { inventory: [{ name: label + '物品' }] } },
   _library: {
     storyId: 'story-old', chapterId, storyCreatedAt: '2026-09-15T00:00:00.000Z', chapterCreatedAt: '2026-09-15T01:00:00.000Z',
     chapterLabel: label, parentChapterId, branchPointMessageId: parentChapterId ? 'root-a' : '', branchPointSeq: parentChapterId ? 1 : -1, branchPointPreview: parentChapterId ? '分岔點' : ''
@@ -126,6 +126,7 @@ assert.match(storyToolsSource, /details\.bao-gallery-more/);
   assert.equal(imported.chapterCount, 2);
   assert.deepEqual(BAOStoryLibrary.refs(), beforeRefs);
   assert.equal(imported.payload.state.location, '碼頭');
+  assert.deepEqual(imported.payload.state.phoneInteractions,{version:1,read:['notes:branch'],unlocked:['notes:safe'],fired:['unlock-photo']});
   assert.equal(imported.payload.chat.summary, '分支摘要');
   assert.equal(imported.payload.contextPack.summary, '碼頭線 Context Pack');
   assert.equal(imported.payload.config.api.key, '');
@@ -135,6 +136,8 @@ assert.match(storyToolsSource, /details\.bao-gallery-more/);
   const importedRoot = importedChapters.find(item => item.label === '主線');
   const importedBranch = importedChapters.find(item => item.label === '碼頭線');
   assert.equal(importedBranch.parentChapterId, importedRoot.chapterId);
+  const restoredRoot=await BAOStoryLibrary.reconstruct(imported.storyId,importedRoot.chapterId);
+  assert.deepEqual(restoredRoot.state.phoneInteractions,{version:1,read:['notes:root'],unlocked:[],fired:[]});
   const importedStory = records.find(item => item.kind === 'story' && item.storyId === imported.storyId);
   assert.equal(importedStory.title, '舊城之夜');
   assert.equal(importedStory.activeChapterId, importedBranch.chapterId);
