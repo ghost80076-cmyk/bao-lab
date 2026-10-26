@@ -152,10 +152,10 @@
     if (!button) return;
     const readerContext = mode === 'play' && desktop.matches && !hasGameplaySurface();
     button.setAttribute('aria-controls', readerContext ? 'bao-reader-context' : 'game-ui');
-    button.setAttribute('aria-label', readerContext ? '查看故事資訊' : '查看人物、事件與作品資訊');
+    button.setAttribute('aria-label', readerContext ? '查看舞臺：故事資訊' : '查看舞臺：人物、事件與作品資訊');
     button.title = readerContext
-      ? '閱讀層：現況、人物、世界與記憶'
-      : '人物、狀態、事件、記憶與作品自訂分頁';
+      ? '舞臺：現況、人物、世界與記憶'
+      : '舞臺：人物、狀態、事件、記憶與作品自訂分頁';
   };
 
   const syncSurfaceNavigation = () => {
@@ -265,7 +265,7 @@
     syncStatusButtonContract();
     if (mode === 'studio') {
       closeStatus();
-      if (previousMode !== mode && !desktop.matches) setTimeout(() => {
+      if (previousMode !== mode) setTimeout(() => {
         if (mode !== 'studio' || !root.classList.contains('active')) return;
         if (window.matchMedia('(max-width:820px)').matches && window.BAOMobileReadingLayout) {
           window.BAOMobileReadingLayout.openTools();
