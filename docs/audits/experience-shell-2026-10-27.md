@@ -187,7 +187,7 @@ Stage 不等於設定頁，也不取得 API Key。
 - Stage：既有 Reader Context 或 Gameplay UI。
 - Control Center：既有 Story Control Center + searchable tool drawer。
 - Desktop sidebar 保留兼容 DOM，但移除額外「狀態欄管理」快捷副本；原管理器仍存在於分類工具。
-- Tablet shortcut bar 改成「快速儲存 / 舞臺 / 控制中心」。
+- Tablet 已有 header Story / Stage / Control Center，因此舊 fallback strip 只保留「快速儲存」，避免第二套入口。
 
 後續：
 - Desktop sidebar 由「功能容器」逐步退成作品身份 + 少量 context；設定不再直接常駐。
@@ -230,7 +230,7 @@ Stage 不等於設定頁，也不取得 API Key。
 - Control Center 直接使用既有 Story Control Center / tool drawer。
 - 移除重複的 header Story Overview 入口。
 - 移除 desktop sidebar 額外產生的 Status Manager 快捷副本。
-- Tablet shortcut 對齊 Stage / Control Center。
+- Tablet 移除重複的 Stage / Control shortcut，只保留快速儲存。
 - Mobile `＋` 語意改為 Control Center；保留閱讀優先。
 - 不改任何故事 state 或 Prompt behavior。
 
