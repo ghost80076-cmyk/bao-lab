@@ -265,7 +265,10 @@
       if (window.BAOStoryControlCenter?.open) BAOStoryControlCenter.open();
       else window.alert('控制中心仍在載入，請稍後再試。');
     });
-    makeAction(quick, '舞臺資訊', togglePanels, { 'data-bao-mobile-panel-toggle': '', 'aria-expanded': String(main.classList.contains('bao-mobile-panel-open')) });
+    makeAction(quick, '舞臺資訊', () => {
+      if (window.BAOStorySurface?.openStatus) BAOStorySurface.openStatus();
+      else togglePanels();
+    }, { 'data-bao-mobile-panel-toggle': '', 'aria-expanded': String(main.classList.contains('bao-mobile-panel-open')) });
     makeAction(quick, '🧠 記憶', openMemory);
     makeAction(quick, '模型連線／切換', () => {
       if (window.BAOChatAPISettings?.open) BAOChatAPISettings.open();
