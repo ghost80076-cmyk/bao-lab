@@ -411,6 +411,14 @@
     closeStatus();
     setMode(mode);
   });
+  root.addEventListener('bao:mobile-stage-visibility', event => {
+    if (desktop.matches) return;
+    statusOpen = Boolean(event.detail?.open);
+    root.classList.toggle('bao-play-status-open', statusOpen);
+    document.getElementById('bao-play-status-toggle')
+      ?.setAttribute('aria-expanded', String(statusOpen));
+    syncSurfaceNavigation();
+  });
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && statusOpen) closeStatus();
   });
