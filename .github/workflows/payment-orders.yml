@@ -1,0 +1,26 @@
+name: Payment order foundation
+on:
+  pull_request:
+    paths:
+      - 'workers/bao-lab-credits-api/modules/payment-orders.js'
+      - 'tests/payment-orders-core.cjs'
+      - '.github/workflows/payment-orders.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'workers/bao-lab-credits-api/modules/payment-orders.js'
+      - 'tests/payment-orders-core.cjs'
+      - '.github/workflows/payment-orders.yml'
+permissions:
+  contents: read
+jobs:
+  payment-orders:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tests/payment-orders-core.cjs
+      - run: node tests/worker-wallet-topup-integrity-core.cjs
