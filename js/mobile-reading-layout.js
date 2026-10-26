@@ -125,6 +125,7 @@
     main.classList.remove('bao-mobile-panel-open');
     document.querySelector('[data-bao-mobile-panel-toggle]')?.setAttribute('aria-expanded', 'false');
     document.getElementById('bao-mobile-memory')?.setAttribute('aria-expanded', 'false');
+    root.dispatchEvent(new CustomEvent('bao:mobile-stage-visibility', { detail:{ open:false } }));
     schedule();
   };
   const openMemory = () => {
@@ -134,6 +135,7 @@
       return;
     }
     main.classList.add('bao-mobile-panel-open');
+    root.dispatchEvent(new CustomEvent('bao:mobile-stage-visibility', { detail:{ open:true } }));
     const tab = document.querySelector('#chat-view .ui-tab[data-panel="memory"]');
     if (tab) tab.click();
     else App.renderUIPanel?.('memory');
@@ -147,6 +149,7 @@
       return;
     }
     main.classList.add('bao-mobile-panel-open');
+    root.dispatchEvent(new CustomEvent('bao:mobile-stage-visibility', { detail:{ open:true } }));
     const panelButton = document.querySelector('[data-bao-mobile-panel-toggle]');
     if (panelButton) panelButton.setAttribute('aria-expanded', 'true');
     const panel = document.querySelector('#chat-view .ui-tab.active')?.dataset.panel || 'npc';
