@@ -67,7 +67,8 @@ for (const file of extraFiles) {
 
 const engine = fs.readFileSync(path.join(root, 'js', 'character.js'), 'utf8');
 assert.match(engine, /controlled_by=user/);
-assert.match(engine, /不得生成玩家的新台詞/);
+assert.match(engine, /未提供明確授權時，不補寫玩家未輸入的台詞、心理、意圖或主動行動/);
+assert.match(engine, /任何演繹授權都不得代作玩家的重大承諾、關係定案、同意或不可逆選擇/);
 assert.match(engine, /結構化初始狀態若已提供/);
 assert.match(engine, /狀態模組與介面標籤不是 NPC/);
 
