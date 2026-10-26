@@ -238,6 +238,29 @@
 #chat-view.bao-player-reading-v2[data-bao-surface="play"] #bao-surface-controls button:focus-visible{
   background:rgba(214,170,115,.065)!important;color:var(--story-text,#eeeae4);
 }
+
+/* Experience shell phase 1: semantic Story / Stage / Control Center navigation.
+   This is presentation only; the existing reader, gameplay renderer and managers
+   remain the source of truth. */
+@media(min-width:821px){
+  #chat-view.bao-player-reading-v2 #bao-surface-controls{
+    display:inline-flex;align-items:center;gap:2px;
+    padding:3px;border:1px solid var(--yoru-control-border,rgba(201,184,229,.11));
+    border-radius:999px;background:color-mix(in srgb,var(--yoru-tool,#101116) 78%,transparent);
+  }
+  #chat-view.bao-player-reading-v2 #bao-surface-controls button[data-bao-surface-role]{
+    min-height:32px;padding:6px 11px;border:0!important;border-radius:999px;
+    background:transparent!important;color:var(--yoru-muted,var(--story-muted,#aeb5c1));
+    box-shadow:none!important;white-space:nowrap;
+  }
+  #chat-view.bao-player-reading-v2 #bao-surface-controls button[data-bao-surface-role][aria-pressed="true"]{
+    background:var(--yoru-control,var(--yoru-tool-raised,#211d23))!important;
+    color:var(--yoru-text,var(--story-text,#eeeae4));font-weight:750;
+  }
+  #chat-view.bao-player-reading-v2 #bao-surface-controls button[data-bao-surface-role]:focus-visible{
+    outline:2px solid var(--yoru-lantern,#d6aa73);outline-offset:1px;
+  }
+}
 #chat-view.bao-player-reading-v2[data-bao-surface="play"] .chat-stream{
   padding:clamp(24px,4vw,46px) clamp(14px,4vw,44px) clamp(36px,5vw,64px)!important;
   scroll-padding-top:86px;
