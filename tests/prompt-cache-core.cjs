@@ -55,7 +55,8 @@ vm.runInThisContext(source, { filename: "js/prompt-cache.js" });
   assert.match(parts.stable, /^平台必要規則/);
   assert.ok(parts.stable.indexOf("角色固定內容") < parts.stable.indexOf("Lore"));
   assert.ok(parts.stable.indexOf("Lore") < parts.stable.indexOf("JSON 規則"));
-  assert.match(parts.stable, /NPC 名冊索引/);
+  assert.doesNotMatch(parts.stable, /NPC 名冊索引/);
+  assert.match(parts.dynamic, /NPC 名冊索引/);
   assert.doesNotMatch(parts.stable, /玩家確認記憶|動態世界|目前在場/);
   assert.match(parts.memory, /玩家確認記憶/);
   assert.match(parts.memory, /Canon/);
@@ -66,6 +67,7 @@ vm.runInThisContext(source, { filename: "js/prompt-cache.js" });
     .replace("玩家確認記憶", "另一份玩家記憶")
     .replace("動態世界", "另一個動態世界")
     .replace("威廉：目前在場", "瑪莉：目前在場")
+    .replace("威廉｜公爵", "威廉｜攝政王\n新人｜商人")
     .replace("動態 Canon", "另一個 Canon"));
   assert.equal(changed.stable, parts.stable, "memory/dynamic changes must not mutate the stable prefix");
   assert.notEqual(changed.memory, parts.memory);
@@ -87,6 +89,41 @@ vm.runInThisContext(source, { filename: "js/prompt-cache.js" });
   assert.ok(real.dynamic.includes("世界甲") && real.dynamic.includes("世界乙"));
   assert.doesNotMatch(real.stable, /記憶甲|事實甲|覆寫甲|世界甲|世界乙/);
   assert.match(real.stable, /固定輸出規則/);
+
+  // Exercise the real character composer, not just synthetic section headings.
+  vm.runInThisContext(fs.readFileSync(path.join(__dirname, "..", "js", "character.js"), "utf8"));
+  for (const count of [0, 1, 4, 5]) {
+    const card = { name: "王宮", system_prompt: "世界自行運作。", initial_state: { npcs:
+      Array.from({ length: count }, (_, i) => ({ name: `人物${i}`, role: "侍從", personality: `性格${i}`,
+        outfit: "初始制服", mood: "初始平靜", location: "初始大廳" })) } };
+    const original = JSON.stringify(card);
+    const compose = storyNPCs => BAOPromptCache.partitionSystemPrompt(CharacterEngine.composeSystemPrompt(card, {
+      storyNPCs, currentLocation: "庭院", latestUserText: "人物0 與新朋友"
+    }));
+    const baseline = compose([]);
+    const first = compose([
+      ...(count ? [{ name: "人物0", outfit: "本輪外套", mood: "本輪緊張", location: "庭院", presence: "present" }] : []),
+      { name: "新朋友", role: "商人", personality: "熱情", location: "庭院", presence: "present" }
+    ]);
+    const second = compose([
+      ...(count ? [{ name: "人物0", role: "管家", outfit: "次輪便服", mood: "次輪開心", location: "書房", presence: "absent" }] : []),
+      { name: "新朋友", role: "嚮導", personality: "熱情", location: "書房", presence: "absent" },
+      { name: "另一位新人", role: "訪客" }
+    ]);
+    assert.equal(first.stable, baseline.stable, `${count} NPCs: discovering a character must not change the fixed prefix`);
+    assert.equal(second.stable, first.stable, `${count} NPCs: live state, roles and roster changes must stay dynamic`);
+    assert.notEqual(first.dynamic, second.dynamic);
+    assert.match(first.dynamic, /新朋友｜商人/);
+    assert.match(second.dynamic, /新朋友｜嚮導/);
+    assert.doesNotMatch(first.stable, /本輪外套|本輪緊張|新朋友/);
+    if (count) {
+      assert.match(first.dynamic, /本輪外套/);
+      assert.match(second.dynamic, /次輪便服/);
+      assert.match(first.dynamic, /性格0/, "runtime patches retain card personality");
+      if (count <= 4) assert.match(first.stable, /初始制服/);
+    }
+    assert.equal(JSON.stringify(card), original, "prompt composition must not mutate the saved card");
+  }
 
   const built = await App.buildMessages({ memory: {} });
   assert.deepEqual(built.map(message => message.role), ["system", "system", "user", "assistant", "user"]);

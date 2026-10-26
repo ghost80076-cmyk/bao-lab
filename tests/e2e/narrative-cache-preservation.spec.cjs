@@ -149,6 +149,7 @@ for (const width of [390, 1440]) {
         expect(current.messages).toContain('玩家已授權小說共創');
         expect(current.messages).not.toMatch(/不替玩家補寫未輸入|不得替玩家決定台詞、心理或行動|不得自行生成玩家/);
       }
+      expect(current.messages).not.toMatch(/不能扮演或控制玩家|角色之台詞、心理、決定與行動只能由玩家提供|除非忠實引用玩家已輸入的原話，不得生成玩家的新台詞/);
       if (mode === 'natural') expect(current.messages).toContain('不得新增玩家未表達');
       if (mode === 'strict') expect(current.messages).toContain('不替玩家補寫未輸入');
       await page.evaluate(() => BAONarrativeSettings.open());
@@ -170,6 +171,28 @@ test('legacy stories do not inherit coauthor authorization from browser defaults
   await page.locator('[data-narrative-save]').click();
   expect(await page.evaluate(() => preferenceSnapshot())).toEqual(before);
   expect(await page.evaluate(() => App.collectConfig().narrative.playerPortrayal)).toBe('coauthor');
+});
+
+test('live NPC updates and discoveries preserve the actual request prefix', async ({ page }) => {
+  await setup(page, 390);
+  const result = await page.evaluate(async () => {
+    App.activeCharacter = CharacterEngine.normalize({ id: 'npc-cache-test', name: '王宮',
+      system_prompt: '世界自行運作。', initial_state: { npcs: [
+        { name: '威廉', role: '侍從', personality: '冷靜', mood: '平靜', location: '大廳', outfit: '制服' }
+      ] } });
+    GameState.create(App.activeCharacter, App.config);
+    const before = await App.buildMessages(App.config);
+    GameState.current.npcs = [
+      { name: '威廉', role: '管家', mood: '緊張', location: '庭院', outfit: '深藍外套', presence: 'present' },
+      { name: '新朋友', role: '商人', location: '庭院', presence: 'present' }
+    ];
+    const after = await App.buildMessages(App.config);
+    return { before, after };
+  });
+  expect(result.after[0].content).toBe(result.before[0].content);
+  expect(result.after[0].content).not.toMatch(/深藍外套|新朋友/);
+  expect(result.after.at(-1).content).toContain('深藍外套');
+  expect(result.after.at(-1).content).toContain('新朋友｜商人');
 });
 
 // Opt-in story direction shares the existing narrative modal and never triggers an extra API call.

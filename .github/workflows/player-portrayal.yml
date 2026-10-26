@@ -2,6 +2,8 @@ name: Player portrayal authorization
 on:
   pull_request:
     paths:
+      - 'js/character.js'
+      - 'js/prompt-cache.js'
       - 'js/narrative-settings.js'
       - 'js/prompt-orchestrator.js'
       - 'js/story-persona-manager.js'
@@ -26,6 +28,7 @@ jobs:
           node tests/narrative-prompt-pipeline-core.cjs
           node tests/prompt-orchestrator-core.cjs
           node tests/prompt-cache-core.cjs
+          node tests/character-role-boundaries-core.cjs
           node tests/story-persona-core.cjs
           node tests/response-language-core.cjs
           node tests/same-model-state-merge-core.cjs
