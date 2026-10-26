@@ -146,7 +146,9 @@ test('desktop Play opens a read-only Reader Context without reusing the Studio g
 test('Studio keeps its existing editable information surface', async ({ page }) => {
   await prepareStory(page);
 
-  await page.locator('#bao-surface-mode-toggle').click();
+  // Keep the legacy editable Studio surface reachable for compatibility,
+  // while the user-facing Control Center uses the canonical drawer lifecycle.
+  await page.evaluate(() => BAOStorySurface.setMode('studio'));
   await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'studio');
 
   const info = page.locator('#bao-play-status-toggle');
