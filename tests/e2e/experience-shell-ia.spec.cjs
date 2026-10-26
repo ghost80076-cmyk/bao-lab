@@ -51,6 +51,9 @@ test('desktop exposes one Story / Stage / Control Center navigation without chan
   await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-experience-surface', 'story');
   await expect(controls.locator('[data-bao-surface-role="story"]')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#chat-view [data-open-story-control]')).toHaveCount(1);
+  await expect(page.locator('#chat-view .usage-bar')).toBeHidden();
+  await expect(page.locator('#chat-view #bao-chat-tool-groups')).toBeHidden();
+  await expect(page.locator('#chat-view #game-ui')).toBeHidden();
 
   const before = await page.evaluate(() => ({
     api: JSON.stringify(App.config.api),
