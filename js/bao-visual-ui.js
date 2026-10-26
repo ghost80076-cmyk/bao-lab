@@ -158,12 +158,30 @@
       : '人物、狀態、事件、記憶與作品自訂分頁';
   };
 
+  const syncSurfaceNavigation = () => {
+    const story = document.getElementById('bao-story-surface-story');
+    const stage = document.getElementById('bao-play-status-toggle');
+    const control = document.getElementById('bao-surface-mode-toggle');
+    const section = mode === 'studio' ? 'control' : statusOpen ? 'stage' : 'story';
+    root.dataset.baoExperienceSurface = section;
+    [
+      [story, section === 'story'],
+      [stage, section === 'stage'],
+      [control, section === 'control']
+    ].forEach(([button, active]) => {
+      if (!button) return;
+      button.setAttribute('aria-pressed', String(active));
+      button.classList.toggle('is-active', active);
+    });
+  };
+
   const closeStatus = () => {
     statusOpen = false;
     root.classList.remove('bao-play-status-open');
     window.BAOReaderContext?.close?.({ notify:false });
     const button = document.getElementById('bao-play-status-toggle');
     button?.setAttribute('aria-expanded', 'false');
+    syncSurfaceNavigation();
   };
 
   const ensureStatusClose = () => {
@@ -188,6 +206,7 @@
   };
 
   const openStatus = () => {
+    if (mode !== 'play') setMode('play');
     // Desktop Play gets a dedicated read-only context sheet. Studio and compact
     // layouts keep the existing game UI so editing and mobile behavior stay intact.
     if (mode === 'play' && desktop.matches && !hasGameplaySurface() && window.BAOReaderContext?.open?.({
@@ -201,6 +220,7 @@
       const button = document.getElementById('bao-play-status-toggle');
       button?.setAttribute('aria-expanded', 'true');
       syncStatusButtonContract();
+      syncSurfaceNavigation();
       return;
     }
 
@@ -213,6 +233,7 @@
     button?.setAttribute('aria-expanded', 'true');
     ensureStatusClose();
     App.renderUIPanel?.(currentPanel());
+    syncSurfaceNavigation();
   };
 
   const setMode = next => {
@@ -224,9 +245,9 @@
     const button = document.getElementById('bao-surface-mode-toggle');
     if (button) {
       const mobile = !desktop.matches;
-      button.textContent = mode === 'studio' ? '返回故事' : '工具';
+      button.textContent = mode === 'studio' ? '返回故事' : '控制中心';
       button.setAttribute('aria-pressed', String(mode === 'studio'));
-      button.setAttribute('aria-label', mode === 'studio' ? '返回故事閱讀' : '開啟故事工具與進階設定');
+      button.setAttribute('aria-label', mode === 'studio' ? '返回故事閱讀' : '開啟控制中心');
     }
     syncStatusButtonContract();
     if (mode === 'studio') {
@@ -235,8 +256,10 @@
         if (mode !== 'studio' || !root.classList.contains('active')) return;
         if (window.matchMedia('(max-width:820px)').matches && window.BAOMobileReadingLayout) {
           window.BAOMobileReadingLayout.openTools();
+        } else if (window.BAOStoryControlCenter?.open) {
+          window.BAOStoryControlCenter.open();
         } else {
-          window.BAOChatToolNavigation?.openDrawer?.();
+          window.BAOChatToolNavigation?.openDrawer?.({ overview:true });
         }
       }, 0);
     } else {
@@ -247,6 +270,7 @@
       window.BAOChatExperience?.closeStatus?.();
       main.classList.remove('bao-mobile-panel-open');
     }
+    syncSurfaceNavigation();
   };
 
   const ensure = () => {
@@ -268,28 +292,59 @@
     }
     let controls = document.getElementById('bao-surface-controls');
     if (!controls) {
-      controls = document.createElement('div');
+      controls = document.createElement('nav');
       controls.id = 'bao-surface-controls';
       controls.className = 'bao-surface-controls';
+      header.append(controls);
+    }
+    controls.setAttribute('aria-label', '故事、舞臺與控制中心');
 
-      const status = document.createElement('button');
+    let story = document.getElementById('bao-story-surface-story');
+    if (!story) {
+      story = document.createElement('button');
+      story.type = 'button';
+      story.id = 'bao-story-surface-story';
+      story.dataset.baoSurfaceRole = 'story';
+      story.textContent = '故事';
+      story.setAttribute('aria-label', '回到故事');
+      story.addEventListener('click', () => {
+        closeStatus();
+        setMode('play');
+      });
+      controls.append(story);
+    }
+
+    let status = document.getElementById('bao-play-status-toggle');
+    if (!status) {
+      status = document.createElement('button');
       status.type = 'button';
       status.id = 'bao-play-status-toggle';
-      status.textContent = '資訊';
       status.setAttribute('aria-controls', 'game-ui');
       status.setAttribute('aria-expanded', 'false');
-      status.setAttribute('aria-label', '查看人物、事件與作品資訊');
-      status.title = '人物、狀態、事件、記憶與作品自訂分頁';
       status.addEventListener('click', () => statusOpen ? closeStatus() : openStatus());
+      controls.append(status);
+    }
+    status.dataset.baoSurfaceRole = 'stage';
+    status.textContent = '舞臺';
+    status.setAttribute('aria-label', '查看舞臺：人物、事件與作品資訊');
+    status.title = '目前故事的世界、人物、事件與作品互動資訊';
 
-      const surface = document.createElement('button');
+    let surface = document.getElementById('bao-surface-mode-toggle');
+    if (!surface) {
+      surface = document.createElement('button');
       surface.type = 'button';
       surface.id = 'bao-surface-mode-toggle';
       surface.addEventListener('click', () => setMode(mode === 'play' ? 'studio' : 'play'));
-
-      controls.append(status, surface);
-      header.append(controls);
+      controls.append(surface);
     }
+    surface.dataset.baoSurfaceRole = 'control';
+    surface.dataset.openStoryControl = 'surface';
+
+    // Older enhancement order could have injected a second "故事總覽" button
+    // before the Story Surface mounted. The mode control now owns that route.
+    header.querySelectorAll('[data-open-story-control]:not(#bao-surface-mode-toggle)')
+      .forEach(node => node.remove());
+
     syncMeta();
     setMode(mode);
   };
@@ -342,6 +397,7 @@
 
   window.BAOStorySurface = Object.freeze({
     get mode() { return mode; },
+    get section() { return root.dataset.baoExperienceSurface || 'story'; },
     setMode,
     openStatus,
     closeStatus,
