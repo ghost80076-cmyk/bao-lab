@@ -261,11 +261,11 @@
     const quick = document.createElement('nav');
     quick.className = 'bao-mobile-quick';
     quick.setAttribute('aria-label', '手機常用功能');
-    makeAction(quick, '☷ 故事總覽', () => {
+    makeAction(quick, '目前故事設定', () => {
       if (window.BAOStoryControlCenter?.open) BAOStoryControlCenter.open();
-      else window.alert('故事總覽仍在載入，請稍後再試。');
+      else window.alert('控制中心仍在載入，請稍後再試。');
     });
-    makeAction(quick, '人物／事件', togglePanels, { 'data-bao-mobile-panel-toggle': '', 'aria-expanded': String(main.classList.contains('bao-mobile-panel-open')) });
+    makeAction(quick, '舞臺資訊', togglePanels, { 'data-bao-mobile-panel-toggle': '', 'aria-expanded': String(main.classList.contains('bao-mobile-panel-open')) });
     makeAction(quick, '🧠 記憶', openMemory);
     makeAction(quick, '模型連線／切換', () => {
       if (window.BAOChatAPISettings?.open) BAOChatAPISettings.open();
@@ -378,8 +378,8 @@
       tools.id = 'bao-mobile-composer-tools';
       tools.className = 'bao-mobile-composer-action';
       tools.textContent = '＋';
-      tools.setAttribute('aria-label', '開啟故事工具');
-      tools.title = '故事工具';
+      tools.setAttribute('aria-label', '開啟控制中心');
+      tools.title = '控制中心';
       tools.addEventListener('click', openTools);
       composer.insertBefore(tools, input);
     }
@@ -553,7 +553,7 @@
     focusScrollTop = null;
     schedule();
   });
-  window.BAOMobileReadingLayout = { version: 21, sync, syncMessageActions, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools, fitComposerInput };
+  window.BAOMobileReadingLayout = { version: 22, sync, syncMessageActions, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools, fitComposerInput };
   // The stylesheet is render-blocking in index.html for the initial story
   // frame. Move that same link to the END of the cascade once deferred
   // enhancements are mounted: this restores its original precedence over
