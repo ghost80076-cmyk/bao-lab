@@ -312,6 +312,15 @@
       return;
     }
 
+    if (guideSession.connectionChoice === "byok" && guideSession.providerChoice === "manual") {
+      copy.textContent = "請從下方「模型服務」選擇這把 API Key 的來源。只有自訂中轉才需要打開進階連線設定；官方服務先不用碰 Model ID 或網址。";
+      actions.innerHTML = guideActions([
+        '<button type="button" class="primary" data-bao-guide="manual-provider-ready">我選好了，貼 Key</button>',
+        '<button type="button" class="secondary" data-bao-guide="change-provider">返回推薦選項</button>'
+      ]);
+      return;
+    }
+
     if (guideSession.connectionChoice === "byok" && !hasKey) {
       copy.textContent = "我已經切到「" + currentProviderLabel + "」。現在只要把這家服務給你的 API Key 貼進金鑰欄；Model ID 和網址先不用碰。";
       actions.innerHTML = guideActions([
@@ -388,10 +397,18 @@
         renderGuide();
       } else if (action === "provider-other") {
         guideSession.connectionChoice = "byok";
-        guideSession.providerChoice = "other";
+        guideSession.providerChoice = "manual";
         selectRoute("byok");
-        const details = $("api-advanced-settings");
-        if (details) details.open = true;
+        provider()?.focus();
+        provider()?.scrollIntoView({ block: "center", behavior: "smooth" });
+        renderGuide();
+      } else if (action === "manual-provider-ready") {
+        guideSession.providerChoice = provider()?.value || "manual";
+        if (provider()?.value === "custom") {
+          const details = $("api-advanced-settings");
+          if (details) details.open = true;
+        }
+        setTimeout(() => $("api-key")?.focus(), 0);
         renderGuide();
       } else if (action === "change-provider") {
         guideSession.providerChoice = "";
@@ -439,6 +456,7 @@
     document.querySelectorAll(".builder-step").forEach(node =>
       new MutationObserver(renderGuide).observe(node, { attributes: true, attributeFilter: ["class"] })
     );
+    if (provider()) new MutationObserver(renderGuide).observe(provider(), { childList: true });
     new MutationObserver(renderGuide).observe(view, {
       attributes: true,
       attributeFilter: ["data-bao-setup", "data-bao-connection", "data-bao-provider"]
