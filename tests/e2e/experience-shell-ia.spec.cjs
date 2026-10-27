@@ -196,7 +196,9 @@ for (const width of [390, 900, 1440]) {
     if (width <= 820) {
       await expect(drawer.locator('.bao-mobile-quick')).toBeVisible();
     } else {
-      await expect(drawer.getByRole('button', { name:'快速儲存', exact:true })).toBeVisible();
+      const storyGroup = drawer.locator('details[data-chat-tool-group="story"]');
+      if (!(await storyGroup.evaluate(node => node.open))) await storyGroup.locator(':scope > summary').click();
+      await expect(storyGroup.getByRole('button', { name:'快速儲存', exact:true })).toBeVisible();
     }
     await overviewButton.click();
     await expect(dialog).toHaveAttribute('data-instance', 'keep');
