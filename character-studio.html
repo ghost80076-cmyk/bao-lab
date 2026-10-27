@@ -25,21 +25,103 @@
 <div class="studio-grid"><label>角色／作品名稱 <span class="required">*</span><input name="name" maxlength="100" required placeholder="例：自主 NPC 世界"></label><label>角色 ID <span class="required">*</span><input name="id" maxlength="64" pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,63}" required placeholder="例：my-original-world"><small>英數、底線或連字號；加入角色庫後不建議更改。</small></label><label>作品取向<select name="category"><option value="general">一般向</option><option value="female">女性向</option><option value="male">男性向</option></select><small>這裡描述作品主要受眾，不是角色性別；沒有明確取向就選一般向。</small></label><label>內容分級<select name="rating"><option value="general">一般內容</option><option value="adult">成人內容（18+）</option></select><small>成人內容只會在玩家主動開啟成人模式後顯示。</small></label><label>敘事類型<select name="mode"><option value="immersive">單角色沉浸</option><option value="world">世界／多 NPC 模擬</option></select></label></div>
 <label>作品簡介<textarea name="description" rows="2" maxlength="3000" placeholder="顯示在探索角色與詳情頁的文字"></textarea></label>
 <section aria-label="手機介面設定" class="studio-phone-settings">
-<h3>選用手機互動介面</h3>
-<p class="note">純前端呈現模式，世界觀、手機主人與 NPC 都由作者決定。未勾選不會影響現有故事；手機動態會隨原本故事回覆更新，不會額外呼叫模型。玩家也能在任何既有故事的「手機設定」覆寫或關閉。</p>
-<label><input type="checkbox" name="phone_ui_enabled"> 這張作品使用手機介面</label>
+<div class="studio-phone-heading"><div><h3>手機互動介面</h3><p class="note">不需要會 JSON。先勾選啟用，再用下面的表單加入 App、聯絡人、聊天室、相簿與備忘錄；夜灣會自動整理成角色卡資料。</p></div><span>選配</span></div>
+<label class="studio-phone-enable"><input type="checkbox" name="phone_ui_enabled"> 這張作品使用手機介面</label>
+<div class="studio-phone-builder" data-phone-builder hidden>
 <div class="studio-grid">
-<label>手機主人<input name="phone_userName" maxlength="80" placeholder="留白表示未指定"></label>
-<label>主要聯絡人<input name="phone_contactName" maxlength="80" placeholder="作者決定這支手機屬於誰"></label>
-<label>故事時間<input name="phone_storyTime" maxlength="30" placeholder="例：23:17；留白使用目前時間"></label>
-<label>故事日期<input name="phone_storyDate" maxlength="80" placeholder="例：大燁三年・冬月初九"></label>
+<label>手機主人<input name="phone_userName" maxlength="80" placeholder="例：林曼"></label>
+<label>主要聯絡人<input name="phone_contactName" maxlength="80" placeholder="例：小夏"></label>
+<label>故事時間<input name="phone_storyTime" maxlength="30" placeholder="例：23:17"></label>
+<label>故事日期<input name="phone_storyDate" maxlength="80" placeholder="例：雨港・週一"></label>
 <label>日期格式<select name="phone_locale"><option value="zh-TW">繁體中文</option><option value="ko-KR">韓文</option><option value="ja-JP">日文</option><option value="en-US">英文</option></select></label>
 <label>X 帳號<input name="phone_twitterHandle" maxlength="80" placeholder="例：@secret"></label>
 </div>
-<label>手機資料（JSON）<textarea name="phone_ui_json" rows="9" spellcheck="false" placeholder='{"userName":"","contactName":"","chat":[],"tweets":[]}'></textarea></label>
-<p class="note">可填 wallpaper、weather、events、calls、chat、tweets、instagram、spotify，以及 contacts（聯絡人）、threads（獨立聊天室與群聊）、photos（相簿）、notes（備忘錄）。apps 可指定桌面要顯示的 App；未填或空陣列會顯示所有支援的 App。聊天室送出的文字會交給夜灣原有故事流程處理。外部影片或音訊需要提供可直接存取的 HTTPS 檔案。</p>
-<details><summary>多人聊天與記事格式</summary><p class="note">每位聯絡人、聊天室、照片與筆記需要固定 id，方便故事持續更新。participants 填聯絡人 id；messages 的 senderId 表示發話者。照片 src 填可存取的圖片網址，筆記 text 填內容；它們都只呈現手機主人可看見的資料。</p><pre>{"contacts":[{"id":"friend","name":"好友"}],"threads":[{"id":"friends","name":"朋友群","participants":["friend"],"messages":[{"from":"them","senderId":"friend","text":"晚點見。"}]}],"photos":[],"notes":[{"id":"memo","title":"待辦","text":"下班買牛奶。"}],"apps":["kakao","photos","notes"]}</pre></details>
-<details><summary>密碼與跨 App 解鎖機關</summary><p class="note">在手機 JSON 加入 interactions，即可設定讀完筆記後顯示照片，或輸入故事密碼後開啟聊天室。已讀、解鎖和事件進度只儲存在目前故事；不會額外呼叫模型。密碼是故事機關，原始檔可查看設定，請勿填入真實帳號密碼。</p><p class="note">version 填 1；locks 指定 target（app 與內容 id）、code（故事密碼）、hidden（解鎖前隱藏）及 hint。events 設定 id、when（read 或 unlock）、選填 requires（全部條件需成立）、unlock（解鎖目標）與 notification。kakao 對應 threads 的 id，photos／notes 對應各自內容 id。每個事件只觸發一次；引用錯誤時無法匯出。</p><pre>{"interactions":{"version":1,"locks":[{"target":{"app":"kakao","id":"friends"},"code":"0427","hint":"四位數故事密碼"}],"events":[{"id":"read-memo","when":{"action":"read","target":{"app":"notes","id":"memo"}},"unlock":[{"app":"kakao","id":"friends"}],"notification":"聊天室已解鎖"}]}}</pre><p class="note">此範例沿用上方 friends 聊天室與 memo 筆記。讀取 memo 或輸入正確密碼都能解鎖 friends；若只允許密碼，移除對應事件。hidden 為 true 的內容只能由事件解鎖。</p></details>
+
+<fieldset class="studio-phone-apps">
+<legend>玩家手機要顯示哪些 App？</legend>
+<div class="studio-phone-app-grid">
+<label><input type="checkbox" data-phone-app value="phone"> 通話</label>
+<label><input type="checkbox" data-phone-app value="kakao"> 聊天室</label>
+<label><input type="checkbox" data-phone-app value="x"> X</label>
+<label><input type="checkbox" data-phone-app value="instagram"> Instagram</label>
+<label><input type="checkbox" data-phone-app value="spotify"> Spotify</label>
+<label><input type="checkbox" data-phone-app value="photos"> 相簿</label>
+<label><input type="checkbox" data-phone-app value="notes"> 備忘錄</label>
+</div>
+<small>至少保留一個 App。沒有內容的 App 也可以先顯示，之後再補資料。</small>
+</fieldset>
+
+<div class="studio-phone-builder-grid">
+<section class="studio-phone-card" aria-labelledby="phone-contacts-title">
+<div class="studio-phone-card-head"><div><span>01</span><h4 id="phone-contacts-title">聯絡人</h4></div><small>不用自己取 ID</small></div>
+<label>姓名<input data-phone-contact-name maxlength="80" placeholder="例：小夏"></label>
+<label>頭像網址（選填）<input data-phone-contact-avatar type="url" placeholder="https://..."></label>
+<button type="button" class="secondary" data-phone-add-contact>＋ 加入聯絡人</button>
+<ul class="studio-phone-list" data-phone-contact-list></ul>
+</section>
+
+<section class="studio-phone-card" aria-labelledby="phone-threads-title">
+<div class="studio-phone-card-head"><div><span>02</span><h4 id="phone-threads-title">聊天室</h4></div><small>先建立聯絡人</small></div>
+<label>聊天對象<select data-phone-thread-contact><option value="">請先選聯絡人</option></select></label>
+<label>聊天室名稱<input data-phone-thread-name maxlength="80" placeholder="留白就使用聯絡人姓名"></label>
+<label>第一則訊息<textarea data-phone-thread-message rows="3" maxlength="1600" placeholder="例：晚點見。"></textarea></label>
+<label>這則訊息是誰說的？<select data-phone-thread-from><option value="them">對方</option><option value="me">手機主人</option></select></label>
+<button type="button" class="secondary" data-phone-add-thread>＋ 建立聊天室</button>
+<ul class="studio-phone-list" data-phone-thread-list></ul>
+</section>
+
+<section class="studio-phone-card" aria-labelledby="phone-notes-title">
+<div class="studio-phone-card-head"><div><span>03</span><h4 id="phone-notes-title">備忘錄</h4></div><small>可拿來放線索</small></div>
+<label>標題<input data-phone-note-title maxlength="120" placeholder="例：待辦"></label>
+<label>內容<textarea data-phone-note-text rows="3" maxlength="6000" placeholder="例：下班買牛奶。"></textarea></label>
+<button type="button" class="secondary" data-phone-add-note>＋ 加入備忘錄</button>
+<ul class="studio-phone-list" data-phone-note-list></ul>
+</section>
+
+<section class="studio-phone-card" aria-labelledby="phone-photos-title">
+<div class="studio-phone-card-head"><div><span>04</span><h4 id="phone-photos-title">相簿</h4></div><small>支援 HTTPS 圖片</small></div>
+<label>圖片網址<input data-phone-photo-src type="url" placeholder="https://..."></label>
+<label>標題<input data-phone-photo-title maxlength="120" placeholder="例：雨夜碼頭"></label>
+<label>說明（選填）<textarea data-phone-photo-caption rows="2" maxlength="1600"></textarea></label>
+<button type="button" class="secondary" data-phone-add-photo>＋ 加入照片</button>
+<ul class="studio-phone-list" data-phone-photo-list></ul>
+</section>
+</div>
+
+<details class="studio-phone-mechanisms">
+<summary>故事機關（選填）｜密碼、讀取後解鎖</summary>
+<p class="note">先建立聊天室、照片或備忘錄，再從下拉選單選目標。你不需要填 app、id、version 這些工程欄位。</p>
+<div class="studio-phone-mechanism-grid">
+<section>
+<h4>設定密碼／隱藏內容</h4>
+<label>要鎖住的內容<select data-phone-lock-target></select></label>
+<label>故事密碼（選填）<input data-phone-lock-code maxlength="128" placeholder="例：0427"></label>
+<label>提示（選填）<input data-phone-lock-hint maxlength="300" placeholder="例：四位數故事密碼"></label>
+<label class="studio-phone-inline-check"><input type="checkbox" data-phone-lock-hidden> 解鎖前完全隱藏</label>
+<button type="button" class="secondary" data-phone-add-lock>＋ 加入鎖定</button>
+<ul class="studio-phone-list" data-phone-lock-list></ul>
+</section>
+<section>
+<h4>讀完 A → 解鎖 B</h4>
+<label>玩家讀取<select data-phone-event-source></select></label>
+<label>接著解鎖<select data-phone-event-unlock></select></label>
+<label>通知文字（選填）<input data-phone-event-notification maxlength="300" placeholder="例：聊天室已解鎖"></label>
+<button type="button" class="secondary" data-phone-add-event>＋ 加入解鎖事件</button>
+<ul class="studio-phone-list" data-phone-event-list></ul>
+</section>
+</div>
+</details>
+
+<p class="note studio-phone-builder-status" data-phone-builder-status role="status" aria-live="polite">手機內容會自動整理，不需要手動修改 JSON。</p>
+
+<details class="studio-phone-raw">
+<summary>進階：直接編輯 JSON（懂格式再用）</summary>
+<p class="note">這裡是給需要完整控制、搬運舊卡或 MCP 產物的作者。一般創作不需要打開。</p>
+<label>手機資料（JSON）<textarea name="phone_ui_json" rows="10" spellcheck="false" placeholder='{"userName":"","contactName":"","chat":[],"tweets":[]}'></textarea></label>
+<details><summary>JSON 格式參考</summary><p class="note">contacts 是聯絡人、threads 是聊天室、photos 是相簿、notes 是備忘錄；apps 決定桌面顯示哪些 App。</p><pre>{"contacts":[{"id":"friend","name":"好友"}],"threads":[{"id":"friends","name":"朋友群","participants":["friend"],"messages":[{"from":"them","senderId":"friend","text":"晚點見。"}]}],"photos":[],"notes":[{"id":"memo","title":"待辦","text":"下班買牛奶。"}],"apps":["kakao","photos","notes"]}</pre></details>
+<details><summary>進階機關格式參考</summary><p class="note">只有超出上方「故事機關」表單能力時才需要直接修改。密碼是劇情機關，請勿填真實帳號密碼。</p><pre>{"interactions":{"version":1,"locks":[{"target":{"app":"kakao","id":"friends"},"code":"0427","hint":"四位數故事密碼"}],"events":[{"id":"read-memo","when":{"action":"read","target":{"app":"notes","id":"memo"}},"unlock":[{"app":"kakao","id":"friends"}],"notification":"聊天室已解鎖"}]}}</pre></details>
+</details>
+</div>
 </section>
 
 <label>建議文風（逗號或換行分隔，選填）<textarea name="recommended_styles" rows="2" placeholder="例：電影感, 自然口語"></textarea><small>保存為作品的文風建議，不會自動開啟文風包，也不會替玩家選擇演繹授權。</small></label>
@@ -138,7 +220,8 @@
 <script src="js/character-studio-flow-core.js"></script>
 <script src="js/character-studio-lifecycle-core.js"></script>
 <script src="js/character-studio-actions-core.js"></script>
-<script src="js/character-studio.js?v=5"></script>
+<script src="js/character-studio.js?v=6"></script>
+<script src="js/character-studio-phone-builder.js?v=1"></script>
 <script src="js/character-studio-flow.js?v=4"></script>
 <script src="js/npc-personality-helper-core.js?v=1"></script>
 <script src="js/npc-personality-helper.js?v=1"></script>
