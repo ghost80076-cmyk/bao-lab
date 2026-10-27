@@ -8,8 +8,10 @@
   if (!Core || window.BAOStageCapabilities) return;
 
   const viewport = value => {
-    if (value === 'mobile' || value === 'desktop') return value;
-    return window.matchMedia?.('(max-width:820px)').matches ? 'mobile' : 'desktop';
+    if (value === 'mobile' || value === 'compact' || value === 'desktop') return value;
+    if (window.matchMedia?.('(max-width:820px)').matches) return 'mobile';
+    if (window.matchMedia?.('(max-width:1080px)').matches) return 'compact';
+    return 'desktop';
   };
 
   const gameplayFor = character => {

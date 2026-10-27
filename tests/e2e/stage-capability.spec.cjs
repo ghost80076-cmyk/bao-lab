@@ -194,3 +194,61 @@ test('Character Studio keeps explicit Phone Stage on native export', async ({ pa
   expect(exported.presentation.play_info_surface).toBe('phone');
   expect(exported.presentation.phone_ui.notes[0].title).toBe('03:17');
 });
+
+test('Terminal Stage is persistent on desktop and falls back to the safe panel on compact layouts', async ({ page }) => {
+  const terminalCard = {
+    gameplay_ui:{
+      version:1,
+      layout:{ preset:'terminal', primary_panel:'system' },
+      panels:[{
+        id:'system',
+        label:'WORLD-0317',
+        sections:[
+          { type:'stats', title:'SYSTEM STATUS', items:[
+            { label:'時間', path:'time' },
+            { label:'地點', path:'location' }
+          ]},
+          { type:'actions', title:'COMMANDS', items:[
+            { label:'接受邀請', draft:'我接受這個不存在的世界邀請。' }
+          ]}
+        ]
+      }]
+    }
+  };
+
+  await mountStory(page, { width:1440, patch:terminalCard });
+
+  const root = page.locator('#chat-view');
+  await expect(root).toHaveAttribute('data-bao-stage-shell', 'terminal');
+  await expect(root).toHaveAttribute('data-bao-stage-renderer', 'game-ui');
+  await expect(root).toHaveAttribute('data-bao-stage-presentation', 'embedded');
+  await expect(root).toHaveAttribute('data-gameplay-layout', 'terminal');
+
+  const terminal = page.locator('#bao-gameplay-terminal-stage');
+  await expect(terminal).toBeVisible();
+  await expect(terminal).toContainText('YORUBAY // TERMINAL');
+  await expect(terminal).toContainText('WORLD-0317');
+  await expect(terminal).toContainText('03:17');
+  await expect(terminal).toContainText('灰岸市');
+  await expect(page.locator('#game-ui')).toBeHidden();
+
+  const beforeMessages = await page.evaluate(() => Chat.messages.length);
+  await terminal.getByRole('button', { name:'接受邀請' }).click();
+  await expect(page.locator('#user-input')).toHaveValue('我接受這個不存在的世界邀請。');
+  expect(await page.evaluate(() => Chat.messages.length)).toBe(beforeMessages);
+
+  await page.locator('#bao-play-status-toggle').click();
+  await expect(terminal).toBeFocused();
+
+  await page.setViewportSize({ width:900, height:844 });
+  await page.evaluate(() => {
+    BAOGameplayUI.syncGameplayLayout();
+    BAOStorySurface.sync();
+  });
+  await expect(root).toHaveAttribute('data-bao-stage-presentation', 'panel');
+  await expect(terminal).toBeHidden();
+
+  await page.locator('#bao-play-status-toggle').click();
+  await expect(page.locator('#game-ui')).toBeVisible();
+  await expect(page.locator('#ui-panel')).toContainText('SYSTEM STATUS');
+});

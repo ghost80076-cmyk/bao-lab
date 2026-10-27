@@ -14,6 +14,11 @@ assert.equal(readerMobile.renderer, 'game-ui');
 assert.equal(readerMobile.presentation, 'panel');
 assert.equal(readerMobile.controls, 'game-ui');
 
+const readerCompact = Stage.resolve({ viewport:'compact' });
+assert.equal(readerCompact.shell, 'reader');
+assert.equal(readerCompact.renderer, 'game-ui');
+assert.equal(readerCompact.presentation, 'panel');
+
 const standard = Stage.resolve({
   viewport:'desktop',
   gameplay:{ layout:{preset:'standard'}, panels:[{id:'status'}] }
@@ -38,6 +43,24 @@ const scene = Stage.resolve({
 });
 assert.equal(scene.shell, 'scene-rpg');
 assert.equal(scene.presentation, 'embedded');
+
+const terminal = Stage.resolve({
+  viewport:'desktop',
+  gameplay:{ layout:{preset:'terminal', primary_panel:'system'}, panels:[{id:'system'}] }
+});
+assert.equal(terminal.shell, 'terminal');
+assert.equal(terminal.renderer, 'game-ui');
+assert.equal(terminal.presentation, 'embedded');
+assert.equal(terminal.persistent, true);
+assert.equal(terminal.label, '終端舞臺');
+
+const terminalCompact = Stage.resolve({
+  viewport:'compact',
+  gameplay:{ layout:{preset:'terminal', primary_panel:'system'}, panels:[{id:'system'}] }
+});
+assert.equal(terminalCompact.shell, 'terminal');
+assert.equal(terminalCompact.presentation, 'panel');
+assert.equal(terminalCompact.persistent, false);
 
 const optionalPhone = Stage.resolve({ viewport:'desktop', phone:true });
 assert.equal(optionalPhone.shell, 'reader');
@@ -68,7 +91,7 @@ const phoneDoesNotOverrideGameplay = Stage.resolve({
 assert.equal(phoneDoesNotOverrideGameplay.shell, 'rpg-dashboard');
 assert.deepEqual(phoneDoesNotOverrideGameplay.available, ['reader','rpg-dashboard','phone']);
 
-assert.equal(Stage.shells.includes('terminal'), false);
+assert.equal(Stage.shells.includes('terminal'), true);
 assert.equal(Stage.shells.includes('phone'), true);
 assert.equal(Stage.version, 1);
 

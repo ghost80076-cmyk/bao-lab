@@ -100,6 +100,7 @@
   if (!root || !main || !layout) return;
 
   const desktop = window.matchMedia('(min-width:1081px)');
+  const stageViewport = () => window.matchMedia('(max-width:820px)').matches ? 'mobile' : desktop.matches ? 'desktop' : 'compact';
   let mode = 'play';
   let statusOpen = false;
   // Play is always the entry surface. Studio is useful while editing, but it must
@@ -118,28 +119,28 @@
     const hasGameplay = legacyGameUI || Boolean(schema?.panels?.length);
     const preset = schema?.layout?.preset;
     const shell = hasGameplay
-      ? (preset === 'rpg-dashboard' || preset === 'scene-rpg' ? preset : 'gameplay')
+      ? (['rpg-dashboard', 'scene-rpg', 'terminal'].includes(preset) ? preset : 'gameplay')
       : 'reader';
-    const mobile = !desktop.matches;
-    const renderer = shell === 'reader' && !mobile ? 'reader-context' : 'game-ui';
+    const viewport = stageViewport();
+    const renderer = shell === 'reader' && viewport === 'desktop' ? 'reader-context' : 'game-ui';
     return {
       version:0,
       shell,
       renderer,
-      presentation: shell === 'rpg-dashboard' || shell === 'scene-rpg'
+      presentation: ['rpg-dashboard', 'scene-rpg', 'terminal'].includes(shell) && viewport === 'desktop'
         ? 'embedded'
         : renderer === 'reader-context' ? 'sheet' : 'panel',
-      label: shell === 'reader' ? '故事資訊' : '人物、事件與作品資訊',
+      label: shell === 'terminal' ? '終端舞臺' : shell === 'reader' ? '故事資訊' : '人物、事件與作品資訊',
       ariaLabel: shell === 'reader' ? '查看舞臺：故事資訊' : '查看舞臺：人物、事件與作品資訊',
       controls: renderer === 'reader-context' ? 'bao-reader-context' : 'game-ui',
-      persistent: shell === 'rpg-dashboard' || shell === 'scene-rpg'
+      persistent: ['rpg-dashboard', 'scene-rpg', 'terminal'].includes(shell) && viewport === 'desktop'
     };
   };
 
   const stageCapability = () => {
     try {
       return window.BAOStageCapabilities?.sync?.(root, {
-        viewport: desktop.matches ? 'desktop' : 'mobile'
+        viewport: stageViewport()
       }) || fallbackStageCapability();
     } catch {
       return fallbackStageCapability();
@@ -248,8 +249,24 @@
   const openStatus = () => {
     const capability = mode === 'play' ? stageCapability() : null;
 
+    if (capability?.shell === 'terminal' && capability.presentation === 'embedded' &&
+        window.matchMedia('(min-width:1081px)').matches) {
+      const terminal = document.getElementById('bao-gameplay-terminal-stage');
+      statusOpen = Boolean(terminal);
+      if (terminal) {
+        terminal.tabIndex = -1;
+        terminal.focus({ preventScroll:true });
+        terminal.scrollIntoView({ block:'nearest', inline:'nearest' });
+      }
+      const button = document.getElementById('bao-play-status-toggle');
+      button?.setAttribute('aria-expanded', String(statusOpen));
+      syncStatusButtonContract();
+      syncSurfaceNavigation();
+      return;
+    }
+
     if (capability?.renderer === 'phone' && window.BAOStageCapabilities?.openPrimary?.({
-      viewport: desktop.matches ? 'desktop' : 'mobile'
+      viewport: stageViewport()
     })) {
       statusOpen = true;
       root.classList.remove('bao-play-status-open');

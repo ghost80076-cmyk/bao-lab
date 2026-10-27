@@ -75,9 +75,9 @@ increasing(siteUI, [
 
 // Stage capability must resolve before Reader Context / Player Shell consume it.
 increasing(siteUI, [
-  'loadBAOOptionalGroup("stage-capabilities", ["js/stage-capability-core.js?v=1", "js/stage-capability.js?v=1"])',
+  'loadBAOOptionalGroup("stage-capabilities", ["js/stage-capability-core.js?v=2", "js/stage-capability.js?v=2"])',
   'loadBAOScript("js/reader-context.js?v=7")',
-  'loadBAOScript("js/bao-visual-ui.js?v=16")',
+  'loadBAOScript("js/bao-visual-ui.js?v=17")',
   'loadBAOScript("js/player-shell-v2.js?v=12")'
 ], "stage capability extension");
 
