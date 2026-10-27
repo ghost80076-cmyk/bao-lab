@@ -63,6 +63,19 @@
     display:flex!important;
     visibility:visible!important;
   }
+  /* Tablet is a compact desktop Control Center, not the phone bottom sheet. */
+  #bao-chat-tool-drawer{
+    padding:14px!important;
+    align-items:center!important;
+  }
+  #bao-chat-tool-drawer .bao-chat-tool-dialog{
+    width:min(520px,100%)!important;
+    max-height:calc(100dvh - 28px)!important;
+    border-radius:22px!important;
+  }
+  #bao-chat-tool-drawer header h2{
+    font-size:22px!important;
+  }
 }
 
 
