@@ -72,7 +72,8 @@ test('story-owned NPC portrait upload is portable and does not overwrite the aut
   expect(data.card.cast).toHaveLength(2);
 });
 test('author studio round-trips cast thumbnails and recommended mode',async({page})=>{
-  await page.goto('/character-studio.html');await page.waitForFunction(()=>window.BAOCharacterStudio);
+  await page.goto('/character-studio.html');await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOCharacterStudioFlow);
+  await page.getByRole('button',{name:'全部欄位'}).click();
   await page.locator('#studio-form [name="name"]').fill('頭像測試作品');
   await page.locator('#studio-form [name="greeting"]').fill('小雨：晚上好。');
   await page.locator('#studio-form [name="system_prompt"]').fill('你是小雨。');
