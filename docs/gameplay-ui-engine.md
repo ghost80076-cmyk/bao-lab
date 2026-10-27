@@ -168,6 +168,7 @@ Gameplay UI 新增三個平台原生 section，用來取代作品各自手寫的
 - `standard`：沿用原本 Gameplay UI tabs。
 - `rpg-dashboard`：桌機使用夜灣現有三欄骨架；左欄顯示指定 gameplay panel，中間保留故事閱讀與輸入，右欄把指定 gameplay panel 放進既有世界狀態 rail。窄螢幕會退回原本 tabs / 狀態抽屜，不另做一套手機 DOM。
 - `scene-rpg`：寬螢幕新增單一持續存在的場景舞台，中央偏左顯示場景圖，右側保留原本故事、Gameplay UI 與自由輸入。場景圖優先可讀玩家本機故事圖集；沒有圖時才回退作品閱讀背景或封面。1280px 以下自動退回原本聊天版面。
+- `terminal`：1081px 以上顯示平台-owned 終端主控台，內容來自一個既有 Gameplay panel；較窄螢幕退回按需 Stage panel，不另建手機終端 DOM。
 
 範例：
 
@@ -190,6 +191,43 @@ Gameplay UI 新增三個平台原生 section，用來取代作品各自手寫的
 
 `left_panel` / `right_panel` 只能引用同一份 schema 已存在的 panel id。平台不接受 selector、任意 DOM 位置、URL、CSS 或 JavaScript。沒有宣告 layout 的舊卡等同 `standard`，完全維持原流程。
 
+
+Terminal 範例：
+
+```json
+{
+  "gameplay_ui": {
+    "version": 1,
+    "layout": {
+      "preset": "terminal",
+      "primary_panel": "system"
+    },
+    "panels": [{
+      "id": "system",
+      "label": "WORLD-0317",
+      "sections": [
+        {
+          "type": "stats",
+          "title": "SYSTEM STATUS",
+          "items": [
+            { "label": "時間", "path": "time" },
+            { "label": "地點", "path": "location" }
+          ]
+        },
+        {
+          "type": "actions",
+          "title": "COMMANDS",
+          "items": [
+            { "label": "接受邀請", "draft": "我接受這個世界邀請。" }
+          ]
+        }
+      ]
+    }]
+  }
+}
+```
+
+`primary_panel` 只能引用同一份 schema 已存在的 panel id。Terminal 只重排既有安全 renderer；stats/list/cards/timeline/actions 等規則完全不變，按鈕仍只會填草稿或執行既有 atomic effect，不會自動送出故事訊息，也不會讀 API Key、執行作者 JavaScript 或新增模型呼叫。
 
 Scene RPG 範例：
 
