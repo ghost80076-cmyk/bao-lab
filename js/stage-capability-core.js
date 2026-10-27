@@ -8,10 +8,10 @@
 })(typeof self !== 'undefined' ? self : null, function() {
   'use strict';
 
-  const SHELLS = Object.freeze(['reader', 'gameplay', 'rpg-dashboard', 'scene-rpg', 'phone']);
+  const SHELLS = Object.freeze(['reader', 'gameplay', 'rpg-dashboard', 'scene-rpg', 'terminal', 'phone']);
   const RENDERERS = Object.freeze(['reader-context', 'game-ui', 'phone']);
   const PRESENTATIONS = Object.freeze(['sheet', 'panel', 'embedded', 'overlay']);
-  const GAMEPLAY_LAYOUTS = new Set(['standard', 'rpg-dashboard', 'scene-rpg']);
+  const GAMEPLAY_LAYOUTS = new Set(['standard', 'rpg-dashboard', 'scene-rpg', 'terminal']);
 
   const object = value => !!value && typeof value === 'object' && !Array.isArray(value);
   const text = value => String(value ?? '').trim();
@@ -23,7 +23,7 @@
     const panels = Array.isArray(schema?.panels) ? schema.panels : [];
     const legacyGameUI = preferred === 'game-ui';
     const available = legacyGameUI || panels.length > 0;
-    const shell = preset === 'rpg-dashboard' || preset === 'scene-rpg'
+    const shell = ['rpg-dashboard', 'scene-rpg', 'terminal'].includes(preset)
       ? preset
       : 'gameplay';
     return { available, shell, preset, legacyGameUI };
@@ -37,7 +37,7 @@
 
   function presentationFor(shell, viewport) {
     if (shell === 'phone') return 'overlay';
-    if (shell === 'rpg-dashboard' || shell === 'scene-rpg') return 'embedded';
+    if (shell === 'rpg-dashboard' || shell === 'scene-rpg' || shell === 'terminal') return 'embedded';
     if (shell === 'reader') return viewport === 'mobile' ? 'panel' : 'sheet';
     return 'panel';
   }
@@ -46,6 +46,7 @@
     if (shell === 'phone') return '作品手機';
     if (shell === 'rpg-dashboard') return 'RPG 舞臺';
     if (shell === 'scene-rpg') return '場景舞臺';
+    if (shell === 'terminal') return '終端舞臺';
     if (shell === 'gameplay') return '人物、事件與作品資訊';
     return '故事資訊';
   }
