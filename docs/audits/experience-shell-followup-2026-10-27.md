@@ -26,8 +26,8 @@
 | --- | --- | --- | --- |
 | Reader／standard | 已有 | Reader Context sheet／game-ui panel | 保留本文與輸入為主，避免加入設定 |
 | Terminal | PR #853 已有 | 1081px 起 persistent，以下按需 panel | 用現有 panels／安全 actions，無需作者 JS |
-| RPG Dashboard | 已有 | 多欄 CSS 從 1280px 起，窄版保留原 game-ui | 對齊 resolver 的 desktop embedded 宣告與實際 breakpoint |
-| Scene RPG | 已有 | 大場景 CSS 從 1280px 起，以下 fallback | 同上；以 1081–1279px 實際測試決定 contract |
+| RPG Dashboard | 已有 | 1081px 起隱藏原 game-ui；自訂欄寬從 1430px 起 | 核對既有三欄骨架、1430px 欄寬覆蓋與舞臺入口 |
+| Scene RPG | 已有 | 大場景 CSS 從 1280px 起，以下 fallback | 以 1081–1279px 實際測試決定 contract |
 | Phone | 已有獨立 renderer | overlay；僅明確 play_info_surface=phone 才作主要 Stage | 保留獨立 phone state、unlock 與舊卡 launcher |
 | Visual Novel | 尚無正式 preset | 尚未建立 | 先定義場景／對話／選項及手機 fallback，再開放 Creator/MCP |
 
@@ -36,7 +36,7 @@
 1. **搜尋任務被總覽擋住。** overview 在 search 上方；即使找不到工具，上方仍顯示大量無關設定卡。先消除搜尋中的競爭資訊。
 2. **Modal 只有標籤，沒有完整操作邊界。** Tab 可以離開 Control；關閉後沒有回原入口。先補上隔離、循環焦點及焦點復原。
 3. **Control 有重複導航層。** overview 的更多設定、分類 details、mobile quick 的更多快捷操作，同時描述相近能力。下一批以「摘要 landing／找工具」兩個任務重排，同時保留搜尋與原代理按鈕；不要再加外層摺疊。
-4. **Stage contract 與 CSS breakpoint 不完全一致。** RPG／Scene 的桌機 preset 需要 1081、1279、1280px 對照。單純新增 preset 無法解決此問題。
+4. **Stage contract 與 CSS breakpoint 不完全一致。** Scene 的桌機 preset 需要 1081、1279、1280px 對照；RPG 另需檢查 1430px 欄寬變化。單純新增 preset 無法解決此問題。
 5. **Builder 仍有五步技術流程。** 先保留 quick／advanced、已有 BYOK／燈火分流；後續把首次必需輸入與可延後設定分離，維持既有 config restore。
 6. **視覺覆蓋權責分散。** 下一步應逐個 surface 指定 layout owner，刪除有證據的過期規則；避免新加一張全域 stylesheet 壓過所有舊規則。
 
@@ -55,7 +55,7 @@
 
 1. **本批：搜尋與操作邊界。** 手機 390、平板 900、桌機 1440px 驗證查找／清除／關閉／焦點復原，確認 config、GameState、messages 不變。
 2. **Control landing 重排。** 先保留常用模型／身份／記憶摘要；進入搜尋即顯示工具結果；再移除同任務重複快捷。需保留世界書、存檔清單、顯示 select 的原 handler，測試由各入口進出 manager。
-3. **Stage responsive contract。** Reader、RPG、Scene、Terminal、explicit/optional Phone，跨 820/821、1080/1081、1279/1280 檢查實際呈現、焦點與退場。先對齊既有能力再新增 VN。
+3. **Stage responsive contract。** Reader、RPG、Scene、Terminal、explicit/optional Phone，跨 820/821、1080/1081、1279/1280、1429/1430 檢查實際呈現、焦點與退場。先對齊既有能力再新增 VN。
 4. **Builder progressive disclosure。** 無需先調記憶／進階 Provider 就能開始；讀取舊存檔、BYOK key 不落盤、Prompt feature 生效測試必須維持。
 5. **VN 平台 renderer。** 定義 schema 與 action 邊界、版本與 fallback，再更新作者工作檯及 MCP；不允許任意 JS／DOM／API Key。
 
