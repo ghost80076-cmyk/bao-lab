@@ -1,89 +1,113 @@
 const { test, expect } = require('@playwright/test');
 
-test('character studio exposes a mobile-friendly creation flow without hiding the existing form', async ({ page }) => {
+test('character studio defaults to a focused creation flow and keeps the full workbench available', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./character-studio.html');
   await page.waitForFunction(() => Boolean(window.BAOCharacterStudioFlow && window.BAOCharacterStudio));
 
   const flow = page.locator('#studio-flow-shell');
+  const workspace = page.locator('.studio-flow-workspace');
+  const panels = page.locator('[data-studio-flow-panel]');
+  const doneEditing = page.getByRole('button', { name: '完成編輯' });
+
   await expect(flow).toBeVisible();
+  await expect(panels).toHaveCount(6);
+  await expect(page.locator('[data-studio-flow-panel="basic"]')).toBeVisible();
+  await expect(page.locator('[data-studio-flow-panel="core"]')).toBeHidden();
+  await expect(page.locator('.studio-phone-settings')).toBeHidden();
+  await expect(page.locator('#studio-flow-progress')).toHaveText('必填 2/4 · 還有 2 項');
+
   const creationRoutes = page.locator('.studio-actions [data-creation-route]');
   await expect(creationRoutes).toHaveCount(5);
   await expect(creationRoutes).toHaveText(['＋ 角色作品', '＋ 世界作品', '故事開場', '世界書', '匯入作品']);
   await expect(flow.locator('[data-flow-step]')).toHaveCount(6);
-  await expect(page.locator('#studio-flow-progress')).toHaveText('必填 2/4 · 還有 2 項');
   await expect(page.locator('.studio-heading .eyebrow')).toBeHidden();
   await expect(page.locator('.studio-heading p')).toBeHidden();
 
-  const mobileDensity = await page.evaluate(() => {
-    const flow = document.getElementById('studio-flow-shell').getBoundingClientRect();
-    const actions = [...document.querySelectorAll('.studio-actions button')].map(button => button.getBoundingClientRect());
-    const drafts = document.querySelector('.studio-drafts');
+  const mobileLayout = await page.evaluate(() => {
+    const nav = document.querySelector('.studio-flow-nav');
+    const label = document.querySelector('.studio-flow-step b');
+    const controls = document.querySelector('.studio-flow-controls');
     return {
-      flowHeight: flow.height,
-      actionsSameRow: actions.length >= 2 && Math.abs(actions[0].top - actions[1].top) <= 2,
-      draftsOverflowX: getComputedStyle(drafts).overflowX
+      navOverflow: getComputedStyle(nav).overflowX,
+      stepFont: parseFloat(getComputedStyle(label).fontSize),
+      controlsHeight: controls.getBoundingClientRect().height,
+      documentOverflow: document.documentElement.scrollWidth - innerWidth
     };
   });
-  expect(mobileDensity.flowHeight).toBeLessThanOrEqual(100);
-  expect(mobileDensity.actionsSameRow).toBe(true);
-  expect(['auto', 'scroll']).toContain(mobileDensity.draftsOverflowX);
+  expect(['auto', 'scroll']).toContain(mobileLayout.navOverflow);
+  expect(mobileLayout.stepFont).toBeGreaterThanOrEqual(11);
+  expect(mobileLayout.controlsHeight).toBeGreaterThanOrEqual(44);
+  expect(mobileLayout.documentOverflow).toBeLessThanOrEqual(1);
+
+  const allFields = page.getByRole('button', { name: '全部欄位' });
+  await allFields.click();
+  await expect(workspace).toHaveAttribute('data-show-all', 'true');
+  await expect(panels).toHaveCount(6);
+  for (let index = 0; index < 6; index += 1) await expect(panels.nth(index)).toBeVisible();
+  await expect(page.locator('[name="system_prompt"]')).toBeVisible();
+  await expect(page.locator('.studio-flow-controls')).toBeHidden();
+  await page.getByRole('button', { name: '專注模式' }).click();
+  await expect(workspace).toHaveAttribute('data-show-all', 'false');
+  await expect(page.locator('[data-studio-flow-panel="basic"]')).toBeVisible();
+  await expect(page.locator('[data-studio-flow-panel="core"]')).toBeHidden();
 
   await page.getByRole('button', { name: '＋ 世界作品' }).click();
   await expect(page.locator('[name="mode"]')).toHaveValue('world');
   await page.getByRole('button', { name: '＋ 角色作品' }).click();
   await expect(page.locator('[name="mode"]')).toHaveValue('immersive');
+
   await page.locator('[data-creation-route="opening"]').click();
   await expect(flow.locator('[data-flow-step="opening"]')).toHaveAttribute('aria-current', 'step');
+  await expect(page.locator('[name="greeting"]')).toBeVisible();
+  await expect(page.locator('[name="name"]')).toBeHidden();
+
   await page.locator('[data-creation-route="lorebook"]').click();
+  await expect(page.locator('[data-studio-flow-panel="world"]')).toBeVisible();
   await expect(page.locator('.studio-advanced').first()).toHaveAttribute('open', '');
   await expect(page.locator('[name="lore"]')).toBeVisible();
 
+  await flow.getByRole('button', { name: /基本資料/ }).click();
   const nameField = page.locator('[name="name"]');
   await nameField.focus();
   await expect(page.locator('.studio-editor')).toHaveClass(/studio-editing/);
   await expect(flow).toBeHidden();
-  const doneEditing = page.getByRole('button', { name: '完成編輯' });
   await expect(doneEditing).toBeVisible();
+  await nameField.fill('雨港創作測試');
+  await page.locator('[name="id"]').fill('studio-flow-rain-port');
   await doneEditing.click();
-  await expect(page.locator('.studio-editor')).not.toHaveClass(/studio-editing/);
   await expect(flow).toBeVisible();
 
-  const navBox = await flow.locator('.studio-flow-nav').evaluate(node => ({
-    scrollWidth: node.scrollWidth,
-    clientWidth: node.clientWidth,
-    overflowX: getComputedStyle(node).overflowX
-  }));
-  expect(navBox.scrollWidth).toBeGreaterThan(navBox.clientWidth);
-  expect(['auto', 'scroll']).toContain(navBox.overflowX);
+  await flow.getByRole('button', { name: /角色／世界核心/ }).click();
+  await expect(page.locator('[name="system_prompt"]')).toBeVisible();
+  await page.locator('[name="system_prompt"]').fill('角色依自己的資訊與動機行動。');
+  await expect(doneEditing).toBeVisible();
+  await doneEditing.click();
 
   await flow.getByRole('button', { name: /故事開場/ }).click();
-  await expect(flow.locator('[data-flow-step="opening"]')).toHaveAttribute('aria-current', 'step');
-  await expect(page.locator('[name="greeting"]')).toBeVisible();
-
-  await page.locator('[name="name"]').fill('雨港創作測試');
-  await page.locator('[name="id"]').fill('studio-flow-rain-port');
-  await page.locator('[name="system_prompt"]').fill('角色依自己的資訊與動機行動。');
   await page.locator('[name="greeting"]').fill('凌晨的港口仍有一盞燈。');
+  await expect(doneEditing).toBeVisible();
+  await doneEditing.click();
 
   await expect(page.locator('#studio-flow-progress')).toHaveText('必填 4/4 · 可以預覽與試玩');
   await expect(flow.locator('[data-flow-step="basic"]')).toHaveAttribute('data-state', 'complete');
   await expect(flow.locator('[data-flow-step="core"]')).toHaveAttribute('data-state', 'complete');
   await expect(flow.locator('[data-flow-step="opening"]')).toHaveAttribute('data-state', 'complete');
   await expect(flow.locator('[data-flow-step="finish"]')).toHaveAttribute('data-state', 'ready');
-  await expect(doneEditing).toBeVisible();
-  await doneEditing.click();
-  await expect(flow).toBeVisible();
 
   await flow.getByRole('button', { name: /人物與世界/ }).click();
   await expect(page.locator('.studio-advanced').first()).toHaveAttribute('open', '');
   await page.locator('[name="world"]').fill('一座終年多雨的港口城市。');
-  await expect(flow.locator('[data-flow-step="world"]')).toHaveAttribute('data-state', 'complete');
   await expect(doneEditing).toBeVisible();
   await doneEditing.click();
-  await expect(flow).toBeVisible();
+  await expect(flow.locator('[data-flow-step="world"]')).toHaveAttribute('data-state', 'complete');
+
+  await flow.getByRole('button', { name: /互動 UI/ }).click();
+  await expect(page.locator('.studio-phone-settings')).toBeVisible();
+  await expect(page.locator('[name="greeting"]')).toBeHidden();
 
   await flow.getByRole('button', { name: /預覽與完成/ }).click();
+  await expect(page.locator('#studio-preview-button')).toBeVisible();
   await page.getByRole('button', { name: '預覽', exact: true }).click();
   await expect(page.locator('#studio-preview')).toBeVisible();
   await expect(page.locator('#studio-preview-name')).toHaveText('雨港創作測試');

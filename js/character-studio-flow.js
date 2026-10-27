@@ -6,11 +6,45 @@
   if (!core || !form || !editor || window.BAOCharacterStudioFlow) return;
 
   const field = name => form.elements.namedItem(name);
+  const editable = node => node instanceof Element && node.matches("input,textarea,select");
+  const STEP_COPY = Object.freeze({
+    basic: {
+      kicker: "FOUNDATION",
+      title: "先把作品的輪廓定下來",
+      detail: "名稱、作品方向與封面資訊先完成；其他複雜設定不用一次處理。"
+    },
+    core: {
+      kicker: "CHARACTER / WORLD",
+      title: "告訴 AI 這個角色或世界如何運作",
+      detail: "把真正影響演繹的個性、動機、關係與世界規則放在這裡。"
+    },
+    opening: {
+      kicker: "OPENING",
+      title: "寫下玩家打開故事時看到的第一幕",
+      detail: "先把場景、氣氛與可回應的切入點寫清楚；後續故事交給玩家與世界繼續。"
+    },
+    world: {
+      kicker: "DEPTH",
+      title: "需要時，再補人物與世界深度",
+      detail: "世界書、NPC 規則與作者敘事偏好都屬於進階層；沒有需要可以直接跳過。"
+    },
+    appearance: {
+      kicker: "EXPERIENCE",
+      title: "決定玩家會怎麼看見這個作品",
+      detail: "手機、頭像與 Gameplay UI 都是選配；不啟用時完全沿用夜灣原生閱讀體驗。"
+    },
+    finish: {
+      kicker: "REVIEW",
+      title: "預覽、檢查，然後決定下一步",
+      detail: "先在本機確認內容，再儲存、試玩或匯出；這些操作都不會自動公開作品。"
+    }
+  });
+
   const ensureStyles = () => {
     if (document.querySelector('link[href^="css/character-studio-flow.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/character-studio-flow.css?v=3";
+    link.href = "css/character-studio-flow.css?v=4";
     document.head.appendChild(link);
   };
 
@@ -20,7 +54,7 @@
     "author_instructions", "creator_notes", "quote"
   ].map(name => [name, String(field(name)?.value || "")]));
 
-  const targetFor = id => {
+  const legacyTargetFor = id => {
     if (id === "basic") return form.querySelector(".studio-grid");
     if (id === "core") return field("system_prompt")?.closest("label");
     if (id === "opening") return field("greeting")?.closest("label");
@@ -30,16 +64,90 @@
     return null;
   };
 
+  const targetFor = id =>
+    form.querySelector('[data-studio-flow-panel="' + id + '"]') || legacyTargetFor(id);
+
   const firstFieldFor = id => ({
     basic: field("name"),
     core: field("system_prompt"),
     opening: field("greeting"),
     world: field("profile"),
-    appearance: field("gameplay_theme"),
+    appearance: field("phone_ui_enabled") || field("dialogue_mode") || field("gameplay_theme"),
     finish: document.getElementById("studio-preview-button")
   })[id] || null;
 
   let activeStep = "basic";
+  let showAll = false;
+
+  const hasField = (node, name) =>
+    Boolean(node?.matches?.('[name="' + name + '"]') || node?.querySelector?.('[name="' + name + '"]'));
+
+  const stepForNode = node => {
+    if (!node) return "finish";
+    if (["name", "id", "category", "rating", "mode", "description", "avatar", "tags"].some(name => hasField(node, name))) return "basic";
+    if (["system_prompt", "recommended_styles"].some(name => hasField(node, name))) return "core";
+    if (hasField(node, "greeting")) return "opening";
+    if (node.id === "studio-feature-guide" || ["profile", "world", "lore", "npc_rules", "author_instructions", "creator_notes", "quote"].some(name => hasField(node, name))) return "world";
+    if (node.id === "studio-gameplay-theme" || ["phone_ui_enabled", "dialogue_mode"].some(name => hasField(node, name))) return "appearance";
+    if (node.classList?.contains("studio-button-row")) return "finish";
+    return "finish";
+  };
+
+  const installStagePanels = () => {
+    let workspace = form.querySelector(".studio-flow-workspace");
+    if (workspace) return workspace;
+
+    const original = [...form.children];
+    workspace = document.createElement("div");
+    workspace.className = "studio-flow-workspace";
+    workspace.dataset.showAll = "false";
+
+    const panels = new Map();
+    core.STEPS.forEach((step, index) => {
+      const copy = STEP_COPY[step.id] || {};
+      const panel = document.createElement("section");
+      panel.className = "studio-flow-panel";
+      panel.dataset.studioFlowPanel = step.id;
+      panel.setAttribute("aria-labelledby", "studio-stage-title-" + step.id);
+      panel.innerHTML =
+        '<header class="studio-stage-head">' +
+          '<div class="studio-stage-number">STEP ' + (index + 1) + ' / ' + core.STEPS.length + '</div>' +
+          '<div class="studio-stage-copy">' +
+            '<span>' + (copy.kicker || "CREATE") + '</span>' +
+            '<h3 id="studio-stage-title-' + step.id + '">' + (copy.title || step.label) + '</h3>' +
+            '<p>' + (copy.detail || "") + '</p>' +
+          '</div>' +
+          '<strong class="studio-stage-state" data-studio-stage-state>—</strong>' +
+        '</header>';
+      panels.set(step.id, panel);
+      workspace.appendChild(panel);
+    });
+
+    original.forEach(node => panels.get(stepForNode(node))?.appendChild(node));
+    form.appendChild(workspace);
+    return workspace;
+  };
+
+  const makeControls = () => {
+    let controls = form.querySelector(".studio-flow-controls");
+    if (controls) return controls;
+    controls = document.createElement("div");
+    controls.className = "studio-flow-controls";
+    controls.innerHTML =
+      '<button type="button" class="secondary" data-studio-flow-prev>← 上一步</button>' +
+      '<span data-studio-flow-position aria-live="polite"></span>' +
+      '<button type="button" class="primary" data-studio-flow-next>下一步 →</button>';
+    controls.querySelector("[data-studio-flow-prev]").addEventListener("click", () => {
+      const index = core.STEPS.findIndex(step => step.id === activeStep);
+      if (index > 0) go(core.STEPS[index - 1].id, true);
+    });
+    controls.querySelector("[data-studio-flow-next]").addEventListener("click", () => {
+      const index = core.STEPS.findIndex(step => step.id === activeStep);
+      if (index >= 0 && index < core.STEPS.length - 1) go(core.STEPS[index + 1].id, true);
+    });
+    form.appendChild(controls);
+    return controls;
+  };
 
   const installCreationRoutes = () => {
     const actions = document.querySelector(".studio-actions");
@@ -88,8 +196,11 @@
     lore.addEventListener("click", () => {
       if (!go("world")) return;
       const input = field("lore");
+      input?.closest("details")?.setAttribute("open", "");
       input?.scrollIntoView({ behavior: "smooth", block: "center" });
-      if (window.matchMedia("(min-width: 821px)").matches) window.setTimeout(() => input?.focus({ preventScroll: true }), 220);
+      if (window.matchMedia("(min-width: 821px)").matches) {
+        window.setTimeout(() => input?.focus({ preventScroll: true }), 220);
+      }
     });
 
     importButton.textContent = "匯入作品";
@@ -114,9 +225,24 @@
     shell.id = "studio-flow-shell";
     shell.className = "studio-flow-shell";
     shell.setAttribute("aria-label", "角色卡創作流程");
+
     const intro = document.createElement("div");
     intro.className = "studio-flow-summary";
-    intro.innerHTML = '<div><span class="eyebrow">CREATION FLOW</span><b>創作流程</b></div><strong id="studio-flow-progress" role="status" aria-live="polite">必填 0/4</strong>';
+    intro.innerHTML =
+      '<div class="studio-flow-title"><span class="eyebrow">CREATION FLOW</span><b>創作流程</b></div>' +
+      '<div class="studio-flow-summary-actions">' +
+        '<strong id="studio-flow-progress" role="status" aria-live="polite">必填 0/4</strong>' +
+        '<button type="button" class="studio-flow-mode" data-studio-flow-all aria-pressed="false">全部欄位</button>' +
+      '</div>';
+
+    const meter = document.createElement("div");
+    meter.className = "studio-flow-meter";
+    meter.setAttribute("role", "progressbar");
+    meter.setAttribute("aria-label", "必要欄位完成度");
+    meter.setAttribute("aria-valuemin", "0");
+    meter.setAttribute("aria-valuemax", "4");
+    meter.innerHTML = "<span data-studio-flow-meter></span>";
+
     const nav = document.createElement("nav");
     nav.className = "studio-flow-nav";
     nav.setAttribute("aria-label", "創作步驟");
@@ -129,8 +255,10 @@
       button.addEventListener("click", () => go(step.id, true));
       nav.appendChild(button);
     });
-    shell.append(intro, nav);
+
+    shell.append(intro, meter, nav);
     form.insertAdjacentElement("beforebegin", shell);
+    shell.querySelector("[data-studio-flow-all]").addEventListener("click", () => setShowAll(!showAll));
     return shell;
   };
 
@@ -153,7 +281,44 @@
     return button;
   };
 
+  const updateControls = () => {
+    const controls = form.querySelector(".studio-flow-controls");
+    if (!controls) return;
+    const index = core.STEPS.findIndex(step => step.id === activeStep);
+    const previous = controls.querySelector("[data-studio-flow-prev]");
+    const next = controls.querySelector("[data-studio-flow-next]");
+    const position = controls.querySelector("[data-studio-flow-position]");
+    controls.hidden = showAll;
+    previous.hidden = index <= 0;
+    next.hidden = index < 0 || index >= core.STEPS.length - 1;
+    if (position && index >= 0) position.textContent = (index + 1) + " / " + core.STEPS.length + " · " + core.STEPS[index].label;
+    if (next && index >= 0 && index < core.STEPS.length - 1) next.textContent = "下一步：" + core.STEPS[index + 1].short + " →";
+  };
+
+  const applyPanelVisibility = () => {
+    const workspace = form.querySelector(".studio-flow-workspace");
+    if (!workspace) return;
+    workspace.dataset.showAll = String(showAll);
+    workspace.querySelectorAll("[data-studio-flow-panel]").forEach(panel => {
+      panel.hidden = !showAll && panel.dataset.studioFlowPanel !== activeStep;
+    });
+    updateControls();
+  };
+
+  const setShowAll = value => {
+    showAll = Boolean(value);
+    const button = document.querySelector("[data-studio-flow-all]");
+    if (button) {
+      button.setAttribute("aria-pressed", String(showAll));
+      button.textContent = showAll ? "專注模式" : "全部欄位";
+    }
+    editor.classList.toggle("studio-show-all", showAll);
+    applyPanelVisibility();
+    if (!showAll) targetFor(activeStep)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   const setActive = id => {
+    if (!core.STEPS.some(step => step.id === id)) return;
     activeStep = id;
     document.querySelectorAll("[data-flow-step]").forEach(button => {
       const active = button.dataset.flowStep === id;
@@ -161,15 +326,24 @@
       if (active) button.setAttribute("aria-current", "step");
       else button.removeAttribute("aria-current");
     });
+    applyPanelVisibility();
   };
 
   const update = () => {
     const shell = makeShell();
-    const states = core.stepStates(values(), {
+    const currentValues = values();
+    const states = core.stepStates(currentValues, {
       gameplayEnabled: !Boolean(field("gameplay_theme")?.disabled)
     });
+    const required = core.requiredProgress(currentValues);
     const progress = shell.querySelector("#studio-flow-progress");
-    if (progress) progress.textContent = core.overallLabel(values());
+    if (progress) progress.textContent = core.overallLabel(currentValues);
+
+    const meter = shell.querySelector(".studio-flow-meter");
+    const fill = shell.querySelector("[data-studio-flow-meter]");
+    if (meter) meter.setAttribute("aria-valuenow", String(required.done));
+    if (fill) fill.style.width = Math.round(required.done / required.total * 100) + "%";
+
     shell.querySelectorAll("[data-flow-step]").forEach(button => {
       const item = states[button.dataset.flowStep];
       if (!item) return;
@@ -177,6 +351,16 @@
       const label = button.querySelector("[data-flow-state]");
       if (label) label.textContent = item.label;
     });
+
+    form.querySelectorAll("[data-studio-flow-panel]").forEach(panel => {
+      const item = states[panel.dataset.studioFlowPanel];
+      const state = panel.querySelector("[data-studio-stage-state]");
+      if (item && state) {
+        state.textContent = item.label;
+        state.dataset.state = item.state;
+      }
+    });
+
     setActive(activeStep);
     return states;
   };
@@ -184,11 +368,21 @@
   const go = (id, intentional = false) => {
     const target = targetFor(id);
     if (!target) return false;
-    if (target.matches("details")) target.open = true;
     setActive(id);
+
+    if (id === "world") {
+      field("profile")?.closest("details")?.setAttribute("open", "");
+    }
+
     target.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    const navButton = document.querySelector('[data-flow-step="' + id + '"]');
+    navButton?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+
     if (intentional) {
       const focus = firstFieldFor(id);
+      const details = focus?.closest?.("details");
+      if (details && id !== "appearance") details.open = true;
       if (focus && !focus.disabled && window.matchMedia("(min-width: 821px)").matches) {
         window.setTimeout(() => {
           try { focus.focus({ preventScroll: true }); } catch (_) {}
@@ -198,22 +392,18 @@
     return true;
   };
 
-  const detectStep = node => {
-    for (const step of core.STEPS) {
-      const target = targetFor(step.id);
-      if (target && (target === node || target.contains(node))) return step.id;
-    }
-    return "";
-  };
+  const detectStep = node => node?.closest?.("[data-studio-flow-panel]")?.dataset.studioFlowPanel || "";
 
   ensureStyles();
+  installStagePanels();
   installAnchors();
   makeShell();
+  makeControls();
   installCreationRoutes();
   installEditDone();
+
   form.addEventListener("input", update);
   form.addEventListener("change", update);
-  const editable = node => node instanceof Element && node.matches("input,textarea,select");
   form.addEventListener("focusin", event => {
     const id = detectStep(event.target);
     if (id) setActive(id);
@@ -230,5 +420,12 @@
     .observe(status, { childList: true, subtree: true, characterData: true });
 
   update();
-  window.BAOCharacterStudioFlow = Object.freeze({ update, go, values, targetFor, installCreationRoutes });
+  window.BAOCharacterStudioFlow = Object.freeze({
+    update,
+    go,
+    values,
+    targetFor,
+    setShowAll,
+    installCreationRoutes
+  });
 })();

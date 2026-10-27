@@ -6,8 +6,10 @@ test('character studio separates draft, local test version and public lifecycle 
   await page.waitForFunction(() => Boolean(
     window.BAOCharacterStudioLifecycle &&
     window.BAOCharacterStudio &&
+    window.BAOCharacterStudioFlow &&
     window.CharacterEngine
   ));
+  await page.getByRole('button', { name: '全部欄位' }).click();
 
   const lifecycle = page.locator('#studio-lifecycle');
   await expect(lifecycle).toBeVisible();
@@ -82,7 +84,8 @@ test('known public IDs are labeled as public without pretending the draft was pu
 test('draft archive is reversible and does not delete the draft immediately', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./character-studio.html');
-  await page.waitForFunction(() => Boolean(window.BAOCharacterStudioLifecycle && window.BAOCharacterStudio));
+  await page.waitForFunction(() => Boolean(window.BAOCharacterStudioLifecycle && window.BAOCharacterStudio && window.BAOCharacterStudioFlow));
+  await page.getByRole('button', { name: '全部欄位' }).click();
 
   await page.locator('[name="name"]').fill('封存測試作品');
   await page.locator('[name="id"]').fill('creator-archive-e2e');

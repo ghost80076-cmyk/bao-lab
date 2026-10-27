@@ -77,13 +77,15 @@ test('storage failure, pending requests and story switching do not commit puzzle
   expect(await page.evaluate(()=>GameState.current.phoneInteractions)).toBeUndefined();
 });
 test('studio rejects dangling references and retains mechanisms in drafts and export',async({page})=>{
-  await page.goto('/character-studio.html');await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOPhoneInteractionCore);
+  await page.goto('/character-studio.html');await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOPhoneInteractionCore && window.BAOCharacterStudioFlow);
+  await page.getByRole('button',{name:'全部欄位'}).click();
   await page.locator('[name=name]').fill('手機機關草稿');await page.locator('[name=id]').fill('phone-mechanism-draft');
   await page.locator('[name=system_prompt]').fill('原作設定');await page.locator('[name=greeting]').fill('雨夜。');
   await page.locator('[name=phone_ui_enabled]').check();await page.locator('[name=phone_ui_json]').fill(JSON.stringify(seed));
   const good=await page.evaluate(()=>BAOCharacterStudio.toExport());expect(good.presentation.phone_ui.interactions.locks[0].code).toBe('0427');
   await page.locator('#studio-save-draft').click();await expect(page.locator('#studio-status')).toContainText('草稿已儲存');
-  await page.reload();await page.locator('.studio-draft').filter({hasText:'手機機關草稿'}).click();
+  await page.reload();await page.waitForFunction(()=>window.BAOCharacterStudioFlow && window.BAOCharacterStudio);
+  await page.getByRole('button',{name:'全部欄位'}).click();await page.locator('.studio-draft').filter({hasText:'手機機關草稿'}).click();
   await expect(page.locator('[name=phone_ui_enabled]')).toBeChecked();
   await expect(page.locator('[name=phone_ui_json]')).toHaveValue(/0427/);
   expect((await page.evaluate(()=>BAOCharacterStudio.toExport())).presentation.phone_ui.interactions.events).toHaveLength(3);
