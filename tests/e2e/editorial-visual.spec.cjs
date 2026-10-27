@@ -165,8 +165,7 @@ for (const width of [390, 1280]) {
       // Fixed status sheets are captured in the real viewport; full-page capture
       // temporarily resizes the page and can close responsive overlays.
       await capture(page, `chat-status-${width}`, false);
-      if (width < 1081) await page.locator('#bao-mobile-panel-close').click();
-      else await page.locator('#bao-play-status-close').click();
+      await page.locator('#bao-play-status-toggle').click();
       await expect(page.locator('#game-ui')).toBeHidden();
     }
 
