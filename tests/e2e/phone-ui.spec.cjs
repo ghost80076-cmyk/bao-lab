@@ -73,6 +73,7 @@ test('X, video call and Spotify remain purely optional interactive surfaces',asy
 test('local studio keeps phone presentation data on JSON round trip',async({page})=>{
   await page.goto('/character-studio.html');
   await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOPhoneUICore);
+  await page.getByRole('button',{name:'全部欄位'}).click();
   await page.locator('[name=phone_ui_enabled]').check();
   await page.locator('[name=phone_ui_json]').fill(JSON.stringify({
     userName:'테스트',contactName:'친구',tweets:['기록'],spotify:{playlistName:'노래',tracks:[]},threads:[{id:'friends',name:'朋友群',messages:[{senderId:'xia',text:'群聊'}]}],notes:[{id:'memo',title:'筆記',text:'原文'}]
@@ -91,6 +92,7 @@ test('studio simple phone fields and style advice survive draft reload and nativ
   await page.setViewportSize({width:390,height:844});
   await page.goto('/character-studio.html');
   await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOPhoneUICore);
+  await page.getByRole('button',{name:'全部欄位'}).click();
   await page.locator('[name=name]').fill('雨港手機');
   await page.locator('[name=id]').fill('phone-author-sync');
   await page.locator('[name=system_prompt]').fill('原作世界設定');
@@ -109,6 +111,8 @@ test('studio simple phone fields and style advice survive draft reload and nativ
   await page.locator('#studio-save-draft').click();
   await expect(page.locator('#studio-status')).toContainText('草稿已儲存');
   await page.reload();
+  await page.waitForFunction(()=>window.BAOCharacterStudioFlow && window.BAOCharacterStudio);
+  await page.getByRole('button',{name:'全部欄位'}).click();
   await page.locator('.studio-draft').filter({hasText:'雨港手機'}).click();
   await expect(page.locator('[name=phone_userName]')).toHaveValue('林曼');
   await expect(page.locator('[name=phone_contactName]')).toHaveValue('小夏');
