@@ -73,9 +73,8 @@ for (const width of [320, 390, 900, 1280]) {
       }
       await page.locator('.ui-tab[data-panel="status"]').click();
       await expect(page.locator('#ui-panel .state-grid')).toBeVisible();
-      // Stage toggle is the cross-device close contract; internal close
-      // buttons differ between phone, tablet and desktop presentations.
-      await page.locator('#bao-play-status-toggle').click();
+      if (width <= 820) await page.locator('#bao-mobile-panel-close').click();
+      else await page.locator('#bao-play-status-close').click();
       await expect(page.locator('#game-ui')).toBeHidden();
     }
     await expect(page.locator('#bao-play-status-toggle')).toHaveAttribute('aria-expanded', 'false');
