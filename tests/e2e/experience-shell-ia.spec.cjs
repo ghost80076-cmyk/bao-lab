@@ -53,6 +53,7 @@ test('desktop exposes one Story / Stage / Control Center navigation without chan
   await expect(page.locator('#chat-view [data-open-story-control]')).toHaveCount(1);
   await expect(page.locator('#chat-view .usage-bar')).toBeHidden();
   await expect(page.locator('#chat-view #bao-chat-tool-groups')).toBeHidden();
+  await expect(page.locator('#bao-chat-tool-shortcuts')).toHaveCount(0);
   await expect(page.locator('#chat-view #game-ui')).toBeHidden();
 
   const before = await page.evaluate(() => ({
@@ -100,6 +101,7 @@ test('mobile keeps Story as the base surface and routes Stage / Control Center o
   await expect(stage).toBeVisible();
   await expect(stage).toHaveText('舞臺');
   await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-experience-surface', 'story');
+  await expect(page.locator('#bao-chat-tool-shortcuts')).toHaveCount(0);
 
   await stage.click();
   await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-experience-surface', 'stage');
@@ -191,7 +193,11 @@ for (const width of [390, 900, 1440]) {
     await expect(dialog).toHaveAttribute('data-control-view', 'tools');
     await expect(overview).toBeHidden();
     await expect(groups.first()).toBeVisible();
-    if (width <= 820) await expect(drawer.locator('.bao-mobile-quick')).toBeVisible();
+    if (width <= 820) {
+      await expect(drawer.locator('.bao-mobile-quick')).toBeVisible();
+    } else {
+      await expect(drawer.getByRole('button', { name:'快速儲存', exact:true })).toBeVisible();
+    }
     await overviewButton.click();
     await expect(dialog).toHaveAttribute('data-instance', 'keep');
     await expect(overview.locator('.story-control-more')).toHaveAttribute('open', '');
