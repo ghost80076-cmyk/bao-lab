@@ -4,6 +4,8 @@ for (const viewport of [{width:1280,height:900},{width:390,height:844}]) {
  test(`studio builds and exports inventory actions at ${viewport.width}px`,async({page})=>{
   await page.setViewportSize(viewport);
   await page.goto('./character-studio.html');
+  await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOCharacterStudioFlow);
+  await page.getByRole('button',{name:'全部欄位'}).click();
   await page.locator('[name="name"]').fill('原生交易商店');
   await page.locator('[name="id"]').fill('studio-actions-test');
   await page.locator('[name="system_prompt"]').fill('商店經營。');
@@ -30,6 +32,8 @@ for (const viewport of [{width:1280,height:900},{width:390,height:844}]) {
   await page.locator('#studio-save-draft').click();
   await expect(page.locator('#studio-status')).toContainText('草稿已儲存');
   await page.reload();
+  await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOCharacterStudioFlow);
+  await page.getByRole('button',{name:'全部欄位'}).click();
   await page.locator('.studio-draft').filter({hasText:'原生交易商店'}).click();
   await page.locator('#studio-gameplay-theme > summary').click();
   await expect(page.locator('#studio-action-list li')).toHaveCount(2);
@@ -46,6 +50,8 @@ for (const viewport of [{width:1280,height:900},{width:390,height:844}]) {
 }
 test('invalid legacy inventory is not silently rewritten by author form',async({page})=>{
  await page.goto('./character-studio.html');
+ await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOCharacterStudioFlow);
+ await page.getByRole('button',{name:'全部欄位'}).click();
  const card={schema_version:'1.5',meta:{id:'legacy-bag',name:'舊背包'},content:{system_prompt:'商店',greeting:'歡迎'},gameplay:{world_modules:[{id:'inventory',kind:'collection'}],initial_state:{modules:{inventory:[{name:'罐頭',quantity:2}]}}}};
  await page.locator('#studio-file').setInputFiles({name:'legacy.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(card))});
  await expect(page.locator('#studio-status')).toContainText('夜灣角色卡已載入');
@@ -57,6 +63,8 @@ test('invalid legacy inventory is not silently rewritten by author form',async({
 });
 test('author edits and removes existing actions without resetting resources',async({page})=>{
  await page.goto('./character-studio.html');
+ await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOCharacterStudioFlow);
+ await page.getByRole('button',{name:'全部欄位'}).click();
  await page.locator('#studio-gameplay-theme > summary').click();
  await page.locator('#studio-add-inventory-action').click();
  await page.getByRole('button',{name:'編輯 購買罐頭',exact:true}).click();
@@ -81,6 +89,8 @@ test('author edits and removes existing actions without resetting resources',asy
 });
 test('local action trial maintains an isolated sequence and resets',async({page})=>{
  await page.goto('./character-studio.html');
+ await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOCharacterStudioFlow);
+ await page.getByRole('button',{name:'全部欄位'}).click();
  await page.locator('#studio-gameplay-theme > summary').click();
  await page.locator('#studio-add-inventory-action').click();
  await page.locator('[name="action_kind"]').selectOption('consume');
