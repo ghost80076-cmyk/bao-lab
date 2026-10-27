@@ -232,7 +232,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/story-branches.js?v=2"))
     .then(() => loadBAOScript("js/streaming-ui.js?v=7"))
     .then(() => loadBAOScript("js/request-lifecycle.js?v=3"))
-    .then(() => loadBAOScript("js/chat-tool-navigation.js?v=13"))
+    .then(() => loadBAOScript("js/chat-tool-navigation.js?v=14"))
     .then(() => loadBAOScript("js/chat-experience-repairs.js?v=6"))
     .then(() => loadBAOOptionalGroup("story-quick-commands", ["js/story-quick-commands-core.js?v=3", "js/story-quick-commands.js?v=8"]))
     .then(() => loadBAOOptionalGroup("mobile-reading-layout", ["js/mobile-reading-layout.js?v=24"]))

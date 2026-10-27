@@ -121,3 +121,49 @@ test('mobile keeps Story as the base surface and routes Stage / Control Center o
   await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-experience-surface', 'story');
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
 });
+for (const width of [390, 900, 1440]) {
+  test(`control center at ${width}px isolates keyboard and restores search context`, async ({ page }) => {
+    await openExperienceStory(page, width);
+    const opener = page.locator(width <= 820 ? '#bao-mobile-composer-tools' : '#bao-surface-mode-toggle');
+    const before = await page.evaluate(() => JSON.stringify({ config:App.config, state:GameState.current, messages:Chat.messages }));
+    await opener.click();
+    const drawer = page.locator('#bao-chat-tool-drawer');
+    await expect(drawer).toBeVisible();
+    await expect(page.locator('.app-shell')).toHaveAttribute('inert', '');
+    // Focus must wrap at both ends, including controls added by mobile enhancement.
+    const focusEnds = () => page.evaluate(() => {
+      const dialog = document.querySelector('#bao-chat-tool-drawer [role="dialog"]');
+      const items = [...dialog.querySelectorAll('button,a[href],input,select,textarea,summary,[tabindex]')]
+        .filter(node => !node.disabled && node.tabIndex >= 0 && node.getClientRects().length);
+      items[items.length - 1].focus();
+    });
+    await focusEnds();
+    await page.keyboard.press('Tab');
+    expect(await page.evaluate(() => document.activeElement === document.querySelector('#bao-chat-tool-drawer header button'))).toBe(true);
+    await page.keyboard.press('Shift+Tab');
+    expect(await page.evaluate(() => {
+      const dialog = document.querySelector('#bao-chat-tool-drawer [role="dialog"]');
+      const items = [...dialog.querySelectorAll('button,a[href],input,select,textarea,summary,[tabindex]')]
+        .filter(node => !node.disabled && node.tabIndex >= 0 && node.getClientRects().length);
+      return document.activeElement === items[items.length - 1];
+    })).toBe(true);
+    const overview = drawer.locator('[data-story-settings-hub]');
+    await overview.evaluate(node => { node.open = true; });
+    const search = drawer.getByRole('searchbox', { name:'搜尋故事工具' });
+    await search.fill('prompt');
+    await expect(overview).toBeHidden();
+    await expect(drawer.locator('[data-chat-tool-group="settings"]')).toBeVisible();
+    await search.fill('NO_SUCH_TOOL_0317');
+    await expect(drawer.locator('.bao-tool-search-empty')).toBeVisible();
+    await expect(overview).toBeHidden();
+    await search.fill('');
+    await expect(overview).toBeVisible();
+    await expect(overview).toHaveAttribute('open', '');
+    await page.keyboard.press('Escape');
+    await expect(drawer).toHaveCount(0);
+    await expect(page.locator('.app-shell')).not.toHaveAttribute('inert', '');
+    await expect(opener).toBeFocused();
+    expect(await page.evaluate(() => JSON.stringify({ config:App.config, state:GameState.current, messages:Chat.messages }))).toBe(before);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+  });
+}

@@ -20,6 +20,8 @@
   let scheduled = false;
   let watcher = null;
   let watchedAside = null;
+  let drawerFocus = null;
+  const backgroundInert = new Map();
 
   const addStyle = () => {
     if (document.querySelector('link[href^="css/chat-tool-navigation.css"]')) return;
@@ -209,9 +211,34 @@
     if (slots) move(slots, aside()?.querySelector('[data-chat-tool-body="story"]'));
     backdrop.remove();
     document.removeEventListener('keydown', drawerKeys);
+    backgroundInert.forEach((wasInert, node) => { node.inert = wasInert; });
+    backgroundInert.clear();
     notifyControlCenter(false);
+    const target = drawerFocus;
+    drawerFocus = null;
+    if (target?.isConnected && !target.closest('[inert]')) target.focus({ preventScroll:true });
   };
-  const drawerKeys = event => { if (event.key === 'Escape') closeDrawer(); };
+  const drawerKeys = event => {
+    const dialog = document.querySelector('#bao-chat-tool-drawer [role="dialog"]');
+    if (!dialog) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeDrawer();
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    // Recompute after disclosure, search and mobile enhancement; hidden and
+    // collapsed controls must never become keyboard destinations.
+    const items = [...dialog.querySelectorAll('button, a[href], input, select, textarea, summary, [tabindex]')]
+      .filter(node => !node.disabled && node.tabIndex >= 0 && !node.closest('[inert]') && node.getClientRects().length);
+    const first = items[0], last = items[items.length - 1];
+    if (!first) { event.preventDefault(); return; }
+    if (!dialog.contains(document.activeElement) ||
+        (event.shiftKey ? document.activeElement === first : document.activeElement === last)) {
+      event.preventDefault();
+      (event.shiftKey ? last : first).focus();
+    }
+  };
 
   const proxy = (source, destination) => {
     const button = document.createElement('button');
@@ -252,6 +279,7 @@
     closeDrawer();
     const sidebar = aside();
     if (!sidebar) return;
+    drawerFocus = document.activeElement;
     const backdrop = document.createElement('div');
     backdrop.id = 'bao-chat-tool-drawer';
     const dialog = document.createElement('section');
@@ -388,6 +416,10 @@
     let mobileMoreOpenBefore = null;
     const filterTools = () => {
       const q = searchInput.value.trim().toLocaleLowerCase();
+      // Searching is a distinct task. Hide the overview and introductory copy
+      // without rebuilding them, so disclosure choices survive clearing search.
+      body.querySelector('[data-story-settings-hub]')?.toggleAttribute('hidden', Boolean(q));
+      introduction.hidden = Boolean(q);
       const groups = [...body.children].filter(node => node.tagName === 'DETAILS' && !node.hasAttribute('data-story-settings-hub'));
       const mobile = body.querySelector('.bao-mobile-quick');
       const extra = mobile?.querySelector('.bao-mobile-more');
@@ -448,6 +480,10 @@
     };
     searchInput.addEventListener('input', filterTools);
     document.body.append(backdrop);
+    // Limit isolation to this modal's lifetime. Preserve any existing inert
+    // state, and release it before a proxy opens the original manager.
+    [...document.body.children].filter(node => node !== backdrop && !node.matches('script, style, link'))
+      .forEach(node => { backgroundInert.set(node, node.inert); node.inert = true; });
     notifyControlCenter(true);
     document.addEventListener('keydown', drawerKeys);
     close.focus();
