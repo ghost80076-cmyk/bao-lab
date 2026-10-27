@@ -416,7 +416,7 @@
           <button type="button" role="tab" data-reader-context-tab="memory">記憶</button>
         </nav>
         <div class="reader-context-content" data-reader-context-content></div>
-        <footer class="reader-context-foot">只顯示已確認資訊 · 要修改設定請開啟「工具」</footer>
+        <footer class="reader-context-foot">只顯示已確認資訊 · 要修改設定請開啟「控制中心」</footer>
       </aside>`;
     document.body.append(root);
     document.body.classList.add('bao-reader-context-open');
