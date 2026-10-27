@@ -75,6 +75,7 @@ test('local studio keeps phone presentation data on JSON round trip',async({page
   await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOPhoneUICore);
   await page.getByRole('button',{name:'全部欄位'}).click();
   await page.locator('[name=phone_ui_enabled]').check();
+  await page.locator('.studio-phone-raw > summary').click();
   await page.locator('[name=phone_ui_json]').fill(JSON.stringify({
     userName:'테스트',contactName:'친구',tweets:['기록'],spotify:{playlistName:'노래',tracks:[]},threads:[{id:'friends',name:'朋友群',messages:[{senderId:'xia',text:'群聊'}]}],notes:[{id:'memo',title:'筆記',text:'原文'}]
   }));
@@ -98,6 +99,7 @@ test('studio simple phone fields and style advice survive draft reload and nativ
   await page.locator('[name=system_prompt]').fill('原作世界設定');
   await page.locator('[name=greeting]').fill('雨停了。');
   await page.locator('[name=phone_ui_enabled]').check();
+  await page.locator('.studio-phone-raw > summary').click();
   await page.locator('[name=phone_ui_json]').fill(JSON.stringify({userName:'原主人',chat:[{text:'先前紀錄'}],weather:{place:'基隆'}}));
   await expect(page.locator('[name=phone_userName]')).toHaveValue('原主人');
   await page.locator('[name=phone_userName]').fill('林曼');
