@@ -189,6 +189,9 @@
     move(sidebar.querySelector('.text-button[onclick*="exitChat"]'), targets.other);
     move(sidebar.querySelector('a[href*="ko-fi.com"]'), targets.other);
     [...sidebar.children].filter(node => node.matches('button, a')).forEach(node => move(node, targets.other));
+    // Do not leave an empty quick-actions spacer after its last persistent
+    // action has been demoted into the task-based Control Center.
+    quick.hidden = quick.children.length === 0;
     compactBoard(sidebar);
     compactBoard(document.getElementById('ui-panel'));
   };
