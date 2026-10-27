@@ -31,15 +31,16 @@
 
   function rendererFor(shell, viewport) {
     if (shell === 'phone') return 'phone';
-    if (shell === 'reader') return viewport === 'mobile' ? 'game-ui' : 'reader-context';
+    if (shell === 'reader') return viewport === 'desktop' ? 'reader-context' : 'game-ui';
     return 'game-ui';
   }
 
   function presentationFor(shell, viewport) {
     if (shell === 'phone') return 'overlay';
-    if (shell === 'terminal') return viewport === 'mobile' ? 'panel' : 'embedded';
-    if (shell === 'rpg-dashboard' || shell === 'scene-rpg') return 'embedded';
-    if (shell === 'reader') return viewport === 'mobile' ? 'panel' : 'sheet';
+    if (shell === 'terminal') return viewport === 'desktop' ? 'embedded' : 'panel';
+    if (shell === 'rpg-dashboard') return viewport === 'desktop' ? 'embedded' : 'panel';
+    if (shell === 'scene-rpg') return viewport === 'desktop' ? 'embedded' : 'panel';
+    if (shell === 'reader') return viewport === 'desktop' ? 'sheet' : 'panel';
     return 'panel';
   }
 
@@ -60,7 +61,7 @@
 
   function resolve(input = {}) {
     const preferred = text(input.preferred);
-    const viewport = input.viewport === 'mobile' ? 'mobile' : 'desktop';
+    const viewport = input.viewport === 'mobile' ? 'mobile' : input.viewport === 'compact' ? 'compact' : 'desktop';
     const phoneAvailable = input.phone === true;
     const gameplay = gameplayFacts(input.gameplay, preferred);
 
