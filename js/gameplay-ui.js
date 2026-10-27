@@ -611,6 +611,30 @@
     document.getElementById('bao-gameplay-scene-stage')?.remove();
   };
 
+  const removeTerminalStage = () => document.getElementById('bao-gameplay-terminal-stage')?.remove();
+
+  const ensureTerminalStage = (layout, panel, schema) => {
+    const main = layout.querySelector(':scope > .chat-main');
+    if (!main || !panel || !GameState.current) {
+      removeTerminalStage();
+      return null;
+    }
+    let stage = document.getElementById('bao-gameplay-terminal-stage');
+    if (!stage) {
+      stage = document.createElement('section');
+      stage.id = 'bao-gameplay-terminal-stage';
+      stage.className = 'gameplay-terminal-stage';
+      layout.insertBefore(stage, main);
+    }
+    applyTheme(stage, schema);
+    const characterName = String(App.activeCharacter?.name || 'WORLD').trim();
+    const time = displayValue(formatValue(GameState.current?.time));
+    const location = displayValue(formatValue(GameState.current?.location));
+    stage.innerHTML = `<header class="gameplay-terminal-head"><div><span>YORUBAY // TERMINAL</span><strong>${esc(characterName)}</strong></div><div class="gameplay-terminal-meta"><span>${esc(time)}</span><span>${esc(location)}</span></div></header><div class="gameplay-terminal-panel"><div class="gameplay-terminal-prompt">&gt; OPEN ${esc(panel.label)}</div>${panelHTML(panel, GameState.current)}</div><footer><span>SESSION ACTIVE</span><span>STORY INPUT BELOW</span></footer>`;
+    bindGameplayInteractions(stage);
+    return stage;
+  };
+
   const fallbackSceneURL = source => {
     const character = App.activeCharacter || {};
     if (source === 'avatar') return String(character.avatar || '');
@@ -748,6 +772,7 @@
     removeDashboardHost('bao-gameplay-dashboard-left');
     removeDashboardHost('bao-gameplay-dashboard-right');
     removeSceneStage();
+    removeTerminalStage();
   };
 
   const syncGameplayLayout = () => {
@@ -763,6 +788,17 @@
       return false;
     }
 
+    if (spec.preset === 'terminal') {
+      removeDashboardHost('bao-gameplay-dashboard-left');
+      removeDashboardHost('bao-gameplay-dashboard-right');
+      removeSceneStage();
+      root.dataset.gameplayLayout = 'terminal';
+      const panel = schema.panels.find(item => item.id === spec.primary_panel) || schema.panels[0];
+      ensureTerminalStage(layout, panel, schema);
+      return true;
+    }
+
+    removeTerminalStage();
     if (spec.preset === 'scene-rpg') {
       removeDashboardHost('bao-gameplay-dashboard-left');
       removeDashboardHost('bao-gameplay-dashboard-right');
@@ -866,7 +902,11 @@
 
   const activateInitialPanel = () => {
     const schema = schemaFor(App.activeCharacter);
-    const preferredId = schema?.layout?.preset === 'scene-rpg' ? schema.layout.right_panel : '';
+    const preferredId = schema?.layout?.preset === 'scene-rpg'
+      ? schema.layout.right_panel
+      : schema?.layout?.preset === 'terminal'
+        ? schema.layout.primary_panel
+        : '';
     const first = schema?.panels?.find(panel => panel.id === preferredId) || schema?.panels?.[0];
     const tabs = document.querySelector('#game-ui .ui-tabs');
     if (!first || !tabs || App.config?.displayMode !== 'ui') return;
