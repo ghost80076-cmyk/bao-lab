@@ -73,7 +73,7 @@ test('save feedback stays inside the site without native dialogs', async ({ page
   await expect(sidebar).toBeVisible();
 
   const storyTools = sidebar.locator('details[data-chat-tool-group="story"]');
-  if (!await storyTools.getAttribute('open')) await storyTools.locator('summary').click();
+  if (!(await storyTools.evaluate(node => node.open))) await storyTools.locator('summary').click();
   const quickSave = storyTools.getByRole('button', { name: '快速儲存', exact: true });
   await expect(quickSave).toBeVisible();
   await quickSave.click();
