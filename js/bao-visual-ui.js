@@ -260,7 +260,7 @@
       return;
     }
 
-    if (!desktop.matches && window.BAOMobileReadingLayout?.togglePanels) {
+    if (window.matchMedia('(max-width:820px)').matches && window.BAOMobileReadingLayout?.togglePanels) {
       if (!main.classList.contains('bao-mobile-panel-open')) {
         window.BAOMobileReadingLayout.togglePanels();
       }
