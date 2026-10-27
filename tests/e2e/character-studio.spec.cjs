@@ -10,6 +10,8 @@ test('character studio creates a private draft, previews safely, exports and ins
   await expect(page.getByRole('link', { name: '＋ 角色卡創作室' })).toBeVisible();
   await page.getByRole('link', { name: '＋ 角色卡創作室' }).click();
   await expect(page.getByRole('heading', { name: '角色卡創作室' })).toBeVisible();
+  await page.waitForFunction(() => Boolean(window.BAOCharacterStudio && window.BAOCharacterStudioFlow));
+  await page.getByRole('button', { name: '全部欄位' }).click();
   await page.locator('[name="name"]').fill(name);
   await page.locator('[name="id"]').fill(roleId);
   await page.locator('[name="description"]').fill('建立在這台裝置的測試角色。');
@@ -33,6 +35,8 @@ test('character studio creates a private draft, previews safely, exports and ins
   }));
   expect(drafts).toHaveLength(1);
   await page.reload();
+  await page.waitForFunction(() => Boolean(window.BAOCharacterStudio && window.BAOCharacterStudioFlow));
+  await page.getByRole('button', { name: '全部欄位' }).click();
   await page.getByRole('button', { name: new RegExp(name) }).first().click();
   await expect(page.locator('[name="greeting"]')).toHaveValue(/港口的燈亮了/);
 
@@ -56,6 +60,8 @@ test('character studio creates a private draft, previews safely, exports and ins
 
 test('studio imports SillyTavern V2 as editable draft without auto publishing', async ({ page }) => {
   await page.goto('./character-studio.html');
+  await page.waitForFunction(() => Boolean(window.BAOCharacterStudio && window.BAOCharacterStudioFlow));
+  await page.getByRole('button', { name: '全部欄位' }).click();
   const v2 = { spec: 'chara_card_v2', data: { name: '酒館可編輯角色', description: '小鎮角色', personality: '溫和', scenario: '雨夜', first_mes: '歡迎來到小鎮。' } };
   await page.locator('#studio-file').setInputFiles({ name: 'card.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(v2)) });
   await expect(page.locator('#studio-status')).toContainText('酒館 V2 已轉換');
