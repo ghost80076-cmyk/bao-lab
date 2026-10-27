@@ -17,7 +17,7 @@
   const THEME_DENSITIES = Object.freeze(['comfortable', 'compact']);
   const THEME_RADII = Object.freeze(['round', 'soft', 'sharp']);
   const THEME_METERS = Object.freeze(['soft', 'solid', 'glow']);
-  const LAYOUT_PRESETS = Object.freeze(['standard', 'rpg-dashboard', 'scene-rpg']);
+  const LAYOUT_PRESETS = Object.freeze(['standard', 'rpg-dashboard', 'scene-rpg', 'terminal']);
   const SCENE_SOURCES = Object.freeze(['story-gallery', 'reading-background', 'avatar']);
   const SCENE_FITS = Object.freeze(['cover', 'contain']);
   const CARD_VARIANTS = Object.freeze(['codex', 'quest', 'party', 'skill']);
@@ -362,6 +362,16 @@
     };
     const left = panelId(source.left_panel || source.left);
     const rightCandidate = panelId(source.right_panel || source.right);
+    if (preset === 'terminal') {
+      return {
+        preset,
+        primary_panel: panelId(source.primary_panel || source.panel || source.left_panel),
+        left_panel: '',
+        right_panel: '',
+        scene_source: 'story-gallery',
+        scene_fit: 'cover'
+      };
+    }
     if (preset === 'scene-rpg') {
       return {
         preset,
