@@ -40,7 +40,7 @@ increasing(index, [
   'src="js/helper-data.js?v=3"',
   'src="js/episodic-memory-core.js?v=6"',
   'src="js/chat.js',
-  'src="js/character.js?v=9"',
+  'src="js/character.js?v=10"',
   'src="js/app.js',
   'src="js/chat-markup.js?v=6"',
   'src="js/site-ui.js'
@@ -72,6 +72,14 @@ increasing(siteUI, [
   'loadBAOScript("js/streaming-ui.js',
   'loadBAOScript("js/request-lifecycle.js?v=3")'
 ], "story extension");
+
+// Stage capability must resolve before Reader Context / Player Shell consume it.
+increasing(siteUI, [
+  'loadBAOOptionalGroup("stage-capabilities", ["js/stage-capability-core.js?v=1", "js/stage-capability.js?v=1"])',
+  'loadBAOScript("js/reader-context.js?v=7")',
+  'loadBAOScript("js/bao-visual-ui.js?v=15")',
+  'loadBAOScript("js/player-shell-v2.js?v=12")'
+], "stage capability extension");
 
 assert.match(siteUI, /const STORY_LIBRARY_SRC = "js\/story-library\.js\?v=12"/);
 assert.match(siteUI, /window\.BAOEnsureStoryLibrary = \(\) =>/);
