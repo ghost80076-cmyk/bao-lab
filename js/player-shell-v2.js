@@ -27,7 +27,7 @@
     if (document.querySelector('link[href^="css/player-shell-v2.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/player-shell-v2.css?v=3";
+    link.href = "css/player-shell-v2.css?v=7";
     document.head.appendChild(link);
   };
 

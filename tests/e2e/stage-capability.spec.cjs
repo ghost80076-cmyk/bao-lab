@@ -69,7 +69,7 @@ test('reader cards resolve to the platform Reader Stage without changing state',
 
 test('Gameplay layout becomes the resolved Stage shell while keeping the safe renderer', async ({ page }) => {
   await mountStory(page, {
-    width:1280,
+    width:1440,
     patch:{
       gameplay_ui:{
         version:1,
@@ -252,3 +252,46 @@ test('Terminal Stage is persistent on desktop and falls back to the safe panel o
   await expect(page.locator('#game-ui')).toBeVisible();
   await expect(page.locator('#ui-panel')).toContainText('SYSTEM STATUS');
 });
+
+for (const [preset, threshold, target] of [
+  ['terminal',1081,'bao-gameplay-terminal-stage'],
+  ['scene-rpg',1280,'bao-gameplay-scene-stage'],
+  ['rpg-dashboard',1430,'bao-gameplay-dashboard-left']
+]) {
+  test(`${preset} Stage follows real layout boundaries and preserves story data`, async ({page})=>{
+    await mountStory(page,{width:threshold-1,patch:{gameplay_ui:{version:1,
+      layout:{preset,left_panel:'status',right_panel:'world',primary_panel:'status'},
+      panels:[{id:'status',label:'Status',sections:[{type:'stats',items:[{label:'時間',path:'time'}]}]},
+        {id:'world',label:'World',sections:[{type:'stats',items:[{label:'地點',path:'location'}]}]}]}}});
+    const root=page.locator('#chat-view'),button=page.locator('#bao-play-status-toggle');
+    const before=await page.evaluate(()=>JSON.stringify({state:GameState.current,api:App.config.api,messages:Chat.messages}));
+    for(const width of [threshold-1,threshold,threshold-1,820,821,1080,1081,threshold]){
+      await page.setViewportSize({width,height:844});
+      const embedded=width>=threshold;
+      await expect(root).toHaveAttribute('data-bao-stage-presentation',embedded?'embedded':'panel');
+      await expect(button).toHaveAttribute('aria-controls',embedded?target:'game-ui');
+      const host=page.locator('#'+target);
+      if(embedded){
+        await expect(host).toBeVisible();
+        if(preset==='rpg-dashboard'){
+          await expect(page.locator('#bao-gameplay-dashboard-right')).toBeVisible();
+          await expect(page.locator('#bao-author-regex-panel')).toBeHidden();
+          await expect(page.locator('#bao-scene-view-controls')).toBeHidden();
+        }
+        expect((await page.locator('.chat-title-copy').boundingBox()).width).toBeGreaterThanOrEqual(180);
+        const columns=await page.locator('#chat-view .chat-layout').evaluate(n=>getComputedStyle(n).gridTemplateColumns.split(' ').length);
+        expect(columns).toBe(preset==='rpg-dashboard'?3:2);
+      }else{
+        await expect(host).toBeHidden();
+        await expect(page.locator('#game-ui')).toBeHidden();
+      }
+      await button.click();
+      if(embedded)await expect(host).toBeFocused();
+      else await expect(page.locator('#game-ui')).toBeVisible();
+      await page.evaluate(()=>BAOStorySurface.closeStatus());
+      await expect(root).toHaveAttribute('data-bao-experience-surface','story');
+      expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+1);
+    }
+    expect(await page.evaluate(()=>JSON.stringify({state:GameState.current,api:App.config.api,messages:Chat.messages}))).toBe(before);
+  });
+}

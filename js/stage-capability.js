@@ -41,7 +41,8 @@
       gameplay: gameplayFor(character),
       phone: Boolean(phoneFor(character, state)),
       preferred: character?.play_info_surface,
-      viewport: viewport(options.viewport)
+      viewport: viewport(options.viewport),
+      width: options.width ?? window.innerWidth
     });
   };
 

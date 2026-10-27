@@ -122,6 +122,9 @@
       ? (['rpg-dashboard', 'scene-rpg', 'terminal'].includes(preset) ? preset : 'gameplay')
       : 'reader';
     const viewport = stageViewport();
+    if (window.BAOStageCapabilityCore) return window.BAOStageCapabilityCore.resolve({
+      gameplay:schema, preferred:App.activeCharacter?.play_info_surface, viewport, width:window.innerWidth
+    });
     const renderer = shell === 'reader' && viewport === 'desktop' ? 'reader-context' : 'game-ui';
     return {
       version:0,
@@ -249,20 +252,20 @@
   const openStatus = () => {
     const capability = mode === 'play' ? stageCapability() : null;
 
-    if (capability?.shell === 'terminal' && capability.presentation === 'embedded' &&
-        window.matchMedia('(min-width:1081px)').matches) {
-      const terminal = document.getElementById('bao-gameplay-terminal-stage');
-      statusOpen = Boolean(terminal);
-      if (terminal) {
-        terminal.tabIndex = -1;
-        terminal.focus({ preventScroll:true });
-        terminal.scrollIntoView({ block:'nearest', inline:'nearest' });
+    if (capability?.presentation === 'embedded') {
+      const target = document.getElementById(capability.controls);
+      if (target && target.getClientRects().length) {
+        statusOpen = true;
+        target.tabIndex = -1;
+        target.focus({ preventScroll:true });
+        target.scrollIntoView({ block:'nearest', inline:'nearest' });
+        document.getElementById('bao-play-status-toggle')?.setAttribute('aria-expanded', 'true');
+        syncStatusButtonContract();
+        syncSurfaceNavigation();
+        return;
       }
-      const button = document.getElementById('bao-play-status-toggle');
-      button?.setAttribute('aria-expanded', String(statusOpen));
-      syncStatusButtonContract();
-      syncSurfaceNavigation();
-      return;
+      // A deferred renderer may not be mounted yet. Preserve access to the
+      // existing panel instead of activating a Stage with no visible target.
     }
 
     if (capability?.renderer === 'phone' && window.BAOStageCapabilities?.openPrimary?.({
@@ -490,10 +493,11 @@
     }
   }).observe(main, { childList:true, subtree:true });
 
-  desktop.addEventListener?.('change', () => {
-    closeStatus();
-    setMode(mode);
-  });
+  [desktop, window.matchMedia('(min-width:1280px)'), window.matchMedia('(min-width:1430px)')]
+    .forEach(query => query.addEventListener?.('change', () => {
+      closeStatus();
+      setMode(mode);
+    }));
   root.addEventListener('bao:mobile-stage-visibility', event => {
     if (desktop.matches) return;
     statusOpen = Boolean(event.detail?.open);
