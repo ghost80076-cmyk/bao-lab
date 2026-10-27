@@ -85,8 +85,8 @@ test('exports only portable player settings and imports selected categories afte
   });
 
   await page.locator('#bao-mobile-composer-tools').click();
-  const mobileControl = page.locator('#bao-chat-tool-drawer .bao-mobile-quick');
-  await mobileControl.getByRole('button', { name:'目前故事設定', exact:true }).click();
+  const mobileControl = page.locator('#bao-chat-tool-drawer .bao-control-sections');
+  await mobileControl.getByRole('button', { name:'目前設定', exact:true }).click();
 
   const control = page.getByRole('dialog', { name: '故事總覽' });
   await control.locator('.story-control-more summary').click();

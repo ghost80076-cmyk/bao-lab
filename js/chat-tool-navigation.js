@@ -20,12 +20,15 @@
   let scheduled = false;
   let watcher = null;
   let watchedAside = null;
+  let drawerFocus = null;
+  let selectDrawerView = null;
+  const backgroundInert = new Map();
 
   const addStyle = () => {
     if (document.querySelector('link[href^="css/chat-tool-navigation.css"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'css/chat-tool-navigation.css?v=7';
+    link.href = 'css/chat-tool-navigation.css?v=9';
     document.head.append(link);
   };
   const groupBody = (root, id) => root.querySelector(`[data-chat-tool-body="${id}"]`);
@@ -208,10 +211,40 @@
     const slots = backdrop.querySelector('#slot-list');
     if (slots) move(slots, aside()?.querySelector('[data-chat-tool-body="story"]'));
     backdrop.remove();
+    selectDrawerView = null;
     document.removeEventListener('keydown', drawerKeys);
+    backgroundInert.forEach((wasInert, node) => { node.inert = wasInert; });
+    backgroundInert.clear();
     notifyControlCenter(false);
+    const target = drawerFocus;
+    drawerFocus = null;
+    if (target?.isConnected && !target.closest('[inert]')) target.focus({ preventScroll:true });
   };
-  const drawerKeys = event => { if (event.key === 'Escape') closeDrawer(); };
+  const drawerKeys = event => {
+    const dialog = document.querySelector('#bao-chat-tool-drawer [role="dialog"]');
+    if (!dialog) return;
+    // A help dialog may open above Control without replacing it. Its own
+    // keyboard events must not close or redirect focus to the parent dialog.
+    const sourceDialog = event.target?.closest?.('[role="dialog"]');
+    if (sourceDialog && sourceDialog !== dialog && !dialog.contains(sourceDialog)) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeDrawer();
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    // Recompute after disclosure, search and mobile enhancement; hidden and
+    // collapsed controls must never become keyboard destinations.
+    const items = [...dialog.querySelectorAll('button, a[href], input, select, textarea, summary, [tabindex]')]
+      .filter(node => !node.disabled && node.tabIndex >= 0 && !node.closest('[inert]') && node.getClientRects().length);
+    const first = items[0], last = items[items.length - 1];
+    if (!first) { event.preventDefault(); return; }
+    if (!dialog.contains(document.activeElement) ||
+        (event.shiftKey ? document.activeElement === first : document.activeElement === last)) {
+      event.preventDefault();
+      (event.shiftKey ? last : first).focus();
+    }
+  };
 
   const proxy = (source, destination) => {
     const button = document.createElement('button');
@@ -252,6 +285,7 @@
     closeDrawer();
     const sidebar = aside();
     if (!sidebar) return;
+    drawerFocus = document.activeElement;
     const backdrop = document.createElement('div');
     backdrop.id = 'bao-chat-tool-drawer';
     const dialog = document.createElement('section');
@@ -371,9 +405,25 @@
     searchInput.placeholder = '搜尋人物、長期指令、記憶、模型、世界書…';
     searchInput.setAttribute('aria-label', '搜尋故事工具');
     searchWrap.append(searchCaption, searchInput);
-    body.prepend(searchWrap);
+    const sections = document.createElement('nav');
+    sections.className = 'bao-control-sections';
+    sections.setAttribute('aria-label', '控制中心分區');
+    const sectionButtons = new Map();
+    for (const [id, label] of [['overview', '目前設定'], ['tools', '全部工具']]) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.dataset.controlView = id;
+      button.textContent = label;
+      button.addEventListener('click', () => selectDrawerView?.(id));
+      sectionButtons.set(id, button);
+      sections.append(button);
+    }
+    // Fixed task navigation and search precede the scrolling content on all
+    // viewports. No second dialog or copy of settings is created.
+    dialog.insertBefore(sections, body);
+    dialog.insertBefore(searchWrap, body);
     if(window.BAOStoryControlCenter?.mount && window.GameState?.current){
-      const overview=document.createElement('details');overview.dataset.storySettingsHub='';overview.open=!!options.overview;
+      const overview=document.createElement('details');overview.dataset.storySettingsHub='';overview.open=true;
       const heading=document.createElement('summary');heading.textContent='目前故事設定與生效狀態';overview.append(heading);
       window.BAOStoryControlCenter.mount(overview);body.prepend(overview);
       if(options.effects)overview.querySelector('[data-settings-effects]')?.setAttribute('open','');
@@ -386,8 +436,18 @@
     body.append(searchEmpty);
     const groupOpenBefore = new Map();
     let mobileMoreOpenBefore = null;
+    const overview = body.querySelector('[data-story-settings-hub]');
+    let selectedView = options.overview && overview ? 'overview' : 'tools';
+    sectionButtons.get('overview').disabled = !overview;
     const filterTools = () => {
       const q = searchInput.value.trim().toLocaleLowerCase();
+      // Searching is a distinct task. Hide the overview and introductory copy
+      // without rebuilding them, so disclosure choices survive clearing search.
+      const effectiveView = q ? 'tools' : selectedView;
+      dialog.dataset.controlView = effectiveView;
+      sectionButtons.forEach((button, id) => button.setAttribute('aria-pressed', String(id === effectiveView)));
+      overview?.toggleAttribute('hidden', effectiveView !== 'overview');
+      introduction.hidden = Boolean(q) || effectiveView === 'overview';
       const groups = [...body.children].filter(node => node.tagName === 'DETAILS' && !node.hasAttribute('data-story-settings-hub'));
       const mobile = body.querySelector('.bao-mobile-quick');
       const extra = mobile?.querySelector('.bao-mobile-more');
@@ -410,7 +470,7 @@
         });
         const contentMatch = actions.length === 0 && matches(group.textContent);
         const showGroup = !q || titleMatch || contentMatch || visible > 0;
-        group.hidden = !showGroup;
+        group.hidden = effectiveView === 'overview' || !showGroup;
         if (q && showGroup) group.open = true;
         if (!q && groupOpenBefore.has(group)) group.open = groupOpenBefore.get(group);
         if (q && showGroup) found++;
@@ -423,7 +483,7 @@
         if (q && show) found++;
       });
       const standaloneHost = body.querySelector('.yoru-tool-actions');
-      if (standaloneHost) standaloneHost.hidden = !!q && !standalone.some(button => !button.hidden);
+      if (standaloneHost) standaloneHost.hidden = effectiveView === 'overview' || (!!q && !standalone.some(button => !button.hidden));
       if (mobile) {
         const buttons = [...mobile.querySelectorAll('button, a.bao-mobile-support-link')];
         buttons.forEach(button => {
@@ -439,15 +499,32 @@
           if (!q && mobileMoreOpenBefore !== null) extra.open = mobileMoreOpenBefore;
         }
         const mobileShown = buttons.some(button => !button.hidden);
-        mobile.hidden = !!q && !mobileShown;
+        mobile.hidden = effectiveView === 'overview' || (!!q && !mobileShown);
         const connection = mobile.querySelector(':scope > small');
         if (connection) connection.hidden = !!q;
       }
       if (!q) mobileMoreOpenBefore = null;
       searchEmpty.hidden = !q || found > 0;
     };
+    selectDrawerView = next => {
+      selectedView = next === 'overview' && overview ? 'overview' : 'tools';
+      dialog.setAttribute('aria-label', selectedView === 'overview' ? '故事總覽' : '故事功能選單');
+      if (selectedView === 'overview') close.setAttribute('aria-label', '關閉故事總覽');
+      else close.removeAttribute('aria-label');
+      searchInput.value = '';
+      filterTools();
+      body.scrollTop = 0;
+    };
+    // Mobile enhancement can prepend shortcuts after mount; it calls the same
+    // presentation sync so those shortcuts respect the chosen task.
+    backdrop.addEventListener('bao:control-content-ready', filterTools);
     searchInput.addEventListener('input', filterTools);
+    filterTools();
     document.body.append(backdrop);
+    // Limit isolation to this modal's lifetime. Preserve any existing inert
+    // state, and release it before a proxy opens the original manager.
+    [...document.body.children].filter(node => node !== backdrop && !node.matches('script, style, link'))
+      .forEach(node => { backgroundInert.set(node, node.inert); node.inert = true; });
     notifyControlCenter(true);
     document.addEventListener('keydown', drawerKeys);
     close.focus();
@@ -461,8 +538,9 @@
     });
     // Reopen on demand instead of leaving a drawer in a stale layout.
     if (document.getElementById('bao-chat-tool-drawer')) {
+      const overview = document.querySelector('#bao-chat-tool-drawer [role="dialog"]')?.dataset.controlView === 'overview';
       closeDrawer();
-      openDrawer();
+      openDrawer({ overview });
     }
   });
 
@@ -479,7 +557,7 @@
     const originalRender = App.renderChatShell.bind(App);
     App.renderChatShell = (...args) => toolNavigationShellWrapper.call(App, originalRender, ...args);
   }
-  window.BAOChatToolNavigation = { sync, openDrawer, closeDrawer, compactBoard };
+  window.BAOChatToolNavigation = { sync, openDrawer, closeDrawer, compactBoard, showView: view => selectDrawerView?.(view) };
   watchSidebar();
   schedule();
 })();

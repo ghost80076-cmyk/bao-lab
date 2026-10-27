@@ -3,8 +3,8 @@ const { test, expect } = require('@playwright/test');
 async function openControlCenter(page, width) {
   if (width <= 820) {
     await page.locator('#bao-mobile-composer-tools').click();
-    const quick = page.locator('#bao-chat-tool-drawer .bao-mobile-quick');
-    await quick.getByRole('button', { name:'目前故事設定', exact:true }).click();
+    const quick = page.locator('#bao-chat-tool-drawer .bao-control-sections');
+    await quick.getByRole('button', { name:'目前設定', exact:true }).click();
   } else {
     await page.getByRole('button', { name:'開啟控制中心', exact:true }).click();
   }

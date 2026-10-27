@@ -264,10 +264,6 @@
     const quick = document.createElement('nav');
     quick.className = 'bao-mobile-quick';
     quick.setAttribute('aria-label', '手機常用功能');
-    makeAction(quick, '目前故事設定', () => {
-      if (window.BAOStoryControlCenter?.open) BAOStoryControlCenter.open();
-      else window.alert('控制中心仍在載入，請稍後再試。');
-    });
     makeAction(quick, '舞臺資訊', () => {
       if (window.BAOStorySurface?.openStatus) BAOStorySurface.openStatus();
       else togglePanels();
@@ -323,6 +319,7 @@
     connection.textContent = apiStatus?.textContent?.trim() || (App.config?.demoMode ? '本機預覽' : '可從這裡設定 API 與模型');
     quick.append(connection);
     body.prepend(quick);
+    panel.dispatchEvent(new CustomEvent('bao:control-content-ready'));
   };
 
   const composerInputMaxHeight = () => {
