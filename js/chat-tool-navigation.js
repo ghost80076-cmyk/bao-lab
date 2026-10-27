@@ -149,11 +149,22 @@
     }
     groupDefinitions.forEach(([id, label]) => ensureGroup(groups, id, label));
     const targets = Object.fromEntries(groupDefinitions.map(([id]) => [id, groupBody(groups, id)]));
-    const save = sidebar.querySelector('button[onclick*="App.saveStory"]') ||
+    let save = sidebar.querySelector('#bao-manual-save-entry') ||
+      sidebar.querySelector('button[onclick*="App.saveStory"]') ||
       [...sidebar.querySelectorAll('button')].find(button => button.textContent.trim() === '快速儲存');
     // Manual save remains available, but belongs with story management rather
     // than the always-visible Play shortcuts. Per-turn autosave is unchanged.
-    if (save) move(save, targets.story);
+    // Normalize it to one stable task entry so later enhancements cannot make
+    // Control Center access depend on where the original inline button moved.
+    if (!save) {
+      save = document.createElement('button');
+      save.type = 'button';
+      save.className = 'secondary';
+      save.textContent = '快速儲存';
+      save.addEventListener('click', () => App.saveStory?.(true));
+    }
+    save.id = 'bao-manual-save-entry';
+    move(save, targets.story);
     move(sidebar.querySelector('#bao-scene-controls'), targets.scene);
     move(sidebar.querySelector('#avatar-chat-controls'), targets.scene);
     move(sidebar.querySelector('[data-open-status-manager]'), targets.world);
