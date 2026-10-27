@@ -26,6 +26,8 @@ Player Shell 不再自行猜 `gameplay_ui`、`phone_ui` 或 viewport。
 
 ## Stage contract
 
+Stage viewport 分成三層：`mobile`（≤820px）、`compact`（821–1080px）、`desktop`（≥1081px）。compact 是平板／窄桌機，不再被誤標為 mobile。
+
 每次解析回傳：
 
 - `shell`：產品上的舞臺類型。
@@ -38,12 +40,12 @@ Player Shell 不再自行猜 `gameplay_ui`、`phone_ui` 或 viewport。
 
 目前正式支援：
 
-| shell | renderer | desktop | mobile | 備註 |
+| shell | renderer | desktop | compact / mobile | 備註 |
 | --- | --- | --- | --- | --- |
 | reader | reader-context / game-ui | sheet | panel | 沒有專用 Gameplay UI 的預設 |
 | gameplay | game-ui | panel | panel | 安全 declarative Gameplay UI |
-| rpg-dashboard | game-ui | embedded | 既有 responsive fallback | 保留既有 layout |
-| scene-rpg | game-ui | embedded | 既有 responsive fallback | 保留既有 scene layout |
+| rpg-dashboard | game-ui | embedded | panel fallback | 保留既有 layout |
+| scene-rpg | game-ui | embedded | responsive fallback | 保留既有 scene layout |
 | terminal | game-ui | embedded | panel fallback | 平台主控台；作者只宣告安全 panel |
 | phone | phone | overlay | overlay | 只有明確指定才可成為 primary Stage |
 
