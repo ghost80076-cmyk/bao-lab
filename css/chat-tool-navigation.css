@@ -209,3 +209,18 @@ html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk
   #bao-chat-tool-drawer .bao-chat-tool-dialog{border-radius:22px 22px 0 0}
   #bao-chat-tool-drawer .bao-chat-tool-dialog-body{padding:14px 14px calc(18px + env(safe-area-inset-bottom,0px))}
 }
+/* Control Center task navigation owns the landing hierarchy. The overview and
+   searchable tool catalogue share managers, but never compete on one screen. */
+#bao-chat-tool-drawer .bao-control-sections{display:flex;gap:6px;padding:12px 18px 0;flex:0 0 auto}
+#bao-chat-tool-drawer .bao-control-sections button{flex:1;min-height:44px;border:1px solid var(--yoru-control-border,#545868);border-radius:11px;background:transparent;color:var(--yoru-muted,#b2b7c4);font:inherit;cursor:pointer}
+#bao-chat-tool-drawer .bao-control-sections button[aria-pressed="true"]{background:var(--yoru-control,#2c252e);color:var(--yoru-text,#f1eee8);border-color:var(--yoru-lantern,#d6aa73);font-weight:700}
+#bao-chat-tool-drawer .bao-control-sections button:disabled{opacity:.45;cursor:default}
+#bao-chat-tool-drawer .bao-chat-tool-dialog>.bao-tool-search{margin:0;padding:10px 18px 12px;flex:0 0 auto}
+#bao-chat-tool-drawer [data-story-settings-hub]>summary{display:none}
+#bao-chat-tool-drawer [data-story-settings-hub]{border:0;background:transparent}
+#bao-chat-tool-drawer [data-story-settings-hub] .story-control-head .eyebrow{display:none}
+#bao-chat-tool-drawer .bao-chat-tool-dialog-body{min-height:0}
+@media(max-width:820px){
+  #bao-chat-tool-drawer .bao-control-sections{padding:10px 14px 0}
+  #bao-chat-tool-drawer .bao-chat-tool-dialog>.bao-tool-search{padding:8px 14px 10px}
+}

@@ -131,7 +131,7 @@
         <header class="story-control-head">
           <div>
             <div class="eyebrow">CONTROL CENTER</div>
-            <h3 id="story-control-title">控制中心</h3>
+            <h3 id="story-control-title">目前故事設定</h3>
             <p><b>${esc(title)}</b> · ${esc(data.stats.chapter)} · 約 ${data.stats.turns.toLocaleString()} 輪</p>
           </div>
           <div class="story-control-head-actions">
@@ -199,6 +199,7 @@
     if(!GameState.current || !App.config)return;
     const existing=document.querySelector('#bao-chat-tool-drawer [data-story-settings-hub]');
     if(existing){
+      window.BAOChatToolNavigation?.showView?.('overview');
       existing.open=true;
       if(options.effects)existing.querySelector('[data-settings-effects]')?.setAttribute('open','');
       const dialog=existing.closest('[role="dialog"]');

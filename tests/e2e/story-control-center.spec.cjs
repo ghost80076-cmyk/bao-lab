@@ -201,7 +201,7 @@ for (const width of [390, 1280]) {
       const mobileTools = page.locator('#bao-mobile-composer-tools');
       await expect(mobileTools).toBeVisible();
       await mobileTools.click();
-      const mobileOverview = page.locator('#bao-chat-tool-drawer .bao-mobile-quick').getByRole('button', { name: '目前故事設定' });
+      const mobileOverview = page.locator('#bao-chat-tool-drawer .bao-control-sections').getByRole('button', { name: '目前設定', exact:true });
       await expect(mobileOverview).toBeVisible();
       await mobileOverview.click();
     } else {

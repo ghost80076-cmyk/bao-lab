@@ -114,7 +114,7 @@ test('mobile keeps Story as the base surface and routes Stage / Control Center o
   const drawer = page.getByRole('dialog', { name: '故事功能選單' });
   await expect(drawer).toBeVisible();
   await expect(drawer.locator('header h2')).toHaveText('控制中心');
-  await expect(drawer.getByRole('button', { name: '目前故事設定' })).toBeVisible();
+  await expect(drawer.getByRole('button', { name: '目前設定', exact:true })).toBeVisible();
   await expect(drawer.getByRole('button', { name: '舞臺資訊' })).toBeVisible();
   await drawer.getByRole('button', { name: '關閉 ×' }).click();
   await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'play');
@@ -148,7 +148,7 @@ for (const width of [390, 900, 1440]) {
       return document.activeElement === items[items.length - 1];
     })).toBe(true);
     const overview = drawer.locator('[data-story-settings-hub]');
-    await overview.evaluate(node => { node.open = true; });
+    await drawer.getByRole('button', { name:'目前設定', exact:true }).click();
     const search = drawer.getByRole('searchbox', { name:'搜尋故事工具' });
     await search.fill('prompt');
     await expect(overview).toBeHidden();
@@ -167,3 +167,65 @@ for (const width of [390, 900, 1440]) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
   });
 }
+
+for (const width of [390, 900, 1440]) {
+  test(`control center at ${width}px separates settings from tools without reopening`, async ({ page }) => {
+    await openExperienceStory(page, width);
+    await page.evaluate(() => BAOStoryControlCenter.open());
+    const drawer = page.locator('#bao-chat-tool-drawer');
+    const dialog = drawer.locator('[role="dialog"]');
+    const overview = drawer.locator('[data-story-settings-hub]');
+    const groups = drawer.locator('[data-chat-tool-group]');
+    const overviewButton = drawer.getByRole('button', { name:'目前設定', exact:true });
+    const toolsButton = drawer.getByRole('button', { name:'全部工具', exact:true });
+    await expect(dialog).toHaveAttribute('data-control-view', 'overview');
+    await expect(overview).toBeVisible();
+    await expect(overview.locator(':scope > summary')).toBeHidden();
+    for (const group of await groups.all()) await expect(group).toBeHidden();
+    await expect(drawer.locator('.bao-mobile-quick')).toBeHidden();
+    await expect(drawer.getByRole('button', { name:'目前故事設定', exact:true })).toHaveCount(0);
+    // A marker proves switching tasks keeps the same dialog/managers mounted.
+    await dialog.evaluate(node => { node.dataset.instance = 'keep'; });
+    await overview.locator('.story-control-more > summary').click();
+    await toolsButton.click();
+    await expect(dialog).toHaveAttribute('data-control-view', 'tools');
+    await expect(overview).toBeHidden();
+    await expect(groups.first()).toBeVisible();
+    if (width <= 820) await expect(drawer.locator('.bao-mobile-quick')).toBeVisible();
+    await overviewButton.click();
+    await expect(dialog).toHaveAttribute('data-instance', 'keep');
+    await expect(overview.locator('.story-control-more')).toHaveAttribute('open', '');
+    const search = drawer.getByRole('searchbox', { name:'搜尋故事工具' });
+    await search.fill('prompt');
+    await expect(toolsButton).toHaveAttribute('aria-pressed', 'true');
+    await expect(overview).toBeHidden();
+    await search.fill('');
+    await expect(overviewButton).toHaveAttribute('aria-pressed', 'true');
+    await expect(overview).toBeVisible();
+    // External callers use the same presentation route as the visible buttons.
+    await toolsButton.click();
+    await page.evaluate(() => BAOStoryControlCenter.open({ effects:true }));
+    await expect(dialog).toHaveAttribute('data-instance', 'keep');
+    await expect(overview).toBeVisible();
+    await expect(overview.locator('[data-settings-effects]')).toHaveAttribute('open', '');
+    await expect(drawer).toHaveCount(1);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('.app-shell')).not.toHaveAttribute('inert', '');
+  });
+}
+
+test('help above Control Center returns to the same task without closing it', async ({ page }) => {
+  await openExperienceStory(page, 900);
+  await page.evaluate(() => BAOStoryControlCenter.open());
+  const drawer = page.locator('#bao-chat-tool-drawer');
+  await drawer.locator('header .bao-help-button').click();
+  const help = page.locator('#bao-feature-help-dialog');
+  await expect(help).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(help).toHaveCount(0);
+  await expect(drawer).toBeVisible();
+  await expect(drawer.locator('[role="dialog"]')).toHaveAttribute('data-control-view', 'overview');
+  await expect(drawer.locator('header .bao-help-button')).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(drawer).toHaveCount(0);
+});

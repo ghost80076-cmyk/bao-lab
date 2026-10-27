@@ -23,8 +23,8 @@ test('mobile request inspector and NPC timeline use existing story controls',asy
   let requestCount=0, nextReply='故事回覆';
   const openMobileControl=async()=>{
     await page.locator('#bao-mobile-composer-tools').click();
-    const quick=page.locator('#bao-chat-tool-drawer .bao-mobile-quick');
-    await quick.getByRole('button',{name:'目前故事設定',exact:true}).click();
+    const quick=page.locator('#bao-chat-tool-drawer .bao-control-sections');
+    await quick.getByRole('button',{name:'目前設定',exact:true}).click();
     return page.getByRole('dialog',{name:'故事總覽'});
   };
   await page.route('https://example.invalid/**',route=>{

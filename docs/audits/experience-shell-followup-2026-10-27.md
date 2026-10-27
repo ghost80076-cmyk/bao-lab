@@ -62,3 +62,18 @@
 ## 相容與驗證範圍
 
 不修改角色卡、存檔、Prompt assembler、GameState、memory、API/BYOK 模組與 schema。新增 browser regression 直接操作正式入口，檢查三種尺寸、搜尋、鍵盤及前後資料一致性；既有 navigation intent 測試驗證搜尋後仍能到原長期指令 editor。另跑 Stage／Gameplay core、Context Pack wrapper 與 production security checks。測試執行結果以 PR 說明為準，不把環境無法啟動誤記為產品測試通過。
+
+## 接續實作：控制中心依任務分區
+
+同一 PR 延伸第一批修正，控制中心現在有兩個互斥呈現的目的地：
+
+- **目前設定**：直接顯示目前故事的設定與生效狀態，保留原有常用摘要、更多設定及原 manager 路由。拿掉最外層 overview 摺疊，避免先展開外層才能看到內層工具。
+- **全部工具**：呈現分類工具與手機常用操作；不混入設定總覽卡。
+
+分區與搜尋固定在 dialog 上方，只有內容區捲動。輸入搜尋時暫時呈現工具結果，清空後回先前分區並保留 disclosure 狀態。手動選擇分區會清除搜尋並回到該分區頂端。手機移除重複的「目前故事設定」快捷，使用同一「目前設定」分區。
+
+`BAOStoryControlCenter.open({effects:true})` 等既有呼叫，透過 `BAOChatToolNavigation.showView('overview')` 切換同一份已掛載內容，不關閉重開 dialog。未進故事而沒有 overview 時，設定分區停用，工具仍可用。分區狀態只存在 dialog closure，沒有新增故事設定、儲存或 Prompt 資料。
+
+說明視窗可開在控制中心上方，其 Escape 只關閉說明並回原說明按鈕，不再連帶關閉控制中心。父層 focus trap 不攔截上層 dialog 的鍵盤事件。
+
+新增 390／900／1440px 分區回歸：確認 summary／工具互斥、無外層摺疊、搜尋清除還原、保留同一個 dialog 與內層展開狀態、既有 effects 路由可回摘要。既有手機歷程、上下文、擴充與請求證據測試改走單一分區入口。角色卡、存檔、世界狀態、記憶、Prompt 與 BYOK 邊界沿用前述不變條件。

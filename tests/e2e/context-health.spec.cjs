@@ -33,8 +33,8 @@ test('shows player-facing context health without pretending per-layer token prec
   await expect(trigger).toBeHidden(); // The mobile reading layout intentionally hides the usage strip.
   await expect(trigger).toContainText('上下文 50%');
   await page.locator('#bao-mobile-composer-tools').click();
-  const mobileControl = page.locator('#bao-chat-tool-drawer .bao-mobile-quick');
-  await mobileControl.getByRole('button', {name:'目前故事設定', exact:true}).click();
+  const mobileControl = page.locator('#bao-chat-tool-drawer .bao-control-sections');
+  await mobileControl.getByRole('button', {name:'目前設定', exact:true}).click();
   const overview = page.getByRole('dialog', {name:'故事總覽'});
   await overview.locator('.story-control-more > summary').click();
   await overview.locator('[data-story-control-action="context"]').click();
