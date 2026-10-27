@@ -97,3 +97,17 @@ Stage responsive contract 完成後，重新核對主線發現 `js/quick-start-m
 - 新增核心載入契約，防止未來調整 loader 時再次讓 quick-start 檔案成為孤兒。
 
 這一批仍屬 UI/UX presentation wiring；沒有新增作者 JS、DOM selector、網路權限、API Key 讀取能力或新的故事資料欄位。
+
+## 接續實作：Story handoff 與常駐工具收斂
+
+Builder progressive disclosure 接回主線後，下一個殘留層級在 Story 入口。主線已經每輪自動儲存，但舊工具導覽仍會先建立一條「快速儲存／舞臺／控制中心」fallback strip；在目前 Experience Shell 中，Story Surface 已經提供正式的 Story／Stage／Control Center 語意導航，因此這條 strip 只會形成第二層導航。桌機 sidebar 的手動快速儲存也被放在 quick actions，而不是故事管理工具。
+
+本批只調整 presentation 與工具歸類：
+
+- Story Surface 一旦掛載正式 Story／Stage／Control Center 導覽，立即讓舊 tool navigation 重新同步並移除 fallback strip。
+- chat-tool-navigation 若已看到正式 surface controls，就不再建立舊 shortcut strip；只有混合快取／舊頁面缺少正式 controls 時保留 fallback。
+- 原本的「快速儲存」按鈕保留原 handler，但移入「故事與記憶」工具群；桌機／平板從 Control Center 的「全部工具」存取，手機仍保留既有「更多快捷操作」入口。
+- App.saveStory(false) 的開始故事、每輪提交與離開故事自動儲存完全不變。
+- Builder → Story 回歸新增驗收：開始後必須是 play/story，Stage 關閉、Control Center 關閉、舊 shortcut strip 不存在。
+
+這一批不修改 Storage payload、存檔格式、Prompt、GameState、Memory、BYOK、Gameplay schema 或作者權限。目的只有一個：進入故事後，畫面只留下故事本身與正式的 Stage／Control 入口，不再為已自動執行的儲存工作常駐第二層 chrome。
