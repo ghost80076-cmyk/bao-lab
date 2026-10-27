@@ -505,8 +505,9 @@
     const sync = () => {
       const controls = $("bao-surface-controls");
       controls?.setAttribute("aria-label", "故事、舞臺與控制中心");
-      $("bao-play-status-toggle")?.setAttribute("title", "查看人物、事件與作品資訊");
-      $("bao-surface-mode-toggle")?.setAttribute("title", "開啟故事工具與進階設定");
+      const stage = $("bao-play-status-toggle");
+      if (stage && !stage.title) stage.setAttribute("title", "開啟舞臺");
+      $("bao-surface-mode-toggle")?.setAttribute("title", "開啟控制中心");
       const stream = $("chat-stream");
       stream?.setAttribute("aria-label", "故事內容");
       const input = $("user-input");
