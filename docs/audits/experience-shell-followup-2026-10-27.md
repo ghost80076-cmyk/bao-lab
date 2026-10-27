@@ -82,3 +82,18 @@
 ## 接續實作：Stage responsive contract
 
 實作確認 generic Play CSS 會覆蓋作品的 grid／隱藏 dashboard aside。現以 shell-specific Play selectors 確定 Terminal 兩欄、Scene 兩欄、RPG 三欄，設定仍留控制中心。Stage adapter 依實際寬度選 persistent／按需模式，並將 aria-controls 指向可見 host；RPG 缺少有效 layout panel 時保留一般 panel。詳細門檻、resize 與驗證條件見 `docs/stage-capability-contract.md`。
+
+
+## 接續實作：Builder progressive disclosure runtime
+
+Stage responsive contract 完成後，重新核對主線發現 `js/quick-start-mode.js` 仍保留完整的快速開始／完整設定切換、特殊世界 fallback、進階連線欄位 disclosure 與既有設定值保留邏輯，但 `site-ui.js` 的 Player 2.0 載入鏈沒有載入它。結果是原本已做好的漸進式 Builder 只能存在於檔案與測試假設中，正式入口仍可能退回五步技術流程。
+
+本批不新增第二套 Builder，也不改 `App.collectConfig()`、`App.startStory()`、Storage、Prompt、Memory 或 BYOK。只把既有 quick-start presentation 接回正式 runtime：
+
+- `player-builder-v2` 後載入 `quick-start-mode`，再由 `story-start-readiness` 裝飾同一個 Builder。
+- 一般作品預設只呈現「作品已選好 → 模型連線 → 開始故事」；敘事、顯示、Persona、記憶沿用既有預設值。
+- 玩家可隨時切回完整設定，既有值不重置；舊流程若明確呼叫 `App.setStep(...)` 會自動保留 advanced 行為。
+- `autonomous-npc-world` 等需要先選世界開局的特殊作品仍強制完整設定，不被快速流程跳過。
+- 新增核心載入契約，防止未來調整 loader 時再次讓 quick-start 檔案成為孤兒。
+
+這一批仍屬 UI/UX presentation wiring；沒有新增作者 JS、DOM selector、網路權限、API Key 讀取能力或新的故事資料欄位。
