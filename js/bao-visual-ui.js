@@ -111,13 +111,39 @@
 
   const currentPanel = () => root.querySelector('.ui-tab.active')?.dataset.panel || 'npc';
 
-  const hasGameplaySurface = () => {
-    if (App.activeCharacter?.play_info_surface === 'game-ui') return true;
+  const fallbackStageCapability = () => {
+    let schema = null;
+    try { schema = window.BAOGameplayUI?.schemaFor?.(App.activeCharacter) || null; } catch {}
+    const legacyGameUI = App.activeCharacter?.play_info_surface === 'game-ui';
+    const hasGameplay = legacyGameUI || Boolean(schema?.panels?.length);
+    const preset = schema?.layout?.preset;
+    const shell = hasGameplay
+      ? (preset === 'rpg-dashboard' || preset === 'scene-rpg' ? preset : 'gameplay')
+      : 'reader';
+    const mobile = !desktop.matches;
+    const renderer = shell === 'reader' && !mobile ? 'reader-context' : 'game-ui';
+    return {
+      version:0,
+      shell,
+      renderer,
+      presentation: shell === 'rpg-dashboard' || shell === 'scene-rpg'
+        ? 'embedded'
+        : renderer === 'reader-context' ? 'sheet' : 'panel',
+      label: shell === 'reader' ? '故事資訊' : '人物、事件與作品資訊',
+      ariaLabel: shell === 'reader' ? '查看舞臺：故事資訊' : '查看舞臺：人物、事件與作品資訊',
+      controls: renderer === 'reader-context' ? 'bao-reader-context' : 'game-ui',
+      persistent: shell === 'rpg-dashboard' || shell === 'scene-rpg'
+    };
+  };
+
+  const stageCapability = () => {
     try {
-      const schema = window.BAOGameplayUI?.schemaFor?.(App.activeCharacter);
-      if (schema?.panels?.length) return true;
-    } catch {}
-    return false;
+      return window.BAOStageCapabilities?.sync?.(root, {
+        viewport: desktop.matches ? 'desktop' : 'mobile'
+      }) || fallbackStageCapability();
+    } catch {
+      return fallbackStageCapability();
+    }
   };
 
   const sceneValue = value => {
@@ -150,12 +176,22 @@
   const syncStatusButtonContract = () => {
     const button = document.getElementById('bao-play-status-toggle');
     if (!button) return;
-    const readerContext = mode === 'play' && desktop.matches && !hasGameplaySurface();
-    button.setAttribute('aria-controls', readerContext ? 'bao-reader-context' : 'game-ui');
-    button.setAttribute('aria-label', readerContext ? '查看舞臺：故事資訊' : '查看舞臺：人物、事件與作品資訊');
-    button.title = readerContext
+    const capability = mode === 'play'
+      ? stageCapability()
+      : {
+          shell:'gameplay',
+          renderer:'game-ui',
+          controls:'game-ui',
+          ariaLabel:'查看舞臺：人物、事件與作品資訊',
+          label:'人物、事件與作品資訊'
+        };
+    button.setAttribute('aria-controls', capability.controls || 'game-ui');
+    button.setAttribute('aria-label', capability.ariaLabel || '查看舞臺');
+    button.title = capability.renderer === 'reader-context'
       ? '舞臺：現況、人物、世界與記憶'
-      : '舞臺：人物、狀態、事件、記憶與作品自訂分頁';
+      : capability.renderer === 'phone'
+        ? '舞臺：作品手機介面'
+        : '舞臺：' + (capability.label || '人物、狀態、事件與作品資訊');
   };
 
   const syncSurfaceNavigation = () => {
@@ -176,6 +212,9 @@
   };
 
   const closeStatus = () => {
+    if (mode === 'play' && stageCapability().renderer === 'phone') {
+      window.BAOPhoneUI?.close?.();
+    }
     statusOpen = false;
     root.classList.remove('bao-play-status-open');
     window.BAOReaderContext?.close?.({ notify:false });
@@ -207,6 +246,20 @@
   };
 
   const openStatus = () => {
+    const capability = mode === 'play' ? stageCapability() : null;
+
+    if (capability?.renderer === 'phone' && window.BAOStageCapabilities?.openPrimary?.({
+      viewport: desktop.matches ? 'desktop' : 'mobile'
+    })) {
+      statusOpen = true;
+      root.classList.remove('bao-play-status-open');
+      const button = document.getElementById('bao-play-status-toggle');
+      button?.setAttribute('aria-expanded', 'true');
+      syncStatusButtonContract();
+      syncSurfaceNavigation();
+      return;
+    }
+
     if (!desktop.matches && window.BAOMobileReadingLayout?.togglePanels) {
       if (!main.classList.contains('bao-mobile-panel-open')) {
         window.BAOMobileReadingLayout.togglePanels();
@@ -220,13 +273,23 @@
     }
     // Desktop Play gets a dedicated read-only context sheet. Studio and compact
     // layouts keep the existing game UI so editing and mobile behavior stay intact.
-    if (mode === 'play' && desktop.matches && !hasGameplaySurface() && window.BAOReaderContext?.open?.({
-      onClose: () => {
-        statusOpen = false;
-        document.getElementById('bao-play-status-toggle')?.setAttribute('aria-expanded', 'false');
-        syncSurfaceNavigation();
-      }
-    })) {
+    if (mode === 'play' && desktop.matches && capability?.renderer === 'reader-context' &&
+        (window.BAOStageCapabilities?.openPrimary?.({
+          viewport:'desktop',
+          readerContext:{
+            onClose: () => {
+              statusOpen = false;
+              document.getElementById('bao-play-status-toggle')?.setAttribute('aria-expanded', 'false');
+              syncSurfaceNavigation();
+            }
+          }
+        }) || window.BAOReaderContext?.open?.({
+          onClose: () => {
+            statusOpen = false;
+            document.getElementById('bao-play-status-toggle')?.setAttribute('aria-expanded', 'false');
+            syncSurfaceNavigation();
+          }
+        }))) {
       statusOpen = true;
       root.classList.remove('bao-play-status-open');
       const button = document.getElementById('bao-play-status-toggle');
