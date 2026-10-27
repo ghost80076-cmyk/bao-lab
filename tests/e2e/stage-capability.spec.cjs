@@ -13,7 +13,7 @@ async function mountStory(page, { width = 1280, patch = {} } = {}) {
 
   await page.evaluate(({ patch }) => {
     const base = App.characters[0];
-    App.activeCharacter = {
+    App.activeCharacter = CharacterEngine.normalize({
       ...base,
       gameplay_ui: undefined,
       phone_ui: undefined,
@@ -27,7 +27,7 @@ async function mountStory(page, { width = 1280, patch = {} } = {}) {
       },
       greeting: 'Stage capability 測試。',
       ...patch
-    };
+    });
     App.config = {
       persona: { name:'玩家', identity:'旅人' },
       narrativeMode: 'immersive',
