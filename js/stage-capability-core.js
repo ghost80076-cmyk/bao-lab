@@ -37,7 +37,8 @@
 
   function presentationFor(shell, viewport) {
     if (shell === 'phone') return 'overlay';
-    if (shell === 'rpg-dashboard' || shell === 'scene-rpg' || shell === 'terminal') return 'embedded';
+    if (shell === 'terminal') return viewport === 'mobile' ? 'panel' : 'embedded';
+    if (shell === 'rpg-dashboard' || shell === 'scene-rpg') return 'embedded';
     if (shell === 'reader') return viewport === 'mobile' ? 'panel' : 'sheet';
     return 'panel';
   }
