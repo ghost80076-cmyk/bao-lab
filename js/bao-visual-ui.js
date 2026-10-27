@@ -249,6 +249,22 @@
   const openStatus = () => {
     const capability = mode === 'play' ? stageCapability() : null;
 
+    if (capability?.shell === 'terminal' && capability.presentation === 'embedded' &&
+        window.matchMedia('(min-width:1081px)').matches) {
+      const terminal = document.getElementById('bao-gameplay-terminal-stage');
+      statusOpen = Boolean(terminal);
+      if (terminal) {
+        terminal.tabIndex = -1;
+        terminal.focus({ preventScroll:true });
+        terminal.scrollIntoView({ block:'nearest', inline:'nearest' });
+      }
+      const button = document.getElementById('bao-play-status-toggle');
+      button?.setAttribute('aria-expanded', String(statusOpen));
+      syncStatusButtonContract();
+      syncSurfaceNavigation();
+      return;
+    }
+
     if (capability?.renderer === 'phone' && window.BAOStageCapabilities?.openPrimary?.({
       viewport: stageViewport()
     })) {
