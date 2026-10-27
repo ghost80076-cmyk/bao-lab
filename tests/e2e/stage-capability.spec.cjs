@@ -167,3 +167,30 @@ test('explicit Phone Stage works on mobile without opening the generic game pane
   await expect(page.locator('#chat-view .chat-main')).not.toHaveClass(/bao-mobile-panel-open/);
   await expect(root).toHaveAttribute('data-bao-experience-surface', 'stage');
 });
+
+test('Character Studio keeps explicit Phone Stage on native export', async ({ page }) => {
+  await page.goto('/character-studio.html');
+  await page.waitForFunction(() => Boolean(window.BAOCharacterStudio && window.CharacterEngine && window.BAOPhoneUICore));
+
+  const exported = await page.evaluate(() => {
+    const card = CharacterEngine.normalize({
+      schema_version:'1.5',
+      id:'phone-stage-export',
+      name:'Phone Stage Export',
+      system_prompt:'test',
+      greeting:'start',
+      play_info_surface:'phone',
+      phone_ui:{
+        enabled:true,
+        userName:'玩家',
+        contactName:'世界',
+        apps:['notes'],
+        notes:[{ id:'note', title:'03:17', text:'世界仍在運行。' }]
+      }
+    });
+    return BAOCharacterStudio.toExport(card);
+  });
+
+  expect(exported.presentation.play_info_surface).toBe('phone');
+  expect(exported.presentation.phone_ui.notes[0].title).toBe('03:17');
+});
