@@ -30,7 +30,7 @@ assert.equal(standard.gameplayPreset, 'standard');
 
 const dashboard = Stage.resolve({
   viewport:'desktop',
-  gameplay:{ layout:{preset:'rpg-dashboard'}, panels:[{id:'left'},{id:'right'}] }
+  gameplay:{ layout:{preset:'rpg-dashboard',left_panel:'left',right_panel:'right'}, panels:[{id:'left'},{id:'right'}] }
 });
 assert.equal(dashboard.shell, 'rpg-dashboard');
 assert.equal(dashboard.renderer, 'game-ui');
@@ -96,3 +96,14 @@ assert.equal(Stage.shells.includes('phone'), true);
 assert.equal(Stage.version, 1);
 
 console.log('Stage capability core: OK');
+// Actual screen width, not just desktop/mobile, determines persistent shells.
+for (const [preset, threshold] of [['terminal',1081],['scene-rpg',1280],['rpg-dashboard',1430]]) {
+  const gameplay={layout:{preset,left_panel:'status'},panels:[{id:'status'}]};
+  const below=Stage.resolve({viewport:'desktop',width:threshold-1,gameplay});
+  const at=Stage.resolve({viewport:'desktop',width:threshold,gameplay});
+  assert.equal(below.presentation,'panel');
+  assert.equal(below.controls,'game-ui');
+  assert.equal(at.presentation,'embedded');
+  assert.notEqual(at.controls,'game-ui');
+}
+assert.equal(Stage.resolve({viewport:'desktop',width:1600,gameplay:{layout:{preset:'rpg-dashboard'},panels:[{id:'status'}]}}).presentation,'panel');

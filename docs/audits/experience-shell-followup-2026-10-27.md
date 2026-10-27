@@ -77,3 +77,8 @@
 說明視窗可開在控制中心上方，其 Escape 只關閉說明並回原說明按鈕，不再連帶關閉控制中心。父層 focus trap 不攔截上層 dialog 的鍵盤事件。
 
 新增 390／900／1440px 分區回歸：確認 summary／工具互斥、無外層摺疊、搜尋清除還原、保留同一個 dialog 與內層展開狀態、既有 effects 路由可回摘要。既有手機歷程、上下文、擴充與請求證據測試改走單一分區入口。角色卡、存檔、世界狀態、記憶、Prompt 與 BYOK 邊界沿用前述不變條件。
+
+
+## 接續實作：Stage responsive contract
+
+實作確認 generic Play CSS 會覆蓋作品的 grid／隱藏 dashboard aside。現以 shell-specific Play selectors 確定 Terminal 兩欄、Scene 兩欄、RPG 三欄，設定仍留控制中心。Stage adapter 依實際寬度選 persistent／按需模式，並將 aria-controls 指向可見 host；RPG 缺少有效 layout panel 時保留一般 panel。詳細門檻、resize 與驗證條件見 `docs/stage-capability-contract.md`。

@@ -44,8 +44,8 @@ Stage viewport 分成三層：`mobile`（≤820px）、`compact`（821–1080px�
 | --- | --- | --- | --- | --- |
 | reader | reader-context / game-ui | sheet | panel | 沒有專用 Gameplay UI 的預設 |
 | gameplay | game-ui | panel | panel | 安全 declarative Gameplay UI |
-| rpg-dashboard | game-ui | embedded | panel fallback | 保留既有 layout |
-| scene-rpg | game-ui | embedded | responsive fallback | 保留既有 scene layout |
+| rpg-dashboard | game-ui | ≥1430px embedded；以下 panel | panel fallback | 必須有合法 left/right panel |
+| scene-rpg | game-ui | ≥1280px embedded；以下 panel | panel fallback | 依實際場景 CSS 斷點 |
 | terminal | game-ui | embedded | panel fallback | 平台主控台；作者只宣告安全 panel |
 | phone | phone | overlay | overlay | 只有明確指定才可成為 primary Stage |
 
@@ -198,3 +198,16 @@ Story / Stage / Control Center
 - Phone 關閉後 Stage active state 回到 Story。
 - 切 Stage 不修改 GameState。
 - Core / Gameplay / Phone / Story controls / mobile reading regression 需維持。
+## Responsive contract 對齊
+
+Viewport 三分法繼續用於 Reader／Phone 與平台導航，但不足以描述所有作品布局。adapter 現在將實際 `window.innerWidth` 傳入 pure core 的可選 `width` 參數，決定 persistent shell：
+
+- Terminal：1081px。
+- Scene RPG：1280px。
+- RPG Dashboard：1430px，且 schema 至少指定一個存在的 left/right panel；否則維持可開啟的 game-ui panel。
+
+窄於各自門檻時，Story 預設隱藏 game-ui，由「舞臺」開啟／收起；不再把 desktop 視為所有 shell 都已常駐。跨越 1081／1280／1430px 時同步關閉先前按需面板、重算舞臺與 aria-controls，不改故事資料。
+
+常駐模式的 controls 指向真正在畫面上的 terminal、scene 或 dashboard host，按「舞臺」將焦點移到該 host；按需模式指向 game-ui。讀取來源、draft-only actions 與作者安全邊界維持不變。RPG Play layout 以三欄顯示作品狀態；Scene Play layout 使用場景／故事兩欄，不預留被隱藏工具側欄的位置；Terminal 使用主控台／故事兩欄。
+
+Core 的 width 缺省時保留舊 viewport 呼叫方式；實際瀏覽器 adapter 一律帶入寬度。新增 boundary regression 會從門檻兩側來回縮放，並跨越 820/821、1080/1081，確認實際可見 host、欄數、aria-controls、焦點及故事／API／messages 一致性。

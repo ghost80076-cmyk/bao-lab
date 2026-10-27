@@ -26,7 +26,9 @@
     const shell = ['rpg-dashboard', 'scene-rpg', 'terminal'].includes(preset)
       ? preset
       : 'gameplay';
-    return { available, shell, preset, legacyGameUI };
+    const anchor = panels.some(panel => panel.id === schema?.layout?.left_panel) ? 'bao-gameplay-dashboard-left'
+      : panels.some(panel => panel.id === schema?.layout?.right_panel) ? 'bao-gameplay-dashboard-right' : '';
+    return { available, shell, preset, legacyGameUI, anchor };
   }
 
   function rendererFor(shell, viewport) {
@@ -35,11 +37,11 @@
     return 'game-ui';
   }
 
-  function presentationFor(shell, viewport) {
+  function presentationFor(shell, viewport, width, gameplay) {
     if (shell === 'phone') return 'overlay';
-    if (shell === 'terminal') return viewport === 'desktop' ? 'embedded' : 'panel';
-    if (shell === 'rpg-dashboard') return viewport === 'desktop' ? 'embedded' : 'panel';
-    if (shell === 'scene-rpg') return viewport === 'desktop' ? 'embedded' : 'panel';
+    if (shell === 'terminal') return viewport === 'desktop' && width >= 1081 ? 'embedded' : 'panel';
+    if (shell === 'rpg-dashboard') return viewport === 'desktop' && width >= 1430 && gameplay.anchor ? 'embedded' : 'panel';
+    if (shell === 'scene-rpg') return viewport === 'desktop' && width >= 1280 ? 'embedded' : 'panel';
     if (shell === 'reader') return viewport === 'desktop' ? 'sheet' : 'panel';
     return 'panel';
   }
@@ -53,7 +55,12 @@
     return '故事資訊';
   }
 
-  function controlsFor(renderer) {
+  function controlsFor(renderer, shell, presentation, gameplay) {
+    if (presentation === 'embedded') {
+      if (shell === 'terminal') return 'bao-gameplay-terminal-stage';
+      if (shell === 'scene-rpg') return 'bao-gameplay-scene-stage';
+      if (shell === 'rpg-dashboard') return gameplay.anchor;
+    }
     if (renderer === 'phone') return 'bao-phone-stage';
     if (renderer === 'reader-context') return 'bao-reader-context';
     return 'game-ui';
@@ -62,6 +69,7 @@
   function resolve(input = {}) {
     const preferred = text(input.preferred);
     const viewport = input.viewport === 'mobile' ? 'mobile' : input.viewport === 'compact' ? 'compact' : 'desktop';
+    const width = Number.isFinite(Number(input.width)) && Number(input.width) > 0 ? Number(input.width) : Infinity;
     const phoneAvailable = input.phone === true;
     const gameplay = gameplayFacts(input.gameplay, preferred);
 
@@ -83,7 +91,7 @@
     }
 
     const renderer = rendererFor(shell, viewport);
-    const presentation = presentationFor(shell, viewport);
+    const presentation = presentationFor(shell, viewport, width, gameplay);
     const label = labelFor(shell);
 
     return Object.freeze({
@@ -95,7 +103,7 @@
       source,
       label,
       ariaLabel: '查看舞臺：' + label,
-      controls: controlsFor(renderer),
+      controls: controlsFor(renderer, shell, presentation, gameplay),
       available: Object.freeze([...new Set(available)]),
       phoneAvailable,
       gameplayAvailable: gameplay.available,

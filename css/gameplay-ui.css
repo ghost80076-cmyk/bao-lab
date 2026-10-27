@@ -137,7 +137,7 @@
 .gameplay-dashboard-panel .gameplay-actions small{display:block}
 
 @media(min-width:1081px){
-  #chat-view[data-gameplay-layout="rpg-dashboard"] #game-ui{display:none!important}
+  #chat-view[data-gameplay-layout="rpg-dashboard"][data-bao-stage-presentation="embedded"] #game-ui{display:none!important}
   #chat-view[data-gameplay-layout="rpg-dashboard"] .chat-layout>aside:not(.bao-status-rail){border-color:var(--story-border,rgba(255,255,255,.1));background:var(--yoru-tool,#101116)}
   #chat-view[data-gameplay-layout="rpg-dashboard"] #bao-gameplay-dashboard-left{margin:8px 0 12px;padding:10px 0;border-top:1px solid var(--gameplay-border);border-bottom:1px solid var(--gameplay-border)}
   #chat-view[data-gameplay-layout="rpg-dashboard"] #bao-gameplay-dashboard-right{margin:0 0 12px;padding:0 0 12px;border-bottom:1px solid var(--gameplay-border)}
@@ -234,3 +234,37 @@
 .gameplay-choice strong { flex-shrink: 0; color: var(--gameplay-accent); }
 .gameplay-choice:has(input:disabled) { opacity: .5; }
 .gameplay-builder-validation { color: var(--gameplay-accent); margin-top: .75rem; line-height: 1.6; }
+/* The platform Stage contract owns persistent layout in Play. These selectors
+   outrank the generic one-column reading rules without exposing settings. */
+@media(min-width:1081px){
+  #chat-view[data-bao-surface="play"][data-gameplay-layout="terminal"] .chat-layout,
+  #chat-view[data-bao-surface="play"][data-gameplay-layout="terminal"] .chat-layout.bao-status-collapsed{
+    grid-template-columns:minmax(260px,.72fr) minmax(0,1.8fr)!important;
+  }
+}
+@media(min-width:1280px){
+  #chat-view[data-bao-surface="play"][data-gameplay-layout="scene-rpg"] .chat-layout,
+  #chat-view[data-bao-surface="play"][data-gameplay-layout="scene-rpg"] .chat-layout.bao-status-collapsed{
+    grid-template-columns:minmax(320px,1.15fr) minmax(390px,.9fr)!important;
+  }
+}
+@media(min-width:1430px){
+  #chat-view[data-bao-surface="play"][data-gameplay-layout="rpg-dashboard"][data-bao-stage-presentation="embedded"] .chat-layout{
+    grid-template-columns:minmax(220px,250px) minmax(0,1fr) minmax(270px,310px)!important;
+  }
+  #chat-view[data-bao-surface="play"][data-gameplay-layout="rpg-dashboard"][data-bao-stage-presentation="embedded"] .chat-layout.bao-status-collapsed{
+    grid-template-columns:minmax(220px,250px) minmax(0,1fr) minmax(270px,310px)!important;
+  }
+  #chat-view[data-bao-surface="play"][data-gameplay-layout="rpg-dashboard"][data-bao-stage-presentation="embedded"] .chat-layout>aside:not(.bao-status-rail),
+  #chat-view[data-bao-surface="play"][data-gameplay-layout="rpg-dashboard"][data-bao-stage-presentation="embedded"] .chat-layout>.bao-status-rail{display:block!important}
+}
+/* Dedicated columns can make the story header narrower than the window. Let
+   controls wrap before they squeeze the work title into a vertical strip. */
+@media(min-width:1081px){
+  #chat-view[data-bao-surface="play"][data-bao-stage-presentation="embedded"] .chat-topline{flex-wrap:wrap!important}
+  #chat-view[data-bao-surface="play"][data-bao-stage-presentation="embedded"] .chat-title-copy{flex:1 1 180px;min-width:min(100%,180px)}
+}
+@media(min-width:1430px){
+  #chat-view[data-bao-surface="play"][data-gameplay-layout="rpg-dashboard"][data-bao-stage-presentation="embedded"] .chat-layout>aside:not(.bao-status-rail)>:not(#chat-character-card):not(#bao-gameplay-dashboard-left){display:none!important}
+  #chat-view[data-bao-surface="play"][data-gameplay-layout="rpg-dashboard"][data-bao-stage-presentation="embedded"] .bao-status-close{display:none!important}
+}
