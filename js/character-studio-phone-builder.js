@@ -60,8 +60,10 @@
       list.append(listItem(contact.name||'未命名聯絡人',contact.avatar?'已設定頭像':'無頭像',()=>{
         const next=parse();if(!next)return;
         next.contacts=safeArray(next.contacts).filter(item=>item.id!==contact.id);
+        const removedThreads=safeArray(next.threads).filter(thread=>safeArray(thread.participants).includes(contact.id));
+        removedThreads.forEach(thread=>cleanupTarget(next,{app:'kakao',id:thread.id}));
         next.threads=safeArray(next.threads).filter(thread=>!safeArray(thread.participants).includes(contact.id));
-        write(next,'已移除聯絡人「'+(contact.name||contact.id)+'」，相關聊天室也一併移除。');
+        write(next,'已移除聯絡人「'+(contact.name||contact.id)+'」，相關聊天室與機關也一併移除。');
       }));
     });
   }
