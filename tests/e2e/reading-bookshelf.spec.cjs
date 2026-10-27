@@ -73,7 +73,8 @@ for (const width of [320, 390, 900, 1280]) {
       }
       await page.locator('.ui-tab[data-panel="status"]').click();
       await expect(page.locator('#ui-panel .state-grid')).toBeVisible();
-      await page.locator('#bao-play-status-close').click();
+      if (width < 1081) await page.locator('#bao-mobile-panel-close').click();
+      else await page.locator('#bao-play-status-close').click();
       await expect(page.locator('#game-ui')).toBeHidden();
     }
     await expect(page.locator('#bao-play-status-toggle')).toHaveAttribute('aria-expanded', 'false');
@@ -91,18 +92,14 @@ for (const width of [320, 390, 900, 1280]) {
     } else {
       await page.locator('#bao-surface-mode-toggle').click();
       await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'studio');
-      await expect(page.locator('#user-input')).toHaveAttribute('placeholder', '輸入你的行動或台詞…');
-      if (width < 1081) {
-        const drawer = page.locator('#bao-chat-tool-drawer');
-        await expect(drawer).toBeVisible();
-        await page.evaluate(() => { BAOStorySurface.sync(); BAOStorySurface.sync(); });
-        await expect(drawer).toBeVisible();
-        await drawer.getByRole('button', { name: '關閉 ×' }).click();
-        await expect(drawer).toHaveCount(0);
-      } else {
-        await expect(page.locator('#chat-view .usage-bar')).toBeVisible();
-      }
-      await page.locator('#bao-surface-mode-toggle').click();
+      // Control Center changes how the story is managed, not what the composer means.
+      await expect(page.locator('#user-input')).toHaveAttribute('placeholder', '寫下你的下一句…');
+      const drawer = page.getByRole('dialog', { name: '故事總覽' });
+      await expect(drawer).toBeVisible();
+      await page.evaluate(() => { BAOStorySurface.sync(); BAOStorySurface.sync(); });
+      await expect(drawer).toBeVisible();
+      await drawer.getByRole('button', { name: /關閉/ }).click();
+      await expect(drawer).toHaveCount(0);
       await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'play');
       await expect(page.locator('#user-input')).toHaveAttribute('placeholder', '寫下你的下一句…');
       await expect(page.locator('#bao-surface-mode-toggle')).toHaveAttribute('aria-pressed', 'false');
