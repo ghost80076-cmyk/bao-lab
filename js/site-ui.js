@@ -275,7 +275,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => new Promise(resolve => setTimeout(resolve, 100)))
     .then(() => loadBAOScript("js/bao-mascot.js?v=5"))
     .then(() => loadBAOOptionalGroup("stage-capabilities", ["js/stage-capability-core.js?v=1", "js/stage-capability.js?v=1"]))
-    .then(() => loadBAOScript("js/reader-context.js?v=6"))
+    .then(() => loadBAOScript("js/reader-context.js?v=7"))
     .then(() => loadBAOScript("js/bao-visual-ui.js?v=15"))
     .then(() => loadBAOScript("js/player-shell-v2.js?v=11"))
     .then(() => loadBAOScript("js/player-builder-v2.js?v=6"))
