@@ -78,7 +78,7 @@ increasing(siteUI, [
 increasing(siteUI, [
   'loadBAOOptionalGroup("stage-capabilities", ["js/stage-capability-core.js?v=3", "js/stage-capability.js?v=3"])',
   'loadBAOScript("js/reader-context.js?v=7")',
-  'loadBAOScript("js/bao-visual-ui.js?v=18")',
+  'loadBAOScript("js/bao-visual-ui.js?v=19")',
   'loadBAOScript("js/player-shell-v2.js?v=13")'
 ], "stage capability extension");
 

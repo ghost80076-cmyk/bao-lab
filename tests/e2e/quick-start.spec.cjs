@@ -43,6 +43,11 @@ for (const width of [390, 1440]) {
     await page.locator('#api-key').fill('quick-start-e2e-secret');
     await page.locator('#start-story').click();
     await expect(page.locator('#chat-view')).toHaveClass(/active/);
+    await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'play');
+    await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-experience-surface', 'story');
+    await expect(page.locator('#bao-chat-tool-drawer')).toHaveCount(0);
+    await expect(page.locator('#bao-chat-tool-shortcuts')).toHaveCount(0);
+    await expect(page.locator('#bao-play-status-toggle')).toHaveAttribute('aria-expanded', 'false');
     expect(await page.evaluate(() => App.config.memory.maxRounds)).toBeGreaterThan(0);
     expect(await page.evaluate(() => JSON.stringify(Storage.buildStoryPayload('test')))).not.toContain('quick-start-e2e-secret');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
