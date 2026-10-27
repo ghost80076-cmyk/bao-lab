@@ -258,6 +258,7 @@
     for (const key of phoneNames) field('phone_' + key).value = c.phone_ui?.[key] || (key === 'locale' ? 'zh-TW' : '');
     field('recommended_styles').value = (Array.isArray(c.narrative_profile?.recommended_styles) ? c.narrative_profile.recommended_styles : []).join(', ');
     field('phone_ui_json').value = JSON.stringify(c.phone_ui || phoneCore?.defaultConfig?.() || {}, null, 2);
+    window.dispatchEvent(new CustomEvent('bao:character-studio-card-shown'));
     field('profile').value = typeof c.profile === 'object' ? (c.profile['AI 主角色設定'] || c.profile['人物設定'] || engine.profilePrompt(c.profile)) : String(c.profile || '');
     const theme = gameplayCore?.normalizeTheme?.(c.gameplay_ui?.theme) || { preset: 'default', density: 'comfortable', radius: 'round', meter: 'soft' };
     field('gameplay_theme').value = theme.preset || 'default';
