@@ -362,6 +362,11 @@
   const bindComposerInput = input => {
     if (!input || input.dataset.baoComposerAutogrow === 'true') return;
     input.dataset.baoComposerAutogrow = 'true';
+    input.addEventListener('focus', () => {
+      // On phones, focusing the composer changes the primary task back to Story.
+      // Collapse Stage before the keyboard/input can compete for the same viewport.
+      if (main.classList.contains('bao-mobile-panel-open')) closePanels();
+    });
     input.addEventListener('input', fitComposerInput);
     input.addEventListener('change', fitComposerInput);
     input.addEventListener('paste', () => window.requestAnimationFrame(fitComposerInput));
@@ -559,7 +564,7 @@
     focusScrollTop = null;
     schedule();
   });
-  window.BAOMobileReadingLayout = { version: 22, sync, syncMessageActions, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools, fitComposerInput };
+  window.BAOMobileReadingLayout = { version: 23, sync, syncMessageActions, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools, fitComposerInput };
   // The stylesheet is render-blocking in index.html for the initial story
   // frame. Move that same link to the END of the cascade once deferred
   // enhancements are mounted: this restores its original precedence over
