@@ -232,10 +232,10 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/story-branches.js?v=2"))
     .then(() => loadBAOScript("js/streaming-ui.js?v=7"))
     .then(() => loadBAOScript("js/request-lifecycle.js?v=3"))
-    .then(() => loadBAOScript("js/chat-tool-navigation.js?v=12"))
+    .then(() => loadBAOScript("js/chat-tool-navigation.js?v=13"))
     .then(() => loadBAOScript("js/chat-experience-repairs.js?v=6"))
     .then(() => loadBAOOptionalGroup("story-quick-commands", ["js/story-quick-commands-core.js?v=3", "js/story-quick-commands.js?v=8"]))
-    .then(() => loadBAOOptionalGroup("mobile-reading-layout", ["js/mobile-reading-layout.js?v=22"]))
+    .then(() => loadBAOOptionalGroup("mobile-reading-layout", ["js/mobile-reading-layout.js?v=24"]))
     .then(() => loadBAOScript("js/story-actor-pack-core.js?v=3"))
     .then(() => loadBAOScript("js/story-actors-general-pack.js?v=1"))
     .then(() => loadBAOScript("js/three-realms-story-actor-pack.js?v=1"))
@@ -258,7 +258,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/settings-effects-core.js?v=1"))
     .then(() => loadBAOScript("js/settings-effects.js?v=4"))
     .then(() => loadBAOScript("js/story-control-center-core.js?v=2"))
-    .then(() => loadBAOScript("js/story-control-center.js?v=10"))
+    .then(() => loadBAOScript("js/story-control-center.js?v=11"))
     .then(() => loadBAOScript("js/request-ledger.js?v=2"))
     .then(() => { baoExtensionHealth.story = "ready"; })
     .catch(reportStoryFailure);
@@ -275,8 +275,8 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => new Promise(resolve => setTimeout(resolve, 100)))
     .then(() => loadBAOScript("js/bao-mascot.js?v=5"))
     .then(() => loadBAOScript("js/reader-context.js?v=6"))
-    .then(() => loadBAOScript("js/bao-visual-ui.js?v=12"))
-    .then(() => loadBAOScript("js/player-shell-v2.js?v=10"))
+    .then(() => loadBAOScript("js/bao-visual-ui.js?v=15"))
+    .then(() => loadBAOScript("js/player-shell-v2.js?v=11"))
     .then(() => loadBAOScript("js/player-builder-v2.js?v=6"))
     .then(() => loadBAOScript("js/story-start-readiness-core.js"))
     .then(() => loadBAOScript("js/story-start-readiness.js"))
@@ -376,4 +376,3 @@ window.addEventListener("DOMContentLoaded", () => {
     window.BAORefreshSaveUI = refresh;
   }, 180);
 });
-

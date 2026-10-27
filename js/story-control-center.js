@@ -130,8 +130,8 @@
       <section class="story-control-panel story-control-embedded">
         <header class="story-control-head">
           <div>
-            <div class="eyebrow">STORY OVERVIEW</div>
-            <h3 id="story-control-title">目前故事設定</h3>
+            <div class="eyebrow">CONTROL CENTER</div>
+            <h3 id="story-control-title">控制中心</h3>
             <p><b>${esc(title)}</b> · ${esc(data.stats.chapter)} · 約 ${data.stats.turns.toLocaleString()} 輪</p>
           </div>
           <div class="story-control-head-actions">
@@ -139,7 +139,7 @@
 
           </div>
         </header>
-        <p class="story-control-intro" id="story-control-intro">這裡整理目前這一份故事正在使用的設定。連線金鑰、全站語言與其他帳號設定仍留在原本的入口。</p>
+        <p class="story-control-intro" id="story-control-intro">遊玩留在「故事／舞臺」；模型、身份、記憶、指令與進階管理集中在這裡。連線金鑰、全站語言與其他帳號設定仍留在原本的安全入口。</p>
         <section class="story-control-section" aria-labelledby="story-control-primary-title">
           <div class="story-control-section-heading"><h3 id="story-control-primary-title">目前故事</h3><span>常用設定</span></div>
           <div class="story-control-grid story-control-primary">
@@ -214,15 +214,22 @@
     const chat = document.getElementById("chat-view");
     if (!chat?.classList.contains("active")) return;
     const controls = document.getElementById("bao-surface-controls");
+    const surfaceEntry = controls?.querySelector("#bao-surface-mode-toggle");
+    if (surfaceEntry) {
+      surfaceEntry.dataset.openStoryControl = "surface";
+      chat.querySelectorAll('[data-open-story-control]:not(#bao-surface-mode-toggle)')
+        .forEach(node => node.remove());
+      return;
+    }
     const host = controls || chat.querySelector(".chat-topline");
     if (!host || chat.querySelector("[data-open-story-control]")) return;
     const button = document.createElement("button");
     button.type = "button";
     button.className = "secondary story-control-entry";
     button.dataset.openStoryControl = "true";
-    button.textContent = controls ? "故事" : "☷ 故事總覽";
-    button.setAttribute("aria-label", "故事總覽");
-    button.title = "查看故事模型、身份、Token、Context、記憶與狀態";
+    button.textContent = controls ? "控制中心" : "☷ 控制中心";
+    button.setAttribute("aria-label", "控制中心");
+    button.title = "管理故事模型、身份、Token、Context、記憶與狀態";
     button.addEventListener("click", open);
     if (controls) {
       const tools = controls.querySelector("#bao-surface-mode-toggle");

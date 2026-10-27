@@ -72,7 +72,7 @@ test('opens the current story control center and routes to existing story tools'
     App.showView('chat');
   });
 
-  const open = page.getByRole('button', { name: '故事總覽', exact: true });
+  const open = page.getByRole('button', { name: '開啟控制中心', exact: true });
   await expect(open).toBeVisible();
   await open.click();
 
@@ -196,12 +196,12 @@ for (const width of [390, 1280]) {
       YoruExperience.choose({ level:'easy', theme:'mist' });
     });
     if (width === 390) {
-      // Phone discovery path: composer ＋ -> Story overview -> Token / Context.
+      // Phone discovery path: composer ＋ -> Control Center -> current story settings.
       // The mobile header's legacy ••• tab was deliberately removed by the compact layout.
       const mobileTools = page.locator('#bao-mobile-composer-tools');
       await expect(mobileTools).toBeVisible();
       await mobileTools.click();
-      const mobileOverview = page.locator('#bao-chat-tool-drawer .bao-mobile-quick').getByRole('button', { name: /故事總覽/ });
+      const mobileOverview = page.locator('#bao-chat-tool-drawer .bao-mobile-quick').getByRole('button', { name: '目前故事設定' });
       await expect(mobileOverview).toBeVisible();
       await mobileOverview.click();
     } else {

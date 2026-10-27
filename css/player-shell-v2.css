@@ -238,6 +238,54 @@
 #chat-view.bao-player-reading-v2[data-bao-surface="play"] #bao-surface-controls button:focus-visible{
   background:rgba(214,170,115,.065)!important;color:var(--story-text,#eeeae4);
 }
+
+/* Experience shell phase 1: semantic Story / Stage / Control Center navigation.
+   This is presentation only; the existing reader, gameplay renderer and managers
+   remain the source of truth. */
+@media(min-width:821px){
+  #chat-view.bao-player-reading-v2 #bao-surface-controls{
+    display:inline-flex;align-items:center;gap:2px;
+    padding:3px;border:1px solid var(--yoru-control-border,rgba(201,184,229,.11));
+    border-radius:999px;background:color-mix(in srgb,var(--yoru-tool,#101116) 78%,transparent);
+  }
+  #chat-view.bao-player-reading-v2 #bao-surface-controls button[data-bao-surface-role]{
+    min-height:32px;padding:6px 11px;border:0!important;border-radius:999px;
+    background:transparent!important;color:var(--yoru-muted,var(--story-muted,#aeb5c1));
+    box-shadow:none!important;white-space:nowrap;
+  }
+  #chat-view.bao-player-reading-v2 #bao-surface-controls button[data-bao-surface-role][aria-pressed="true"]{
+    background:var(--yoru-control,var(--yoru-tool-raised,#211d23))!important;
+    color:var(--yoru-text,var(--story-text,#eeeae4));font-weight:750;
+  }
+  #chat-view.bao-player-reading-v2 #bao-surface-controls button[data-bao-surface-role]:focus-visible{
+    outline:2px solid var(--yoru-lantern,#d6aa73);outline-offset:1px;
+  }
+}
+
+/* Story is for playing. Configuration remains mounted for compatibility, but
+   is disclosed through Control Center instead of competing with the prose. */
+#chat-view.bao-player-reading-v2[data-bao-surface="play"] .usage-bar{
+  display:none!important;
+}
+@media(min-width:1081px){
+  #chat-view.bao-player-reading-v2[data-bao-surface="play"] .chat-layout>aside .chat-meta,
+  #chat-view.bao-player-reading-v2[data-bao-surface="play"] #bao-chat-tool-groups{
+    display:none!important;
+  }
+}
+/* Standard Gameplay UI becomes an on-demand Stage. Dedicated RPG/scene shells
+   keep their existing platform-owned composition and compatibility behavior. */
+#chat-view.bao-player-reading-v2[data-bao-surface="play"]:not([data-gameplay-layout="rpg-dashboard"]):not([data-gameplay-layout="scene-rpg"]) #game-ui{
+  display:none;
+}
+#chat-view.bao-player-reading-v2[data-bao-surface="play"].bao-play-status-open:not([data-gameplay-layout="rpg-dashboard"]):not([data-gameplay-layout="scene-rpg"]) #game-ui{
+  display:block;
+}
+/* 821–1080 already has the semantic header navigation. Keep only Quick Save
+   from the older fallback strip so Stage/Control are not duplicated. */
+@media(min-width:821px) and (max-width:1080px){
+  #chat-view #bao-chat-tool-shortcuts button:nth-child(n+2){display:none!important}
+}
 #chat-view.bao-player-reading-v2[data-bao-surface="play"] .chat-stream{
   padding:clamp(24px,4vw,46px) clamp(14px,4vw,44px) clamp(36px,5vw,64px)!important;
   scroll-padding-top:86px;
