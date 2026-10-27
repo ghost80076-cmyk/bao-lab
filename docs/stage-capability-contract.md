@@ -44,9 +44,10 @@ Player Shell 不再自行猜 `gameplay_ui`、`phone_ui` 或 viewport。
 | gameplay | game-ui | panel | panel | 安全 declarative Gameplay UI |
 | rpg-dashboard | game-ui | embedded | 既有 responsive fallback | 保留既有 layout |
 | scene-rpg | game-ui | embedded | 既有 responsive fallback | 保留既有 scene layout |
+| terminal | game-ui | embedded | panel fallback | 平台主控台；作者只宣告安全 panel |
 | phone | phone | overlay | overlay | 只有明確指定才可成為 primary Stage |
 
-Terminal 與 Visual Novel **尚未加入正式允許清單**。有設計方向不等於平台已支援。
+Visual Novel **尚未加入正式允許清單**。Terminal 自 Phase 3 起正式支援。
 
 ## 相容策略
 
@@ -70,6 +71,21 @@ mobile  → reader / game-ui panel
 - scene-rpg → `scene-rpg`
 
 底層 renderer 仍是既有 Gameplay UI Engine。
+
+### Terminal 卡
+
+Terminal 使用既有 Gameplay UI schema：
+
+```json
+{
+  "layout": {
+    "preset": "terminal",
+    "primary_panel": "system"
+  }
+}
+```
+
+`primary_panel` 只能引用同一份 schema 中已存在的 panel id。桌機 1081px 以上以 persistent Stage 顯示；較窄畫面退回按需 Game UI panel。Terminal 不新增資料來源，也不能執行作者程式碼。
 
 ### Phone 卡
 
@@ -133,9 +149,9 @@ Phone core 已經有自己的 app routing、thread/photo/note 資料結構、int
 
 強行塞進 Gameplay UI v1 會造成 schema 膨脹、renderer 職責混亂、原作品相容風險，以及多一份狀態同步。因此 Phase 2 採 **capability adapter**，不是 renderer merge。
 
-## 下一步：Terminal / Visual Novel
+## 下一步：Visual Novel
 
-新增 shell 的正確流程：
+Terminal 已依照以下流程落地；Visual Novel 也必須遵守相同流程：
 
 1. 先定義平台 renderer。
 2. 定義 declarative schema。
