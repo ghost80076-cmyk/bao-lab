@@ -445,6 +445,9 @@
     // Keep the semantic order stable even when old cached enhancements mounted
     // one of these controls before the current Story Surface.
     controls.append(story, status, surface);
+    // Reconcile any older fallback shortcut strip now that the semantic
+    // Story / Stage / Control Center navigation is mounted.
+    window.BAOChatToolNavigation?.sync?.();
 
     // Older enhancement order could have injected a second "故事總覽" button
     // before the Story Surface mounted. The mode control now owns that route.
