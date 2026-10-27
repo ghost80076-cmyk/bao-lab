@@ -485,6 +485,16 @@
       ?.setAttribute('aria-expanded', String(statusOpen));
     syncSurfaceNavigation();
   });
+  root.addEventListener('bao:phone-stage-visibility', event => {
+    const capability = stageCapability();
+    if (mode !== 'play' || capability.shell !== 'phone') return;
+    statusOpen = Boolean(event.detail?.open);
+    root.classList.remove('bao-play-status-open');
+    document.getElementById('bao-play-status-toggle')
+      ?.setAttribute('aria-expanded', String(statusOpen));
+    syncStatusButtonContract();
+    syncSurfaceNavigation();
+  });
   root.addEventListener('bao:control-center-visibility', event => {
     const open = Boolean(event.detail?.open);
     if (open) {
