@@ -93,6 +93,8 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     await expect(page.locator('#chat-view .ui-tab[data-panel="memory"]')).toHaveClass(/active/);
 
     await page.locator('#user-input').fill('手機版閱讀測試');
+    await expect(page.locator('#chat-view .chat-main')).not.toHaveClass(/bao-mobile-panel-open/);
+    await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-experience-surface', 'story');
     await page.locator('#chat-view .composer [data-send-message]').click();
     await expect(page.locator('#chat-stream .message.assistant[data-message-index]').last()).toBeVisible();
     const actions = page.locator('#chat-stream .message.assistant[data-message-index]').last().locator('.story-message-tools');
