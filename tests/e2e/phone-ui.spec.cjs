@@ -129,6 +129,62 @@ test('studio simple phone fields and style advice survive draft reload and nativ
   expect((await page.evaluate(()=>BAOCharacterStudio.toExport())).presentation.phone_ui).toBeUndefined();
 });
 
+
+test('studio phone builder works without JSON and expanded references stay inside the page',async({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  await page.goto('/character-studio.html');
+  await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOCharacterStudioFlow && window.BAOCharacterStudioPhoneBuilder);
+  await page.locator('#studio-flow-shell [data-flow-step="appearance"]').click();
+  await page.locator('[name=phone_ui_enabled]').check();
+  await expect(page.locator('[data-phone-builder]')).toBeVisible();
+
+  await page.locator('[name=phone_userName]').fill('林曼');
+  await page.locator('[data-phone-contact-name]').fill('小夏');
+  await page.locator('[data-phone-add-contact]').click();
+  await expect(page.locator('[data-phone-contact-list]')).toContainText('小夏');
+
+  await page.locator('[data-phone-thread-contact]').selectOption({label:'小夏'});
+  await page.locator('[data-phone-thread-message]').fill('晚點見。');
+  await page.locator('[data-phone-add-thread]').click();
+  await expect(page.locator('[data-phone-thread-list]')).toContainText('小夏');
+
+  await page.locator('[data-phone-note-title]').fill('線索');
+  await page.locator('[data-phone-note-text]').fill('碼頭的置物櫃編號是 0427。');
+  await page.locator('[data-phone-add-note]').click();
+  await page.locator('[data-phone-photo-src]').fill('https://example.com/rain-port.jpg');
+  await page.locator('[data-phone-photo-title]').fill('雨夜碼頭');
+  await page.locator('[data-phone-add-photo]').click();
+
+  await page.locator('.studio-phone-mechanisms > summary').click();
+  await page.locator('[data-phone-lock-target]').selectOption({label:'聊天室 · 小夏'});
+  await page.locator('[data-phone-lock-code]').fill('0427');
+  await page.locator('[data-phone-lock-hint]').fill('四位數故事密碼');
+  await page.locator('[data-phone-add-lock]').click();
+  await page.locator('[data-phone-event-source]').selectOption({label:'備忘錄 · 線索'});
+  await page.locator('[data-phone-event-unlock]').selectOption({label:'聊天室 · 小夏'});
+  await page.locator('[data-phone-event-notification]').fill('聊天室已解鎖');
+  await page.locator('[data-phone-add-event]').click();
+
+  const phone=await page.evaluate(()=>BAOCharacterStudio.toExport().presentation.phone_ui);
+  expect(phone.userName).toBe('林曼');
+  expect(phone.contacts[0].name).toBe('小夏');
+  expect(phone.threads[0].messages[0].text).toBe('晚點見。');
+  expect(phone.notes[0].title).toBe('線索');
+  expect(phone.photos[0].title).toBe('雨夜碼頭');
+  expect(phone.interactions.locks[0].code).toBe('0427');
+  expect(phone.interactions.events[0].notification).toBe('聊天室已解鎖');
+
+  await page.locator('.studio-phone-raw > summary').click();
+  const referenceSummaries=page.locator('.studio-phone-raw details > summary');
+  for(let i=0;i<await referenceSummaries.count();i++) await referenceSummaries.nth(i).click();
+  const overflow=await page.evaluate(()=>({
+    doc:document.documentElement.scrollWidth-innerWidth,
+    editor:document.querySelector('.studio-editor').scrollWidth-document.querySelector('.studio-editor').clientWidth
+  }));
+  expect(overflow.doc).toBeLessThanOrEqual(1);
+  expect(overflow.editor).toBeLessThanOrEqual(1);
+});
+
 for (const width of [320,1280]) test(`multiple chat recipients, documents and story clock work at ${width}px`,async({page})=>{
   await page.setViewportSize({width,height:844});
   await story(page,true);
