@@ -165,7 +165,8 @@ for (const width of [390, 1280]) {
       // Fixed status sheets are captured in the real viewport; full-page capture
       // temporarily resizes the page and can close responsive overlays.
       await capture(page, `chat-status-${width}`, false);
-      await page.locator('#bao-play-status-close').click();
+      if (width < 1081) await page.locator('#bao-mobile-panel-close').click();
+      else await page.locator('#bao-play-status-close').click();
       await expect(page.locator('#game-ui')).toBeHidden();
     }
 
@@ -173,9 +174,13 @@ for (const width of [390, 1280]) {
       await page.locator('#bao-surface-mode-toggle').click();
       await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'studio');
       if (width >= 1081) await expect(page.locator('#bao-reader-context')).toHaveCount(0);
-      await expect(page.locator('#chat-view .chat-layout > aside').first()).toBeVisible();
-      await expect(page.locator('#chat-view .usage-bar')).toBeVisible();
-      await capture(page, `chat-studio-${width}`);
+      const drawer = page.getByRole('dialog', { name: '故事總覽' });
+      await expect(drawer).toBeVisible();
+      await expect(drawer.locator('header h2')).toHaveText('控制中心');
+      await expect(page.locator('#user-input')).toHaveAttribute('placeholder', '寫下你的下一句…');
+      await capture(page, `chat-studio-${width}`, false);
+      await drawer.getByRole('button', { name: /關閉/ }).click();
+      await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'play');
     }
   });
 }
