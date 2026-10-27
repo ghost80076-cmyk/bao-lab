@@ -149,7 +149,8 @@
     }
     groupDefinitions.forEach(([id, label]) => ensureGroup(groups, id, label));
     const targets = Object.fromEntries(groupDefinitions.map(([id]) => [id, groupBody(groups, id)]));
-    const save = sidebar.querySelector('button[onclick*="App.saveStory"]');
+    const save = sidebar.querySelector('button[onclick*="App.saveStory"]') ||
+      [...sidebar.querySelectorAll('button')].find(button => button.textContent.trim() === '快速儲存');
     // Manual save remains available, but belongs with story management rather
     // than the always-visible Play shortcuts. Per-turn autosave is unchanged.
     if (save) move(save, targets.story);
