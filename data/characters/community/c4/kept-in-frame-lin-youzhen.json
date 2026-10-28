@@ -545,6 +545,7 @@
         "meter": "soft"
       },
       "builder": {
+        "kind": "story",
         "title": "你與他從哪裡開始？",
         "description": "同一場雨夜，初識、朋友、曖昧、戀人或舊識會有不同的第一幕與初始關係；不限定玩家後續選擇。",
         "point_pool": 0,
@@ -554,6 +555,7 @@
             "key": "relationship",
             "label": "你們原有的關係",
             "type": "select",
+            "presentation": "cards",
             "target_path": "modules.session_setup.relationship",
             "options": [
               "初識",

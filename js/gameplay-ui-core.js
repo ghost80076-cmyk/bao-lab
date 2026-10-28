@@ -143,6 +143,7 @@
       type,
       target_path: targetPath,
       options,
+      presentation: type === 'select' ? (raw.presentation === 'cards' ? 'cards' : 'select') : '',
       custom_option: type === 'select' && options.includes(raw.custom_option) ? raw.custom_option : '',
       default: defaultValue,
       min: type === 'number' && Number.isFinite(Number(raw.min)) ? Number(raw.min) : undefined,
@@ -166,6 +167,7 @@
     const max = Math.max(1, Math.min(64, finite(raw.max, options.length)));
     return { key:raw.key, label:label(raw.label, raw.key), target_path:raw.target_path,
       min:Math.max(0, Math.min(max, finite(raw.min, 0))), max, options,
+      ordered: raw.ordered === true,
       availability_field:key(raw.availability_field),
       default:(Array.isArray(raw.default) ? raw.default : []).filter(id => options.some(o => o.id === id)).slice(0,max) };
   }
@@ -395,6 +397,7 @@
     const version = finite(raw.version, 1);
     if (version !== 1) return null;
     const builderRaw = isObject(raw.builder) ? raw.builder : {};
+    const builderKind = enumValue(builderRaw.kind, ['gameplay', 'story'], 'gameplay');
     const attributes = (Array.isArray(builderRaw.attributes) ? builderRaw.attributes : [])
       .map((item, index) => normalizeAttribute(item, index)).filter(Boolean).slice(0, MAX_ATTRIBUTES);
     const fields = (Array.isArray(builderRaw.fields) ? builderRaw.fields : [])
@@ -417,7 +420,8 @@
       theme: normalizeTheme(raw.theme),
       layout,
       builder: {
-        title: label(builderRaw.title, '角色設定'),
+        kind: builderKind,
+        title: label(builderRaw.title, builderKind === 'story' ? '進入故事前' : '角色設定'),
         description: String(builderRaw.description || '').trim().slice(0, 300),
         point_pool: Math.max(0, Math.min(999, finite(builderRaw.point_pool, 0))),
         attributes: uniqueAttributes,
@@ -490,7 +494,11 @@
     });
     s.builder.choice_groups.forEach(group => {
       const requested = Array.isArray(input[group.key]) ? input[group.key] : group.default;
-      values[group.key] = group.options.filter(o => requested.includes(o.id)).map(o => o.id);
+      const allowed = new Set(group.options.map(o => o.id));
+      const requestedIds = [...new Set(requested.map(String).filter(id => allowed.has(id)))];
+      values[group.key] = group.ordered
+        ? requestedIds
+        : group.options.filter(o => requestedIds.includes(o.id)).map(o => o.id);
     });
     return values;
   }
@@ -550,7 +558,10 @@
     s.builder.attributes.forEach(attr => { changed = setPath(shadow, attr.target_path, values[attr.key]) || changed; });
     s.builder.fields.forEach(field => { changed = setPath(shadow, field.target_path, values[field.key]) || changed; });
     for (const group of s.builder.choice_groups) {
-      const options = group.options.filter(o => values[group.key].includes(o.id));
+      const optionById = new Map(group.options.map(o => [o.id, o]));
+      const options = group.ordered
+        ? (values[group.key] || []).map(id => optionById.get(id)).filter(Boolean)
+        : group.options.filter(o => values[group.key].includes(o.id));
       setPath(shadow, group.target_path, options.map(o => ({id:o.id, name:o.label, cost:o.cost, description:o.description})));
       for (const effect of options.flatMap(o => o.effects)) {
         const previous = getPath(shadow, effect.path);

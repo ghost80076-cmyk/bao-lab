@@ -302,3 +302,48 @@ UI 草稿使用 `{ option, custom }`；`gameplaySetup` 與世界狀態只儲存�
 `validateBuilderValues` 檢查額度、數量、互斥和背景。開始故事前攔下無效構築，`applyBuilderValues` 也再次驗證，非法配置不會部分寫入。有效選項以 `{id,name,cost,description}` 陣列寫入指定的 `modules.*`。`effects` 只接受既有數值的有界整數加減，不執行作者程式碼；所有加成在副本完成後提交，並防止同一構築重複加值。這是初始化能力，不是持續戰鬥或求生計算器。
 
 只有 `randomize_choices:true` 才出現隨機按鈕。隨機會保留姓名、文字與未標記欄位，只抽選項組和明確 `randomize:true` 的 select；最多嘗試128次，只接受合法結果，無法產生合法構築時保留原草稿。對話模型不參與此操作。
+## Story Setup（進故事前問答）
+
+同一套 `gameplay_ui.builder` 也能用來做作品專屬的開場問答，不需要作者提供 HTML 或 JavaScript。設定 `builder.kind: "story"` 後，Runtime 會把它視為「進故事前的身份／關係設定」，隱藏 RPG 配點語意；所有答案仍只能寫入安全的 `modules.*` 路徑。
+
+單一關係值建議用 `fields` 的 `select`，若希望顯示成可點選的大卡片，再加 `presentation: "cards"`。這會把純量值直接寫入指定路徑，因此可直接給 `story_startup.selector_path` 使用。
+
+```json
+{
+  "builder": {
+    "kind": "story",
+    "title": "在故事開始以前",
+    "fields": [
+      {
+        "key": "relationship",
+        "label": "你和她原本是什麼關係？",
+        "type": "select",
+        "presentation": "cards",
+        "target_path": "modules.session_setup.relationship",
+        "options": ["第一次見面", "朋友", "曖昧", "已經認識很久"],
+        "default": "第一次見面"
+      }
+    ]
+  }
+}
+```
+
+需要多選時可沿用 `choice_groups`。若先後順序本身有意義（例如「先選的在左，後選的在右」），設定 `ordered: true`；Runtime 會保留玩家的選取順序，寫入 state 的選項物件陣列也維持同一順序。
+
+```json
+{
+  "key": "family",
+  "label": "選擇兩位家人",
+  "target_path": "modules.session_setup.family",
+  "min": 2,
+  "max": 2,
+  "ordered": true,
+  "options": [
+    {"id":"a","label":"A","cost":0},
+    {"id":"b","label":"B","cost":0},
+    {"id":"c","label":"C","cost":0}
+  ]
+}
+```
+
+`kind: "story"` 是 opt-in；未設定的既有作品維持原本 `gameplay` Builder 外觀與行為。

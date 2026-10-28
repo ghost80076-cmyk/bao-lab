@@ -117,11 +117,17 @@
     return builderDrafts.get(id);
   };
 
-  const fieldControl = (field, value) => {
+  const fieldControl = (field, value, storyMode = false) => {
     const common = `data-gameplay-field="${esc(field.key)}"`;
     if (field.type === 'select') {
       const selected = typeof value === 'object' ? value.option : value;
       const custom = typeof value === 'object' ? value.custom || '' : '';
+      if (storyMode && field.presentation === 'cards' && !field.custom_option) {
+        return `<div class="gameplay-story-options" role="radiogroup" aria-label="${esc(field.label)}">${field.options.map(option => {
+          const active = String(selected) === option;
+          return `<label class="gameplay-story-option ${active ? 'is-selected' : ''}"><input type="radio" name="gameplay-story-${esc(field.key)}" ${common} value="${esc(option)}" ${active ? 'checked' : ''}><span>${esc(option)}</span></label>`;
+        }).join('')}</div>`;
+      }
       return `<select ${common}>${field.options.map(option => `<option value="${esc(option)}" ${String(selected) === option ? 'selected' : ''}>${esc(option)}</option>`).join('')}</select>${field.custom_option ? `<input data-gameplay-custom="${esc(field.key)}" type="text" maxlength="240" value="${esc(custom)}" placeholder="${esc(field.placeholder || '請輸入自訂' + field.label)}" aria-label="${esc('自訂' + field.label)}" ${selected === field.custom_option ? '' : 'hidden'}>` : ''}`;
     }
     if (field.type === 'number') {
@@ -136,6 +142,8 @@
   const renderBuilder = (box, schema, values) => {
     applyTheme(box, schema);
     const builder = schema.builder;
+    const storyMode = builder.kind === 'story';
+    box.dataset.builderKind = storyMode ? 'story' : 'gameplay';
     const remaining = Core.remainingPoints(schema, values);
     const attributes = builder.attributes.map(attr => {
       const current = Number(values[attr.key] ?? attr.base);
@@ -145,14 +153,32 @@
         <span>${esc(attr.base)}～${esc(attr.max)}</span>
       </div>`;
     }).join('');
-    const fields = builder.fields.map(field => `<label class="gameplay-builder-field"><span>${esc(field.label)}</span>${fieldControl(field, values[field.key])}</label>`).join('');
+    const fields = builder.fields.map(field => {
+      const control = fieldControl(field, values[field.key], storyMode);
+      if (storyMode && field.type === 'select' && field.presentation === 'cards' && !field.custom_option) {
+        return `<fieldset class="gameplay-builder-field gameplay-story-field"><legend>${esc(field.label)}</legend>${control}</fieldset>`;
+      }
+      return `<label class="gameplay-builder-field"><span>${esc(field.label)}</span>${control}</label>`;
+    }).join('');
     const check = Core.validateBuilderValues(schema, values);
-    const groups = builder.choice_groups.map(group => `<details class="gameplay-choice-group" open><summary>${esc(group.label)} · ${(values[group.key] || []).length} 項</summary><div class="gameplay-choice-grid">${group.options.map(option => {
-      const selected = (values[group.key] || []).includes(option.id);
-      const unavailable = group.availability_field && option.allowed_values.length && !option.allowed_values.includes(String(values[group.availability_field]));
-      return `<label class="gameplay-choice ${selected ? 'is-selected' : ''}"><input type="checkbox" data-gameplay-choice="${esc(group.key)}" value="${esc(option.id)}" ${selected ? 'checked' : ''} ${unavailable && !selected ? 'disabled' : ''}><span><b>${esc(option.label)}</b><small>${esc(option.description)}${unavailable ? '（此背景不適用）' : ''}</small></span><strong>${option.cost > 0 ? '−' + option.cost : option.cost < 0 ? '＋' + (-option.cost) : '0'}</strong></label>`;
-    }).join('')}</div></details>`).join('');
-    box.innerHTML = `<div class="gameplay-builder-head"><div><span>GAMEPLAY SETUP</span><h4>${esc(builder.title || '角色設定')}</h4>${builder.description ? `<p>${esc(builder.description)}</p>` : ''}</div>${builder.attributes.length || builder.choice_groups.length ? `<b class="gameplay-points">剩餘 ${remaining} / ${builder.point_pool}</b>` : ''}</div>${attributes ? `<div class="gameplay-builder-attributes">${attributes}</div>` : ''}${fields ? `<div class="gameplay-builder-fields">${fields}</div>` : ''}${builder.randomize_choices ? '<button type="button" data-gameplay-randomize>🎲 隨機合法構築</button>' : ''}${groups}<div class="gameplay-builder-validation" role="status" aria-live="polite">${check.errors.map(esc).join('<br>')}</div>`;
+    const groups = builder.choice_groups.map(group => {
+      const selectedIds = values[group.key] || [];
+      const summarySuffix = storyMode
+        ? (group.max > 1 ? ` · 已選 ${selectedIds.length}/${group.max}${group.ordered ? ' · 順序有效' : ''}` : '')
+        : ` · ${selectedIds.length} 項`;
+      return `<details class="gameplay-choice-group" open><summary>${esc(group.label)}${summarySuffix}</summary><div class="gameplay-choice-grid">${group.options.map(option => {
+        const selected = selectedIds.includes(option.id);
+        const unavailable = group.availability_field && option.allowed_values.length && !option.allowed_values.includes(String(values[group.availability_field]));
+        const inputType = group.max === 1 ? 'radio' : 'checkbox';
+        const inputName = group.max === 1 ? ` name="gameplay-choice-${esc(group.key)}"` : '';
+        const orderIndex = group.ordered ? selectedIds.indexOf(option.id) : -1;
+        const side = storyMode
+          ? (group.ordered && orderIndex >= 0 ? `<strong class="gameplay-choice-order">${orderIndex + 1}</strong>` : '')
+          : `<strong>${option.cost > 0 ? '−' + option.cost : option.cost < 0 ? '＋' + (-option.cost) : '0'}</strong>`;
+        return `<label class="gameplay-choice ${selected ? 'is-selected' : ''}"><input type="${inputType}"${inputName} data-gameplay-choice="${esc(group.key)}" value="${esc(option.id)}" ${selected ? 'checked' : ''} ${unavailable && !selected ? 'disabled' : ''}><span><b>${esc(option.label)}</b><small>${esc(option.description)}${unavailable ? '（此背景不適用）' : ''}</small></span>${side}</label>`;
+      }).join('')}</div></details>`;
+    }).join('');
+    box.innerHTML = `<div class="gameplay-builder-head"><div><span>${storyMode ? 'STORY SETUP' : 'GAMEPLAY SETUP'}</span><h4>${esc(builder.title || (storyMode ? '進入故事前' : '角色設定'))}</h4>${builder.description ? `<p>${esc(builder.description)}</p>` : ''}</div>${!storyMode && (builder.attributes.length || builder.choice_groups.length) ? `<b class="gameplay-points">剩餘 ${remaining} / ${builder.point_pool}</b>` : ''}</div>${attributes ? `<div class="gameplay-builder-attributes">${attributes}</div>` : ''}${fields ? `<div class="gameplay-builder-fields">${fields}</div>` : ''}${builder.randomize_choices ? `<button type="button" data-gameplay-randomize>🎲 ${storyMode ? '隨機選擇' : '隨機合法構築'}</button>` : ''}${groups}<div class="gameplay-builder-validation" role="status" aria-live="polite">${check.errors.map(esc).join('<br>')}</div>`;
   };
 
   const mountBuilder = (reset = false) => {
@@ -221,13 +247,17 @@
           const group = activeSchema.builder.choice_groups.find(g => g.key === input.dataset.gameplayChoice);
           if (!group) return;
           const selected = new Set(values[group.key] || []);
-          if (input.checked) { if (group.max === 1) selected.clear(); selected.add(input.value); }
-          else selected.delete(input.value);
+          if (input.checked) {
+            if (group.max === 1) selected.clear();
+            else if (!selected.has(input.value) && selected.size >= group.max) { input.checked = false; return; }
+            selected.add(input.value);
+          } else selected.delete(input.value);
           values[group.key] = [...selected];
         }
-        if (event.target.matches?.('select[data-gameplay-field]')) updateField(event);
-        // Keep costs and availability current when the background changes.
-        if (input || event.target.matches?.('select[data-gameplay-field]')) renderBuilder(box, activeSchema, values);
+        const fieldInput = event.target.closest?.('[data-gameplay-field]');
+        if (fieldInput) updateField(event);
+        // Keep costs, availability, story-card selection and ordered badges current.
+        if (input || (fieldInput && (fieldInput.tagName === 'SELECT' || fieldInput.type === 'radio'))) renderBuilder(box, activeSchema, values);
       });
       box.addEventListener('input', updateField);
       box.addEventListener('change', updateField);
