@@ -6,7 +6,7 @@
   const KEY = 'yorubay:bao-journey:v1';
   const $ = id => document.getElementById(id);
   const active = id => $(id)?.classList.contains('active');
-  let host, controls, topic = 'journey';
+  let host, controls, topic = 'journey', pendingProvider = '';
   const preference = () => { try { return localStorage.getItem(KEY); } catch { return ''; } };
   const remember = value => { try { localStorage.setItem(KEY, value); } catch { /* optional */ } };
   const button = (action, label) => `<button type="button" data-bao-journey="${action}">${label}</button>`;
@@ -14,18 +14,18 @@
   const topics = {
     api: {
       title: '自己的模型連線，從哪裡開始？',
-      body: 'API 是讓夜灣向你選的 AI 服務取得回覆的連線。費用由該服務計算；申請後，把金鑰貼到夜灣原本的連線欄位即可。先選一條你能使用的路。',
+      body: 'API 是夜灣向 AI 取得回覆的連線：地址是去哪找 AI，金鑰是你的通行證，模型是要使用哪個 AI。費用由所選服務計算，先選一條你能使用的路。',
       actions: button('official', '直接向模型公司申請') + button('router', '認識 OpenRouter') + button('relay', '我有其他中轉服務') + button('setup', '我已有 Key，帶我設定')
     },
     official: {
       title: '官方 API',
       body: '直接向模型公司申請金鑰。以 Google Gemini 為例：開啟 AI Studio、依服務要求建立金鑰，再回夜灣選 Google Gemini 並貼入。可用地區、額度與價格請以官方頁面為準。',
-      actions: link('https://aistudio.google.com/apikey', '開啟 Google AI Studio') + button('setup', '拿到 Key 了，回到設定')
+      actions: link('https://aistudio.google.com/apikey', '開啟 Google AI Studio') + button('setup-gemini', '拿到 Key 了，設定 Gemini')
     },
     router: {
       title: 'OpenRouter',
       body: '它是可連接多家模型的平台，並非各模型公司的官方 API。開啟服務網站、依需要設定帳號與額度、建立金鑰，再回夜灣選 OpenRouter。使用前請查看所選模型的費用及資料政策。',
-      actions: link('https://openrouter.ai/keys', '開啟 OpenRouter 金鑰頁') + button('setup', '拿到 Key 了，回到設定')
+      actions: link('https://openrouter.ai/keys', '開啟 OpenRouter 金鑰頁') + button('setup-openrouter', '拿到 Key 了，設定 OpenRouter')
     },
     relay: {
       title: '其他服務／第三方中轉',
@@ -62,6 +62,11 @@
       body: '快速儲存會保留目前進度。重要故事也請從控制中心的存檔工具匯出備份，避免瀏覽器資料清除後遺失。',
       actions: button('control', '打開控制中心')
     },
+    extras: {
+      title: '進階功能 · 選做',
+      body: '先選作品、完成模型連線，就能開始故事。手機、外觀與進階記憶設定都可以之後再探索，不需要一次學完。',
+      actions: button('phone-open', '看看故事手機') + button('memory', '了解故事記憶') + button('control', '打開控制中心')
+    },
     memory: {
       title: '故事記憶',
       // Reuse the existing help source rather than maintaining another explanation.
@@ -84,7 +89,7 @@
     } else if (inStory) {
       title = '故事已開啟，想了解哪一項？';
       body = '模型、玩家身份與記憶都能從控制中心調整。開始故事只代表必要設定已填妥，實際連線狀況以測試或送出後的結果為準。';
-      actions = button('setup', '查看模型連線') + button('memory', '記憶怎麼用') + button('backup', '儲存與備份') + button('error', '連線遇到問題');
+      actions = button('setup', '查看模型連線') + button('memory', '記憶怎麼用') + button('backup', '儲存與備份') + button('error', '連線遇到問題') + button('extras', '探索選做功能');
     } else if (preference() === 'skipped') {
       title = '需要時，我在這裡';
       body = '你可以自由探索，也能隨時重新開始帶路。';
@@ -106,17 +111,19 @@
       body = ready?.canStart ? '可以回到設定畫面開始故事。這是欄位檢查，尚不代表實際連線成功；也可以先測試連線（可能計費）。' : '包包會直接帶你操作目前的設定。' + (ready?.ai?.label || '先選夜灣燈火，或使用自己的模型連線。');
       actions = button('setup', ready?.canStart ? '回到設定，開始故事' : '繼續目前設定') + button('api', '我還沒有 API Key') + button('models', '找不到模型') + button('error', '連線遇到問題');
     }
-    host.innerHTML = `<h3></h3><p></p><div class="bao-guide-actions">${actions}</div><details><summary>包包的工具包</summary><div class="bao-guide-actions">${button('api','API 入門')}${button('models','找不到模型')}${button('backup','儲存與備份')}${button('memory','故事記憶')}${link('quick-start.html','三步開始文件')}${link('api-guide.html','完整連線文件')}${link('lm-studio-guide.html','本機模型文件')}</div></details>`;
+    host.innerHTML = `<h3></h3><p></p><div class="bao-guide-actions">${actions}</div><details><summary>包包的工具包</summary><div class="bao-guide-actions">${button('api','API 入門')}${button('models','找不到模型')}${button('backup','儲存與備份')}${button('memory','故事記憶')}${button('extras','進階功能（選做）')}${link('quick-start.html','三步開始文件')}${link('api-guide.html','完整連線文件')}${link('lm-studio-guide.html','本機模型文件')}</div></details>`;
     host.querySelector('h3').textContent = title;
     host.querySelector('p').textContent = body;
   };
   const show = value => { topic = topics[value] ? value : 'journey'; render(); };
-  const setup = () => {
-    if (active('chat-view')) { controls.close(); window.BAOChatAPISettings?.open?.(); return; }
+  const setup = provider => {
+    if (provider) pendingProvider = provider;
+    if (active('chat-view')) { pendingProvider='';controls.close(); window.BAOChatAPISettings?.open?.(); return; }
     if (!window.App?.activeCharacter) { controls.close(); remember('active'); if (window.App) App.showView?.('explore'); else location.href = 'index.html#explore'; return; }
     controls.close();
     if (!active('builder-view')) window.App?.openBuilder?.();
     window.BAOGuidedOnboarding?.reopen?.();
+    if(pendingProvider && window.BAOGuidedOnboarding?.connect?.(pendingProvider)) pendingProvider='';
     $('bao-guided-setup')?.scrollIntoView({block:'center'});
     $('bao-guided-setup')?.focus();
   };
@@ -129,6 +136,13 @@
       else if (action === 'resume') { remember('active'); window.BAOGuidedOnboarding?.reopen?.(); show('journey'); }
       else if (action === 'explore') { remember('active'); controls.close(); if (window.App) App.showView?.('explore'); else location.href = 'index.html#explore'; }
       else if (action === 'setup') setup();
+      else if (action === 'setup-gemini' || action === 'setup-openrouter') setup(action.slice(6));
+      else if (action === 'phone-open') {
+        if(!active('chat-view')) { show('journey');return; }
+        controls.close();
+        const launch=$('bao-phone-launch');
+        if(launch) launch.click(); else window.BAOPhonePlayerSettings?.open?.();
+      }
       else if (action === 'control' || action === 'memory-open') {
         if (!active('chat-view')) { show('journey'); return; }
         controls.close();

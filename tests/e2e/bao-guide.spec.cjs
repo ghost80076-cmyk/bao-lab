@@ -35,10 +35,11 @@ test('no-key help explains routes and returns to the original fields without req
   await action(page, 'router').click();
   await expect(guide(page)).toContainText('並非各模型公司的官方 API');
   await expect(guide(page).locator('a[href="https://openrouter.ai/keys"]')).toBeVisible();
-  await action(page, 'setup').click();
+  await action(page, 'setup-openrouter').click();
+  await expect(page.locator('#api-type')).toHaveValue('openrouter');
   await expect(page.locator('#bao-mascot-root')).toBeHidden();
   await expect(page.locator('#bao-guided-setup')).toBeVisible();
-  await page.locator('[data-bao-guide="route-byok"]').click();
+  await page.locator('[data-bao-guide="change-provider"]').click();
   await page.locator('[data-bao-guide="provider-gemini"]').click();
   await page.locator('#api-key').fill('guide-private-key');
   await expect(page.locator('#bao-guided-setup')).toContainText('尚未測試連線');
@@ -84,4 +85,17 @@ test('story help opens only on request and returns to existing model settings', 
   await action(page, 'setup').click();
   await expect(page.locator('#bao-chat-api-backdrop')).toBeVisible();
   await expect(page.locator('#bao-mascot-root')).toBeHidden();
+});
+
+test('empty story shelf offers an actionable route and keeps advanced features optional',async({page})=>{
+  await open(page);
+  await page.locator('#home-library-open').click();
+  await expect(page.locator('.story-library-empty')).toContainText('書架現在還是空的');
+  await page.locator('[data-library-empty-explore]').click();
+  await expect(page.locator('#explore-view')).toHaveClass(/active/);
+  await builder(page);
+  await page.locator('[data-bao-setup="advanced"]').click();
+  await expect(page.locator('[data-bao-guide-eyebrow]')).toContainText('選做');
+  await page.evaluate(()=>App.setStep(4));
+  await expect(page.locator('[data-bao-guide-eyebrow]')).toContainText('必做');
 });

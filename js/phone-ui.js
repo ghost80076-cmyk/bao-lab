@@ -45,6 +45,48 @@
     }
     return combine(source);
   };
+  const noticesFor = (source, state) => (window.BAOPhoneStoryCore?.notifications(state?.phoneUI) || []).filter(item => {
+    if (!source?.apps.includes(item.app)) return false;
+    if (!item.targetId) return true;
+    const access=Puzzles?.access(source,state?.phoneInteractions,{app:item.app,id:item.targetId});
+    return !access || (access.exists && !access.hidden);
+  });
+  const currentNotices = () => noticesFor(config,ownerState);
+  function markNotices(predicate) {
+    if (ownerState !== window.GameState?.current || ownerCharacter !== App.activeCharacter || App.__requestPending) return false;
+    const before=ownerState.phoneUI;
+    const items=window.BAOPhoneStoryCore?.notifications(before) || [];
+    if (!items.some(item=>!item.read && predicate(item))) return true;
+    ownerState.phoneUI={...before,notifications:items.map(item=>predicate(item)?{...item,read:true}:item)};
+    try { if(App.saveStory(false)===false)throw new Error('save'); }
+    catch (_) { ownerState.phoneUI=before; window.BAOFeedback?.notify?.('故事儲存失敗，這次已讀狀態沒有保存。','error');return false; }
+    makeLauncher();return true;
+  }
+  function renderNotices(parent) {
+    const items=currentNotices().filter(item=>!item.read);
+    if (!items.length) return;
+    const section=$('section','bp-notifications');section.setAttribute('aria-label','手機新動態');
+    section.append($('strong','','新動態 · '+items.length));
+    items.slice(-6).reverse().forEach(item=>{
+      const locked=item.targetId && accessFor({app:item.app,id:item.targetId}).locked;
+      section.append(button(locked?'🔒 有一項鎖定內容更新':item.label,'notice:'+item.id,'bp-notification'));
+    });
+    parent.append(section);
+  }
+  function openNotice(id) {
+    const item=currentNotices().find(item=>item.id===id);
+    if(!item)return;
+    if(item.targetId){enterTarget(item.app,item.targetId);return;}
+    if(!markNotices(notice=>notice.app===item.app && !notice.targetId))return;
+    clearTimers();stopMedia();page=item.app;subpage='';
+    if(item.app==='kakao'){activeThread='';subpage='chat';}
+    render();
+  }
+  function emptyState(area,title,copy) {
+    const box=$('section','bp-empty');
+    add(box,$('h3','',title),$('p','bp-muted',copy),button('回到故事繼續','return-story','bp-empty-action'));
+    area.append(box);
+  }
   const visible = () => !!phoneSource();
   const notifyStageVisibility = open => {
     document.getElementById('chat-view')?.dispatchEvent(new CustomEvent(
@@ -57,10 +99,13 @@
     const existing = document.getElementById('bao-phone-launch');
     const enabled = visible() && document.getElementById('chat-view')?.classList.contains('active');
     if (!enabled) { existing?.remove(); if (root) close(); return; }
-    if (existing) return;
+    const source=phoneSource();
+    const unread=noticesFor(source,window.GameState?.current).filter(item=>!item.read).length;
+    if (existing) { existing.textContent='📱 手機介面'+(unread?' · '+unread+' 則新動態':'');existing.dataset.unread=String(unread);return; }
     const main = document.querySelector('#chat-view .chat-main');
     if (!main) return;
-    const launch = button('📱 手機介面', 'launch', 'bao-phone-launch secondary');
+    const launch = button('📱 手機介面'+(unread?' · '+unread+' 則新動態':''), 'launch', 'bao-phone-launch secondary');
+    launch.dataset.unread=String(unread);
     launch.id = 'bao-phone-launch'; launch.setAttribute('aria-label', '開啟作品手機介面');
     launch.addEventListener('click', open);
     const host = main.querySelector('.chat-topline') || main;
@@ -89,6 +134,8 @@
     const target={app,id},access=accessFor(target);
     if(!access.exists || access.hidden)return;
     if(!access.locked && !commitOpen(target))return;
+    if(!access.locked && !markNotices(item=>item.app===app && item.targetId===id))return;
+    page=app;
     if(app==='kakao'){activeThread=id;subpage='chat';}else subpage=id;
     render();
   }
@@ -194,6 +241,7 @@
     const date = $('div', 'bp-lock-date'); date.dataset.phoneDate = '';
     add(stack, date, stamp, $('div', 'bp-lock-label', config.userName));
     add(screen, stack, $('div', 'bp-lock-hint', '向上滑動解鎖'));
+    renderNotices(screen);
   }
   function renderHome() {
     wallpaper(screen); add(screen, statusbar());
@@ -227,6 +275,7 @@
       dock.append(b);
     });
     add(screen,dock);
+    renderNotices(screen);
   }
   function appHeader(title, dark=false) {
     const header = $('header','bp-app-header');
@@ -239,6 +288,7 @@
     const area = $('div','bp-app-page '+(dark?'bp-dark-app':''));
     if (page === 'phone') {
       add(area,appHeader('最近通話'),$('h1','','最近通話'));
+      if(!config.calls.length)emptyState(area,'目前沒有通話紀錄','故事中發生的通話會顯示在這裡，不需要另外設定。');
       config.calls.forEach(group => {
         add(area,$('h4','bp-group-heading',group.group));
         group.items.forEach(call => {
@@ -261,6 +311,7 @@
         add(area,appHeader(threadName(selectedThread())),$('div','bp-thread'));
         area.classList.add('bp-chat-page');
         const thread = area.querySelector('.bp-thread');
+        if(!(selectedThread()?.messages || config.chat).length)emptyState(thread,'目前沒有訊息','你可以在下方明確傳送訊息，或回到故事繼續互動。');
         (selectedThread()?.messages || config.chat).forEach(item => {
           const row = $('div','bp-chat-row '+(item.from === 'me'?'bp-mine':''));
           const sender = item.senderName || config.contacts.find(c=>c.id===item.senderId)?.name || item.senderId;
@@ -309,7 +360,7 @@
         else add(area,$('p','bp-document',selected.text));
       } else {
         const list=$('div',photos?'bp-photo-grid':'bp-notes-list');
-        if (!items.length) list.append($('p','bp-muted',photos?'尚無照片':'尚無筆記'));
+        if (!items.length) emptyState(list,photos?'尚無照片':'尚無筆記',photos?'故事中實際收到的照片會出現在這裡。':'故事中實際取得或更新的筆記會出現在這裡。');
         items.forEach((item,index)=>{
           const row=button('', 'document:'+index,photos?'bp-photo-item':'bp-note-item');
           const locked=accessFor({app:page,id:item.id}).locked;
@@ -328,6 +379,7 @@
         $('h2','', (config.userName || '個人檔案') + ' 🔒'),
         $('div','bp-muted',config.twitterHandle || '@user'));
       add(area,banner,profile);
+      if(!config.tweets.length)emptyState(area,'目前沒有貼文','故事中出現的新貼文會顯示在這裡。');
       config.tweets.forEach(tweet => {
         const row = $('article','bp-tweet');
         add(row,$('strong','',config.userName || '使用者'),
@@ -512,7 +564,7 @@
     e.preventDefault();
     if(form.dataset.phoneForm==='unlock'){
       const target={app:form.dataset.targetApp,id:form.dataset.targetId};
-      if(commitOpen(target,form.elements.namedItem('password').value,form.querySelector('.bp-unlock-status')))render();
+      if(commitOpen(target,form.elements.namedItem('password').value,form.querySelector('.bp-unlock-status'))){markNotices(item=>item.app===target.app && item.targetId===target.id);render();}
       return;
     }
     const input=form.elements.namedItem('text');const value=input?.value.trim();
@@ -524,6 +576,8 @@
     const action=target.dataset.phoneAction;
     if (action==='launch')return open();
     if (action==='close')return close();
+    if (action==='return-story'){close();document.getElementById('user-input')?.focus();return;}
+    if (action.startsWith('notice:'))return openNotice(action.slice(7));
     if (action==='dismiss-notice'){eventNotice='';root?.querySelector('.bp-event-notice')?.remove();return;}
     if (action==='unlock')return enterHome();
     if (action==='home')return enterHome();
@@ -535,10 +589,11 @@
     if (action.startsWith('app:')) {
       const next=action.slice(4);
       if(!config.apps.includes(next))return;
+      if(['x','phone','instagram'].includes(next) && !markNotices(item=>item.app===next && !item.targetId))return;
       page=next;subpage='';render();return;
     }
     if (action==='kakao-profile'){subpage='profile';return render();}
-    if (action==='kakao-chat'){activeThread='';subpage='chat';return render();}
+    if (action==='kakao-chat'){if(!markNotices(item=>item.app==='kakao' && !item.targetId))return;activeThread='';subpage='chat';return render();}
     if (action.startsWith('thread:')) {
       const thread=itemsFor('kakao')[Number(action.slice(7))];
       if(thread)enterTarget('kakao',thread.id);return;
@@ -580,6 +635,7 @@
     });
   }
   const refreshFromState = () => {
+    makeLauncher();
     if (!root) return;
     if(ownerState!==window.GameState?.current || ownerCharacter!==App.activeCharacter){close();return;}
     const updated = phoneSource();

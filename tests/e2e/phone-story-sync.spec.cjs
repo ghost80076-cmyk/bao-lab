@@ -91,3 +91,85 @@ test('story updates persist group messages, notes and photos and retain IDs in t
   expect(result.prompt).toContain('"id":"group"');
   expect(result.prose).toBe('手機亮起。');
 });
+
+test('new phone activity jumps to the exact thread or note and preserves read state without sends',async({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  await ready(page);
+  await page.evaluate(({OPEN,CLOSE})=>{
+    window.__notificationSends=0;App.sendMessage=()=>{window.__notificationSends++;};
+    Chat.add('user','看看新訊息');
+    Chat.add('assistant','手機亮了一下。'+OPEN+JSON.stringify({
+      threads:[{id:'friends',name:'朋友群',participants:['xia'],messages:[{senderId:'xia',text:'今晚八點見'}]}],
+      notes:[{id:'meeting',title:'見面地點',text:'在港口等你'}]
+    })+CLOSE);
+    App.saveStory(false);
+  },{OPEN,CLOSE});
+  await expect(page.locator('#bao-phone-launch')).toHaveAttribute('data-unread','2');
+  await page.locator('#bao-phone-launch').click();
+  await expect(page.locator('.bp-notification')).toHaveCount(2);
+  await page.locator('.bp-notification').filter({hasText:'聊天室有新訊息'}).click();
+  await expect(page.locator('.bp-thread')).toContainText('今晚八點見');
+  await expect(page.locator('.bp-app-header strong')).toHaveText('朋友群');
+  await page.locator('.bp-home-handle').click();
+  await page.locator('.bp-notification').filter({hasText:'筆記已更新'}).click();
+  await expect(page.locator('.bp-document')).toHaveText('在港口等你');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#bao-phone-launch')).toHaveAttribute('data-unread','0');
+  const saved=await page.evaluate(()=>Storage.loadStory());
+  expect(saved.state.phoneUI.notifications.every(item=>item.read)).toBe(true);
+  await page.evaluate(saved=>{Storage.restoreStory(saved);App.renderChatShell(false);App.showView('chat');},saved);
+  await expect(page.locator('#bao-phone-launch')).toHaveAttribute('data-unread','0');
+  expect(await page.evaluate(()=>window.__notificationSends)).toBe(0);
+});
+
+test('empty phone content returns to the story without replacing a draft',async({page})=>{
+  await ready(page);
+  await page.locator('#user-input').fill('尚未送出的故事行動');
+  await page.locator('#bao-phone-launch').click();
+  await page.locator('.bp-home-handle').click();
+  await page.locator('.bp-apps .bp-icon-notes').click();
+  await expect(page.locator('.bp-empty')).toContainText('尚無筆記');
+  await page.locator('[data-phone-action="return-story"]').click();
+  await expect(page.locator('#bao-phone-stage')).toHaveCount(0);
+  await expect(page.locator('#user-input')).toBeFocused();
+  await expect(page.locator('#user-input')).toHaveValue('尚未送出的故事行動');
+});
+
+test('failed save keeps an activity unread and does not navigate into its target',async({page})=>{
+  await ready(page);
+  await page.evaluate(({OPEN,CLOSE})=>{
+    Chat.add('user','查看');Chat.add('assistant','手機亮了。'+OPEN+'{"notes":[{"id":"memo","text":"內容"}]}'+CLOSE);
+  },{OPEN,CLOSE});
+  await page.locator('#bao-phone-launch').click();
+  await page.evaluate(()=>{App.saveStory=()=>false;});
+  await page.locator('.bp-notification').click();
+  await expect(page.locator('.bp-lock-clock')).toBeVisible();
+  await expect(page.locator('.bp-document')).toHaveCount(0);
+  expect(await page.evaluate(()=>GameState.current.phoneUI.notifications[0].read)).toBe(false);
+});
+
+test('notifications respect hidden content and leave locked items unread until unlocked',async({page})=>{
+  await ready(page);
+  await page.evaluate(({OPEN,CLOSE})=>{
+    App.activeCharacter.phone_ui=BAOPhoneUICore.normalize({enabled:true,apps:['notes','kakao'],
+      threads:[{id:'private',name:'不應顯示的聊天室',messages:[{text:'不應顯示的訊息'}]}],
+      notes:[{id:'safe',title:'保密筆記',text:'不應提前看見'}],
+      interactions:{version:1,locks:[{target:{app:'kakao',id:'private'},hidden:true},{target:{app:'notes',id:'safe'},code:'0427'}]}});
+    Chat.add('user','查看');Chat.add('assistant','收到動態。'+OPEN+JSON.stringify({
+      threads:[{id:'private',messages:[{text:'隱藏的新訊息'}]}],notes:[{id:'safe',text:'解鎖後的內容'}]
+    })+CLOSE);
+    App.saveStory(false);
+  },{OPEN,CLOSE});
+  await expect(page.locator('#bao-phone-launch')).toHaveAttribute('data-unread','1');
+  await page.locator('#bao-phone-launch').click();
+  await expect(page.locator('.bp-notification')).toHaveCount(1);
+  await expect(page.locator('.bp-notifications')).not.toContainText('不應');
+  await page.locator('.bp-notification').click();
+  await expect(page.locator('.bp-unlock-form')).toBeVisible();
+  await expect(page.locator('#bao-phone-stage')).not.toContainText('解鎖後的內容');
+  expect(await page.evaluate(()=>GameState.current.phoneUI.notifications.find(n=>n.app==='notes').read)).toBe(false);
+  await page.getByLabel('故事密碼',{exact:true}).fill('0427');
+  await page.getByRole('button',{name:'解鎖',exact:true}).click();
+  await expect(page.locator('.bp-document')).toContainText('解鎖後的內容');
+  expect(await page.evaluate(()=>GameState.current.phoneUI.notifications.find(n=>n.app==='notes').read)).toBe(true);
+});
