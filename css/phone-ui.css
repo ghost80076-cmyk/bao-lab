@@ -192,3 +192,8 @@
 .bp-empty{padding:18px 12px;display:grid;gap:10px;line-height:1.65}
 .bp-empty h3,.bp-empty p{margin:0;font-size:14px}
 .bp-empty-action{min-height:44px;padding:8px 12px;border:1px solid currentColor;border-radius:10px;color:inherit;background:transparent;font:inherit;font-size:13px;cursor:pointer}
+
+.bp-lock .bp-notifications{position:absolute;top:42%;left:14px;right:14px;margin:0;max-height:calc(58% - 100px)}
+.bp-notification-summary{grid-column:1/-1;min-height:44px;padding:8px 12px;border:1px solid #a99cbf;border-radius:12px;background:rgba(18,22,33,.88);color:#fff;font:inherit;font-size:13px;cursor:pointer}
+.bp-home.bp-has-notifications .bp-apps{max-height:calc(100% - 400px)}
+.bp-photo-grid>.bp-empty{grid-column:1/-1}

@@ -107,12 +107,15 @@ test('new phone activity jumps to the exact thread or note and preserves read st
   await expect(page.locator('#bao-phone-launch')).toHaveAttribute('data-unread','2');
   await page.locator('#bao-phone-launch').click();
   await expect(page.locator('.bp-notification')).toHaveCount(2);
+  await page.screenshot({path:'test-results/phone-activity-lock.png',animations:'disabled'});
   await page.locator('.bp-notification').filter({hasText:'聊天室有新訊息'}).click();
   await expect(page.locator('.bp-thread')).toContainText('今晚八點見');
   await expect(page.locator('.bp-app-header strong')).toHaveText('朋友群');
   await page.locator('.bp-home-handle').click();
+  await page.locator('[data-phone-action="notifications"]').click();
   await page.locator('.bp-notification').filter({hasText:'筆記已更新'}).click();
   await expect(page.locator('.bp-document')).toHaveText('在港口等你');
+  await page.screenshot({path:'test-results/phone-activity-note.png',animations:'disabled'});
   await page.keyboard.press('Escape');
   await expect(page.locator('#bao-phone-launch')).toHaveAttribute('data-unread','0');
   const saved=await page.evaluate(()=>Storage.loadStory());

@@ -255,7 +255,11 @@
     add(agenda, $('div','bp-widget-label','行程'));
     (config.events.length ? config.events.slice(0,2) : [{time:'—',title:'沒有行程'}]).forEach(ev =>
       add(agenda,$('div','bp-agenda', (ev.time || '') + '  ' + (ev.title || ''))));
-    add(widgets,weather,agenda); add(screen,widgets);
+    add(widgets,weather,agenda);
+    const unread=currentNotices().filter(item=>!item.read).length;
+    screen.classList.toggle('bp-has-notifications',unread>0);
+    if(unread)widgets.append(button('查看新動態 · '+unread,'notifications','bp-notification-summary'));
+    add(screen,widgets);
     const grid = $('div', 'bp-apps');
     const apps = [
       ['phone','☎','電話'],['kakao','●','KakaoTalk'],['x','𝕏','X'],['instagram','◎','Instagram'],
@@ -275,7 +279,6 @@
       dock.append(b);
     });
     add(screen,dock);
-    renderNotices(screen);
   }
   function appHeader(title, dark=false) {
     const header = $('header','bp-app-header');
@@ -286,7 +289,11 @@
     const dark = page === 'x';
     add(screen,statusbar(dark));
     const area = $('div','bp-app-page '+(dark?'bp-dark-app':''));
-    if (page === 'phone') {
+    if (page === 'notifications') {
+      add(area,appHeader('手機新動態'));
+      if(currentNotices().some(item=>!item.read))renderNotices(area);
+      else emptyState(area,'目前沒有未讀動態','故事裡實際收到的新訊息或文件，會在這裡提醒你。');
+    } else if (page === 'phone') {
       add(area,appHeader('最近通話'),$('h1','','最近通話'));
       if(!config.calls.length)emptyState(area,'目前沒有通話紀錄','故事中發生的通話會顯示在這裡，不需要另外設定。');
       config.calls.forEach(group => {
@@ -581,6 +588,7 @@
     if (action==='dismiss-notice'){eventNotice='';root?.querySelector('.bp-event-notice')?.remove();return;}
     if (action==='unlock')return enterHome();
     if (action==='home')return enterHome();
+    if (action==='notifications'){page='notifications';subpage='';render();return;}
     if (action==='back') {
       if(page==='spotify' && expanded){expanded=false;return render();}
       if(['kakao','photos','notes'].includes(page) && subpage){subpage='';return render();}
