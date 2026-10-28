@@ -495,7 +495,7 @@
     s.builder.choice_groups.forEach(group => {
       const requested = Array.isArray(input[group.key]) ? input[group.key] : group.default;
       const allowed = new Set(group.options.map(o => o.id));
-      const requestedIds = [...new Set(requested.map(String).filter(id => allowed.has(id)))].slice(0, group.max);
+      const requestedIds = [...new Set(requested.map(String).filter(id => allowed.has(id)))];
       values[group.key] = group.ordered
         ? requestedIds
         : group.options.filter(o => requestedIds.includes(o.id)).map(o => o.id);
