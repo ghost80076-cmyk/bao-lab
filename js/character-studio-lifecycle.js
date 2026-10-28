@@ -75,7 +75,11 @@
         <div><small>建議下一步</small><b data-lifecycle-next-label>—</b><p data-lifecycle-next-detail></p></div>
         <button type="button" class="primary" data-lifecycle-next-action>前往下一步</button>
       </div>`;
-    form.insertAdjacentElement("beforebegin", node);
+    // Completion and publication state belongs to review, not every editing step.
+    const finish = form.querySelector('[data-studio-flow-panel="finish"]');
+    const actions = finish?.querySelector(".studio-button-row");
+    if (finish) finish.insertBefore(node, actions || null);
+    else form.insertAdjacentElement("beforebegin", node);
     node.querySelector("[data-lifecycle-next-action]")?.addEventListener("click", event => {
       const action = event.currentTarget.dataset.lifecycleAction || "";
       const targets = {

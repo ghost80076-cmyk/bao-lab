@@ -78,6 +78,7 @@ test('known public IDs are labeled as public without pretending the draft was pu
     () => page.locator('#studio-lifecycle [data-lifecycle-stage="publication"] [data-lifecycle-value]').textContent(),
     { timeout: 10000 }
   ).toBe('已在公開作品庫');
+  await page.locator('[data-flow-step="finish"]').click();
   await expect(page.locator('#studio-lifecycle')).toContainText('公開作品');
 });
 

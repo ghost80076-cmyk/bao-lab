@@ -44,7 +44,7 @@
     if (document.querySelector('link[href^="css/character-studio-flow.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/character-studio-flow.css?v=4";
+    link.href = "css/character-studio-flow.css?v=5";
     document.head.appendChild(link);
   };
 
@@ -125,6 +125,9 @@
 
     original.forEach(node => panels.get(stepForNode(node))?.appendChild(node));
     form.appendChild(workspace);
+    // Preview belongs to review; changing stages must hide it with its panel.
+    const preview = document.getElementById("studio-preview");
+    if (preview) panels.get("finish").appendChild(preview);
     return workspace;
   };
 

@@ -115,3 +115,50 @@ test('character studio defaults to a focused creation flow and keeps the full wo
   expect(await page.locator('[name="system_prompt"]').inputValue()).toContain('角色依自己的資訊');
   expect(await page.locator('[name="greeting"]').inputValue()).toContain('港口仍有一盞燈');
 });
+
+for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }, { width: 1280, height: 900 }]) {
+  test(`review content stays in review and invalidates after editing at ${viewport.width}px`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.goto('./character-studio.html');
+    await page.waitForFunction(() => window.BAOCharacterStudioFlow && window.BAOCharacterStudioLifecycle);
+    const flow = page.locator('#studio-flow-shell');
+    const lifecycle = page.locator('#studio-lifecycle');
+    const preview = page.locator('#studio-preview');
+    await expect(lifecycle).toBeHidden();
+    await expect(page.locator('#studio-drafts')).toContainText('角色作品');
+    await expect(page.locator('.topbar nav a')).toHaveCount(1);
+    await page.locator('[name="name"]').fill('旅程驗收作品');
+    if (viewport.width <= 530) await page.getByRole('button', { name: '完成編輯' }).click();
+    await flow.locator('[data-flow-step="finish"]').click();
+    await expect(lifecycle).toBeVisible();
+    await page.locator('#studio-preview-button').click();
+    await expect(preview).toBeVisible();
+    await expect(preview.locator('#studio-preview-name')).toHaveText('旅程驗收作品');
+    await flow.locator('[data-flow-step="basic"]').click();
+    await expect(preview).toBeHidden();
+    await expect(lifecycle).toBeHidden();
+    await page.locator('[name="name"]').fill('修改後的作品');
+    if (viewport.width <= 530) await page.getByRole('button', { name: '完成編輯' }).click();
+    await flow.locator('[data-flow-step="finish"]').click();
+    await expect(preview).toBeHidden();
+    await page.locator('#studio-preview-button').click();
+    await expect(preview.locator('#studio-preview-name')).toHaveText('修改後的作品');
+    await flow.getByRole('button', { name: '全部欄位', exact: true }).click();
+    await expect(lifecycle).toBeVisible();
+    await page.locator('[name="name"]').fill('全部欄位中的修改');
+    await expect(preview).toBeHidden();
+    if (viewport.width <= 530) await page.getByRole('button', { name: '完成編輯' }).click();
+    await flow.getByRole('button', { name: '專注模式', exact: true }).click();
+    await expect(lifecycle).toBeHidden();
+    if (viewport.width <= 530) {
+      const mode = flow.locator('[data-studio-flow-all]');
+      expect((await mode.boundingBox()).height).toBeGreaterThanOrEqual(44);
+      expect((await flow.locator('[data-flow-step="basic"]').boundingBox()).height).toBeGreaterThanOrEqual(44);
+    }
+    if (viewport.height <= 600) {
+      expect(await flow.evaluate(node => getComputedStyle(node).position)).toBe('static');
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport.width + 1);
+    await page.screenshot({ path: `test-results/studio-journey-${viewport.width}.png`, fullPage: false });
+  });
+}
