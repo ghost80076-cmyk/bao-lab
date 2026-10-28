@@ -15,6 +15,7 @@ test('home guide starts with a work, can be skipped and resumed after reload', a
   await open(page);
   await page.locator('[data-bao-open-guide]').first().click();
   await expect(guide(page)).toContainText('1 / 3');
+  await page.screenshot({ path: 'test-results/bao-guide-mobile.png', animations: 'disabled' });
   await action(page, 'skip').click();
   await page.reload();
   await page.locator('#bao-mascot-launch').click();
@@ -55,8 +56,13 @@ test('advanced setup guide follows existing steps and respects manual provider c
   await expect(page.locator('#bao-guided-setup')).toHaveAttribute('data-step', '2');
   await page.evaluate(() => App.setStep(4));
   await page.locator('[data-bao-guide="route-hosted"]').click();
+  await page.locator('#bao-connection-mode [data-bao-connection="byok"]').click();
   await page.locator('#api-type').selectOption('gemini');
   await expect(page.locator('#bao-guided-setup')).not.toContainText('先登入夜灣帳號');
+  await page.locator('#api-type').selectOption('lmstudio');
+  await expect(page.locator('#bao-guided-setup')).toContainText('本機模型不必先申請');
+  await page.locator('[data-bao-guide="change-provider"]').click();
+  await expect(page.locator('[data-bao-guide="provider-gemini"]')).toBeVisible();
   await page.evaluate(() => App.setStep(5));
   await expect(page.locator('#bao-guided-setup')).toHaveAttribute('data-step', '5');
 });

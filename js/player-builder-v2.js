@@ -237,7 +237,7 @@
           eyebrow: "包包帶路 · 1 / 5",
           copy: "第一次玩可以先用「單角色沉浸」。它比較像一般角色聊天；之後想讓 NPC 與事件自己跑，再換世界模擬。",
           actions: guideActions([
-            '<button type="button" class="primary" data-bao-guide="recommend-step">用推薦設定，下一步</button>',
+            '<button type="button" class="primary" data-bao-guide="recommend-step">採用單角色沉浸</button>',
             '<button type="button" class="secondary" data-bao-guide="dismiss">我自己選</button>'
           ])
         },
@@ -245,7 +245,7 @@
           eyebrow: "包包帶路 · 2 / 5",
           copy: "顯示方式不會改變角色設定。先用純文本最簡單；想看人物、狀態與事件面板再選互動 UI。",
           actions: guideActions([
-            '<button type="button" class="primary" data-bao-guide="recommend-step">先用純文本，下一步</button>',
+            '<button type="button" class="primary" data-bao-guide="recommend-step">採用純文本</button>',
             '<button type="button" class="secondary" data-bao-guide="dismiss">我自己選</button>'
           ])
         },
@@ -276,22 +276,22 @@
 
     eyebrow.textContent = setup === "quick" ? "包包帶路 · 模型連線" : "包包帶路 · 4 / 5";
     const readyAction = setup === "quick"
-      ? '<button type="button" class="primary" data-bao-guide="start-story">設定好了，開始故事</button>'
-      : '<button type="button" class="primary" data-bao-guide="next-step">連線設定填好了，下一步</button>';
+      ? '<button type="button" class="primary" data-bao-guide="start-story">設定好了，進入故事</button>'
+      : '<button type="button" class="primary" data-bao-guide="next-step">繼續記憶設定</button>';
     const currentRoute = route();
     const hasKey = Boolean(String($("api-key")?.value || "").trim());
     const currentProvider = provider()?.value || "";
     const currentProviderLabel = provider()?.selectedOptions?.[0]?.textContent?.trim() || "目前服務";
 
-    if (!guideSession.connectionChoice && hasKey && currentRoute === "byok") {
+    if (!guideSession.connectionChoice && (hasKey || currentProvider === "lmstudio") && currentRoute === "byok") {
       guideSession.connectionChoice = "byok";
       guideSession.providerChoice = currentProvider;
     }
-    if (currentProvider === "lmstudio" && guideSession.connectionChoice) {
+    if (currentProvider === "lmstudio" && guideSession.providerChoice === "lmstudio") {
       copy.textContent = "本機模型不必先申請雲端 API Key。先啟動 LM Studio Server，再用下方既有工具讀取或填寫本機模型。";
       actions.innerHTML = guideActions([
         guideReady() ? readyAction : '<button type="button" class="primary" data-bao-guide="check-ready">檢查本機設定</button>',
-        '<button type="button" class="secondary" data-bao-guide="route-byok">改用其他服務</button>'
+        '<button type="button" class="secondary" data-bao-guide="change-provider">改用其他服務</button>'
       ]);
       return;
     }
@@ -480,7 +480,7 @@
       provider()?.addEventListener(type, () => {
         if (guideSession.connectionChoice) {
           guideSession.connectionChoice = route() === "hosted" ? "hosted" : "byok";
-          if (guideSession.providerChoice && guideSession.providerChoice !== "manual") guideSession.providerChoice = provider()?.value || "";
+          if (provider()?.value === "lmstudio" || (guideSession.providerChoice && guideSession.providerChoice !== "manual")) guideSession.providerChoice = provider()?.value || "";
         }
         renderGuide();
       });
