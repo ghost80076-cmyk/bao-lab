@@ -7,6 +7,7 @@
   let root = null, screen = null, config = null, page = 'lock', subpage = '';
   let clock = null, callTimer = null, callStart = 0, messageTimers = [], messageFade = null;
   let audio = null, trackIndex = -1, playing = false, position = 0, expanded = false, shuffle = false, loop = false;
+  const backgroundInert = new Map();
   let prevFocus = null, selfDragging = null, activeThread = '';
   let ownerState=null, ownerCharacter=null, eventNotice='';
   const itemsFor = app => Puzzles?.visibleItems(config,ownerState?.phoneInteractions,app) || config[app==='kakao'?'threads':app];
@@ -169,6 +170,8 @@
   function close() {
     const wasOpen = Boolean(root);
     clearTimers(); stopMedia(); root?.remove(); root = null; screen = null;ownerState=null;ownerCharacter=null;eventNotice='';
+    backgroundInert.forEach((value, node) => { node.inert = value; });
+    backgroundInert.clear();
     if (wasOpen) notifyStageVisibility(false);
     if (prevFocus?.isConnected) prevFocus.focus(); prevFocus = null;
   }
@@ -189,6 +192,23 @@
     screen = $('div', 'bp-screen');
     const dismiss=button('×','close','bp-close');dismiss.setAttribute('aria-label','關閉手機');
     add(frame, screen, dismiss); add(overlay, frame); document.body.append(overlay); root = overlay;
+    for (const node of document.body.children) {
+      if (node === overlay) continue;
+      backgroundInert.set(node, node.inert);
+      node.inert = true;
+    }
+    overlay.addEventListener('keydown', event => {
+      if (event.key !== 'Tab') return;
+      const items = [...overlay.querySelectorAll('button,input,textarea,select,a[href],[tabindex]')]
+        .filter(node => !node.disabled && node.tabIndex >= 0 && node.getClientRects().length);
+      const first = items[0], last = items[items.length - 1];
+      if (!first) return;
+      if (event.shiftKey && (document.activeElement === first || !overlay.contains(document.activeElement))) {
+        event.preventDefault(); last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || !overlay.contains(document.activeElement))) {
+        event.preventDefault(); first.focus();
+      }
+    });
     notifyStageVisibility(true);
     overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
     overlay.addEventListener('click', onAction);
@@ -200,7 +220,7 @@
       startY = null;
     });
     clock = window.setInterval(updateClock, 1000);
-    render(); frame.focus?.();
+    render(); dismiss.focus({preventScroll:true});
   }
   function updateClock() {
     if (!root) return;

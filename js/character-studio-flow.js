@@ -279,6 +279,7 @@
         try { document.activeElement.blur(); } catch (_) {}
       }
       editor.classList.remove("studio-editing");
+      revealActiveStep();
     });
     editor.appendChild(button);
     return button;
@@ -308,6 +309,18 @@
     updateControls();
   };
 
+  // Reveal the current step without scrolling the page back up to the sticky nav.
+  const revealActiveStep = () => {
+    const nav = document.querySelector(".studio-flow-nav");
+    const button = nav?.querySelector('[data-flow-step="' + activeStep + '"]');
+    if (!nav || !button || !nav.getClientRects().length) return;
+    const rail = nav.getBoundingClientRect();
+    const item = button.getBoundingClientRect();
+    const delta = item.left < rail.left ? item.left - rail.left
+      : item.right > rail.right ? item.right - rail.right : 0;
+    if (delta) nav.scrollLeft += delta;
+  };
+
   const setShowAll = value => {
     showAll = Boolean(value);
     const button = document.querySelector("[data-studio-flow-all]");
@@ -317,6 +330,7 @@
     }
     editor.classList.toggle("studio-show-all", showAll);
     applyPanelVisibility();
+    if (!showAll) revealActiveStep();
     if (!showAll) targetFor(activeStep)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
@@ -379,8 +393,7 @@
 
     target.scrollIntoView({ behavior: "smooth", block: "start" });
 
-    const navButton = document.querySelector('[data-flow-step="' + id + '"]');
-    navButton?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+    revealActiveStep();
 
     if (intentional) {
       const focus = firstFieldFor(id);

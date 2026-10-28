@@ -280,3 +280,26 @@ for (const width of [320,1280]) test(`multiple chat recipients, documents and st
   await page.locator('.bp-composer button').click();
   expect(await page.evaluate(()=>window.__phoneSendText)).toContain('雨港朋友群 發送訊息｜聊天室 ID：group');
 });
+
+for (const viewport of [{width:320,height:568},{width:390,height:480},{width:1440,height:900}]) {
+ test(`phone has reachable touch navigation and keyboard exit at ${viewport.width}x${viewport.height}`,async({page})=>{
+  await page.setViewportSize(viewport);await story(page,true);
+  const opener=page.locator('#bao-phone-launch');await opener.click();
+  const overlay=page.locator('.bao-phone-overlay');
+  const close=overlay.getByRole('button',{name:'關閉手機',exact:true});
+  await expect(close).toBeFocused();
+  await expect(page.locator('.app-shell')).toHaveAttribute('inert','');
+  const box=await close.boundingBox();
+  expect(box.width).toBeGreaterThanOrEqual(44);expect(box.height).toBeGreaterThanOrEqual(44);
+  expect(box.y).toBeGreaterThanOrEqual(0);expect(box.y+box.height).toBeLessThanOrEqual(viewport.height);
+  // The visible 5px line has a 44px target; clicking above the line also works.
+  const home=overlay.getByRole('button',{name:'返回手機桌面',exact:true});
+  expect((await home.boundingBox()).height).toBeGreaterThanOrEqual(44);
+  await home.click({position:{x:60,y:5}});await expect(overlay.locator('.bp-apps')).toBeVisible();
+  await close.focus();await page.keyboard.press('Tab');
+  expect(await overlay.evaluate(n=>n.contains(document.activeElement))).toBe(true);
+  await page.screenshot({path:`test-results/phone-navigation-${viewport.width}.png`});
+  await close.click();await expect(overlay).toHaveCount(0);
+  await expect(page.locator('.app-shell')).not.toHaveAttribute('inert','');await expect(opener).toBeFocused();
+ });
+}

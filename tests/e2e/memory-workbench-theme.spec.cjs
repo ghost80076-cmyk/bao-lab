@@ -69,3 +69,25 @@ for (const width of [390, 1280]) {
     }
   });
 }
+
+for(const width of [390,1280]){
+ test(`memory desk supports keyboard exit and restores the opener at ${width}px`,async({page})=>{
+  await page.setViewportSize({width,height:844});await page.goto('/');
+  await page.waitForFunction(()=>window.BAOMemoryWorkbench && window.BAOStoryControlCenter && App.characters?.length);
+  await page.evaluate(()=>{
+   App.activeCharacter=App.characters[0];App.config={api:{model:'mock'},memory:{mode:'smart',maxRounds:20,maxContext:32000},persona:{name:'旅人'}};
+   GameState.create(App.activeCharacter,App.config);Chat.reset();App.renderChatShell(false);App.showView('chat');
+  });
+  const opener=page.locator(width<=820?'#bao-mobile-composer-tools':'#bao-surface-mode-toggle');await opener.focus();
+  const before=await page.evaluate(()=>JSON.stringify({state:GameState.current,config:App.config}));
+  await page.evaluate(()=>BAOMemoryWorkbench.open());
+  const desk=page.getByRole('dialog',{name:'記憶工作台',exact:true});await expect(desk).toBeVisible();
+  await expect(page.locator('.app-shell')).toHaveAttribute('inert','');
+  await expect(desk.locator('.memory-desk-close')).toBeFocused();
+  await desk.evaluate(node=>{const items=[...node.querySelectorAll('button,input,textarea,select,a[href],summary,[tabindex]')].filter(n=>!n.disabled&&n.tabIndex>=0&&n.getClientRects().length);items.at(-1).focus();});
+  await page.keyboard.press('Tab');expect(await desk.evaluate(n=>n.contains(document.activeElement))).toBe(true);
+  await page.keyboard.press('Escape');await expect(desk).toHaveCount(0);
+  await expect(page.locator('.app-shell')).not.toHaveAttribute('inert','');await expect(opener).toBeFocused();
+  expect(await page.evaluate(()=>JSON.stringify({state:GameState.current,config:App.config}))).toBe(before);
+ });
+}

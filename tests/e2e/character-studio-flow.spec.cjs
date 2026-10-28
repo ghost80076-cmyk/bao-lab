@@ -150,6 +150,10 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     if (viewport.width <= 530) await page.getByRole('button', { name: '完成編輯' }).click();
     await flow.getByRole('button', { name: '專注模式', exact: true }).click();
     await expect(lifecycle).toBeHidden();
+    const rail = await page.locator('.studio-flow-nav').boundingBox();
+    const current = await flow.locator('[aria-current="step"]').boundingBox();
+    expect(current.x).toBeGreaterThanOrEqual(rail.x - 1);
+    expect(current.x + current.width).toBeLessThanOrEqual(rail.x + rail.width + 1);
     if (viewport.width <= 530) {
       const mode = flow.locator('[data-studio-flow-all]');
       expect((await mode.boundingBox()).height).toBeGreaterThanOrEqual(44);
