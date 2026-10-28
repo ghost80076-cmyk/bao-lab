@@ -7,6 +7,7 @@ const schema = Core.normalize(card.gameplay_ui);
 assert.ok(schema, 'demo schema should normalize');
 assert.equal(schema.version, 1);
 assert.equal(schema.builder.point_pool, 6);
+assert.equal(schema.builder.kind, 'gameplay');
 assert.equal(schema.builder.attributes.length, 2);
 assert.equal(schema.panels.length, 5);
 assert.equal(schema.panels[0].id, 'status');
@@ -159,3 +160,28 @@ const cultivationValues = Object.fromEntries(customFields.map(field => [field.ke
 const cultivationState = structuredClone(cultivationCard.gameplay.initial_state);
 Core.applyBuilderValues(cultivationSchema, cultivationValues, cultivationState);
 for (const field of customFields) assert.equal(Core.getPath(cultivationState, field.target_path), '自訂內容：' + field.key);
+// Story Setup builder keeps scalar relationship choices and preserves ordered multi-picks.
+const storySchema = Core.normalize({
+  version: 1,
+  builder: {
+    kind: 'story',
+    fields: [{ key:'relationship', label:'你們原有的關係', type:'select', presentation:'cards', target_path:'modules.session.relationship', options:['初識','朋友'], default:'初識' }],
+    choice_groups: [{
+      key:'family', label:'選擇兩位家人', target_path:'modules.session.family', min:2, max:2, ordered:true,
+      options:[{id:'a',label:'A',cost:0},{id:'b',label:'B',cost:0},{id:'c',label:'C',cost:0}]
+    }]
+  }
+});
+assert.ok(storySchema);
+assert.equal(storySchema.builder.kind, 'story');
+assert.equal(storySchema.builder.title, '進入故事前');
+assert.equal(storySchema.builder.fields[0].presentation, 'cards');
+assert.equal(storySchema.builder.choice_groups[0].ordered, true);
+const storyValues = Core.normalizeBuilderValues(storySchema, { relationship:'朋友', family:['b','a'] });
+assert.equal(storyValues.relationship, '朋友');
+assert.deepEqual(storyValues.family, ['b','a']);
+const storyState = { modules:{ session:{} } };
+assert.equal(Core.applyBuilderValues(storySchema, storyValues, storyState), true);
+assert.equal(storyState.modules.session.relationship, '朋友');
+assert.deepEqual(storyState.modules.session.family.map(item => item.id), ['b','a']);
+assert.equal(Core.normalize({version:1,builder:{kind:'oops',fields:[{key:'x',type:'text',target_path:'modules.session.x'}]}}).builder.kind, 'gameplay');
