@@ -63,6 +63,7 @@ test('skip survives a reload and resuming leads to the real work view', () => {
 test('API learning keeps route context and returns to the existing builder', () => {
   const page = setup();
   page.app.activeCharacter = { id: 'work' };
+  page.setView('detail-view');
   page.api.show('api');
   page.click('router');
   assert.match(page.body(), /並非各模型公司的官方 API/);
@@ -170,4 +171,17 @@ test('memory and backup outside a story explain how to reach a usable story', ()
     assert.match(primary, /data-bao-journey="library"/);
     assert.doesNotMatch(primary, /data-bao-journey="(?:memory-open|control|phone-open)"/);
   }
+});
+
+
+test('connection help from home never reopens a stale work', () => {
+  const page = setup();
+  page.app.activeCharacter = { id: 'old-work' };
+  page.click('setup-openrouter');
+  assert.equal(page.view(), 'explore-view');
+  assert.equal(page.reopened(), 0);
+  assert.equal(page.connected(), '');
+  page.setView('builder-view');
+  page.api.applyPending();
+  assert.equal(page.connected(), 'openrouter');
 });

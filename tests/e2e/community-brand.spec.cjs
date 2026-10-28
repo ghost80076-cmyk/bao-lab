@@ -66,7 +66,8 @@ test.describe('YoruBay official identity and concise community entry', () => {
     await expect(guide).toHaveAttribute('data-bao-open-guide', '');
     await page.waitForFunction(() => Boolean(window.BAOMascot));
     await guide.click();
-    await expect(page.locator('#bao-guide')).toContainText('2 / 3');
+    await expect(page.locator('#bao-guide h3')).toContainText('喜歡這個作品');
+    await expect(page.locator('#bao-guide [data-bao-journey="setup"]')).toBeVisible();
   });
 
   test('mobile navigation and mascot hero fit without horizontal page overflow', async ({ page }) => {

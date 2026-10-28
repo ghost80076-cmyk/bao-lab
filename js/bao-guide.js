@@ -6,6 +6,7 @@
   const KEY = 'yorubay:bao-journey:v1';
   const $ = id => document.getElementById(id);
   const active = id => $(id)?.classList.contains('active');
+  const hasSelectedWork = () => Boolean(window.App?.activeCharacter) && (active('detail-view') || active('builder-view'));
   let host, controls, topic = 'journey', pendingProvider = '';
   const preference = () => { try { return localStorage.getItem(KEY); } catch { return ''; } };
   const remember = value => { try { localStorage.setItem(KEY, value); } catch { /* optional */ } };
@@ -79,7 +80,7 @@
     const inStory = active('chat-view');
     // activeCharacter can remain set after returning home; only the detail
     // and builder surfaces express an intent to continue that work.
-    const selected = Boolean(window.App?.activeCharacter) && (active('detail-view') || active('builder-view'));
+    const selected = hasSelectedWork();
     const inBuilder = active('builder-view');
     // The existing evaluator returns completion flags, never credentials.
     const ready = inBuilder ? window.BAOStoryStartReadiness?.snapshot?.() : null;
@@ -125,7 +126,7 @@
   const setup = provider => {
     if (provider) pendingProvider = provider;
     if (active('chat-view')) { pendingProvider='';controls.close(); window.BAOChatAPISettings?.open?.(); return; }
-    if (!window.App?.activeCharacter) { controls.close(); remember('active'); if (window.App) App.showView?.('explore'); else location.href = 'index.html#explore'; return; }
+    if (!hasSelectedWork()) { controls.close(); remember('active'); if (window.App) App.showView?.('explore'); else location.href = 'index.html#explore'; return; }
     controls.close();
     if (!active('builder-view')) window.App?.openBuilder?.();
     window.BAOGuidedOnboarding?.reopen?.();
