@@ -21,6 +21,12 @@ test('mobile request inspector and NPC timeline use existing story controls',asy
     App.renderChatShell(false);App.showView('chat');
   });
   let requestCount=0, nextReply='故事回覆';
+  const openMobileControl=async()=>{
+    await page.locator('#bao-mobile-composer-tools').click();
+    const quick=page.locator('#bao-chat-tool-drawer .bao-control-sections');
+    await quick.getByRole('button',{name:'目前設定',exact:true}).click();
+    return page.getByRole('dialog',{name:'故事總覽'});
+  };
   await page.route('https://example.invalid/**',route=>{
     requestCount++;
     return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({choices:[{message:{content:nextReply}}],usage:{prompt_tokens:300,completion_tokens:20,prompt_tokens_details:{cached_tokens:0}}})});
@@ -51,8 +57,7 @@ test('mobile request inspector and NPC timeline use existing story controls',asy
   await noOverflow(inspector);
   await page.keyboard.press('Escape');await expect(inspector).toHaveCount(0);
 
-  await page.getByRole('button',{name:'故事總覽',exact:true}).click();
-  const control=page.getByRole('dialog',{name:'故事總覽'});
+  const control=await openMobileControl();
   await control.locator('.story-control-more > summary').click();
   await control.locator('[data-story-control-action="timeline"]').click();
   const timeline=page.getByRole('dialog',{name:'NPC 個別時間線'});
@@ -89,7 +94,7 @@ test('mobile request inspector and NPC timeline use existing story controls',asy
   await page.getByRole('button',{name:'送出訊息',exact:true}).click();
   await expect.poll(()=>page.evaluate(id=>GameState.current.npcTimeline.schedules.find(s=>s.id===id).status,taskId)).toBe('resolved');
   expect(requestCount).toBe(2); // Initial inspection request + this story turn, no added helper call.
-  await page.getByRole('button',{name:'故事總覽',exact:true}).click();
+  await openMobileControl();
   await control.locator('.story-control-more > summary').click();
   await control.locator('[data-story-control-action="timeline"]').click();
   await timeline.locator('[data-npc]').selectOption({label:'艾琳'});

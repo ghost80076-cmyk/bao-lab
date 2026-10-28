@@ -64,20 +64,24 @@ test('save feedback stays inside the site without native dialogs', async ({ page
   await expect(page.locator('#chat-view')).toHaveClass(/active/);
   await page.waitForFunction(() => window.BAOPlayerShellV2 && window.BAOChatToolNavigation &&
     document.getElementById('chat-view')?.dataset.baoSurface === 'play', null, { timeout: 30000 });
-  await page.locator('#bao-surface-mode-toggle').click();
+  // Verify the legacy editable Studio surface directly. The user-facing
+  // Control Center button now opens the canonical drawer and should not be
+  // used as a bare Studio toggle.
+  await page.evaluate(() => BAOStorySurface.setMode('studio'));
   await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'studio');
   const sidebar = page.locator('#chat-view .chat-layout > aside').first();
   await expect(sidebar).toBeVisible();
 
-  const quickSave = sidebar.getByRole('button', { name: '快速儲存', exact: true });
+  const storyTools = sidebar.locator('details[data-chat-tool-group="story"]');
+  if (!(await storyTools.evaluate(node => node.open))) await storyTools.locator('summary').click();
+  const quickSave = storyTools.getByRole('button', { name: '快速儲存', exact: true });
   await expect(quickSave).toBeVisible();
   await quickSave.click();
   const toast = page.locator('#bao-feedback-toast');
   await expect(toast).toBeVisible();
   await expect(toast).toContainText(/已確認寫入|已寫入瀏覽器備援儲存空間/);
 
-  const storyTools = sidebar.locator('details[data-chat-tool-group="story"]');
-  await storyTools.locator('summary').click();
+
   await storyTools.locator('#save-slot-button').click();
   const request = page.locator('#bao-text-request');
   await expect(request).toBeVisible();

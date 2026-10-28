@@ -258,6 +258,7 @@
     for (const key of phoneNames) field('phone_' + key).value = c.phone_ui?.[key] || (key === 'locale' ? 'zh-TW' : '');
     field('recommended_styles').value = (Array.isArray(c.narrative_profile?.recommended_styles) ? c.narrative_profile.recommended_styles : []).join(', ');
     field('phone_ui_json').value = JSON.stringify(c.phone_ui || phoneCore?.defaultConfig?.() || {}, null, 2);
+    window.dispatchEvent(new CustomEvent('bao:character-studio-card-shown'));
     field('profile').value = typeof c.profile === 'object' ? (c.profile['AI 主角色設定'] || c.profile['人物設定'] || engine.profilePrompt(c.profile)) : String(c.profile || '');
     const theme = gameplayCore?.normalizeTheme?.(c.gameplay_ui?.theme) || { preset: 'default', density: 'comfortable', radius: 'round', meter: 'soft' };
     field('gameplay_theme').value = theme.preset || 'default';
@@ -364,7 +365,7 @@
       meta: { id: c.id, name: c.name, title: c.title, category: c.category, rating: c.rating, avatar: c.avatar, description: c.description, tags: c.tags, gender: c.gender, audience: c.audience, categories: c.categories },
       content: { greeting: c.greeting, system_prompt: c.system_prompt, quote: c.quote, profile: c.profile, world: c.world, lore: c.lore, npc_rules: c.npc_rules, author_instructions: c.author_instructions, creator_notes: c.creator_notes, world_focus: c.world_focus, dynamic_prompts: c.dynamic_prompts },
       gameplay: { supported_modes: c.supported_modes, initial_state: c.initial_state, world_modules: c.world_modules, character_status: c.character_status, prompt: c.prompt_options, ...(c.gameplay_ui ? { ui_schema: c.gameplay_ui } : {}) },
-      presentation: { dialogue: c.dialogue, supported_display: c.supported_display, ui: c.ui, narrative: c.narrative_profile, ...(c.phone_ui ? { phone_ui: c.phone_ui } : {}) }
+      presentation: { dialogue: c.dialogue, supported_display: c.supported_display, ui: c.ui, narrative: c.narrative_profile, ...(c.phone_ui ? { phone_ui: c.phone_ui } : {}), ...(c.play_info_surface === "phone" ? { play_info_surface:"phone" } : {}) }
     };
     if (includeMetadata && c.import_metadata) obj.import_metadata = c.import_metadata;
     return obj;

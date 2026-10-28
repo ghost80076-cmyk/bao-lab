@@ -29,7 +29,7 @@
   const init = () => {
     if (document.getElementById('bao-mascot-root')) return;
     const css = document.createElement('link');
-    css.rel = 'stylesheet'; css.href = 'css/bao-mascot.css?v=5';
+    css.rel = 'stylesheet'; css.href = 'css/bao-mascot.css?v=6';
     document.head.appendChild(css);
     const root = document.createElement('aside');
     root.id = 'bao-mascot-root'; root.className = 'bao-mascot';
@@ -39,8 +39,9 @@
         <span class="bao-mascot-avatar">${window.BAOCharacter.markup()}</span><span class="bao-mascot-launch-label">找包包</span>
       </button>
       <section id="bao-mascot-panel" class="bao-mascot-panel" aria-label="包包小助手" hidden>
-        <header class="bao-mascot-head"><div><strong>包包 · BAO</strong><small>固定台詞小助手 · 不使用 AI／API</small></div><button id="bao-mascot-close" type="button" aria-label="關閉包包助手">✕</button></header>
+        <header class="bao-mascot-head"><div><strong>包包 · BAO</strong><small>新手帶路 · 使用協助</small></div><button id="bao-mascot-close" type="button" aria-label="關閉包包助手">✕</button></header>
         <div class="bao-mascot-body"><div class="bao-mascot-stage">${window.BAOCharacter.markup()}</div><p id="bao-mascot-line" class="bao-mascot-line" aria-live="polite">嗨，我是包包！今天要聊聊天，還是讓我帶你認識夜灣？</p></div>
+        <section id="bao-guide" class="bao-guide" aria-label="包包帶路"></section>
         <p id="bao-mascot-count" class="bao-mascot-count"></p>
         <div class="bao-mascot-actions"><button type="button" data-bao-talk="hello">打招呼</button><button type="button" data-bao-talk="pat">摸摸頭</button><button type="button" data-bao-talk="tired">今天好累</button></div>
         <div class="bao-mascot-controls"><button type="button" id="bao-mascot-transform" aria-pressed="false">變成人形</button><button type="button" id="bao-mascot-motion" aria-pressed="true">關閉動畫</button></div>
@@ -86,8 +87,10 @@
       count.textContent = `今天還能互動 ${Math.max(0, MAX_DAILY - Number(state.count || 0))} 次（每日 5 次；摸頭動畫與變身不限次數）`;
       launch.setAttribute('aria-label', human ? '開啟包包助手（人形型態）' : '開啟包包助手（肉包型態）');
     };
-    const close = () => { panel.hidden = true; launch.setAttribute('aria-expanded', 'false'); launch.focus(); };
-    const open = () => { render(); panel.hidden = false; launch.setAttribute('aria-expanded', 'true'); panel.querySelector('#bao-mascot-close').focus(); };
+    let explicitOpen = false;
+    let returnFocus = null;
+    const close = () => { explicitOpen = false; panel.hidden = true; launch.setAttribute('aria-expanded', 'false'); updateVisibility(); (returnFocus?.isConnected ? returnFocus : launch).focus(); };
+    const open = () => { returnFocus = document.activeElement; explicitOpen = true; render(); updateVisibility(); window.BAOGuide?.render?.(); panel.hidden = false; launch.setAttribute('aria-expanded', 'true'); panel.querySelector('#bao-mascot-close').focus(); };
     launch.addEventListener('click', () => { animate(); panel.hidden ? open() : close(); });
     root.querySelector('#bao-mascot-close').addEventListener('click', close);
     root.addEventListener('click', e => {
@@ -108,7 +111,7 @@
         window.BAOCharacter.set(root, state.form, kind === 'tired' ? 3 : kind === 'pat' ? 1 : 4);
       }
       const lesson = e.target.closest('[data-bao-help]');
-      if (lesson && Object.hasOwn(help, lesson.dataset.baoHelp)) { line.textContent = help[lesson.dataset.baoHelp]; window.BAOCharacter.set(root, state.form, 2); }
+      if (lesson && Object.hasOwn(help, lesson.dataset.baoHelp)) { window.BAOGuide?.show?.(lesson.dataset.baoHelp); line.textContent = help[lesson.dataset.baoHelp]; window.BAOCharacter.set(root, state.form, 2); }
     });
     transform.addEventListener('click', () => {
       state.form = state.form === 'human' ? 'bun' : 'human';
@@ -129,17 +132,33 @@
     about?.querySelector('.prose')?.appendChild(restore);
     const updateVisibility = () => {
       const inStory = ['chat-view', 'builder-view'].some(id => document.getElementById(id)?.classList.contains('active'));
-      root.hidden = Boolean(state.disabled) || inStory;
+      root.hidden = (Boolean(state.disabled) || inStory) && !explicitOpen;
+      launch.hidden = inStory;
       restore.hidden = !state.disabled;
-      if (inStory || state.disabled) { panel.hidden = true; launch.setAttribute('aria-expanded', 'false'); }
+      if (!explicitOpen && (inStory || state.disabled)) { panel.hidden = true; launch.setAttribute('aria-expanded', 'false'); }
     };
-    disable.addEventListener('click', () => { state.disabled = true; save(); updateVisibility(); });
+    disable.addEventListener('click', () => { explicitOpen = false; state.disabled = true; save(); updateVisibility(); });
     restore.addEventListener('click', () => { state.disabled = false; save(); updateVisibility(); open(); });
     ['chat-view','builder-view'].forEach(id => {
       const el = document.getElementById(id);
-      if (el) new MutationObserver(updateVisibility).observe(el, { attributes:true, attributeFilter:['class'] });
+      if (!el) return;
+      let wasActive = el.classList.contains('active');
+      new MutationObserver(() => {
+        const isActive = el.classList.contains('active');
+        if (isActive === wasActive) return;
+        wasActive = isActive;
+        explicitOpen = false; panel.hidden = true;
+        launch.setAttribute('aria-expanded', 'false');
+        updateVisibility(); window.BAOGuide?.render?.();
+      }).observe(el, { attributes:true, attributeFilter:['class'] });
     });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) close(); });
+    window.BAOGuide?.mount?.(root.querySelector('#bao-guide'), { close });
+    window.BAOMascot = Object.freeze({ openGuide(topic) { open(); window.BAOGuide?.show?.(topic || 'journey'); } });
+    document.addEventListener('click', event => {
+      if (!event.target.closest?.('[data-bao-open-guide]')) return;
+      event.preventDefault(); window.BAOMascot.openGuide(event.target.closest('[data-bao-open-guide]').dataset.baoOpenGuide || 'journey');
+    });
     render(); updateVisibility();
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once:true });

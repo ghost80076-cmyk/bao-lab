@@ -43,6 +43,11 @@ for (const width of [390, 1440]) {
     await page.locator('#api-key').fill('quick-start-e2e-secret');
     await page.locator('#start-story').click();
     await expect(page.locator('#chat-view')).toHaveClass(/active/);
+    await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-surface', 'play');
+    await expect(page.locator('#chat-view')).toHaveAttribute('data-bao-experience-surface', 'story');
+    await expect(page.locator('#bao-chat-tool-drawer')).toHaveCount(0);
+    await expect(page.locator('#bao-chat-tool-shortcuts')).toHaveCount(0);
+    await expect(page.locator('#bao-play-status-toggle')).toHaveAttribute('aria-expanded', 'false');
     expect(await page.evaluate(() => App.config.memory.maxRounds)).toBeGreaterThan(0);
     expect(await page.evaluate(() => JSON.stringify(Storage.buildStoryPayload('test')))).not.toContain('quick-start-e2e-secret');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
@@ -279,7 +284,7 @@ test('model connection keeps optional discovery secondary and support clear of p
   await expect(more.locator('summary')).toHaveText('找不到模型？');
   await expect(more).not.toHaveAttribute('open', '');
   await more.locator('summary').click();
-  await expect(more.locator('button')).toHaveText('從帳號取得模型');
+  await expect(more.locator('.bao-model-discovery button')).toHaveText('從帳號取得模型');
   await expect(more.locator('.note')).toContainText('只有找不到想用的模型時才需要');
 
   const order = await page.evaluate(() => [...document.querySelectorAll('#api-advanced-settings [data-api-advanced-grid] label')].map(label =>

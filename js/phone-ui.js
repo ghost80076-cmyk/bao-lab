@@ -46,6 +46,12 @@
     return combine(source);
   };
   const visible = () => !!phoneSource();
+  const notifyStageVisibility = open => {
+    document.getElementById('chat-view')?.dispatchEvent(new CustomEvent(
+      'bao:phone-stage-visibility',
+      { detail:{ open:Boolean(open) } }
+    ));
+  };
   function makeLauncher() {
     if(root && (ownerState!==window.GameState?.current || ownerCharacter!==App.activeCharacter))close();
     const existing = document.getElementById('bao-phone-launch');
@@ -112,7 +118,9 @@
     playing = false; position = 0; trackIndex = -1; expanded = false;
   }
   function close() {
+    const wasOpen = Boolean(root);
     clearTimers(); stopMedia(); root?.remove(); root = null; screen = null;ownerState=null;ownerCharacter=null;eventNotice='';
+    if (wasOpen) notifyStageVisibility(false);
     if (prevFocus?.isConnected) prevFocus.focus(); prevFocus = null;
   }
   function enterHome() {
@@ -126,11 +134,13 @@
     ownerState=window.GameState?.current;ownerCharacter=App.activeCharacter;eventNotice=Puzzles?.validate(config).length?'這份作品的手機機關設定有誤，請作者檢查條件與引用。':'';
     prevFocus = document.activeElement; page = 'lock'; subpage = ''; activeThread = '';
     const overlay = $('div', 'bao-phone-overlay');
+    overlay.id = 'bao-phone-stage';
     overlay.setAttribute('role', 'dialog'); overlay.setAttribute('aria-modal', 'true'); overlay.setAttribute('aria-label', '作品手機介面');
     const frame = $('div', 'bp-frame');
     screen = $('div', 'bp-screen');
     const dismiss=button('×','close','bp-close');dismiss.setAttribute('aria-label','關閉手機');
     add(frame, screen, dismiss); add(overlay, frame); document.body.append(overlay); root = overlay;
+    notifyStageVisibility(true);
     overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
     overlay.addEventListener('click', onAction);
     overlay.addEventListener('submit', onSubmit);

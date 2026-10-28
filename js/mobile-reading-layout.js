@@ -125,6 +125,7 @@
     main.classList.remove('bao-mobile-panel-open');
     document.querySelector('[data-bao-mobile-panel-toggle]')?.setAttribute('aria-expanded', 'false');
     document.getElementById('bao-mobile-memory')?.setAttribute('aria-expanded', 'false');
+    root.dispatchEvent(new CustomEvent('bao:mobile-stage-visibility', { detail:{ open:false } }));
     schedule();
   };
   const openMemory = () => {
@@ -134,6 +135,7 @@
       return;
     }
     main.classList.add('bao-mobile-panel-open');
+    root.dispatchEvent(new CustomEvent('bao:mobile-stage-visibility', { detail:{ open:true } }));
     const tab = document.querySelector('#chat-view .ui-tab[data-panel="memory"]');
     if (tab) tab.click();
     else App.renderUIPanel?.('memory');
@@ -147,6 +149,7 @@
       return;
     }
     main.classList.add('bao-mobile-panel-open');
+    root.dispatchEvent(new CustomEvent('bao:mobile-stage-visibility', { detail:{ open:true } }));
     const panelButton = document.querySelector('[data-bao-mobile-panel-toggle]');
     if (panelButton) panelButton.setAttribute('aria-expanded', 'true');
     const panel = document.querySelector('#chat-view .ui-tab.active')?.dataset.panel || 'npc';
@@ -261,11 +264,10 @@
     const quick = document.createElement('nav');
     quick.className = 'bao-mobile-quick';
     quick.setAttribute('aria-label', '手機常用功能');
-    makeAction(quick, '☷ 故事總覽', () => {
-      if (window.BAOStoryControlCenter?.open) BAOStoryControlCenter.open();
-      else window.alert('故事總覽仍在載入，請稍後再試。');
-    });
-    makeAction(quick, '人物／事件', togglePanels, { 'data-bao-mobile-panel-toggle': '', 'aria-expanded': String(main.classList.contains('bao-mobile-panel-open')) });
+    makeAction(quick, '舞臺資訊', () => {
+      if (window.BAOStorySurface?.openStatus) BAOStorySurface.openStatus();
+      else togglePanels();
+    }, { 'data-bao-mobile-panel-toggle': '', 'aria-expanded': String(main.classList.contains('bao-mobile-panel-open')) });
     makeAction(quick, '🧠 記憶', openMemory);
     makeAction(quick, '模型連線／切換', () => {
       if (window.BAOChatAPISettings?.open) BAOChatAPISettings.open();
@@ -317,6 +319,7 @@
     connection.textContent = apiStatus?.textContent?.trim() || (App.config?.demoMode ? '本機預覽' : '可從這裡設定 API 與模型');
     quick.append(connection);
     body.prepend(quick);
+    panel.dispatchEvent(new CustomEvent('bao:control-content-ready'));
   };
 
   const composerInputMaxHeight = () => {
@@ -356,6 +359,11 @@
   const bindComposerInput = input => {
     if (!input || input.dataset.baoComposerAutogrow === 'true') return;
     input.dataset.baoComposerAutogrow = 'true';
+    input.addEventListener('focus', () => {
+      // On phones, focusing the composer changes the primary task back to Story.
+      // Collapse Stage before the keyboard/input can compete for the same viewport.
+      if (main.classList.contains('bao-mobile-panel-open')) closePanels();
+    });
     input.addEventListener('input', fitComposerInput);
     input.addEventListener('change', fitComposerInput);
     input.addEventListener('paste', () => window.requestAnimationFrame(fitComposerInput));
@@ -378,8 +386,8 @@
       tools.id = 'bao-mobile-composer-tools';
       tools.className = 'bao-mobile-composer-action';
       tools.textContent = '＋';
-      tools.setAttribute('aria-label', '開啟故事工具');
-      tools.title = '故事工具';
+      tools.setAttribute('aria-label', '開啟控制中心');
+      tools.title = '控制中心';
       tools.addEventListener('click', openTools);
       composer.insertBefore(tools, input);
     }
@@ -553,7 +561,7 @@
     focusScrollTop = null;
     schedule();
   });
-  window.BAOMobileReadingLayout = { version: 21, sync, syncMessageActions, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools, fitComposerInput };
+  window.BAOMobileReadingLayout = { version: 23, sync, syncMessageActions, openTools, enhanceDrawer, togglePanels, openMemory, closePanels, ensureComposerTools, fitComposerInput };
   // The stylesheet is render-blocking in index.html for the initial story
   // frame. Move that same link to the END of the cascade once deferred
   // enhancements are mounted: this restores its original precedence over

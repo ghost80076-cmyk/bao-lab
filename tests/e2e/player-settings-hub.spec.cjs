@@ -15,7 +15,8 @@ for(const width of [320,390,1440])test(`one player settings hub with no prompt d
   expect(await page.evaluate(()=>JSON.stringify(GameState.current))).toBe(await page.evaluate(()=>window.__hubBefore));
   expect(JSON.stringify(bodies)).toContain('PRIVATE_PLATFORM_PREFIX_782');
   const root=page.locator('#bao-chat-tool-drawer'),hub=root.locator('[data-story-settings-hub]');
-  await expect(root).toHaveCount(1);await hub.locator(':scope > summary').click();
+  await expect(root).toHaveCount(1);await root.getByRole('button',{name:'目前設定',exact:true}).click();
+  await expect(hub).toBeVisible();await expect(hub.locator(':scope > summary')).toBeHidden();
   await page.evaluate(()=>BAOStoryControlCenter.open({effects:true}));
   const menu=page.getByRole('dialog',{name:'故事總覽',exact:true});
   await expect(menu).toHaveCount(1);await expect(page.locator('.story-control-backdrop')).toHaveCount(0);

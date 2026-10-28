@@ -25,3 +25,15 @@
 .bao-mascot-launch:focus-visible,.bao-mascot button:focus-visible{outline:3px solid #d6aa73;outline-offset:2px}
 
 .bao-mascot-form-note a{color:#f4a8c4;text-underline-offset:3px}
+
+/* One guide inside the existing mascot; story assistance is opened on demand. */
+.bao-mascot-launch[hidden]{display:none!important}
+.bao-guide{margin:8px 14px 16px;padding:14px;border:1px solid #6b5b88;border-radius:16px;background:#1b1c29}
+.bao-guide h3{font-size:15px;line-height:1.5;margin:0 0 8px;color:#f1eee8}
+.bao-guide p{font-size:13px;line-height:1.75;color:#c8c4d4;margin:0 0 12px}
+.bao-guide-actions{display:flex;flex-wrap:wrap;gap:8px}
+.bao-guide-actions button,.bao-guide-actions a{display:flex;align-items:center;min-height:44px;box-sizing:border-box;padding:8px 12px;border:1px solid #6b5b88;border-radius:10px;background:#262334;color:#f1eee8;font:inherit;font-size:12px;text-decoration:none;text-align:left}
+.bao-guide-actions button:hover,.bao-guide-actions a:hover{background:#383049}
+.bao-guide details{margin-top:12px;font-size:13px}
+.bao-guide summary{cursor:pointer;padding:8px 0;color:#dfc49f}
+.bao-guide details .bao-guide-actions{margin-top:8px}

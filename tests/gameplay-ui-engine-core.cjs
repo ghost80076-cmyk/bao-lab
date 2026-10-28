@@ -89,6 +89,18 @@ assert.equal(sceneLayout.left_panel, '');
 assert.equal(sceneLayout.right_panel, 'world');
 assert.equal(sceneLayout.scene_source, 'reading-background');
 assert.equal(sceneLayout.scene_fit, 'contain');
+const terminalLayout = Core.normalizeLayout({
+  preset: 'terminal',
+  primary_panel: 'world'
+}, schema.panels);
+assert.equal(terminalLayout.preset, 'terminal');
+assert.equal(terminalLayout.primary_panel, 'world');
+const badTerminalLayout = Core.normalizeLayout({
+  preset: 'terminal',
+  primary_panel: 'config.api.key'
+}, schema.panels);
+assert.equal(badTerminalLayout.primary_panel, '');
+assert.equal(Core.LAYOUT_PRESETS.includes('terminal'), true);
 assert.deepEqual(Core.CARD_VARIANTS, ['codex', 'quest', 'party', 'skill']);
 const badCards = Core.normalize({version:1,panels:[{id:'bad_cards',label:'bad',sections:[{type:'cards',variant:'quest',path:'config.api.key'}]}]});
 assert.equal(badCards, null, 'cards must not read unsafe paths');

@@ -189,7 +189,11 @@
       const summary = document.createElement('summary');
       summary.textContent = '找不到模型？';
       picker.block.before(disclosure);
-      disclosure.append(summary, picker.block);
+      const guide = document.createElement('button');
+      guide.type = 'button'; guide.className = 'secondary';
+      guide.textContent = '讓包包帶我找模型';
+      guide.addEventListener('click', () => window.BAOMascot?.openGuide?.('models'));
+      disclosure.append(summary, picker.block, guide);
       picker.disclosure = disclosure;
     }
     sync();

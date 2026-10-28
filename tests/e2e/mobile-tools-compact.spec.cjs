@@ -18,8 +18,8 @@ for (const width of [375, 390]) {
     await page.getByRole('button', { name: '下一步' }).click();
     await page.locator('#start-story').click();
     await expect(page.locator('#chat-view')).toHaveClass(/active/);
-    await expect(page.locator('#bao-play-status-toggle')).toHaveText('資訊');
-    await expect(page.locator('#bao-play-status-toggle')).toHaveAttribute('aria-label', '查看人物、事件與作品資訊');
+    await expect(page.locator('#bao-play-status-toggle')).toHaveText('舞臺');
+    await expect(page.locator('#bao-play-status-toggle')).toHaveAttribute('aria-label', '查看舞臺：人物、事件與作品資訊');
     await expect(page.locator('#bao-surface-mode-toggle')).toBeHidden();
     await expect(page.locator('#bao-mobile-status')).toHaveCount(0);
     await expect(page.locator('#bao-mobile-memory')).toHaveCount(0);
@@ -71,7 +71,8 @@ for (const width of [375, 390]) {
 
     await page.locator('#bao-play-status-toggle').click();
     await expect(page.locator('#chat-view')).toHaveClass(/bao-play-status-open/);
-    await page.locator('#bao-play-status-close').click();
+    await expect(panelClose).toBeVisible();
+    await panelClose.click();
     await expect(page.locator('#chat-view')).not.toHaveClass(/bao-play-status-open/);
   });
 }

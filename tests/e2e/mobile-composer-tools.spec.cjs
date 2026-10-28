@@ -89,7 +89,7 @@ test('mobile composer keeps tools, input, AI assist and send in one row', async 
   await plus.click();
   const drawer = page.getByRole('dialog', { name: '故事功能選單' });
   await expect(drawer).toBeVisible();
-  await expect(drawer.getByRole('button', { name: '☷ 故事總覽' })).toBeVisible();
+  await expect(drawer.getByRole('button', { name: '目前設定', exact:true })).toBeVisible();
   await expect(drawer.locator('.bao-mobile-more > summary')).toBeVisible();
   await expect(drawer.getByRole('button', { name: '◔ 上下文狀態' })).toBeHidden();
   await drawer.locator('.bao-mobile-more > summary').click();
@@ -99,11 +99,11 @@ test('mobile composer keeps tools, input, AI assist and send in one row', async 
   await toolSearch.fill('快捷指令');
   await expect(drawer.getByRole('button', { name: '⌁ 快捷指令' })).toBeVisible();
   await expect(drawer.getByRole('button', { name: '⌁ 快捷指令' })).toHaveCount(1);
-  await expect(drawer.getByRole('button', { name: '☷ 故事總覽' })).toBeHidden();
+  await expect(drawer.getByRole('button', { name: '目前設定', exact:true })).toBeVisible();
   await toolSearch.fill('不存在的功能名稱');
   await expect(drawer.getByText('找不到相符工具。可以換個關鍵字，或清除搜尋查看全部。')).toBeVisible();
   await toolSearch.fill('');
-  await expect(drawer.getByRole('button', { name: '☷ 故事總覽' })).toBeVisible();
+  await expect(drawer.getByRole('button', { name: '目前設定', exact:true })).toBeVisible();
   await expect(drawer.locator('.bao-mobile-quick .bao-mobile-go-top')).toBeVisible();
   await expect(drawer.getByRole('button', { name: '◔ 上下文狀態' })).toBeVisible();
   await drawer.getByRole('button', { name: '關閉 ×', exact: true }).click();

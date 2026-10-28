@@ -1,5 +1,16 @@
 const { test, expect } = require('@playwright/test');
 
+async function openControlCenter(page, width) {
+  if (width <= 820) {
+    await page.locator('#bao-mobile-composer-tools').click();
+    const quick = page.locator('#bao-chat-tool-drawer .bao-control-sections');
+    await quick.getByRole('button', { name:'目前設定', exact:true }).click();
+  } else {
+    await page.getByRole('button', { name:'開啟控制中心', exact:true }).click();
+  }
+  return page.getByRole('dialog', { name:'故事總覽' });
+}
+
 for (const width of [390, 1280]) test(`story history collects public events and preserves branch snapshots at ${width}px`, async ({ page }) => {
   await page.setViewportSize({ width, height: 844 });
   await page.goto('./');
@@ -15,8 +26,8 @@ for (const width of [390, 1280]) test(`story history collects public events and 
     App.renderChatShell(false); App.showView('chat'); App.saveStory(false);
     await BAOStoryLibrary.flush();
   });
-  await page.getByRole('button', { name: '故事總覽', exact: true }).click();
-  await page.getByRole('button', { name: '◇ 故事歷程與收藏', exact: true }).click();
+  const control = await openControlCenter(page, width);
+  await control.getByRole('button', { name: '◇ 故事歷程與收藏', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '故事歷程', exact: true });
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText('抵達港口 <img');

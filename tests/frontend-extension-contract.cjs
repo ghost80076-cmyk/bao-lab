@@ -15,6 +15,7 @@ const storyControlCenter = read("js/story-control-center.js");
 const chatShellFix = read("js/chat-shell-fix.js");
 const chatToolNavigation = read("js/chat-tool-navigation.js");
 const playerShellV2 = read("js/player-shell-v2.js");
+const quickStartMode = read("js/quick-start-mode.js");
 
 const position = (source, token, label = token) => {
   const value = source.indexOf(token);
@@ -40,7 +41,7 @@ increasing(index, [
   'src="js/helper-data.js?v=3"',
   'src="js/episodic-memory-core.js?v=6"',
   'src="js/chat.js',
-  'src="js/character.js?v=9"',
+  'src="js/character.js?v=10"',
   'src="js/app.js',
   'src="js/chat-markup.js?v=6"',
   'src="js/site-ui.js'
@@ -72,6 +73,27 @@ increasing(siteUI, [
   'loadBAOScript("js/streaming-ui.js',
   'loadBAOScript("js/request-lifecycle.js?v=3")'
 ], "story extension");
+
+// Stage capability must resolve before Reader Context / Player Shell consume it.
+increasing(siteUI, [
+  'loadBAOOptionalGroup("stage-capabilities", ["js/stage-capability-core.js?v=3", "js/stage-capability.js?v=3"])',
+  'loadBAOScript("js/reader-context.js?v=7")',
+  'loadBAOScript("js/bao-visual-ui.js?v=19")',
+  'loadBAOScript("js/player-shell-v2.js?v=13")'
+], "stage capability extension");
+
+// Builder progressive disclosure must be active before readiness decorates the same surface.
+increasing(siteUI, [
+  'loadBAOScript("js/player-builder-v2.js?v=6")',
+  'loadBAOScript("js/quick-start-mode.js?v=3")',
+  'loadBAOScript("js/story-start-readiness-core.js")',
+  'loadBAOScript("js/story-start-readiness.js")'
+], "builder progressive disclosure");
+
+assert.match(quickStartMode, /window\.BAOQuickSetup/);
+assert.match(quickStartMode, /data-bao-setup="quick"/);
+assert.match(quickStartMode, /data-bao-setup="advanced"/);
+assert.match(quickStartMode, /App\.setStep\(view\.dataset\.baoSetup === 'quick' \? 4 : 1\)/);
 
 assert.match(siteUI, /const STORY_LIBRARY_SRC = "js\/story-library\.js\?v=12"/);
 assert.match(siteUI, /window\.BAOEnsureStoryLibrary = \(\) =>/);

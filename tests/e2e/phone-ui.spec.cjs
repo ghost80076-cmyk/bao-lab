@@ -73,7 +73,9 @@ test('X, video call and Spotify remain purely optional interactive surfaces',asy
 test('local studio keeps phone presentation data on JSON round trip',async({page})=>{
   await page.goto('/character-studio.html');
   await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOPhoneUICore);
+  await page.getByRole('button',{name:'全部欄位'}).click();
   await page.locator('[name=phone_ui_enabled]').check();
+  await page.locator('.studio-phone-raw > summary').click();
   await page.locator('[name=phone_ui_json]').fill(JSON.stringify({
     userName:'테스트',contactName:'친구',tweets:['기록'],spotify:{playlistName:'노래',tracks:[]},threads:[{id:'friends',name:'朋友群',messages:[{senderId:'xia',text:'群聊'}]}],notes:[{id:'memo',title:'筆記',text:'原文'}]
   }));
@@ -91,11 +93,13 @@ test('studio simple phone fields and style advice survive draft reload and nativ
   await page.setViewportSize({width:390,height:844});
   await page.goto('/character-studio.html');
   await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOPhoneUICore);
+  await page.getByRole('button',{name:'全部欄位'}).click();
   await page.locator('[name=name]').fill('雨港手機');
   await page.locator('[name=id]').fill('phone-author-sync');
   await page.locator('[name=system_prompt]').fill('原作世界設定');
   await page.locator('[name=greeting]').fill('雨停了。');
   await page.locator('[name=phone_ui_enabled]').check();
+  await page.locator('.studio-phone-raw > summary').click();
   await page.locator('[name=phone_ui_json]').fill(JSON.stringify({userName:'原主人',chat:[{text:'先前紀錄'}],weather:{place:'基隆'}}));
   await expect(page.locator('[name=phone_userName]')).toHaveValue('原主人');
   await page.locator('[name=phone_userName]').fill('林曼');
@@ -109,6 +113,8 @@ test('studio simple phone fields and style advice survive draft reload and nativ
   await page.locator('#studio-save-draft').click();
   await expect(page.locator('#studio-status')).toContainText('草稿已儲存');
   await page.reload();
+  await page.waitForFunction(()=>window.BAOCharacterStudioFlow && window.BAOCharacterStudio);
+  await page.getByRole('button',{name:'全部欄位'}).click();
   await page.locator('.studio-draft').filter({hasText:'雨港手機'}).click();
   await expect(page.locator('[name=phone_userName]')).toHaveValue('林曼');
   await expect(page.locator('[name=phone_contactName]')).toHaveValue('小夏');
@@ -123,6 +129,107 @@ test('studio simple phone fields and style advice survive draft reload and nativ
   expect(JSON.stringify(card)).not.toContain('playerPortrayal');
   await page.locator('[name=phone_ui_enabled]').uncheck();
   expect((await page.evaluate(()=>BAOCharacterStudio.toExport())).presentation.phone_ui).toBeUndefined();
+});
+
+
+test('studio phone builder works without JSON and expanded references stay inside the page',async({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  await page.goto('/character-studio.html');
+  await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOCharacterStudioFlow && window.BAOCharacterStudioPhoneBuilder);
+  await page.locator('#studio-flow-shell [data-flow-step="appearance"]').click();
+  await page.locator('[name=phone_ui_enabled]').check();
+  await expect(page.locator('[data-phone-builder]')).toBeVisible();
+
+  await page.locator('[name=phone_userName]').fill('林曼');
+  await page.locator('[data-phone-contact-name]').fill('小夏');
+  await page.locator('[data-phone-add-contact]').click();
+  await expect(page.locator('[data-phone-contact-list]')).toContainText('小夏');
+
+  await page.locator('.studio-phone-participant').filter({hasText:'小夏'}).locator('input').check();
+  await page.locator('[data-phone-thread-message]').fill('晚點見。');
+  await page.locator('[data-phone-thread-sender]').selectOption({label:'小夏'});
+  await page.locator('[data-phone-add-thread]').click();
+  await expect(page.locator('[data-phone-thread-list]')).toContainText('小夏');
+
+  await page.locator('[data-phone-note-title]').fill('線索');
+  await page.locator('[data-phone-note-text]').fill('碼頭的置物櫃編號是 0427。');
+  await page.locator('[data-phone-add-note]').click();
+  await page.locator('[data-phone-photo-src]').fill('https://example.com/rain-port.jpg');
+  await page.locator('[data-phone-photo-title]').fill('雨夜碼頭');
+  await page.locator('[data-phone-add-photo]').click();
+
+  await page.locator('.studio-phone-mechanisms > summary').click();
+  await page.locator('[data-phone-lock-target]').selectOption({label:'聊天室 · 小夏'});
+  await page.locator('[data-phone-lock-code]').fill('0427');
+  await page.locator('[data-phone-lock-hint]').fill('四位數故事密碼');
+  await page.locator('[data-phone-add-lock]').click();
+  await page.locator('[data-phone-event-source]').selectOption({label:'備忘錄 · 線索'});
+  await page.locator('[data-phone-event-unlock]').selectOption({label:'聊天室 · 小夏'});
+  await page.locator('[data-phone-event-notification]').fill('聊天室已解鎖');
+  await page.locator('[data-phone-add-event]').click();
+
+  const phone=await page.evaluate(()=>BAOCharacterStudio.toExport().presentation.phone_ui);
+  expect(phone.userName).toBe('林曼');
+  expect(phone.contacts[0].name).toBe('小夏');
+  expect(phone.threads[0].messages[0].text).toBe('晚點見。');
+  expect(phone.notes[0].title).toBe('線索');
+  expect(phone.photos[0].title).toBe('雨夜碼頭');
+  expect(phone.interactions.locks[0].code).toBe('0427');
+  expect(phone.interactions.events[0].notification).toBe('聊天室已解鎖');
+
+  await page.locator('.studio-phone-raw > summary').click();
+  const referenceSummaries=page.locator('.studio-phone-raw details > summary');
+  for(let i=0;i<await referenceSummaries.count();i++) await referenceSummaries.nth(i).click();
+  const overflow=await page.evaluate(()=>({
+    doc:document.documentElement.scrollWidth-innerWidth,
+    editor:document.querySelector('.studio-editor').scrollWidth-document.querySelector('.studio-editor').clientWidth
+  }));
+  expect(overflow.doc).toBeLessThanOrEqual(1);
+  expect(overflow.editor).toBeLessThanOrEqual(1);
+});
+
+
+test('studio author can create a multi-contact group chat without editing JSON',async({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  await page.goto('/character-studio.html');
+  await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOCharacterStudioFlow && window.BAOCharacterStudioPhoneBuilder);
+  await page.locator('#studio-flow-shell [data-flow-step="appearance"]').click();
+  await page.locator('[name=phone_ui_enabled]').check();
+  await page.locator('[name=phone_userName]').fill('玩家');
+
+  for(const name of ['小夏','林曼','曼曼']){
+    await page.locator('[data-phone-contact-name]').fill(name);
+    await page.locator('[data-phone-add-contact]').click();
+  }
+  await expect(page.locator('[data-phone-contact-list] li')).toHaveCount(3);
+
+  for(const name of ['小夏','林曼','曼曼']){
+    await page.locator('.studio-phone-participant').filter({hasText:name}).locator('input').check();
+  }
+  await expect(page.locator('[data-phone-thread-sender] option')).toHaveText(['手機主人 · 玩家','小夏','林曼','曼曼']);
+  await page.locator('[data-phone-thread-name]').fill('今晚去哪？');
+  await page.locator('[data-phone-thread-message]').fill('我到了，你們呢？');
+  await page.locator('[data-phone-thread-sender]').selectOption({label:'林曼'});
+  await page.locator('[data-phone-add-thread]').click();
+
+  await expect(page.locator('[data-phone-thread-list]')).toContainText('今晚去哪？');
+  await expect(page.locator('[data-phone-thread-list]')).toContainText('群組');
+  await expect(page.locator('[data-phone-thread-list]')).toContainText('小夏、林曼、曼曼');
+
+  const phone=await page.evaluate(()=>BAOCharacterStudio.toExport().presentation.phone_ui);
+  expect(phone.contacts.map(contact=>contact.name)).toEqual(['小夏','林曼','曼曼']);
+  expect(phone.threads).toHaveLength(1);
+  expect(phone.threads[0].name).toBe('今晚去哪？');
+  expect(phone.threads[0].participants).toHaveLength(3);
+  const memberNames=phone.threads[0].participants.map(id=>phone.contacts.find(contact=>contact.id===id)?.name);
+  expect(memberNames).toEqual(['小夏','林曼','曼曼']);
+  const linMan=phone.contacts.find(contact=>contact.name==='林曼');
+  expect(phone.threads[0].messages[0]).toMatchObject({
+    from:'them',senderId:linMan.id,senderName:'林曼',text:'我到了，你們呢？'
+  });
+
+  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
 });
 
 for (const width of [320,1280]) test(`multiple chat recipients, documents and story clock work at ${width}px`,async({page})=>{

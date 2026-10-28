@@ -162,7 +162,7 @@ const CharacterEngine = {
          : null,
       story_startup: raw.story_startup || gameplay.story_startup || null,
       timeline_policy: raw.timeline_policy || gameplay.timeline_policy || null,
-      play_info_surface: playInfoSurface === "game-ui" ? "game-ui" : "reader-context",
+      play_info_surface: ["game-ui", "phone"].includes(playInfoSurface) ? playInfoSurface : "reader-context",
       npc_rules: content.npc_rules || raw.npc_rules || "",
       author_instructions: content.author_instructions || raw.author_instructions || "",
       creator_notes: content.creator_notes || raw.creator_notes || "",
