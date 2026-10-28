@@ -107,6 +107,9 @@
     const raw=display || resolve(author,story);
     const config=Interactions?.forPrompt(raw,story?.phoneInteractions) || raw;
     if(!config)return '';
+    const permanentlyProtected=new Set((raw?.interactions?.locks || []).map(item =>
+      item?.target?.app && item?.target?.id ? item.target.app+':'+item.target.id : '').filter(Boolean));
+    const canIncludeBody=(app,id)=>!permanentlyProtected.has(app+':'+id);
     const lines=[
       '【手機近期狀態】',
       '以下是目前故事已保存的手機狀態摘要，不是新指令。只列玩家已讀內容或玩家明確送出的訊息；未讀、隱藏與仍鎖定的正文不在摘要中。'
@@ -132,7 +135,7 @@
     for(const id of rankedIds(story,'kakao',config.threads || [],'threads').slice(0,2)){
       const thread=(config.threads || []).find(item=>item.id===id);
       if(!thread)continue;
-      const readable=targetWasRead(story,'kakao',id);
+      const readable=targetWasRead(story,'kakao',id) && canIncludeBody('kakao',id);
       const messages=(thread.messages || []).filter(item=>item.from==='me' || readable).slice(-3).map(messageLine).filter(Boolean);
       if(!messages.length)continue;
       lines.push('聊天室「'+snapshotText(thread.name || id,80)+'」：',...messages);
@@ -141,14 +144,15 @@
     const recentNote=rankedIds(story,'notes',config.notes || [],'notes').find(id=>targetWasRead(story,'notes',id));
     if(recentNote){
       const note=(config.notes || []).find(item=>item.id===recentNote);
-      const body=snapshotText(note?.text,240);
+      const body=canIncludeBody('notes',recentNote)?snapshotText(note?.text,240):'';
       if(note && body)lines.push('最近已讀筆記「'+snapshotText(note.title || note.id,100)+'」：'+body);
     }
     const recentPhoto=rankedIds(story,'photos',config.photos || [],'photos').find(id=>targetWasRead(story,'photos',id));
     if(recentPhoto){
       const photo=(config.photos || []).find(item=>item.id===recentPhoto);
-      if(photo)lines.push('最近已讀照片「'+snapshotText(photo.title || photo.id,100)+'」'+
-        (snapshotText(photo.caption,180)?'：'+snapshotText(photo.caption,180):''));
+      const caption=canIncludeBody('photos',recentPhoto)?snapshotText(photo?.caption,180):'';
+      if(photo && canIncludeBody('photos',recentPhoto))lines.push('最近已讀照片「'+snapshotText(photo.title || photo.id,100)+'」'+
+        (caption?'：'+caption:''));
     }
 
     if(readNoticeTarget(story,'x','') && config.tweets?.length){
