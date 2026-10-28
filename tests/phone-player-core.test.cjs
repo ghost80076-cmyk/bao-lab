@@ -87,13 +87,17 @@ test('phone context snapshot is bounded, read-aware and never leaks locked or un
     ]}],
     notes:[
       {id:'memo',title:'碼頭線索',text:'置物櫃的號碼是 0427。'},
-      {id:'secret',title:'秘密筆記',text:'這段內容不應該提前進入模型。'}
+      {id:'secret',title:'秘密筆記',text:'這段內容不應該提前進入模型。'},
+      {id:'vault',title:'已解鎖保護筆記',text:'即使解鎖，這段機關正文也不應送到 provider。'}
     ],
     photos:[{id:'rain',title:'雨夜碼頭',src:'https://example.com/rain.jpg',caption:'港口只剩一盞燈。'}],
-    interactions:{version:1,locks:[{target:{app:'notes',id:'secret'},hidden:true}]}
+    interactions:{version:1,locks:[
+      {target:{app:'notes',id:'secret'},hidden:true},
+      {target:{app:'notes',id:'vault'},code:'0427'}
+    ]}
   };
   const story={
-    phoneInteractions:{version:1,read:['kakao:group','notes:memo','photos:rain'],unlocked:[],fired:[]},
+    phoneInteractions:{version:1,read:['kakao:group','notes:memo','notes:vault','photos:rain'],unlocked:['notes:vault'],fired:[]},
     phoneUI:{version:1,notifications:[
       {id:'n1',app:'kakao',targetId:'group',label:'聊天室有新訊息',read:true},
       {id:'n2',app:'notes',targetId:'memo',label:'筆記已更新',read:true},
@@ -109,6 +113,7 @@ test('phone context snapshot is bounded, read-aware and never leaks locked or un
   assert.match(snapshot,/雨夜碼頭.*港口只剩一盞燈/);
   assert.doesNotMatch(snapshot,/秘密筆記/);
   assert.doesNotMatch(snapshot,/不應該提前/);
+  assert.doesNotMatch(snapshot,/即使解鎖，這段機關正文也不應送到 provider/);
   assert.equal(snapshot.length < 1800,true);
 });
 
