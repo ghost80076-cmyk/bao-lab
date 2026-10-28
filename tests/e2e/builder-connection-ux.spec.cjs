@@ -39,8 +39,9 @@ for (const width of [390, 1440]) {
     await expect(page.locator('#bao-quick-intro')).toContainText('選一個可用模型就能開始');
     await expect(page.locator('#bao-connection-account')).toBeVisible();
     await expect(page.locator('#bao-connection-help')).toHaveAttribute('href', 'quick-start.html');
-    await expect(page.locator('#bao-connection-help')).toContainText('三步開始');
+    await expect(page.locator('#bao-connection-help')).toContainText('讓包包帶我完成連線');
 
+    await expect(page.locator('#bao-connection-help')).toHaveAttribute('data-bao-open-guide', 'journey');
     await page.locator('[data-bao-connection="byok"]').click();
     await expect(page.locator('.bao-demo-box')).toBeVisible();
     await expect(page.locator('#bao-demo-mode')).toBeVisible();
@@ -67,7 +68,8 @@ for (const width of [390, 1440]) {
 
     await page.locator('#api-type').selectOption('custom');
     await expect(page.locator('#bao-connection-help')).toHaveAttribute('href', 'api-guide.html');
-    await expect(page.locator('#bao-connection-help')).toContainText('完整連線說明');
+    await expect(page.locator('#bao-connection-help')).toContainText('讓包包帶我完成連線');
+    await expect(page.locator('#bao-connection-help')).toHaveAttribute('data-bao-open-guide', 'api');
     await expect(page.locator('#test-api')).toBeHidden();
     await expect(page.locator('[data-run-provider-quick]')).toBeVisible();
     await expect(page.locator('.bao-relay-probe')).toBeVisible();

@@ -41,7 +41,7 @@ test.describe('YoruBay official identity and concise community entry', () => {
     expect(adultLeaks).toEqual([]);
     await expect(page.locator('#home-view .brand-intro')).toHaveText('替你留了一盞燈。');
     await expect(page.locator('#home-view a[href="quick-start"]')).toHaveCount(1);
-    await expect(page.locator('#home-view .brand-first-run')).toContainText('第一次來？三步開始');
+    await expect(page.locator('#home-view .brand-first-run')).toContainText('第一次來？讓包包帶你開始');
     await expect(page.locator('#bao-contact-footer .brand-footer-line')).toHaveAttribute('href', LINE_INVITE);
     await expect(page.locator('#bao-contact-footer .brand-footer-discord')).toHaveAttribute('href', DISCORD_INVITE);
     await page.getByRole('button', { name: '關於夜灣' }).click();
@@ -52,7 +52,7 @@ test.describe('YoruBay official identity and concise community entry', () => {
     await expect(aboutStory).toContainText('為什麼有夜灣');
   });
 
-  test('work detail offers one contextual path back to the canonical three-step guide', async ({ page }) => {
+  test('work detail opens Bao in context and retains the guide document fallback', async ({ page }) => {
     await page.goto('/');
     await page.waitForFunction(() => Boolean(App.characters?.length));
     const work = page.locator('#home-view .home-character-card').first();
@@ -62,7 +62,11 @@ test.describe('YoruBay official identity and concise community entry', () => {
     const guide = page.locator('#character-detail .detail-first-run');
     await expect(guide).toHaveCount(1);
     await expect(guide).toHaveAttribute('href', 'quick-start');
-    await expect(guide).toContainText('第一次來？三步開始');
+    await expect(guide).toContainText('第一次來？讓包包帶你開始');
+    await expect(guide).toHaveAttribute('data-bao-open-guide', '');
+    await page.waitForFunction(() => Boolean(window.BAOMascot));
+    await guide.click();
+    await expect(page.locator('#bao-guide')).toContainText('2 / 3');
   });
 
   test('mobile navigation and mascot hero fit without horizontal page overflow', async ({ page }) => {

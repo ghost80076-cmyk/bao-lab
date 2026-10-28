@@ -7,7 +7,7 @@
   if (!document.querySelector('link[href^="css/player-builder-v2.css"]')) {
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/player-builder-v2.css?v=6";
+    link.href = "css/player-builder-v2.css?v=8";
     document.head.appendChild(link);
   }
   const view = document.getElementById("builder-view");
@@ -115,6 +115,11 @@
       }
     }
 
+    if (help && currentProvider !== "lmstudio") {
+      help.dataset.baoOpenGuide = current === "hosted" ? "journey" : "api";
+      help.textContent = "讓包包帶我完成連線 →";
+    } else if (help) delete help.dataset.baoOpenGuide;
+
     const quickIntro = $("bao-quick-intro");
     const progressNote = $("bao-first-run-ai-note");
     if (quickIntro && view.dataset.baoSetup === "quick") {
@@ -144,6 +149,353 @@
       setProvider(firstByokProvider());
     }
     sync();
+  };
+
+
+  // Bao guided setup translates existing builder controls into player language.
+  // It never stores API keys and never creates a second source of truth.
+  const GUIDE_KEY = "yorubay:bao-guided-setup:v1";
+  const guideSession = { connectionChoice: "", providerChoice: "" };
+  const guideDismissed = () => {
+    try { return localStorage.getItem(GUIDE_KEY) === "dismissed" || localStorage.getItem("yorubay:bao-journey:v1") === "skipped"; }
+    catch (_) { return false; }
+  };
+  const setGuideDismissed = value => {
+    try {
+      if (value) localStorage.setItem(GUIDE_KEY, "dismissed");
+      else {
+        localStorage.removeItem(GUIDE_KEY);
+        if (localStorage.getItem("yorubay:bao-journey:v1") === "skipped") localStorage.setItem("yorubay:bao-journey:v1", "active");
+      }
+    } catch (_) {}
+  };
+  const activeBuilderStep = () => Number(
+    [...document.querySelectorAll(".builder-step")]
+      .find(panel => panel.classList.contains("active"))?.dataset.stepPanel || App.currentStep || 4
+  );
+  const chooseRadio = (name, value) => {
+    const input = document.querySelector('input[name="' + name + '"][value="' + value + '"]');
+    if (!input) return false;
+    input.checked = true;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+    return true;
+  };
+  const choosePreset = predicate => {
+    const preset = (App.modelPresets || []).find(predicate);
+    if (!preset) return false;
+    if (!setProvider(preset.provider)) return false;
+    const index = App.modelPresets.indexOf(preset);
+    const select = model();
+    if (!select || index < 0) return false;
+    select.value = String(index);
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+    return true;
+  };
+  const chooseFriendlyProvider = value => {
+    guideSession.connectionChoice = "byok";
+    guideSession.providerChoice = value;
+    selectRoute("byok");
+    if (value === "gemini") {
+      choosePreset(item => item.provider === "gemini" && item.registry_id === "gemini-3.8-flash" && item.model && item.base_url)
+        || choosePreset(item => item.provider === "gemini" && /flash/i.test(String(item.label || item.model)) && item.model && item.base_url)
+        || setProvider("gemini");
+    } else if (value === "openrouter") {
+      choosePreset(item => item.provider === "openrouter" && item.registry_id === "gemini-3.8-flash" && item.model && item.base_url)
+        || choosePreset(item => item.provider === "openrouter" && item.model && item.base_url)
+        || setProvider("openrouter");
+    } else {
+      const details = $("api-advanced-settings");
+      if (details) details.open = true;
+    }
+    sync();
+    setTimeout(() => $("api-key")?.focus(), 0);
+  };
+  const guideReady = () => Boolean(window.BAOStoryStartReadiness?.snapshot?.()?.canStart);
+  const guideAvatar = () => window.BAOCharacter?.markup
+    ? window.BAOCharacter.markup("bun", "bao-guide-avatar bao-character-follow")
+    : '<span class="bao-guide-fallback" aria-hidden="true">🏮</span>';
+  const guideActions = items => items.filter(Boolean).join("");
+  const renderGuide = () => {
+    const root = $("bao-guided-setup");
+    const reopen = $("bao-guide-reopen");
+    if (!root || !reopen) return;
+    const dismissed = guideDismissed();
+    root.hidden = dismissed;
+    reopen.hidden = !dismissed;
+    if (dismissed) return;
+
+    const copy = root.querySelector("[data-bao-guide-copy]");
+    const actions = root.querySelector("[data-bao-guide-actions]");
+    const eyebrow = root.querySelector("[data-bao-guide-eyebrow]");
+    const setup = view.dataset.baoSetup || "quick";
+    const stepNumber = activeBuilderStep();
+    root.dataset.step = String(stepNumber);
+
+    if (setup !== "quick" && stepNumber !== 4) {
+      const advanced = {
+        1: {
+          eyebrow: "包包帶路 · 1 / 5",
+          copy: "第一次玩可以先用「單角色沉浸」。它比較像一般角色聊天；之後想讓 NPC 與事件自己跑，再換世界模擬。",
+          actions: guideActions([
+            '<button type="button" class="primary" data-bao-guide="recommend-step">採用單角色沉浸</button>',
+            '<button type="button" class="secondary" data-bao-guide="dismiss">我自己選</button>'
+          ])
+        },
+        2: {
+          eyebrow: "包包帶路 · 2 / 5",
+          copy: "顯示方式不會改變角色設定。先用純文本最簡單；想看人物、狀態與事件面板再選互動 UI。",
+          actions: guideActions([
+            '<button type="button" class="primary" data-bao-guide="recommend-step">採用純文本</button>',
+            '<button type="button" class="secondary" data-bao-guide="dismiss">我自己選</button>'
+          ])
+        },
+        3: {
+          eyebrow: "包包帶路 · 3 / 5",
+          copy: "玩家資料不用一次填完。名稱最重要，其他像身分、個性、初始關係都可以先留白，進故事後再調整。",
+          actions: guideActions([
+            '<button type="button" class="primary" data-bao-guide="focus-name">先填名字</button>',
+            '<button type="button" class="secondary" data-bao-guide="next-step">先跳過其他欄位</button>'
+          ])
+        },
+        5: {
+          eyebrow: "包包帶路 · 5 / 5",
+          copy: "記憶先選「平衡」就好。Token、整理輪數和快取都是進階項目，不需要現在理解。",
+          actions: guideActions([
+            '<button type="button" class="primary" data-bao-guide="recommend-step">使用平衡設定</button>',
+            '<button type="button" class="secondary" data-bao-guide="dismiss">我自己調整</button>'
+          ])
+        }
+      }[stepNumber];
+      if (advanced) {
+        eyebrow.textContent = advanced.eyebrow;
+        copy.textContent = advanced.copy;
+        actions.innerHTML = advanced.actions;
+        return;
+      }
+    }
+
+    eyebrow.textContent = setup === "quick" ? "包包帶路 · 模型連線" : "包包帶路 · 4 / 5";
+    const readyAction = setup === "quick"
+      ? '<button type="button" class="primary" data-bao-guide="start-story">設定好了，進入故事</button>'
+      : '<button type="button" class="primary" data-bao-guide="next-step">繼續記憶設定</button>';
+    const currentRoute = route();
+    const hasKey = Boolean(String($("api-key")?.value || "").trim());
+    const currentProvider = provider()?.value || "";
+    const currentProviderLabel = provider()?.selectedOptions?.[0]?.textContent?.trim() || "目前服務";
+
+    if (!guideSession.connectionChoice && (hasKey || currentProvider === "lmstudio") && currentRoute === "byok") {
+      guideSession.connectionChoice = "byok";
+      guideSession.providerChoice = currentProvider;
+    }
+    if (currentProvider === "lmstudio" && guideSession.providerChoice === "lmstudio") {
+      copy.textContent = "本機模型不必先申請雲端 API Key。先啟動 LM Studio Server，再用下方既有工具讀取或填寫本機模型。";
+      actions.innerHTML = guideActions([
+        guideReady() ? readyAction : '<button type="button" class="primary" data-bao-guide="check-ready">檢查本機設定</button>',
+        '<button type="button" class="secondary" data-bao-guide="change-provider">改用其他服務</button>'
+      ]);
+      return;
+    }
+    if (!guideSession.connectionChoice) {
+      copy.textContent = "不用先懂 API。你想用夜灣燈火，還是自己的模型連線？我會帶你完成接下來的設定。";
+      actions.innerHTML = guideActions([
+        hostedAvailable() ? '<button type="button" class="primary" data-bao-guide="route-hosted"><b>我只想儲值就玩</b><span>最像一般聊天平台 · 使用夜灣燈火</span></button>' : "",
+        '<button type="button" class="secondary" data-bao-guide="route-byok"><b>我有 API Key</b><span>使用自己的 Gemini、OpenRouter 等服務</span></button>',
+        '<button type="button" class="secondary" data-bao-guide="learn-api">我還沒有 Key／不懂 API</button>',
+        '<button type="button" class="ghost" data-bao-guide="dismiss">我知道怎麼設定</button>'
+      ]);
+      return;
+    }
+
+    if (guideSession.connectionChoice === "hosted" || currentRoute === "hosted") {
+      if (accountSession()) {
+        copy.textContent = "這條就是最接近「儲值後直接聊」的方式：你已登入夜灣帳號，不需要 API Key。選好可用模型後就能繼續；實際可用額度以帳號為準。";
+        actions.innerHTML = guideActions([
+          guideReady()
+            ? readyAction
+            : '<button type="button" class="primary" data-bao-guide="check-ready">檢查還缺什麼</button>',
+          '<button type="button" class="secondary" data-bao-guide="route-byok">改用自己的 API</button>'
+        ]);
+      } else {
+        copy.textContent = "這條最像一般儲值平台：先登入夜灣帳號，再使用燈火生成；不用申請或貼 API Key。";
+        actions.innerHTML = guideActions([
+          '<a class="primary" href="account.html">登入／查看我的燈火 →</a>',
+          '<button type="button" class="secondary" data-bao-guide="route-byok">我其實有 API Key</button>'
+        ]);
+      }
+      return;
+    }
+
+    if (guideSession.connectionChoice === "byok" && !guideSession.providerChoice) {
+      copy.textContent = "選擇這把 Key 所屬的服務。Google Gemini 是官方直連；OpenRouter 則是可連接多家模型的平台。";
+      actions.innerHTML = guideActions([
+        '<button type="button" class="primary" data-bao-guide="provider-gemini"><b>Google Gemini</b><span>Google 官方 API</span></button>',
+        [...(provider()?.options || [])].some(option => option.value === "openrouter")
+          ? '<button type="button" class="secondary" data-bao-guide="provider-openrouter"><b>OpenRouter</b><span>一把 Key 可切多種模型</span></button>' : "",
+        '<button type="button" class="ghost" data-bao-guide="provider-other">其他服務／中轉</button>'
+      ]);
+      return;
+    }
+
+    if (guideSession.connectionChoice === "byok" && guideSession.providerChoice === "manual") {
+      copy.textContent = "請從下方「模型服務」選擇這把 API Key 的來源。只有自訂中轉才需要打開進階連線設定；官方服務先不用碰 Model ID 或網址。";
+      actions.innerHTML = guideActions([
+        '<button type="button" class="primary" data-bao-guide="manual-provider-ready">我選好了，貼 Key</button>',
+        '<button type="button" class="secondary" data-bao-guide="change-provider">返回推薦選項</button>'
+      ]);
+      return;
+    }
+
+    if (guideSession.connectionChoice === "byok" && !hasKey) {
+      copy.textContent = "我已經切到「" + currentProviderLabel + "」。現在只要把這家服務給你的 API Key 貼進金鑰欄；Model ID 和網址先不用碰。";
+      actions.innerHTML = guideActions([
+        '<button type="button" class="primary" data-bao-guide="focus-key">貼上 API Key</button>',
+        '<button type="button" class="secondary" data-bao-guide="change-provider">我選錯服務了</button>'
+      ]);
+      return;
+    }
+
+    if (guideSession.connectionChoice === "byok" && hasKey) {
+      copy.textContent = "金鑰已經貼好了，尚未測試連線。現在使用「" + currentProviderLabel + "」；模型先用目前選擇即可，之後隨時能換。";
+      actions.innerHTML = guideActions([
+        guideReady()
+          ? readyAction
+          : '<button type="button" class="primary" data-bao-guide="check-ready">檢查還缺什麼</button>',
+        '<button type="button" class="secondary" data-bao-guide="focus-model">我想換模型</button>'
+      ]);
+      return;
+    }
+
+    copy.textContent = currentProvider === "custom"
+      ? "你現在使用自訂連線。這裡會保留完整 Provider、Protocol、Base URL 與 Model ID；包包不會替你改進階值。"
+      : "目前設定可以直接沿用。需要時我可以再幫你找到金鑰或模型欄位。";
+    actions.innerHTML = '<button type="button" class="secondary" data-bao-guide="dismiss">收起包包帶路</button>';
+  };
+
+  const ensureGuide = () => {
+    if ($("bao-guided-setup")) return;
+    const panel = view.querySelector(".builder-panel");
+    if (!panel) return;
+    const root = document.createElement("section");
+    root.id = "bao-guided-setup";
+    root.className = "bao-guided-setup";
+    root.setAttribute("aria-label", "包包新手引導");
+    root.tabIndex = -1;
+    root.innerHTML = [
+      '<div class="bao-guided-setup-avatar">', guideAvatar(), '</div>',
+      '<div class="bao-guided-setup-main">',
+        '<div class="bao-guided-setup-head"><div><span data-bao-guide-eyebrow>包包帶路</span><strong>第一次來也沒關係，我陪你設定。</strong></div>',
+        '<button type="button" class="bao-guide-close" data-bao-guide="dismiss" aria-label="收起包包帶路">×</button></div>',
+        '<p data-bao-guide-copy></p>',
+        '<div class="bao-guided-setup-actions" data-bao-guide-actions></div>',
+      '</div>'
+    ].join("");
+    const reopen = document.createElement("button");
+    reopen.type = "button";
+    reopen.id = "bao-guide-reopen";
+    reopen.className = "bao-guide-reopen";
+    reopen.hidden = true;
+    reopen.textContent = "🏮 讓包包帶我設定";
+    panel.prepend(reopen);
+    panel.insertBefore(root, reopen.nextSibling);
+
+    root.addEventListener("click", event => {
+      const action = event.target.closest("[data-bao-guide]")?.dataset.baoGuide;
+      if (!action) return;
+      if (action === "dismiss") {
+        setGuideDismissed(true);
+        renderGuide();
+      } else if (action === "learn-api") {
+        window.BAOMascot?.openGuide?.("api");
+      } else if (action === "route-hosted") {
+        guideSession.connectionChoice = "hosted";
+        guideSession.providerChoice = "";
+        selectRoute("hosted");
+        renderGuide();
+      } else if (action === "route-byok") {
+        guideSession.connectionChoice = "byok";
+        guideSession.providerChoice = "";
+        selectRoute("byok");
+        renderGuide();
+      } else if (action === "provider-gemini") {
+        chooseFriendlyProvider("gemini");
+        renderGuide();
+      } else if (action === "provider-openrouter") {
+        chooseFriendlyProvider("openrouter");
+        renderGuide();
+      } else if (action === "provider-other") {
+        guideSession.connectionChoice = "byok";
+        guideSession.providerChoice = "manual";
+        selectRoute("byok");
+        provider()?.focus();
+        provider()?.scrollIntoView({ block: "center", behavior: "smooth" });
+        renderGuide();
+      } else if (action === "manual-provider-ready") {
+        guideSession.providerChoice = provider()?.value || "manual";
+        if (provider()?.value === "custom") {
+          const details = $("api-advanced-settings");
+          if (details) details.open = true;
+        }
+        setTimeout(() => $("api-key")?.focus(), 0);
+        renderGuide();
+      } else if (action === "change-provider") {
+        guideSession.providerChoice = "";
+        renderGuide();
+      } else if (action === "focus-key") {
+        $("api-key")?.focus();
+        $("api-key")?.scrollIntoView({ block: "center", behavior: "smooth" });
+      } else if (action === "focus-model") {
+        model()?.focus();
+        model()?.scrollIntoView({ block: "center", behavior: "smooth" });
+      } else if (action === "check-ready") {
+        window.BAOStoryStartReadiness?.sync?.();
+        $("bao-start-readiness")?.scrollIntoView({ block: "center", behavior: "smooth" });
+        renderGuide();
+      } else if (action === "start-story") {
+        $("start-story")?.click();
+      } else if (action === "focus-name") {
+        $("persona-name")?.focus();
+        $("persona-name")?.scrollIntoView({ block: "center", behavior: "smooth" });
+      } else if (action === "next-step") {
+        App.nextStep?.();
+        renderGuide();
+      } else if (action === "recommend-step") {
+        const current = activeBuilderStep();
+        if (current === 1) { chooseRadio("narrative-mode", "immersive"); App.nextStep?.(); }
+        else if (current === 2) { chooseRadio("display-mode", "text"); App.nextStep?.(); }
+        else if (current === 5) {
+          chooseRadio("memory-strength", "balanced");
+          $("start-story")?.scrollIntoView({ block: "center", behavior: "smooth" });
+        }
+        renderGuide();
+      }
+    });
+    reopen.addEventListener("click", () => {
+      setGuideDismissed(false);
+      guideSession.connectionChoice = "";
+      guideSession.providerChoice = "";
+      renderGuide();
+    });
+    ["input", "change"].forEach(type => {
+      $("api-key")?.addEventListener(type, renderGuide);
+      provider()?.addEventListener(type, () => {
+        if (guideSession.connectionChoice) {
+          guideSession.connectionChoice = route() === "hosted" ? "hosted" : "byok";
+          if (provider()?.value === "lmstudio" || (guideSession.providerChoice && guideSession.providerChoice !== "manual")) guideSession.providerChoice = provider()?.value || "";
+        }
+        renderGuide();
+      });
+      model()?.addEventListener(type, renderGuide);
+    });
+    document.querySelectorAll(".builder-step").forEach(node =>
+      new MutationObserver(renderGuide).observe(node, { attributes: true, attributeFilter: ["class"] })
+    );
+    if (provider()) new MutationObserver(renderGuide).observe(provider(), { childList: true });
+    window.addEventListener("bao:start-readiness", renderGuide);
+    new MutationObserver(renderGuide).observe(view, {
+      attributes: true,
+      attributeFilter: ["class", "data-bao-setup", "data-bao-connection", "data-bao-provider"]
+    });
+    renderGuide();
   };
 
   const ensure = () => {
@@ -189,6 +541,7 @@
 
   const init = () => {
     ensure();
+    ensureGuide();
     provider()?.addEventListener("change", sync);
     model()?.addEventListener("change", sync);
     if (provider()) new MutationObserver(sync).observe(provider(), { childList: true });
@@ -197,6 +550,7 @@
     window.addEventListener("storage", event => { if (event.key === "yorubay:session") sync(); });
   };
 
-  window.BAOPlayerBuilderV2 = Object.freeze({ sync, selectRoute });
+  window.BAOGuidedOnboarding = Object.freeze({ render: renderGuide, reopen: () => { setGuideDismissed(false); renderGuide(); } });
+  window.BAOPlayerBuilderV2 = Object.freeze({ sync, selectRoute, renderGuide });
   init();
 })();

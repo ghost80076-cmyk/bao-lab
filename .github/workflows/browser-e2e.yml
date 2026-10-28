@@ -141,10 +141,13 @@ jobs:
           cache: npm
       - name: Install test dependencies
         run: npm ci
+      - name: Verify Bao guide state transitions
+        run: node --test tests/bao-guide.cjs
       - name: Verify quick-start onboarding
         run: >-
           npm run test:e2e --
           tests/e2e/quick-start.spec.cjs
+          tests/e2e/bao-guide.spec.cjs
           tests/e2e/account-author-identity.spec.cjs
           tests/e2e/keyboard-main-entry.spec.cjs
           tests/e2e/first-run-readability.spec.cjs

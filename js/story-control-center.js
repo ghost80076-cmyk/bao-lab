@@ -85,6 +85,7 @@
   };
 
   const ACTIONS = {
+    guide() { window.BAOMascot?.openGuide?.(); },
     token() {
       if (window.BAOChatExperienceRepairs?.openSettings) {
         window.BAOChatExperienceRepairs.openSettings();
@@ -163,6 +164,7 @@
           </div>
         </details>
         <footer class="story-control-footer">
+          <button type="button" class="secondary" data-story-control-action="guide">包包帶路與使用協助</button>
           <button type="button" class="secondary" data-story-control-action="history">◇ 故事歷程與收藏</button>
           <button type="button" class="secondary" data-story-control-action="search">⌕ 搜尋這個故事</button>
 

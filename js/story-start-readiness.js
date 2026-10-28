@@ -192,6 +192,7 @@
         startButton.setAttribute("data-bao-ready", state.canStart ? "true" : "false");
         startButton.title = state.canStart ? state.start.label : `還不能開始：${state.start.detail}`;
       }
+      window.dispatchEvent(new CustomEvent("bao:start-readiness"));
       return state;
     } finally {
       syncing = false;

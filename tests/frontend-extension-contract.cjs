@@ -84,10 +84,10 @@ increasing(siteUI, [
 
 // Builder progressive disclosure must be active before readiness decorates the same surface.
 increasing(siteUI, [
-  'loadBAOScript("js/player-builder-v2.js?v=6")',
+  'loadBAOScript("js/player-builder-v2.js?v=8")',
   'loadBAOScript("js/quick-start-mode.js?v=3")',
   'loadBAOScript("js/story-start-readiness-core.js")',
-  'loadBAOScript("js/story-start-readiness.js")'
+  'loadBAOScript("js/story-start-readiness.js?v=2")'
 ], "builder progressive disclosure");
 
 assert.match(quickStartMode, /window\.BAOQuickSetup/);
