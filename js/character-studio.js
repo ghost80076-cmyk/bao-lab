@@ -287,7 +287,7 @@
       toggle.textContent = showArchived ? '返回草稿' : `查看封存 (${archivedCount})`;
     }
     list.replaceChildren();
-    if (!visible.length) { const p = document.createElement('p'); p.className = 'note'; p.textContent = showArchived ? '封存區目前是空的。' : '尚無草稿。按「新建角色卡」開始。'; list.append(p); }
+    if (!visible.length) { const p = document.createElement('p'); p.className = 'note'; p.textContent = showArchived ? '封存區目前是空的。' : '尚無已儲存草稿。從「角色作品」或「世界作品」開始，也可以匯入作品。'; list.append(p); }
     for (const item of visible) {
       const archived = Boolean(item.archivedAt);
       const row = document.createElement('div'); row.className = 'studio-draft-row' + (archived ? ' archived' : '');
@@ -439,6 +439,9 @@
       finally { button.disabled = false; }
     });
   }
+  const invalidatePreview = () => $('studio-preview').classList.add('hidden');
+  form.addEventListener('input', invalidatePreview);
+  form.addEventListener('change', invalidatePreview);
   form.addEventListener('input', event => { if (event.target.closest?.('#studio-npc-personality')) return; if (!loading) { dirty = true; status('尚未儲存修改'); } });
   form.addEventListener('change', event => { if (event.target.closest?.('#studio-npc-personality')) return; if (!loading) { dirty = true; status('尚未儲存修改'); } });
   form.addEventListener('submit', event => event.preventDefault());

@@ -179,3 +179,14 @@
 
   .studio-actions[data-creation-routes="1"] [data-creation-route]{min-height:40px;padding-inline:6px;font-size:11px}
 }
+
+/* Keep the focused workflow usable on touch screens and short viewports. */
+@media(max-width:530px){
+  .studio-flow-mode,.studio-flow-step,
+  .studio-actions[data-creation-routes="1"] [data-creation-route],
+  .studio-editor.studio-editing .studio-edit-done{min-height:44px}
+  .studio-flow-panel .studio-button-row button{min-height:44px}
+}
+@media(max-height:600px){
+  .studio-flow-shell,.studio-flow-controls{position:static}
+}
