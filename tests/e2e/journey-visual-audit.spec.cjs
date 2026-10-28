@@ -4,6 +4,15 @@ test.describe.configure({mode:'parallel'});
 const dir = 'test-results/journey-audit';
 async function capture(page, label) {
   fs.mkdirSync(dir, { recursive:true });
+  // Let native smooth scrolling finish so screenshots represent settled screens.
+  await page.evaluate(async()=>{
+    let previous='',stable=0;
+    for(let frame=0;frame<90 && stable<4;frame++){
+      await new Promise(requestAnimationFrame);
+      const next=[scrollX,scrollY,...[...document.querySelectorAll('*')].filter(n=>n.scrollTop||n.scrollLeft).flatMap(n=>[n.scrollTop,n.scrollLeft])].join(',');
+      stable=next===previous?stable+1:0;previous=next;
+    }
+  });
   await page.screenshot({path:`${dir}/${label}.png`,animations:'disabled'});
   if(label.includes('-40-')) await page.screenshot({path:`${dir}/${label}-full.png`,fullPage:true,animations:'disabled'});
   const geometry = await page.evaluate(() => ({
@@ -15,6 +24,7 @@ async function capture(page, label) {
     }).filter(n=>n.y>=0&&n.y<innerHeight)
   }));
   fs.writeFileSync(`${dir}/${label}.json`,JSON.stringify(geometry,null,2));
+  expect(geometry.scrollWidth, label+' horizontal overflow').toBeLessThanOrEqual(geometry.viewport.width+1);
 }
 async function ready(page) {
   await page.goto('/');
@@ -38,6 +48,8 @@ for(const width of [390,1440]) {
   test.setTimeout(90000);
   await page.setViewportSize({width,height:900});await ready(page);
   await capture(page,`${width}-01-home`);
+  await page.evaluate(()=>App.showView('me'));await capture(page,`${width}-01-my-hub`);
+  await page.evaluate(()=>App.showView('home'));
   await page.evaluate(()=>BAOStoryTools.openLibrary());
   await expect(page.locator('.story-library-empty').first()).toBeVisible();
   await capture(page,`${width}-02-empty-library`);
@@ -72,6 +84,7 @@ for(const width of [390,1440]) {
   await page.evaluate(()=>BAOMemoryWorkbench.open());
   await capture(page,`${width}-13-memory`);
   await page.keyboard.press('Escape');
+  await expect(page.locator('.memory-desk-backdrop')).toHaveCount(0);
   expect(await page.evaluate(()=>JSON.stringify({state:GameState.current,messages:Chat.messages,config:App.config}))).toBe(before);
   await page.evaluate(()=>BAOPhoneUI.open());
   await expect(page.locator('.bao-phone-overlay')).toBeVisible();

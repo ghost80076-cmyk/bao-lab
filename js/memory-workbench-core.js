@@ -5,6 +5,8 @@
   const attr = v => App.escapeAttr(String(v ?? ""));
   const blank = () => [{ id: "memory-1", title: "記憶 1", text: "", enabled: true }];
   let saveTimer = null;
+  let returnFocus = null;
+  const backgroundInert = new Map();
   const ensureStyles = () => {
     if (document.querySelector('link[href^="css/memory-workbench.css"]')) return;
     const link = document.createElement("link");
@@ -39,6 +41,10 @@
   };
   const close = () => {
     document.querySelector(".memory-desk-backdrop")?.remove();
+    backgroundInert.forEach((value,node) => { node.inert = value; });
+    backgroundInert.clear();
+    const target = returnFocus; returnFocus = null;
+    if (target?.isConnected && !target.closest('[inert]')) target.focus({preventScroll:true});
     if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; App.saveStory?.(false); }
   };
   const memoryStateLabel = diag => {
@@ -107,9 +113,26 @@
   };
   const open = () => {
     close(); ensureStyles();
+    returnFocus = document.activeElement;
     const wrap=document.createElement("div"); wrap.className="memory-desk-backdrop";
     wrap.innerHTML=`<section class="memory-desk"><header class="memory-desk-head"><div class="memory-desk-kicker">MEMORY DESK · YORUBAY</div><h2>記憶工作台</h2><p>把「近期脈絡」「長期筆記」「AI 整理」「正式劇情資料庫（Canon）」拆開管理。</p></div><button type="button" class="memory-desk-close">關閉</button></header><div class="memory-desk-stats"><div class="memory-desk-stat"><span>對話輪數</span><b data-stat="rounds">—</b></div><div class="memory-desk-stat"><span>自動記憶</span><b data-stat="auto">—</b></div><div class="memory-desk-stat"><span>摘要已覆蓋</span><b data-stat="covered">—</b></div><div class="memory-desk-stat"><span>待整理</span><b data-stat="pending">—</b></div><div class="memory-desk-stat"><span>固定筆記</span><b data-stat="notes">—</b></div><div class="memory-desk-stat"><span>整理模型</span><b data-stat="api">—</b></div></div><div class="memory-desk-main"><nav class="memory-desk-nav"><button class="memory-desk-tab active" data-tab="context"><b>記憶總覽</b><span>狀態、摘要與近期預覽</span></button><button class="memory-desk-tab" data-tab="notes"><b>長期筆記</b><span>管理本故事固定記憶</span></button><button class="memory-desk-tab" data-tab="refine"><b>AI 整理</b><span>指定模型整理</span></button><button class="memory-desk-tab" data-tab="canon"><b>正式劇情資料庫（Canon）</b><span>重建與校驗劇情</span></button></nav><div class="memory-desk-content"></div></div></section>`;
+    const dialog = wrap.querySelector('.memory-desk');
+    dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');dialog.setAttribute('aria-label','記憶工作台');
     document.body.appendChild(wrap); render(wrap);
+    for (const node of document.body.children) {
+      if (node === wrap) continue;
+      backgroundInert.set(node,node.inert);node.inert = true;
+    }
+    wrap.addEventListener('keydown',event=>{
+      if (event.key === 'Escape') { event.preventDefault();event.stopPropagation();close();return; }
+      if (event.key !== 'Tab') return;
+      const items=[...wrap.querySelectorAll('button,input,textarea,select,a[href],summary,[tabindex]')]
+        .filter(node=>!node.disabled && node.tabIndex>=0 && node.getClientRects().length);
+      const first=items[0],last=items[items.length-1];if(!first)return;
+      if(event.shiftKey && (document.activeElement===first || !wrap.contains(document.activeElement))){event.preventDefault();last.focus();}
+      else if(!event.shiftKey && (document.activeElement===last || !wrap.contains(document.activeElement))){event.preventDefault();first.focus();}
+    });
+    wrap.querySelector('.memory-desk-close').focus({preventScroll:true});
     wrap.querySelector(".memory-desk-close").onclick=close;
     wrap.addEventListener("click",e=>{if(e.target===wrap)close();});
     wrap.querySelectorAll(".memory-desk-tab").forEach(btn=>btn.addEventListener("click",()=>switchPane(wrap,btn.dataset.tab)));

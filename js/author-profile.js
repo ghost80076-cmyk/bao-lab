@@ -127,7 +127,7 @@
             <div class="eyebrow">DIRECTORY</div>
             <h2>所有作者</h2>
           </div>
-          <a class="text-button" href="./">探索作品</a>
+          <a class="text-button" href="./">返回首頁</a>
         </div>
         <div class="author-directory-grid">
           ${authors.length ? authors.map(author => authorCard(author, complete)).join("") : '<p class="note">目前還沒有公開作者。</p>'}
