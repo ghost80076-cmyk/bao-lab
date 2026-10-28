@@ -52,11 +52,34 @@
     const selected=new Set(safeArray(data.apps).filter(item=>core.allowedApps.includes(item))),actual=selected.size?selected:new Set(core.allowedApps);
     qa('[data-phone-app]').forEach(input=>{input.checked=actual.has(input.value);});
   }
+  const selectedThreadContacts=data=>{
+    const ids=new Set(qa('[data-phone-thread-participant]:checked').map(input=>input.value));
+    return safeArray(data.contacts).filter(contact=>ids.has(contact.id));
+  };
+  function syncThreadSender(data){
+    const sender=q('[data-phone-thread-sender]');if(!sender)return;
+    const previous=sender.value,selected=selectedThreadContacts(data);
+    sender.replaceChildren();
+    if(!selected.length){sender.append(option('','請先選聊天成員'));sender.disabled=true;return;}
+    sender.disabled=false;
+    sender.append(option('me','手機主人'+(data.userName?' · '+data.userName:'')));
+    selected.forEach(contact=>sender.append(option(contact.id,contact.name||contact.id)));
+    sender.value=selected.some(contact=>contact.id===previous)||previous==='me'?previous:selected[0].id;
+  }
   function renderContacts(data){
-    const list=q('[data-phone-contact-list]'),select=q('[data-phone-thread-contact]');if(!list||!select)return;
-    list.replaceChildren();select.replaceChildren(option('',safeArray(data.contacts).length?'選擇聯絡人':'請先建立聯絡人'));
-    safeArray(data.contacts).forEach(contact=>{
-      select.append(option(contact.id,contact.name||contact.id));
+    const list=q('[data-phone-contact-list]'),participants=q('[data-phone-thread-participants]');if(!list||!participants)return;
+    const selectedBefore=new Set(qa('[data-phone-thread-participant]:checked').map(input=>input.value));
+    list.replaceChildren();participants.replaceChildren();
+    const contacts=safeArray(data.contacts);
+    if(!contacts.length){
+      const empty=document.createElement('p');empty.className='note';empty.textContent='請先建立聯絡人。';participants.append(empty);syncThreadSender(data);return;
+    }
+    contacts.forEach(contact=>{
+      const label=document.createElement('label'),input=document.createElement('input'),name=document.createElement('span');
+      label.className='studio-phone-participant';
+      input.type='checkbox';input.value=contact.id;input.dataset.phoneThreadParticipant='1';input.checked=selectedBefore.has(contact.id);
+      name.textContent=contact.name||contact.id;label.append(input,name);participants.append(label);
+      input.addEventListener('change',()=>syncThreadSender(data));
       list.append(listItem(contact.name||'未命名聯絡人',contact.avatar?'已設定頭像':'無頭像',()=>{
         const next=parse();if(!next)return;
         next.contacts=safeArray(next.contacts).filter(item=>item.id!==contact.id);
@@ -66,6 +89,7 @@
         write(next,'已移除聯絡人「'+(contact.name||contact.id)+'」，相關聊天室與機關也一併移除。');
       }));
     });
+    syncThreadSender(data);
   }
   function cleanupTarget(next,target){
     if(next.interactions?.version!==1)return;
@@ -74,9 +98,15 @@
   }
   function renderThreads(data){
     const list=q('[data-phone-thread-list]');if(!list)return;list.replaceChildren();
-    safeArray(data.threads).forEach(thread=>list.append(listItem(thread.name||thread.id,safeArray(thread.messages).length+' 則初始訊息',()=>{
-      const next=parse();if(!next)return;next.threads=safeArray(next.threads).filter(item=>item.id!==thread.id);cleanupTarget(next,{app:'kakao',id:thread.id});write(next,'已移除聊天室「'+(thread.name||thread.id)+'」。');
-    })));
+    const contacts=new Map(safeArray(data.contacts).map(contact=>[contact.id,contact.name||contact.id]));
+    safeArray(data.threads).forEach(thread=>{
+      const members=safeArray(thread.participants).map(id=>contacts.get(id)||id).filter(Boolean);
+      const kind=members.length>1?'群組':'私聊';
+      const detail=kind+' · '+(members.join('、')||'無成員')+' · '+safeArray(thread.messages).length+' 則初始訊息';
+      list.append(listItem(thread.name||thread.id,detail,()=>{
+        const next=parse();if(!next)return;next.threads=safeArray(next.threads).filter(item=>item.id!==thread.id);cleanupTarget(next,{app:'kakao',id:thread.id});write(next,'已移除聊天室「'+(thread.name||thread.id)+'」。');
+      }));
+    });
   }
   function renderNotes(data){
     const list=q('[data-phone-note-list]');if(!list)return;list.replaceChildren();
@@ -140,11 +170,33 @@
     q('[data-phone-contact-name]').value='';q('[data-phone-contact-avatar]').value='';write(data,'已加入聯絡人「'+name+'」。');
   });
   q('[data-phone-add-thread]')?.addEventListener('click',()=>{
-    const data=parse();if(!data)return;const contactId=q('[data-phone-thread-contact]').value,contact=safeArray(data.contacts).find(item=>item.id===contactId);
-    if(!contact)return setStatus('請先建立並選擇一位聯絡人。','warn');
-    data.threads=safeArray(data.threads);const name=q('[data-phone-thread-name]').value.trim()||contact.name||'聊天室',message=q('[data-phone-thread-message]').value.trim(),from=q('[data-phone-thread-from]').value==='me'?'me':'them';
-    data.threads.push({id:nextId('thread',name,data.threads),name,participants:[contact.id],messages:message?[{from,senderId:from==='them'?contact.id:'',senderName:from==='them'?contact.name:String(data.userName||''),text:message}]:[]});ensureApp(data,'kakao');
-    q('[data-phone-thread-name]').value='';q('[data-phone-thread-message]').value='';write(data,'已建立聊天室「'+name+'」。');
+    const data=parse();if(!data)return;
+    const contacts=selectedThreadContacts(data);
+    if(!contacts.length)return setStatus('請至少勾選一位聊天成員。','warn');
+    data.threads=safeArray(data.threads);
+    const typedName=q('[data-phone-thread-name]').value.trim();
+    const autoName=contacts.length===1
+      ? (contacts[0].name||'聊天室')
+      : contacts.slice(0,3).map(contact=>contact.name||contact.id).join('、')+(contacts.length>3?' 等'+contacts.length+'人':'');
+    const name=typedName||autoName||'群組聊天室';
+    const message=q('[data-phone-thread-message]').value.trim();
+    const senderValue=q('[data-phone-thread-sender]').value;
+    const sender=contacts.find(contact=>contact.id===senderValue);
+    if(message&&!sender&&senderValue!=='me')return setStatus('請選擇第一則訊息的發話者。','warn');
+    const messageEntry=message?[senderValue==='me'
+      ? {from:'me',senderId:'',senderName:String(data.userName||''),text:message}
+      : {from:'them',senderId:sender.id,senderName:sender.name||sender.id,text:message}]:[];
+    data.threads.push({
+      id:nextId('thread',name,data.threads),
+      name,
+      participants:contacts.map(contact=>contact.id),
+      messages:messageEntry
+    });
+    ensureApp(data,'kakao');
+    q('[data-phone-thread-name]').value='';q('[data-phone-thread-message]').value='';
+    qa('[data-phone-thread-participant]').forEach(input=>{input.checked=false;});
+    syncThreadSender(data);
+    write(data,(contacts.length>1?'已建立群組「':'已建立私聊「')+name+'」。');
   });
   q('[data-phone-add-note]')?.addEventListener('click',()=>{
     const data=parse();if(!data)return;const title=q('[data-phone-note-title]').value.trim(),body=q('[data-phone-note-text]').value.trim();if(!title&&!body)return setStatus('備忘錄至少填標題或內容。','warn');

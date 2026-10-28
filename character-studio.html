@@ -62,10 +62,14 @@
 
 <section class="studio-phone-card" aria-labelledby="phone-threads-title">
 <div class="studio-phone-card-head"><div><span>02</span><h4 id="phone-threads-title">聊天室</h4></div><small>先建立聯絡人</small></div>
-<label>聊天對象<select data-phone-thread-contact><option value="">請先選聯絡人</option></select></label>
-<label>聊天室名稱<input data-phone-thread-name maxlength="80" placeholder="留白就使用聯絡人姓名"></label>
+<fieldset class="studio-phone-participants">
+<legend>聊天成員</legend>
+<div data-phone-thread-participants><p class="note">請先建立聯絡人。</p></div>
+<small>勾 1 位建立私聊；勾 2 位以上就是群組聊天室。</small>
+</fieldset>
+<label>聊天室名稱<input data-phone-thread-name maxlength="80" placeholder="選填；留白會依成員自動命名"></label>
 <label>第一則訊息<textarea data-phone-thread-message rows="3" maxlength="1600" placeholder="例：晚點見。"></textarea></label>
-<label>這則訊息是誰說的？<select data-phone-thread-from><option value="them">對方</option><option value="me">手機主人</option></select></label>
+<label>第一則訊息由誰說？<select data-phone-thread-sender><option value="">請先選聊天成員</option></select></label>
 <button type="button" class="secondary" data-phone-add-thread>＋ 建立聊天室</button>
 <ul class="studio-phone-list" data-phone-thread-list></ul>
 </section>
@@ -221,7 +225,7 @@
 <script src="js/character-studio-lifecycle-core.js"></script>
 <script src="js/character-studio-actions-core.js"></script>
 <script src="js/character-studio.js?v=6"></script>
-<script src="js/character-studio-phone-builder.js?v=1"></script>
+<script src="js/character-studio-phone-builder.js?v=2"></script>
 <script src="js/character-studio-flow.js?v=4"></script>
 <script src="js/npc-personality-helper-core.js?v=1"></script>
 <script src="js/npc-personality-helper.js?v=1"></script>
