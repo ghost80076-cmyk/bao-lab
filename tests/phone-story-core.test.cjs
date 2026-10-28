@@ -92,7 +92,7 @@ test('thread updates keep recipients and authorship separate, upsert documents a
 
 test('only accepted incoming updates create bounded notifications with stable targets', () => {
   const state={};
-  Core.apply(state,{chat:[{from:'me',text:'玩家的訊息'}],threads:[{id:'me-only',messages:[{from:'me',text:'我說的'}]}]},'outgoing');
+  Core.apply(state,{chat:[{from:'me',text:'玩家的訊息'}],threads:[{id:'me-only',messages:[{from:'me',text:'我說的'}]}],instagram:{messages:[{text:'既有視訊字幕'}]}},'outgoing');
   assert.deepEqual(Core.notifications(state.phoneUI),[]);
   const patch={threads:[{id:'group',messages:[{from:'them',text:'新訊息'}]}],notes:[{id:'memo',text:'下一步線索'}]};
   Core.apply(state,patch,'incoming');

@@ -72,7 +72,8 @@
     for (const thread of patch.threads || []) if (thread.messages.some(item=>item.from !== 'me')) add('kakao',thread.id,'聊天室有新訊息');
     if (patch.tweets?.length) add('x','','有新的貼文');
     if (patch.calls?.length) add('phone','','通話紀錄已更新');
-    if (patch.instagram?.messages?.some(item=>item.from !== 'me')) add('instagram','','收到新的 Instagram 訊息');
+    // Instagram currently presents scripted video overlays, not an inbox.
+    // Overlay captions must not imply a new incoming call or message.
     for (const item of patch.photos || []) add('photos',item.id,'收到新的照片');
     for (const item of patch.notes || []) add('notes',item.id,'筆記已更新');
     return items;
