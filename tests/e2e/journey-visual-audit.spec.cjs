@@ -1,9 +1,11 @@
 const { test, expect } = require('@playwright/test');
 const fs = require('node:fs');
+test.describe.configure({mode:'parallel'});
 const dir = 'test-results/journey-audit';
 async function capture(page, label) {
   fs.mkdirSync(dir, { recursive:true });
   await page.screenshot({path:`${dir}/${label}.png`,animations:'disabled'});
+  if(label.includes('-40-')) await page.screenshot({path:`${dir}/${label}-full.png`,fullPage:true,animations:'disabled'});
   const geometry = await page.evaluate(() => ({
     viewport:{width:innerWidth,height:innerHeight},scrollWidth:document.documentElement.scrollWidth,
     active:document.activeElement?.getAttribute('id'),
@@ -33,7 +35,7 @@ async function fixture(page,preset='reader') {
 }
 for(const width of [390,1440]) {
  test(`player journey visual inventory ${width}`,async({page})=>{
-  test.setTimeout(180000);
+  test.setTimeout(90000);
   await page.setViewportSize({width,height:900});await ready(page);
   await capture(page,`${width}-01-home`);
   await page.evaluate(()=>BAOStoryTools.openLibrary());
@@ -92,9 +94,15 @@ for(const width of [390,1440]) {
     await capture(page,`${width}-20-stage-${preset}`);
     await page.evaluate(()=>BAOStorySurface.closeStatus());
   }
+  await page.evaluate(async()=>{App.saveStory(false);await BAOStoryLibrary.flush();BAOStoryTools.openLibrary();});
+  await expect(page.locator('[data-story-library-card]').first()).toBeVisible();
+  await capture(page,`${width}-21-saved-library`);
+  await page.keyboard.press('Escape');
+  await page.evaluate(()=>App.showView('home'));
+  await capture(page,`${width}-22-resume-home`);
  });
  test(`author focused journey visual inventory ${width}`,async({page})=>{
-  test.setTimeout(120000);await page.setViewportSize({width,height:900});
+  test.setTimeout(60000);await page.setViewportSize({width,height:900});
   await page.goto('/character-studio.html');
   await page.waitForFunction(()=>window.BAOCharacterStudioFlow && window.BAOCharacterStudioLifecycle);
   await capture(page,`${width}-30-studio-entry`);
@@ -104,6 +112,7 @@ for(const width of [390,1440]) {
   }
   await page.locator('[data-flow-step="appearance"]').click();
   await page.locator('[name="phone_ui_enabled"]').check();
+  await page.locator('[name="phone_ui_enabled"]').blur();
   await capture(page,`${width}-32-studio-phone`);
   await page.setViewportSize({width,height:480});
   await page.locator('[data-flow-step="core"]').click();
