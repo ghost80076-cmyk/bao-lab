@@ -45,7 +45,7 @@
     }
     return combine(source);
   };
-  const noticesFor = (source, state) => (window.BAOPhoneStoryCore?.notifications(state?.phoneUI) || []).filter(item => {
+  const noticesFor = (source, state) => (window.BAOPhoneStoryCore?.notifications?.(state?.phoneUI) || []).filter(item => {
     if (!source?.apps.includes(item.app)) return false;
     if (!item.targetId) return true;
     const access=Puzzles?.access(source,state?.phoneInteractions,{app:item.app,id:item.targetId});
@@ -55,7 +55,7 @@
   function markNotices(predicate) {
     if (ownerState !== window.GameState?.current || ownerCharacter !== App.activeCharacter || App.__requestPending) return false;
     const before=ownerState.phoneUI;
-    const items=window.BAOPhoneStoryCore?.notifications(before) || [];
+    const items=window.BAOPhoneStoryCore?.notifications?.(before) || [];
     if (!items.some(item=>!item.read && predicate(item))) return true;
     ownerState.phoneUI={...before,notifications:items.map(item=>predicate(item)?{...item,read:true}:item)};
     try { if(App.saveStory(false)===false)throw new Error('save'); }

@@ -176,3 +176,14 @@ test('notifications respect hidden content and leave locked items unread until u
   await expect(page.locator('.bp-document')).toContainText('解鎖後的內容');
   expect(await page.evaluate(()=>GameState.current.phoneUI.notifications.find(n=>n.app==='notes').read)).toBe(true);
 });
+
+
+test('an older cached phone core still opens existing content without a notification helper',async({page})=>{
+  await ready(page);
+  await page.evaluate(()=>{window.BAOPhoneStoryCore={...BAOPhoneStoryCore,notifications:undefined};});
+  await page.locator('#bao-phone-launch').click();
+  await page.locator('.bp-home-handle').click();
+  await page.locator('.bp-apps .bp-icon-kakao').click();
+  await page.locator('.bp-friend').last().click();
+  await expect(page.locator('.bp-thread')).toContainText('開場原始訊息');
+});
