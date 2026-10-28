@@ -125,7 +125,8 @@ test('provider help keeps the intended route until a work is selected', () => {
   assert.equal(page.view(),'explore-view');
   assert.equal(page.connected(),'');
   page.app.activeCharacter={id:'selected'};
-  page.click('setup');
+  page.app.openBuilder();
+  page.api.applyPending();
   assert.equal(page.view(),'builder-view');
   assert.equal(page.connected(),'openrouter');
   assert.equal(page.saved.get('yorubay:bao-journey:v1'),'active');

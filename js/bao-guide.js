@@ -123,12 +123,21 @@
     controls.close();
     if (!active('builder-view')) window.App?.openBuilder?.();
     window.BAOGuidedOnboarding?.reopen?.();
-    if(pendingProvider && window.BAOGuidedOnboarding?.connect?.(pendingProvider)) pendingProvider='';
+    applyPending();
     $('bao-guided-setup')?.scrollIntoView({block:'center'});
     $('bao-guided-setup')?.focus();
   };
+  const applyPending = () => {
+    if(!pendingProvider || !active('builder-view')) return;
+    const provider=pendingProvider;
+    pendingProvider='';
+    if(!window.BAOGuidedOnboarding?.connect?.(provider)) pendingProvider=provider;
+  };
   const mount = (node, options) => {
     host = node; controls = options;
+    const builder=$('builder-view');
+    if(builder && typeof MutationObserver === 'function') new MutationObserver(applyPending).observe(builder,{attributes:true,attributeFilter:['class','data-bao-setup']});
+    window.addEventListener?.('bao:start-readiness',applyPending);
     host.addEventListener('click', event => {
       const action = event.target.closest('[data-bao-journey]')?.dataset.baoJourney;
       if (!action) return;
@@ -159,5 +168,5 @@
     });
     render();
   };
-  window.BAOGuide = Object.freeze({ mount, render, show });
+  window.BAOGuide = Object.freeze({ mount, render, show, applyPending });
 })();

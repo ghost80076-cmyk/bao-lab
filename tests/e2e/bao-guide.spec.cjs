@@ -99,3 +99,15 @@ test('empty story shelf offers an actionable route and keeps advanced features o
   await page.evaluate(()=>App.setStep(4));
   await expect(page.locator('[data-bao-guide-eyebrow]')).toContainText('必做');
 });
+
+
+test('provider choice made before selecting a work continues through the native start button',async({page})=>{
+  await open(page);
+  await page.locator('#bao-mascot-launch').click();
+  await page.evaluate(()=>BAOMascot.openGuide('router'));
+  await action(page,'setup-openrouter').click();
+  await expect(page.locator('#explore-view')).toHaveClass(/active/);
+  await builder(page);
+  await expect(page.locator('#api-type')).toHaveValue('openrouter');
+  await expect(page.locator('#bao-guided-setup')).toContainText('OpenRouter');
+});
