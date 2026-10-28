@@ -92,6 +92,49 @@ test('story updates persist group messages, notes and photos and retain IDs in t
   expect(result.prose).toBe('手機亮起。');
 });
 
+
+test('next story prompt receives bounded phone context only after the player reads it',async({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  await ready(page);
+  const before=await page.evaluate(({OPEN,CLOSE})=>{
+    Chat.add('user','看看手機的新動態');
+    Chat.add('assistant','手機震了一下。'+OPEN+JSON.stringify({
+      contacts:[{id:'xia',name:'小夏'}],
+      threads:[{id:'group',name:'今晚去哪？',participants:['xia'],messages:[{senderId:'xia',text:'我五分鐘後到。',time:'23:41'}]}],
+      notes:[{id:'memo',title:'碼頭線索',text:'置物櫃的號碼是 0427。'}]
+    })+CLOSE);
+    App.saveStory(false);
+    return {prompt:App.buildSystemPrompt(),interactions:GameState.current.phoneInteractions||null};
+  },{OPEN,CLOSE});
+  expect(before.prompt).toContain('【手機近期狀態】');
+  expect(before.prompt).toContain('未讀新動態：2');
+  expect(before.prompt).not.toContain('我五分鐘後到。');
+  expect(before.prompt).not.toContain('置物櫃的號碼是 0427。');
+  expect(before.interactions).toBeNull();
+
+  await page.locator('#bao-phone-launch').click();
+  await page.locator('.bp-notification').filter({hasText:'聊天室有新訊息'}).click();
+  await expect(page.locator('.bp-thread')).toContainText('我五分鐘後到。');
+  await page.locator('.bp-home-handle').click();
+  await page.locator('[data-phone-action="notifications"]').click();
+  await page.locator('.bp-notification').filter({hasText:'筆記已更新'}).click();
+  await expect(page.locator('.bp-document')).toContainText('置物櫃的號碼是 0427。');
+  await page.keyboard.press('Escape');
+
+  const after=await page.evaluate(()=>({
+    prompt:App.buildSystemPrompt(),
+    read:GameState.current.phoneInteractions?.read || [],
+    saved:Storage.loadStory()?.state?.phoneInteractions?.read || []
+  }));
+  expect(after.read).toEqual(expect.arrayContaining(['kakao:group','notes:memo']));
+  expect(after.saved).toEqual(expect.arrayContaining(['kakao:group','notes:memo']));
+  expect(after.prompt).toContain('【手機近期狀態】');
+  expect(after.prompt).toContain('聊天室「今晚去哪？」');
+  expect(after.prompt).toContain('小夏：我五分鐘後到。');
+  expect(after.prompt).toContain('最近已讀筆記「碼頭線索」：置物櫃的號碼是 0427。');
+  expect(after.prompt.length).toBeLessThan(50000);
+});
+
 test('new phone activity jumps to the exact thread or note and preserves read state without sends',async({page})=>{
   await page.setViewportSize({width:390,height:844});
   await ready(page);
