@@ -195,3 +195,10 @@ html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk
     grid-template-columns:1fr;padding:8px;gap:8px
   }
 }
+
+
+/* Keep the persistent mobile navigation usable without covering shelf actions. */
+@media(max-width:760px){
+  body.bao-mobile-nav-visible .story-tools-backdrop{bottom:calc(90px + env(safe-area-inset-bottom,0px))}
+  body.bao-mobile-nav-visible .story-tools-modal{max-height:calc(100dvh - 100px - env(safe-area-inset-bottom,0px))}
+}

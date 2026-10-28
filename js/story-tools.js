@@ -57,7 +57,7 @@
     if (document.querySelector('link[href^="css/story-tools.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/story-tools.css?v=4";
+    link.href = "css/story-tools.css?v=6";
     document.head.appendChild(link);
   };
 

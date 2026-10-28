@@ -6,6 +6,7 @@
   const KEY = 'yorubay:bao-journey:v1';
   const $ = id => document.getElementById(id);
   const active = id => $(id)?.classList.contains('active');
+  const hasSelectedWork = () => Boolean(window.App?.activeCharacter) && (active('detail-view') || active('builder-view'));
   let host, controls, topic = 'journey', pendingProvider = '';
   const preference = () => { try { return localStorage.getItem(KEY); } catch { return ''; } };
   const remember = value => { try { localStorage.setItem(KEY, value); } catch { /* optional */ } };
@@ -77,7 +78,9 @@
   const render = () => {
     if (!host) return;
     const inStory = active('chat-view');
-    const selected = Boolean(window.App?.activeCharacter);
+    // activeCharacter can remain set after returning home; only the detail
+    // and builder surfaces express an intent to continue that work.
+    const selected = hasSelectedWork();
     const inBuilder = active('builder-view');
     // The existing evaluator returns completion flags, never credentials.
     const ready = inBuilder ? window.BAOStoryStartReadiness?.snapshot?.() : null;
@@ -85,33 +88,37 @@
     let title, body, actions;
     if (topic !== 'journey' && topics[topic]) {
       ({title, body, actions} = topics[topic]);
-      actions += button('journey', '返回目前進度');
+      if (!inStory && ['memory', 'backup', 'extras'].includes(topic)) {
+        body += ' 開啟故事後，就能使用這些工具；已有進度可以從「我的故事」接著玩。';
+        actions = button('library', '找回我的故事') + button(selected ? 'setup' : 'explore', selected ? '繼續這個作品的設定' : '選一個作品開始');
+      }
+      actions += button('journey', '看看現在能做什麼');
     } else if (inStory) {
       title = '故事已開啟，想了解哪一項？';
-      body = '模型、玩家身份與記憶都能從控制中心調整。開始故事只代表必要設定已填妥，實際連線狀況以測試或送出後的結果為準。';
-      actions = button('setup', '查看模型連線') + button('memory', '記憶怎麼用') + button('backup', '儲存與備份') + button('error', '連線遇到問題') + button('extras', '探索選做功能');
+      body = '想記住重要劇情、處理連線，還是保留進度？選一件，我帶你到故事原本的工具，用完就回去繼續。';
+      actions = button('memory-open', '讓 AI 記住故事') + button('error', '連線遇到問題') + button('control', '保留與備份進度');
     } else if (preference() === 'skipped') {
       title = '需要時，我在這裡';
       body = '你可以自由探索，也能隨時重新開始帶路。';
-      actions = button('resume', '重新讓包包帶路') + button('api', '了解 API') + button('models', '找不到模型');
+      actions = button('resume', '重新讓包包帶路') + button('library', '找回我的故事') + button('api', '模型連線協助');
     } else if (!selected && preference() === 'completed') {
       title = '歡迎回來，今天想從哪裡開始？';
       body = '你可以選新的作品，也可以隨時查看連線與功能協助。';
-      actions = button('explore', '選一個故事') + button('api', '模型連線協助') + button('backup', '儲存與備份');
+      actions = button('library', '接著玩我的故事') + button('explore', '找一個新作品') + button('api', '模型連線協助');
     } else if (!selected) {
-      title = '1 / 3 · 先找一個想玩的故事';
-      body = '不用先看完說明。挑選喜歡的作品，打開介紹，再按開始故事；我會在設定畫面接著陪你。';
-      actions = button('explore', '帶我選作品') + button('skip', '我先自己逛逛');
+      title = active('explore-view') ? '想找一個怎樣的故事？' : '今天想從哪裡開始？';
+      body = '可以先挑喜歡的作品，也能找回之前的故事。不熟悉模型連線的話，我陪你看看；不用一次學完所有功能。';
+      actions = button('explore', '帶我選作品') + button('library', '找回我的故事') + button('api', '我還不懂怎麼連線');
     } else if (!inBuilder) {
-      title = '2 / 3 · 選好作品，再決定怎麼連線';
+      title = '喜歡這個作品？我陪你準備開始';
       body = '開始設定後，可以選夜灣燈火或自己的模型連線。不熟悉 API 也沒關係。';
       actions = button('setup', '帶我繼續設定') + button('api', '我還不懂 API');
     } else {
-      title = ready?.canStart ? '3 / 3 · 必要設定已填妥' : '2 / 3 · 準備故事的模型連線';
+      title = ready?.canStart ? '必要設定已填妥，準備翻開故事' : '我們先處理目前的連線設定';
       body = ready?.canStart ? '可以回到設定畫面開始故事。這是欄位檢查，尚不代表實際連線成功；也可以先測試連線（可能計費）。' : '包包會直接帶你操作目前的設定。' + (ready?.ai?.label || '先選夜灣燈火，或使用自己的模型連線。');
-      actions = button('setup', ready?.canStart ? '回到設定，開始故事' : '繼續目前設定') + button('api', '我還沒有 API Key') + button('models', '找不到模型') + button('error', '連線遇到問題');
+      actions = button('setup', ready?.canStart ? '回到設定，開始故事' : '繼續目前設定') + button('api', '我還沒有 API Key') + button('error', '模型或連線遇到問題');
     }
-    host.innerHTML = `<h3></h3><p></p><div class="bao-guide-actions">${actions}</div><details><summary>包包的工具包</summary><div class="bao-guide-actions">${button('api','API 入門')}${button('models','找不到模型')}${button('backup','儲存與備份')}${button('memory','故事記憶')}${button('extras','進階功能（選做）')}${link('quick-start.html','三步開始文件')}${link('api-guide.html','完整連線文件')}${link('lm-studio-guide.html','本機模型文件')}</div></details>`;
+    host.innerHTML = `<h3></h3><p></p><div class="bao-guide-actions">${actions}</div><details><summary>包包的工具包</summary><div class="bao-guide-actions">${inStory ? button('setup','調整模型連線') : ''}${button('api','API 入門')}${button('models','找不到模型')}${button('backup','儲存與備份')}${button('memory','故事記憶')}${button('extras','進階功能（選做）')}${link('quick-start.html','三步開始文件')}${link('api-guide.html','完整連線文件')}${link('lm-studio-guide.html','本機模型文件')}${button('skip','我先自己逛逛')}</div></details>`;
     host.querySelector('h3').textContent = title;
     host.querySelector('p').textContent = body;
   };
@@ -119,7 +126,7 @@
   const setup = provider => {
     if (provider) pendingProvider = provider;
     if (active('chat-view')) { pendingProvider='';controls.close(); window.BAOChatAPISettings?.open?.(); return; }
-    if (!window.App?.activeCharacter) { controls.close(); remember('active'); if (window.App) App.showView?.('explore'); else location.href = 'index.html#explore'; return; }
+    if (!hasSelectedWork()) { controls.close(); remember('active'); if (window.App) App.showView?.('explore'); else location.href = 'index.html#explore'; return; }
     controls.close();
     if (!active('builder-view')) window.App?.openBuilder?.();
     window.BAOGuidedOnboarding?.reopen?.();
@@ -144,6 +151,10 @@
       if (action === 'skip') { remember('skipped'); window.BAOGuidedOnboarding?.render?.(); controls.close(); }
       else if (action === 'resume') { remember('active'); window.BAOGuidedOnboarding?.reopen?.(); show('journey'); }
       else if (action === 'explore') { remember('active'); controls.close(); if (window.App) App.showView?.('explore'); else location.href = 'index.html#explore'; }
+      else if (action === 'library') {
+        if (window.BAOStoryTools?.openLibrary) { controls.close(); window.BAOStoryTools.openLibrary(); }
+        else { controls.close(); if (window.App) App.showView?.('home'); else location.href = 'index.html'; $('home-library-open')?.focus(); }
+      }
       else if (action === 'setup') setup();
       else if (action === 'setup-gemini' || action === 'setup-openrouter') setup(action.slice(6));
       else if (action === 'phone-open') {
@@ -153,7 +164,7 @@
         if(launch) launch.click(); else window.BAOPhonePlayerSettings?.open?.();
       }
       else if (action === 'control' || action === 'memory-open') {
-        if (!active('chat-view')) { show('journey'); return; }
+        if (!active('chat-view')) { show(action === 'memory-open' ? 'memory' : 'backup'); return; }
         controls.close();
         if (action === 'control') window.BAOStoryControlCenter?.open?.();
         else window.BAOMemoryWorkbench?.open?.();
