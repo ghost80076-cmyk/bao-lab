@@ -112,7 +112,8 @@
     host.prepend(launch);
   }
   function commitOpen(target,password,status) {
-    if(!config.interactions || !Puzzles)return true;
+    if(!Puzzles)return true;
+    const hasRules=!!config.interactions;
     const fail=text=>{if(status)status.textContent=text;else window.BAOFeedback?.notify?.(text,'error');return false;};
     if(ownerState!==window.GameState?.current || ownerCharacter!==App.activeCharacter)return fail('故事已切換，請重新開啟手機。');
     if(App.__requestPending)return fail('故事仍在回覆中，請稍後再操作機關。');
@@ -125,7 +126,8 @@
       if(App.saveStory(false)===false)throw new Error('save');
     } catch (_) {
       if(had)ownerState.phoneInteractions=before;else delete ownerState.phoneInteractions;
-      return fail('故事儲存失敗，這次已讀與解鎖沒有生效，請重試。');
+      if(hasRules)return fail('故事儲存失敗，這次已讀與解鎖沒有生效，請重試。');
+      return true;
     }
     eventNotice=result.notifications.join('；');
     return true;

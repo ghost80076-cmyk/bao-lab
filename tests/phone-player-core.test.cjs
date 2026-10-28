@@ -75,3 +75,65 @@ test('prompt describes only the selected current story and does not assume phone
   Core.write(story,{version:1,enabled:false});
   assert.equal(Core.ownerDescription(story,null),'');
 });
+
+
+test('phone context snapshot is bounded, read-aware and never leaks locked or unread content', () => {
+  const phone={
+    enabled:true,userName:'林曼',apps:['kakao','notes','photos'],
+    contacts:[{id:'xia',name:'小夏'},{id:'manman',name:'曼曼'}],
+    threads:[{id:'group',name:'今晚去哪？',participants:['xia','manman'],messages:[
+      {from:'them',senderId:'xia',text:'我五分鐘後到。',time:'23:41'},
+      {from:'me',text:'我已經在門口。',time:'23:42'}
+    ]}],
+    notes:[
+      {id:'memo',title:'碼頭線索',text:'置物櫃的號碼是 0427。'},
+      {id:'secret',title:'秘密筆記',text:'這段內容不應該提前進入模型。'},
+      {id:'vault',title:'已解鎖保護筆記',text:'即使解鎖，這段機關正文也不應送到 provider。'}
+    ],
+    photos:[{id:'rain',title:'雨夜碼頭',src:'https://example.com/rain.jpg',caption:'港口只剩一盞燈。'}],
+    interactions:{version:1,locks:[
+      {target:{app:'notes',id:'secret'},hidden:true},
+      {target:{app:'notes',id:'vault'},code:'0427'}
+    ]}
+  };
+  const story={
+    phoneInteractions:{version:1,read:['kakao:group','notes:memo','notes:vault','photos:rain'],unlocked:['notes:vault'],fired:[]},
+    phoneUI:{version:1,notifications:[
+      {id:'n1',app:'kakao',targetId:'group',label:'聊天室有新訊息',read:true},
+      {id:'n2',app:'notes',targetId:'memo',label:'筆記已更新',read:true},
+      {id:'n3',app:'notes',targetId:'secret',label:'不應顯示',read:false},
+      {id:'n4',app:'photos',targetId:'rain',label:'收到新的照片',read:true}
+    ]}
+  };
+  const snapshot=Core.contextSnapshot(story,phone);
+  assert.match(snapshot,/【手機近期狀態】/);
+  assert.match(snapshot,/小夏：我五分鐘後到/);
+  assert.match(snapshot,/林曼：我已經在門口/);
+  assert.match(snapshot,/碼頭線索.*置物櫃的號碼是 0427/);
+  assert.match(snapshot,/雨夜碼頭.*港口只剩一盞燈/);
+  assert.doesNotMatch(snapshot,/秘密筆記/);
+  assert.doesNotMatch(snapshot,/不應該提前/);
+  assert.doesNotMatch(snapshot,/即使解鎖，這段機關正文也不應送到 provider/);
+  assert.equal(snapshot.length < 1800,true);
+});
+
+test('unread incoming content stays out of the snapshot while explicit outgoing text remains', () => {
+  const phone={
+    enabled:true,userName:'玩家',apps:['kakao','notes'],
+    contacts:[{id:'xia',name:'小夏'}],
+    threads:[{id:'group',name:'群組',participants:['xia'],messages:[
+      {from:'them',senderId:'xia',text:'這句還沒被玩家讀到。'},
+      {from:'me',text:'玩家明確傳出的文字。'}
+    ]}],
+    notes:[{id:'memo',title:'未讀筆記',text:'這份筆記也還沒讀。'}]
+  };
+  const story={phoneUI:{version:1,notifications:[
+    {id:'n1',app:'kakao',targetId:'group',label:'聊天室有新訊息',read:false},
+    {id:'n2',app:'notes',targetId:'memo',label:'筆記已更新',read:false}
+  ]}};
+  const snapshot=Core.contextSnapshot(story,phone);
+  assert.match(snapshot,/未讀新動態：2/);
+  assert.match(snapshot,/玩家明確傳出的文字/);
+  assert.doesNotMatch(snapshot,/這句還沒被玩家讀到/);
+  assert.doesNotMatch(snapshot,/這份筆記也還沒讀/);
+});
