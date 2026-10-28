@@ -5,6 +5,9 @@ const card = require('../data/characters/community/c4/kept-in-frame-lin-youzhen.
 const startup = require('../js/story-startup-core.js');
 
 const spec = card.gameplay.story_startup;
+const builder = card.gameplay.ui_schema.builder;
+assert.equal(builder.kind, 'story');
+assert.equal(builder.fields.find(field => field.key === 'relationship').presentation, 'cards');
 const relations = ['初識', '朋友', '曖昧對象', '戀人', '舊識'];
 assert.equal(spec.version, 1);
 assert.equal(spec.selector_path, 'modules.session_setup.relationship');
