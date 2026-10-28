@@ -29,7 +29,7 @@ function setup(saved = new Map()) {
       BAOStoryControlCenter: { open: () => { opened = 'control'; } }
     },
     App: app,
-    document: { getElementById: id => nodes.get(id) || (['home-view', 'chat-view', 'builder-view'].includes(id) ? { classList: { contains: () => id === view } } : null) },
+    document: { getElementById: id => nodes.get(id) || (['home-view', 'chat-view', 'builder-view', 'detail-view', 'explore-view'].includes(id) ? { classList: { contains: () => id === view } } : null) },
     localStorage: { getItem: key => saved.get(key), setItem: (key, value) => saved.set(key, value) },
     fetch() { throw new Error('Guide must never send network requests'); },
     location: {}
@@ -48,7 +48,7 @@ function setup(saved = new Map()) {
 
 test('skip survives a reload and resuming leads to the real work view', () => {
   const first = setup();
-  assert.match(first.title(), /1 \/ 3/);
+  assert.match(first.title(), /今天想從哪裡/);
   first.click('skip');
   assert.equal(first.closed(), 1);
   const second = setup(first.saved);
@@ -75,7 +75,7 @@ test('API learning keeps route context and returns to the existing builder', () 
   assert.match(page.body(), /還缺連線金鑰/);
   page.context.window.BAOStoryStartReadiness.snapshot = () => ({ canStart: true });
   page.api.render();
-  assert.match(page.title(), /3 \/ 3/);
+  assert.match(page.title(), /必要設定已填妥/);
   assert.match(page.body(), /尚不代表實際連線成功/);
 });
 
@@ -130,4 +130,44 @@ test('provider help keeps the intended route until a work is selected', () => {
   assert.equal(page.view(),'builder-view');
   assert.equal(page.connected(),'openrouter');
   assert.equal(page.saved.get('yorubay:bao-journey:v1'),'active');
+});
+
+test('home ignores an old selected work and offers at most three immediate tasks', () => {
+  const page = setup(new Map([['yorubay:bao-journey:v1', 'completed']]));
+  page.app.activeCharacter = { id: 'previous-work' };
+  page.api.render();
+  assert.match(page.title(), /歡迎回來/);
+  const primary = page.markup().split('<details>')[0];
+  assert.equal((primary.match(/data-bao-journey=/g) || []).length, 3);
+  assert.match(primary, /接著玩我的故事/);
+  assert.doesNotMatch(primary, /繼續設定/);
+  page.setView('detail-view');
+  page.api.render();
+  assert.match(page.title(), /喜歡這個作品/);
+});
+
+test('story task opens memory directly and library navigation uses the existing shelf', () => {
+  const page = setup();
+  let shelves = 0;
+  page.context.window.BAOStoryTools = { openLibrary() { shelves++; } };
+  page.click('library');
+  assert.equal(shelves, 1);
+  page.setView('chat-view');
+  page.api.show('journey');
+  const primary = page.markup().split('<details>')[0];
+  assert.equal((primary.match(/data-bao-journey=/g) || []).length, 3);
+  assert.match(primary, /讓 AI 記住故事/);
+  page.click('memory-open');
+  assert.equal(page.opened(), 'memory');
+});
+
+test('memory and backup outside a story explain how to reach a usable story', () => {
+  const page = setup();
+  for (const topic of ['memory', 'backup', 'extras']) {
+    page.api.show(topic);
+    assert.match(page.body(), /開啟故事後/);
+    const primary = page.markup().split('<details>')[0];
+    assert.match(primary, /data-bao-journey="library"/);
+    assert.doesNotMatch(primary, /data-bao-journey="(?:memory-open|control|phone-open)"/);
+  }
 });

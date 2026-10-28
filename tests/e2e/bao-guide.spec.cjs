@@ -14,8 +14,9 @@ test('home guide starts with a work, can be skipped and resumed after reload', a
   await page.setViewportSize({ width: 390, height: 844 });
   await open(page);
   await page.locator('[data-bao-open-guide]').first().click();
-  await expect(guide(page)).toContainText('1 / 3');
+  await expect(guide(page)).toContainText('今天想從哪裡開始');
   await page.screenshot({ path: 'test-results/bao-guide-mobile.png', animations: 'disabled' });
+  await guide(page).locator('summary').click();
   await action(page, 'skip').click();
   await page.reload();
   await page.locator('#bao-mascot-launch').click();
@@ -110,4 +111,23 @@ test('provider choice made before selecting a work continues through the native 
   await builder(page);
   await expect(page.locator('#api-type')).toHaveValue('openrouter');
   await expect(page.locator('#bao-guided-setup')).toContainText('OpenRouter');
+});
+
+
+test('context tasks use the existing shelf and memory workbench without showing a story floater', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await open(page);
+  await page.locator('#bao-mascot-launch').click();
+  await action(page, 'library').click();
+  await expect(page.locator('.story-library-empty')).toBeVisible();
+  await page.locator('[data-library-empty-explore]').click();
+  await builder(page);
+  await page.locator('#api-key').fill('guide-context-key');
+  await page.locator('#start-story').click();
+  await expect(page.locator('#bao-mascot-root')).toBeHidden();
+  await page.evaluate(() => BAOMascot.openGuide());
+  await expect(guide(page).locator(':scope > .bao-guide-actions button')).toHaveCount(3);
+  await action(page, 'memory-open').click();
+  await expect(page.locator('#bao-mascot-root')).toBeHidden();
+  await expect(page.locator('.memory-desk-backdrop')).toBeVisible();
 });

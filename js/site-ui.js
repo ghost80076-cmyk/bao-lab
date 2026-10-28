@@ -273,7 +273,7 @@ window.addEventListener("DOMContentLoaded", () => {
   loadBAOScript("js/bao-character.js?v=1")
     .then(() => loadBAOScript("js/brand-ui.js?v=12"))
     .then(() => new Promise(resolve => setTimeout(resolve, 100)))
-    .then(() => loadBAOScript("js/bao-guide.js?v=2"))
+    .then(() => loadBAOScript("js/bao-guide.js?v=3"))
     .then(() => loadBAOScript("js/bao-mascot.js?v=6"))
     .then(() => loadBAOOptionalGroup("stage-capabilities", ["js/stage-capability-core.js?v=3", "js/stage-capability.js?v=3"]))
     .then(() => loadBAOScript("js/reader-context.js?v=7"))
