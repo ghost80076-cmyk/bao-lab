@@ -268,3 +268,17 @@
   #chat-view[data-bao-surface="play"][data-gameplay-layout="rpg-dashboard"][data-bao-stage-presentation="embedded"] .chat-layout>aside:not(.bao-status-rail)>:not(#chat-character-card):not(#bao-gameplay-dashboard-left){display:none!important}
   #chat-view[data-bao-surface="play"][data-gameplay-layout="rpg-dashboard"][data-bao-stage-presentation="embedded"] .bao-status-close{display:none!important}
 }
+
+/* Gameplay UI Story Setup */
+.gameplay-builder[data-builder-kind="story"]{background:color-mix(in srgb,var(--gameplay-surface) 94%,var(--gameplay-accent) 6%)}
+.gameplay-builder[data-builder-kind="story"] .gameplay-builder-fields{grid-template-columns:1fr}
+.gameplay-story-field{min-width:0;margin:0;padding:0;border:0}
+.gameplay-story-field>legend{margin:0 0 7px;padding:0;font-size:.84rem;color:var(--gameplay-muted)}
+.gameplay-story-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:8px}
+.gameplay-story-option{position:relative;display:grid;place-items:center;min-height:46px;padding:10px 12px;border:1px solid var(--gameplay-border);border-radius:var(--gameplay-small-radius);background:var(--gameplay-surface-alt);cursor:pointer;text-align:center;transition:border-color .16s ease,background .16s ease,transform .16s ease}
+.gameplay-story-option:hover{border-color:color-mix(in srgb,var(--gameplay-accent) 55%,var(--gameplay-border));transform:translateY(-1px)}
+.gameplay-story-option.is-selected{border-color:var(--gameplay-accent);background:color-mix(in srgb,var(--gameplay-accent) 13%,var(--gameplay-surface-alt));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gameplay-accent) 25%,transparent)}
+.gameplay-story-option input{position:absolute;opacity:0;pointer-events:none}
+.gameplay-story-option span{color:var(--gameplay-text);font-weight:650;line-height:1.35}
+.gameplay-builder[data-builder-kind="story"] .gameplay-choice-group{background:color-mix(in srgb,var(--gameplay-surface-alt) 72%,transparent)}
+.gameplay-choice-order{display:grid;place-items:center;width:24px;height:24px;border-radius:999px;background:var(--gameplay-accent);color:var(--gameplay-surface)!important;font-size:.75rem}
