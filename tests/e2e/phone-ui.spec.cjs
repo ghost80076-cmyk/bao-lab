@@ -145,8 +145,9 @@ test('studio phone builder works without JSON and expanded references stay insid
   await page.locator('[data-phone-add-contact]').click();
   await expect(page.locator('[data-phone-contact-list]')).toContainText('小夏');
 
-  await page.locator('[data-phone-thread-contact]').selectOption({label:'小夏'});
+  await page.locator('.studio-phone-participant').filter({hasText:'小夏'}).locator('input').check();
   await page.locator('[data-phone-thread-message]').fill('晚點見。');
+  await page.locator('[data-phone-thread-sender]').selectOption({label:'小夏'});
   await page.locator('[data-phone-add-thread]').click();
   await expect(page.locator('[data-phone-thread-list]')).toContainText('小夏');
 
@@ -185,6 +186,50 @@ test('studio phone builder works without JSON and expanded references stay insid
   }));
   expect(overflow.doc).toBeLessThanOrEqual(1);
   expect(overflow.editor).toBeLessThanOrEqual(1);
+});
+
+
+test('studio author can create a multi-contact group chat without editing JSON',async({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  await page.goto('/character-studio.html');
+  await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOCharacterStudioFlow && window.BAOCharacterStudioPhoneBuilder);
+  await page.locator('#studio-flow-shell [data-flow-step="appearance"]').click();
+  await page.locator('[name=phone_ui_enabled]').check();
+  await page.locator('[name=phone_userName]').fill('玩家');
+
+  for(const name of ['小夏','林曼','曼曼']){
+    await page.locator('[data-phone-contact-name]').fill(name);
+    await page.locator('[data-phone-add-contact]').click();
+  }
+  await expect(page.locator('[data-phone-contact-list] li')).toHaveCount(3);
+
+  for(const name of ['小夏','林曼','曼曼']){
+    await page.locator('.studio-phone-participant').filter({hasText:name}).locator('input').check();
+  }
+  await expect(page.locator('[data-phone-thread-sender] option')).toHaveText(['手機主人 · 玩家','小夏','林曼','曼曼']);
+  await page.locator('[data-phone-thread-name]').fill('今晚去哪？');
+  await page.locator('[data-phone-thread-message]').fill('我到了，你們呢？');
+  await page.locator('[data-phone-thread-sender]').selectOption({label:'林曼'});
+  await page.locator('[data-phone-add-thread]').click();
+
+  await expect(page.locator('[data-phone-thread-list]')).toContainText('今晚去哪？');
+  await expect(page.locator('[data-phone-thread-list]')).toContainText('群組');
+  await expect(page.locator('[data-phone-thread-list]')).toContainText('小夏、林曼、曼曼');
+
+  const phone=await page.evaluate(()=>BAOCharacterStudio.toExport().presentation.phone_ui);
+  expect(phone.contacts.map(contact=>contact.name)).toEqual(['小夏','林曼','曼曼']);
+  expect(phone.threads).toHaveLength(1);
+  expect(phone.threads[0].name).toBe('今晚去哪？');
+  expect(phone.threads[0].participants).toHaveLength(3);
+  const memberNames=phone.threads[0].participants.map(id=>phone.contacts.find(contact=>contact.id===id)?.name);
+  expect(memberNames).toEqual(['小夏','林曼','曼曼']);
+  const linMan=phone.contacts.find(contact=>contact.name==='林曼');
+  expect(phone.threads[0].messages[0]).toMatchObject({
+    from:'them',senderId:linMan.id,senderName:'林曼',text:'我到了，你們呢？'
+  });
+
+  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
 });
 
 for (const width of [320,1280]) test(`multiple chat recipients, documents and story clock work at ${width}px`,async({page})=>{
