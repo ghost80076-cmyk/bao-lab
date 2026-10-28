@@ -62,7 +62,7 @@ increasing(siteUI, [
 // Story chain: story-tools is installed before prompt/cache orchestration and request lifecycle.
 increasing(siteUI, [
   'loadBAOScript("js/storage-write-guard.js?v=3")',
-  'loadBAOScript("js/story-tools.js?v=8")',
+  'loadBAOScript("js/story-tools.js?v=9")',
   'window.BAOEnsureStoryLibrary()',
   'loadBAOScript("js/context-pack-resume.js")',
   'loadBAOScript("js/prompt-cache.js',
@@ -84,7 +84,7 @@ increasing(siteUI, [
 
 // Builder progressive disclosure must be active before readiness decorates the same surface.
 increasing(siteUI, [
-  'loadBAOScript("js/player-builder-v2.js?v=8")',
+  'loadBAOScript("js/player-builder-v2.js?v=9")',
   'loadBAOScript("js/quick-start-mode.js?v=3")',
   'loadBAOScript("js/story-start-readiness-core.js")',
   'loadBAOScript("js/story-start-readiness.js?v=2")'
@@ -106,7 +106,7 @@ assert.equal(
   "world-modules must be loaded exactly once by site-ui"
 );
 assert.equal(
-  siteUI.split('loadBAOScript("js/story-tools.js?v=8")').length - 1,
+  siteUI.split('loadBAOScript("js/story-tools.js?v=9")').length - 1,
   1,
   "story-tools must be loaded exactly once by site-ui"
 );

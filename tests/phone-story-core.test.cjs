@@ -89,3 +89,22 @@ test('thread updates keep recipients and authorship separate, upsert documents a
   assert.equal(display.storyTime,'23:17');
   assert.equal(Core.apply(state,{enabled:false,threads:[{id:'x'}]},'bad'),false);
 });
+
+test('only accepted incoming updates create bounded notifications with stable targets', () => {
+  const state={};
+  Core.apply(state,{chat:[{from:'me',text:'玩家的訊息'}],threads:[{id:'me-only',messages:[{from:'me',text:'我說的'}]}],instagram:{messages:[{text:'既有視訊字幕'}]}},'outgoing');
+  assert.deepEqual(Core.notifications(state.phoneUI),[]);
+  const patch={threads:[{id:'group',messages:[{from:'them',text:'新訊息'}]}],notes:[{id:'memo',text:'下一步線索'}]};
+  Core.apply(state,patch,'incoming');
+  assert.deepEqual(Core.notifications(state.phoneUI).map(x=>[x.app,x.targetId]),[['kakao','group'],['notes','memo']]);
+  assert.equal(Core.apply(state,patch,'incoming'),false);
+  assert.equal(Core.notifications(state.phoneUI).length,2);
+  state.phoneUI.notifications[0].read=true;
+  const restored=JSON.parse(JSON.stringify(state));
+  Core.apply(restored,{tweets:['下一篇']},'next-turn');
+  assert.equal(Core.notifications(restored.phoneUI)[0].read,true);
+  assert.equal(Core.notifications(restored.phoneUI).at(-1).read,false);
+  for(let i=0;i<60;i++)Core.apply(restored,{notes:[{id:'memo',text:'更新'+i}]},'update-'+i);
+  assert.equal(Core.notifications(restored.phoneUI).length,40);
+  assert.equal(Core.notifications({version:1,notifications:[{id:'bad',app:'javascript:alert(1)'}]}).length,0);
+});

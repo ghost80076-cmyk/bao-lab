@@ -234,7 +234,7 @@
     if (setup !== "quick" && stepNumber !== 4) {
       const advanced = {
         1: {
-          eyebrow: "包包帶路 · 1 / 5",
+          eyebrow: "包包帶路 · 1 / 5 · 選做",
           copy: "第一次玩可以先用「單角色沉浸」。它比較像一般角色聊天；之後想讓 NPC 與事件自己跑，再換世界模擬。",
           actions: guideActions([
             '<button type="button" class="primary" data-bao-guide="recommend-step">採用單角色沉浸</button>',
@@ -242,7 +242,7 @@
           ])
         },
         2: {
-          eyebrow: "包包帶路 · 2 / 5",
+          eyebrow: "包包帶路 · 2 / 5 · 選做",
           copy: "顯示方式不會改變角色設定。先用純文本最簡單；想看人物、狀態與事件面板再選互動 UI。",
           actions: guideActions([
             '<button type="button" class="primary" data-bao-guide="recommend-step">採用純文本</button>',
@@ -250,7 +250,7 @@
           ])
         },
         3: {
-          eyebrow: "包包帶路 · 3 / 5",
+          eyebrow: "包包帶路 · 3 / 5 · 選做",
           copy: "玩家資料不用一次填完。名稱最重要，其他像身分、個性、初始關係都可以先留白，進故事後再調整。",
           actions: guideActions([
             '<button type="button" class="primary" data-bao-guide="focus-name">先填名字</button>',
@@ -258,7 +258,7 @@
           ])
         },
         5: {
-          eyebrow: "包包帶路 · 5 / 5",
+          eyebrow: "包包帶路 · 5 / 5 · 選做",
           copy: "記憶先選「平衡」就好。Token、整理輪數和快取都是進階項目，不需要現在理解。",
           actions: guideActions([
             '<button type="button" class="primary" data-bao-guide="recommend-step">使用平衡設定</button>',
@@ -274,7 +274,7 @@
       }
     }
 
-    eyebrow.textContent = setup === "quick" ? "包包帶路 · 模型連線" : "包包帶路 · 4 / 5";
+    eyebrow.textContent = setup === "quick" ? "包包帶路 · 模型連線 · 必做" : "包包帶路 · 4 / 5 · 必做";
     const readyAction = setup === "quick"
       ? '<button type="button" class="primary" data-bao-guide="start-story">設定好了，進入故事</button>'
       : '<button type="button" class="primary" data-bao-guide="next-step">繼續記憶設定</button>';
@@ -550,7 +550,10 @@
     window.addEventListener("storage", event => { if (event.key === "yorubay:session") sync(); });
   };
 
-  window.BAOGuidedOnboarding = Object.freeze({ render: renderGuide, reopen: () => { setGuideDismissed(false); renderGuide(); } });
+  window.BAOGuidedOnboarding = Object.freeze({ render: renderGuide, connect: value => {
+    if(!['gemini','openrouter'].includes(value) || ![...(provider()?.options || [])].some(option=>option.value===value)) return false;
+    setGuideDismissed(false);chooseFriendlyProvider(value);renderGuide();return true;
+  }, reopen: () => { setGuideDismissed(false); renderGuide(); } });
   window.BAOPlayerBuilderV2 = Object.freeze({ sync, selectRoute, renderGuide });
   init();
 })();

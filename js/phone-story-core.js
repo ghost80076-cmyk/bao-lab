@@ -56,6 +56,28 @@
     return {text:clean || '（手機收到新動態）', patch};
   }
   const bound = (list,max) => Array.isArray(list) ? list.slice(-max) : [];
+  // Notifications are derived from accepted story updates, never authored by a second model.
+  const noticeApps = ['kakao','x','phone','instagram','photos','notes'];
+  function notifications(overlay) {
+    if (!object(overlay) || overlay.version !== 1) return [];
+    return bound(overlay.notifications,40).filter(item => object(item) && noticeApps.includes(item.app) && typeof item.id === 'string').map(item => ({
+      id:item.id.slice(0,220), app:item.app, targetId:String(item.targetId || '').slice(0,80),
+      label:String(item.label || '新動態').slice(0,100), read:item.read === true
+    }));
+  }
+  function newNotifications(patch, sourceId) {
+    const items=[];
+    const add=(app,targetId,label)=>items.push({id:sourceId+':'+app+':'+targetId,app,targetId,label:String(label).slice(0,100),read:false});
+    if (patch.chat?.some(item=>item.from !== 'me')) add('kakao','','收到新的手機訊息');
+    for (const thread of patch.threads || []) if (thread.messages.some(item=>item.from !== 'me')) add('kakao',thread.id,'聊天室有新訊息');
+    if (patch.tweets?.length) add('x','','有新的貼文');
+    if (patch.calls?.length) add('phone','','通話紀錄已更新');
+    // Instagram currently presents scripted video overlays, not an inbox.
+    // Overlay captions must not imply a new incoming call or message.
+    for (const item of patch.photos || []) add('photos',item.id,'收到新的照片');
+    for (const item of patch.notes || []) add('notes',item.id,'筆記已更新');
+    return items;
+  }
   function apply(state, patch, messageId) {
     if (!object(state) || !patch || !object(patch)) return false;
     patch = normalizePatch(patch);
@@ -67,6 +89,7 @@
     if (seenIds.includes(id)) return false;
     const result = empty();
     result.seenIds = bound([...seenIds,id],60);
+    result.notifications = bound([...notifications(prior),...newNotifications(patch,id)],40);
     for (const [key,max] of [['chat',150],['tweets',80],['calls',25],['events',8]]) {
       result[key] = bound([...(Array.isArray(prior[key]) ? prior[key] : []), ...(Array.isArray(patch[key]) ? patch[key] : [])],max);
     }
@@ -111,5 +134,5 @@
     '以上欄位同樣放進該 JSON 區塊。沿用人物覆寫中的 ID；多人或群聊請用 threads，勿混入主要聯絡人的 chat。新聊天室須提供 name 與 participants；既有聊天室只附新訊息。照片與筆記依 ID 更新，照片只能使用故事已提供的真實圖片網址，不得編造網址。照片與筆記只屬於手機主人可取得的資料。',
     '只保留真正新增的欄位和紀錄；不要重複既有內容。上述是 JSON 格式範例，不是實際事件。from=me 只能記錄玩家明確提供過的訊息。區塊外照常寫故事，且不要附任何 HTML/JavaScript。'
   ].join('\n');
-  return Object.freeze({OPEN,CLOSE,extract,normalizePatch,apply,mergeDisplay,empty,PROMPT});
+  return Object.freeze({OPEN,CLOSE,extract,normalizePatch,apply,mergeDisplay,notifications,empty,PROMPT});
 });

@@ -11,7 +11,7 @@ function setup(saved = new Map()) {
     querySelector: selector => selector === 'h3' ? title : body,
     addEventListener: (_, callback) => { actions.click = callback; }
   };
-  let view = 'home-view', opened = '', closed = 0, reopened = 0;
+  let view = 'home-view', opened = '', closed = 0, reopened = 0, connected = '';
   const nodes = new Map();
   const app = {
     activeCharacter: null,
@@ -23,7 +23,7 @@ function setup(saved = new Map()) {
     window: {
       App: app,
       BAOStoryStartReadiness: { snapshot: () => ({ canStart: false, ai: { label: '還缺連線金鑰' } }) },
-      BAOGuidedOnboarding: { reopen: () => { reopened++; }, render() {} },
+      BAOGuidedOnboarding: { reopen: () => { reopened++; }, render() {}, connect(provider) { connected=provider;return true; } },
       BAOChatAPISettings: { open: () => { opened = 'api'; } },
       BAOMemoryWorkbench: { open: () => { opened = 'memory'; } },
       BAOStoryControlCenter: { open: () => { opened = 'control'; } }
@@ -41,7 +41,7 @@ function setup(saved = new Map()) {
     api, app, context, nodes, saved,
     title: () => title.textContent, body: () => body.textContent, markup: () => host.innerHTML,
     view: () => view, setView(value) { view = value; },
-    closed: () => closed, opened: () => opened, reopened: () => reopened,
+    closed: () => closed, opened: () => opened, reopened: () => reopened, connected: () => connected,
     click(action) { actions.click({ target: { closest: () => ({ dataset: { baoJourney: action } }) } }); }
   };
 }
@@ -117,4 +117,17 @@ test('storage failure does not block reading help', () => {
   page.click('skip');
   page.api.show('api');
   assert.match(page.title(), /自己的模型連線/);
+});
+
+test('provider help keeps the intended route until a work is selected', () => {
+  const page=setup();
+  page.click('setup-openrouter');
+  assert.equal(page.view(),'explore-view');
+  assert.equal(page.connected(),'');
+  page.app.activeCharacter={id:'selected'};
+  page.app.openBuilder();
+  page.api.applyPending();
+  assert.equal(page.view(),'builder-view');
+  assert.equal(page.connected(),'openrouter');
+  assert.equal(page.saved.get('yorubay:bao-journey:v1'),'active');
 });
