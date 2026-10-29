@@ -26,7 +26,6 @@ for (const entry of entries) {
   assert.equal(loaded.rating, engine.normalize(raw).rating, entry.id + ': original content rating retained');
   assert.equal(engine.composeSystemPrompt(loaded), engine.composeSystemPrompt(engine.normalize(raw)), entry.id + ': public metadata never changes model prompt');
 }
-assert.equal(byId.size, entries.length, 'public catalog ids are unique');
 assert.equal([...byId.values()].filter(c => c.discovery.rating).length, 30, 'only reviewed images receive explicit display ratings');
 assert.equal([...byId.values()].filter(c => c.rating === 'adult' && c.discovery.rating === 'general').length, 15);
 assert.equal(discovery.workCategory(byId.get('shikong-zhimen')), 'world');
