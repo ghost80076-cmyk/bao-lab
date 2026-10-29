@@ -74,6 +74,7 @@ jobs:
               tests/e2e/storage-multitab.spec.cjs
               tests/e2e/builder-connection-ux.spec.cjs
               tests/e2e/lm-studio.spec.cjs
+              tests/e2e/character-capability-roundtrip.spec.cjs
               tests/e2e/character-studio-actions.spec.cjs
               tests/e2e/character-studio-flow.spec.cjs
               tests/e2e/character-studio-lifecycle.spec.cjs

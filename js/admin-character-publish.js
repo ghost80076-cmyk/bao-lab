@@ -246,6 +246,7 @@
         ...sourceContent,
         quote: c.quote || "",
         greeting: c.greeting || "",
+        greeting_context: c.greeting_context || "",
         system_prompt: c.system_prompt || "",
         profile: c.profile || {},
         world: c.world || "",
@@ -258,6 +259,10 @@
       },
       gameplay: {
         ...sourceGameplay,
+        ...(c.gameplay_ui ? { ui_schema: c.gameplay_ui } : {}),
+        ...(c.story_startup ? { story_startup: c.story_startup } : {}),
+        ...(c.timeline_policy ? { timeline_policy: c.timeline_policy } : {}),
+        ...(c.actor_mode ? { actor_mode: c.actor_mode } : {}),
         supported_modes: c.supported_modes || sourceGameplay.supported_modes || { immersive: true, world: false },
         prompt: {
           ...(sourceGameplay.prompt && typeof sourceGameplay.prompt === "object" && !Array.isArray(sourceGameplay.prompt) ? sourceGameplay.prompt : {}),
@@ -272,6 +277,10 @@
       },
       presentation: {
         ...sourcePresentation,
+        ...(c.phone_ui ? { phone_ui: c.phone_ui } : {}),
+        ...(c.dialogue ? { dialogue: c.dialogue } : {}),
+        ...(c.reading_background ? { reading_background: c.reading_background } : {}),
+        play_info_surface: c.play_info_surface,
         supported_display: c.supported_display || sourcePresentation.supported_display || { text: true, ui: false },
         ui: {
           ...(sourcePresentation.ui && typeof sourcePresentation.ui === "object" && !Array.isArray(sourcePresentation.ui) ? sourcePresentation.ui : {}),
@@ -284,6 +293,7 @@
       }
     };
 
+    if (c.discovery) card.meta.discovery = c.discovery;
     if (c.asset_manifest) card.asset_manifest = c.asset_manifest;
     if (c.opening) card.presentation.opening = c.opening;
     const importMetadata = safeImportMetadata(c.import_metadata);

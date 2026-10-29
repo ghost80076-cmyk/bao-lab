@@ -278,7 +278,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOOptionalGroup("stage-capabilities", ["js/stage-capability-core.js?v=3", "js/stage-capability.js?v=3"]))
     .then(() => loadBAOScript("js/reader-context.js?v=7"))
     .then(() => loadBAOScript("js/bao-visual-ui.js?v=19"))
-    .then(() => loadBAOScript("js/player-shell-v2.js?v=14"))
+    .then(() => loadBAOScript("js/player-shell-v2.js?v=15"))
     .then(() => loadBAOScript("js/player-builder-v2.js?v=9"))
     .then(() => loadBAOScript("js/quick-start-mode.js?v=3"))
     .then(() => loadBAOScript("js/story-start-readiness-core.js"))
