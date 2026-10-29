@@ -305,6 +305,7 @@
     nav.innerHTML = `
       <button type="button" data-player-nav="home" aria-label="首頁"><span aria-hidden="true">⌂</span><b>首頁</b></button>
       <button type="button" data-player-nav="stories" aria-label="我的故事"><span aria-hidden="true">▤</span><b>故事</b></button>
+      <a data-player-nav="authors" href="author" aria-label="作者"><span aria-hidden="true">✦</span><b>作者</b></a>
       <button type="button" data-player-nav="me" aria-label="我的"><span aria-hidden="true">◎</span><b>我的</b></button>`;
     document.body.appendChild(nav);
     nav.querySelector('[data-player-nav="home"]')?.addEventListener("click", () => App.showView("home"));
