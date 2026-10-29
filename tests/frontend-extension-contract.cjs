@@ -79,7 +79,7 @@ increasing(siteUI, [
   'loadBAOOptionalGroup("stage-capabilities", ["js/stage-capability-core.js?v=3", "js/stage-capability.js?v=3"])',
   'loadBAOScript("js/reader-context.js?v=7")',
   'loadBAOScript("js/bao-visual-ui.js?v=19")',
-  'loadBAOScript("js/player-shell-v2.js?v=13")'
+  'loadBAOScript("js/player-shell-v2.js?v=14")'
 ], "stage capability extension");
 
 // Builder progressive disclosure must be active before readiness decorates the same surface.
