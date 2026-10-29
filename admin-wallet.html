@@ -247,10 +247,10 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
   </section>
   <section class="card" id="character-publish-admin">
     <h2>5. 作品上架管理</h2>
-    <p class="note">只建立 GitHub Pull Request，不會直接修改 main 或立即部署。PNG 會先在本機解析角色資料，封面重新編碼並移除內嵌 metadata；原始 SillyTavern 卡不會公開到 repo。</p>
+    <p class="note">這是管理員匯入作者交付檔案的上架工具，不是作者工作檯的投稿收件匣。只建立 GitHub Pull Request，不會直接修改 main 或立即部署。PNG 會先在本機解析角色資料，封面重新編碼並移除內嵌 metadata；原始 SillyTavern 卡不會公開到 repo。</p>
 
     <details style="margin-bottom:18px"><summary>投稿紀錄核對</summary>
-      <p class="note">匯出投稿的作品、作者、版本與狀態，供離線比對；不包含角色正文、授權全文或管理員金鑰，也不會更改發布狀態。</p>
+      <p class="note">這裡記錄的是已由管理員建立 PR 的授權提交，不包含作者尚未交付的本機草稿。匯出作品、作者、版本與狀態，供離線比對；不包含角色正文、授權全文或管理員金鑰，也不會更改發布狀態。</p>
       <button id="publication-export" class="secondary" type="button">下載投稿核對資料</button>
       <p id="publication-export-message" class="note" role="status"></p>
     </details>

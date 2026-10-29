@@ -180,6 +180,15 @@
   const resolvedPrefs = (config = App.config) => normalizePrefs(config?.narrative || { ...settings, playerPortrayal: "strict" });
   const activePrefs = () => isStoryLocal() ? resolvedPrefs() : normalizePrefs(settings);
 
+  const sourceSummary = (prefs, source) => {
+    const p = normalizePrefs(prefs);
+    const origin = source === "story" ? "本故事設定" : "這台瀏覽器儲存的偏好";
+    const styles = p.stylePacks.map(key => packs[key][0]);
+    const length = { card: "依作品／回覆設定", short: "短篇幅", medium: "中篇幅", long: "長篇幅" }[p.responseLength];
+    const pace = { card: "依作品", slow: "慢節奏", balanced: "平衡", brisk: "較快推進" }[p.pacing];
+    return `設定來源：${origin}。文風：${styles.length ? styles.join("、") : "依作品"}；篇幅：${length}；節奏：${pace}；玩家演繹：${portrayalLabels[p.playerPortrayal]}。作者文風建議不會自動套用。`;
+  };
+
   const worldFocus = () => {
     const raw = App.activeCharacter?.world_focus || [];
     return Array.isArray(raw) ? raw.filter(Boolean).map(String).slice(0, 16) : [];
@@ -236,6 +245,8 @@
     box.innerHTML = items.length
       ? items.map(x => `<span class="on">${App.escapeHTML(x)}</span>`).join("")
       : '<span>目前不額外干預角色卡</span>';
+    const source = document.getElementById("narrative-builder-source");
+    if (source) source.textContent = sourceSummary(settings, "browser");
     const focusBox = document.getElementById("narrative-builder-focus");
     const focus = worldFocus();
     if (focusBox) {
@@ -313,6 +324,7 @@
     wrap.innerHTML = `<section class="bao-modal narrative-settings-modal" role="dialog" aria-modal="true" aria-labelledby="narrative-settings-title">
       <div class="bao-modal-head"><div><div class="eyebrow">YORUBAY · TONIGHT</div><h2 id="narrative-settings-title">今晚的故事</h2></div><div class="narrative-head-actions"><button class="narrative-help" type="button" data-narrative-help aria-label="敘事設定說明" aria-expanded="false">?</button><button class="bao-modal-close" type="button">關閉</button></div></div>
       <div class="bao-modal-body">
+        <p class="note" data-narrative-source>${App.escapeHTML(sourceSummary(prefs, storyLocal && App.config?.narrative ? "story" : "browser"))}</p>
         <div class="bao-setting-scope" data-setting-scope role="note">${storyLocal ? "本故事：按「套用設定」後，從下次回覆使用；關閉不儲存修改。" : "新故事預設：只影響之後建立的故事；尚未另存敘事偏好的舊故事也會沿用，玩家演繹授權除外。"}</div><div class="tonight-intro"><p>今晚，想讓故事駛向哪裡？</p><p class="tonight-invitation">世界已經準備好了。選一種夜色，順著潮汐，讓故事慢慢發生。</p><small>${storyLocal ? "只套用於目前故事，從下一次回覆生效。" : "作為新故事的起始偏好；未另存偏好的舊故事會沿用。"}</small></div>
         <section class="tonight-section" aria-labelledby="tonight-night"><h3 id="tonight-night">夜色 <span>故事要有什麼氛圍？</span></h3>
           <div class="tonight-nights">${Object.entries(nights).map(([key, meta]) => `<button type="button" class="tonight-night" data-night="${key}" aria-pressed="false"><b>${meta[0]}</b><span>${meta[1]}</span></button>`).join("")}</div>
@@ -454,7 +466,8 @@
         </div>
         </details>
       </div>
-      <div class="bao-modal-footer"><button class="secondary" type="button" data-narrative-reset>恢復預設（待套用）</button><button class="primary" type="button" data-narrative-save>套用設定</button></div>
+      <p class="note">「依作品原貌」會清除額外文風、篇幅、節奏與自訂指令，並恢復玩家主控；作品仍受平台邊界及其他回覆設定約束。按「套用設定」才儲存。</p>
+      <div class="bao-modal-footer"><button class="secondary" type="button" data-narrative-reset>依作品原貌（待套用）</button><button class="primary" type="button" data-narrative-save>套用設定</button></div>
     </section>`;
     document.body.appendChild(wrap);
     const initialValues = new Map([...wrap.querySelectorAll('[data-pref]')].map(el => [el, el.value]));
@@ -677,7 +690,7 @@
     const box = document.createElement("div");
     box.id = "narrative-builder-card";
     box.className = "narrative-builder-card";
-    box.innerHTML = `<h4>今晚的故事 <span class="chip">可選</span></h4><p>選擇夜色、故事節奏與角色互動；預設保留作品原貌。</p><div id="narrative-builder-focus" class="narrative-world-focus hidden"></div><div class="narrative-builder-row"><div id="narrative-builder-summary" class="narrative-summary"></div><button type="button" class="secondary" data-open-narrative>選擇今晚的故事</button></div>`;
+    box.innerHTML = `<h4>今晚的故事 <span class="chip">可選</span></h4><p>未設定時依作品；曾儲存的偏好會沿用，可在設定中選「依作品原貌」。</p><p class="note" id="narrative-builder-source"></p><div id="narrative-builder-focus" class="narrative-world-focus hidden"></div><div class="narrative-builder-row"><div id="narrative-builder-summary" class="narrative-summary"></div><button type="button" class="secondary" data-open-narrative>選擇今晚的故事</button></div>`;
     step.appendChild(box);
     box.querySelector("[data-open-narrative]").onclick = openModal;
     updateBuilderSummary();

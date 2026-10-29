@@ -242,7 +242,8 @@
         ready: Boolean(readiness.ready),
         longFormReady: Boolean(readiness.longFormReady),
         score: Number.isFinite(readiness.score) ? readiness.score : null,
-        grade: text(readiness.grade)
+        grade: text(readiness.grade),
+        ruleDiagnostics: readiness.ruleDiagnostics || []
       },
       findings: findings.sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]),
       layers,
@@ -289,8 +290,10 @@
         <div style="text-align:right">${score}</div>
       </div>
       <p class="note" style="margin-top:14px">${escape(report.runtimeBoundary)}</p>
+      <p class="note">分數是欄位準備度參考，不是作品品質、上架門檻或審核通過率。沒有手機、互動 UI 或推薦文風，也可以投稿。</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:16px">${layerCards}</div>
       <section style="margin-top:18px"><h3>診斷結果</h3><ul style="padding-left:20px">${findings}</ul></section>
+      ${window.BAOCharacterReadiness?.rulesHTML?.(report.readiness) || ''}
       <section style="margin-top:18px"><h3>下一步</h3><p>${escape(report.nextStep)}</p></section>
     `;
   }

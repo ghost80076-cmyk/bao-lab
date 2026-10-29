@@ -68,13 +68,15 @@
       <div class="studio-lifecycle-stages">
         <article data-lifecycle-stage="draft"><span>1</span><div><small>草稿</small><b data-lifecycle-value>—</b></div></article>
         <article data-lifecycle-stage="test"><span>2</span><div><small>本機試玩</small><b data-lifecycle-value>—</b></div></article>
-        <article data-lifecycle-stage="readiness"><span>3</span><div><small>完成度</small><b data-lifecycle-value>—</b></div></article>
+        <article data-lifecycle-stage="readiness"><span>3</span><div><small>欄位檢查</small><b data-lifecycle-value>—</b></div></article>
         <article data-lifecycle-stage="publication"><span>4</span><div><small>公開狀態</small><b data-lifecycle-value>—</b></div></article>
       </div>
       <div class="studio-lifecycle-next">
         <div><small>建議下一步</small><b data-lifecycle-next-label>—</b><p data-lifecycle-next-detail></p></div>
         <button type="button" class="primary" data-lifecycle-next-action>前往下一步</button>
-      </div>`;
+      </div>
+      <details data-lifecycle-score-details><summary>分數怎麼算？</summary><p class="note">這是欄位準備度的加權參考，不是作品品質、審核結果或上架進度。展開查看各項得分；沒有達到指定分數也能投稿。</p><div data-lifecycle-score-breakdown></div><button type="button" class="secondary" data-lifecycle-audit>查看檢查與規則提醒</button></details>
+      <details id="studio-publication-guide"><summary>我要投稿夜灣／更新公開作品</summary><p class="note">目前工作檯沒有直接傳送到管理員待審清單的功能。請先匯出 JSON，再透過官方社群聯絡管理員並交付檔案；下載、儲存或加入我的角色都不代表已提交。</p><ol><li>試玩並確認角色設定、開場、封面與對話頭像。</li><li>匯出送審 JSON；提供作者 ID／名稱、新上架或更新需求，以及素材使用權確認。</li><li>管理員審核後，由管理頁建立上架／更新 PR；檢查、合併並部署後才會公開。</li></ol><p class="note">不用為了投稿添加手機、互動 UI 或作者推薦文風。未公開作品的檔案請先聯絡管理員確認交付方式，避免直接貼到公開頻道。</p><button type="button" class="secondary" data-lifecycle-export>匯出送審 JSON</button> <a href="https://discord.gg/N3XpAhwTN" target="_blank" rel="noopener noreferrer">聯絡官方 Discord</a> · <a href="creator-policy.html" target="_blank" rel="noopener noreferrer">作者發布規範</a></details>`;
     // Completion and publication state belongs to review, not every editing step.
     const finish = form.querySelector('[data-studio-flow-panel="finish"]');
     const actions = finish?.querySelector(".studio-button-row");
@@ -88,8 +90,14 @@
         doctor: "studio-doctor",
         export: "studio-export"
       };
-      if (targets[action]) document.getElementById(targets[action])?.click();
+      if (action === "export") {
+        const guide = node.querySelector("#studio-publication-guide");
+        guide.open = true;
+        guide.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      } else if (targets[action]) document.getElementById(targets[action])?.click();
     });
+    node.querySelector("[data-lifecycle-audit]").onclick = () => document.getElementById("studio-doctor")?.click();
+    node.querySelector("[data-lifecycle-export]").onclick = () => document.getElementById("studio-export")?.click();
     return node;
   };
 
@@ -205,8 +213,10 @@
 
     const summary = host.querySelector("#studio-lifecycle-next-summary");
     if (summary) summary.textContent = data.publicEntry
-      ? "公開作品 · " + (data.audit?.score ?? "—") + "/100"
-      : "本機作品 · " + (data.audit?.score ?? "—") + "/100";
+      ? "公開作品 · 欄位參考 " + (data.audit?.score ?? "—") + "/100"
+      : "本機作品 · 欄位參考 " + (data.audit?.score ?? "—") + "/100";
+    const breakdown = host.querySelector("[data-lifecycle-score-breakdown]");
+    if (breakdown) breakdown.innerHTML = (data.audit?.sections || []).map(item => `<p class="note">${esc(item.label)}：${item.score} / ${item.weight}</p>`).join("");
 
     host.dataset.nextAction = data.lifecycle.next.action;
     const nextLabel = host.querySelector("[data-lifecycle-next-label]");
