@@ -46,6 +46,14 @@
       "created_at": "2026-10-22T06:43:39.094Z",
       "updated_at": "2026-10-22T06:43:39.094Z",
       "bio": ""
+    },
+    {
+      "id": "ayojack",
+      "name": "Ayojack",
+      "bio": "一個想到什麼寫什麼的仆街作者。",
+      "support_links": [],
+      "created_at": "2026-10-29T11:27:20.540Z",
+      "updated_at": "2026-10-29T11:27:20.540Z"
     }
   ]
 }
