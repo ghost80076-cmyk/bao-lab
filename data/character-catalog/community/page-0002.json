@@ -344,6 +344,9 @@
       "ui": false
     },
     "author": "Ayojack",
-    "author_id": "ayojack"
+    "author_id": "ayojack",
+    "discovery": {
+      "category": "male"
+    }
   }
 ]
