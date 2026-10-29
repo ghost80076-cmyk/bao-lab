@@ -1,12 +1,14 @@
 const { test, expect } = require('@playwright/test');
 
 test.describe('Player 2.0 shell', () => {
-  test('mobile uses a simple Home / Stories / My navigation', async ({ page }) => {
+  test('mobile uses a simple Home / Stories / Authors / My navigation', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
     const nav = page.locator('#bao-mobile-nav');
     await expect(nav).toBeVisible({ timeout: 10000 });
-    await expect(nav.locator('[data-player-nav]')).toHaveCount(3);
+    await expect(nav.locator('[data-player-nav]')).toHaveCount(4);
+    await expect(nav.locator('[data-player-nav="authors"]')).toHaveAttribute('href', 'author');
+    await expect(nav.locator('[data-player-nav="authors"]')).toContainText('作者');
     await expect(page.locator('.topbar nav')).toBeHidden();
     const homeSupport = page.locator('#bao-support-float');
     await expect(homeSupport).toBeVisible();
