@@ -313,5 +313,40 @@
       "category": "male",
       "rating": "general"
     }
+  },
+  {
+    "id": "custom-mvkq8wet-ouxlkz",
+    "file": "data/characters/community/b5/custom-mvkq8wet-ouxlkz.json",
+    "name": "師父，今天也請注意分寸",
+    "title": "師父，今天也請注意分寸",
+    "avatar": "https://i.meee.com.tw/cnj2rvJ.png",
+    "category": "male",
+    "rating": "adult",
+    "gender": "",
+    "tags": [
+      "高自由度",
+      "nsfw",
+      "日常陪伴",
+      "奇幻",
+      "師徒"
+    ],
+    "description": "你是傑克，一名青年，與從小撫養並訓練你的師父瑟薇拉同住森林小屋。這位隱退的英雄想把你培養成能獨當一面的戰士，生活上卻依舊散漫得讓人頭痛。今天，你決定親口向她提出抗議；往後的練武、家務與相處方式，將由你們一起重新磨合。",
+    "published_at": "2026-10-29T11:58:15Z",
+    "updated_at": "2026-10-29T11:58:15Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-29T11:58:15Z",
+    "supported_modes": {
+      "immersive": true,
+      "world": false
+    },
+    "supported_display": {
+      "text": true,
+      "ui": false
+    },
+    "author": "Ayojack",
+    "author_id": "ayojack",
+    "discovery": {
+      "category": "male"
+    }
   }
 ]
