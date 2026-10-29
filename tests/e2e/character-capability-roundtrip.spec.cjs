@@ -15,6 +15,7 @@ for (const width of [390, 1280]) {
     await page.locator('#studio-file').setInputFiles({name: 'roundtrip.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(source))});
     await expect(page.locator('[name="name"]')).toHaveValue('往返測試作品');
     await page.locator('[name="name"]').fill('往返測試作品・修訂');
+    if (width <= 530) await page.getByRole('button', {name: '完成編輯', exact: true}).click();
     const before = await page.evaluate(() => BAOCharacterStudio.readCard());
     await page.locator('[data-flow-step="finish"]').click();
     await page.locator('#studio-save-draft').click();
@@ -22,6 +23,7 @@ for (const width of [390, 1280]) {
     await page.reload();
     await page.waitForFunction(() => Boolean(window.BAOCharacterStudio && window.BAOCharacterStudioFlow));
     await page.locator('#studio-drafts button').filter({hasText: '往返測試作品・修訂'}).first().click();
+    await expect(page.locator('[name="name"]')).toHaveValue('往返測試作品・修訂');
     await page.locator('[data-flow-step="finish"]').click();
     const downloading = page.waitForEvent('download');
     await page.locator('#studio-export').click();
