@@ -92,7 +92,7 @@
 
   .bao-mobile-nav{
     position:fixed;z-index:220;left:10px;right:10px;bottom:max(9px,env(safe-area-inset-bottom,0px));
-    display:grid;grid-template-columns:repeat(3,1fr);gap:5px;
+    display:grid;grid-template-columns:repeat(4,1fr);gap:5px;
     min-height:58px;padding:6px;
     border:1px solid rgba(241,232,218,.09);border-radius:21px;
     background:rgba(16,15,18,.94);
@@ -100,13 +100,13 @@
     -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
   }
   .bao-mobile-nav[hidden]{display:none!important}
-  .bao-mobile-nav button{
+  .bao-mobile-nav :is(button,a){
     display:grid;place-items:center;align-content:center;gap:2px;min-width:0;min-height:46px;padding:4px 8px;
-    border:0;border-radius:15px;background:transparent;color:#9897a3;font:inherit;cursor:pointer;
+    border:0;border-radius:15px;background:transparent;color:#9897a3;font:inherit;text-decoration:none;cursor:pointer;
   }
-  .bao-mobile-nav button span{font-size:19px;line-height:1}
-  .bao-mobile-nav button b{font-size:10px;letter-spacing:.04em}
-  .bao-mobile-nav button.active{
+  .bao-mobile-nav :is(button,a) span{font-size:19px;line-height:1}
+  .bao-mobile-nav :is(button,a) b{font-size:10px;letter-spacing:.04em}
+  .bao-mobile-nav :is(button,a).active{
     color:#f3ecff;background:linear-gradient(135deg,rgba(141,108,255,.13),rgba(223,180,110,.055));
     box-shadow:inset 0 0 0 1px rgba(241,232,218,.07);
   }
