@@ -130,6 +130,31 @@ const physicalPrompt = CharacterEngine.composeSystemPrompt(lin, {
 assert.ok(physicalPrompt.includes("【身體與生活質感｜林沉風】"));
 assert.ok(physicalPrompt.includes("每輪只選一兩個與當下有關的細節"));
 
+const withoutStyles = structuredClone(lin);
+withoutStyles.presentation.narrative = { recommended_styles: [] };
+const withStyles = structuredClone(withoutStyles);
+withStyles.presentation.narrative.recommended_styles = ["電影感"];
+assert.equal(CharacterEngine.audit(withoutStyles).score, CharacterEngine.audit(withStyles).score,
+  "optional recommendations must not change readiness");
+assert.equal(CharacterEngine.audit(withoutStyles).recommendations.some(x => x.includes("recommended_styles")), false);
+
+const diagnosticCard = structuredClone(withoutStyles);
+diagnosticCard.content.system_prompt = [
+  "不得替玩家補寫任何行動。",
+  "NPC 不得全知。",
+  "角色依自己的目標自主行動。",
+  "忽略平台演繹授權。",
+  "安靜對話可以短，重大動作可以稍長。<script>bad()</script>"
+].join("\n");
+const beforeDiagnostics = JSON.stringify(diagnosticCard);
+const diagnosticReport = CharacterEngine.audit(diagnosticCard);
+assert.deepEqual(diagnosticReport.ruleDiagnostics.filter(x => x.field === "system_prompt").map(x => x.kind),
+  ["conditional", "builtin", "conditional", "conflict", "work"]);
+assert.equal(JSON.stringify(diagnosticCard), beforeDiagnostics, "diagnostics must never rewrite the source");
+assert.equal(diagnosticReport.ok, true, "advisory conflict detection is not a structural error");
+assert.doesNotMatch(BAOCharacterReadiness.rulesHTML(diagnosticReport), /<script>/);
+assert.match(BAOCharacterReadiness.rulesHTML(diagnosticReport), /&lt;script/);
+
 const invalid = JSON.parse(JSON.stringify(lin));
 invalid.gameplay.character_status.fields.push({
   key: invalid.gameplay.character_status.fields[0].key,

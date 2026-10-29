@@ -79,7 +79,7 @@ assert.equal(core.draftCardBadges({ archived: true })[0].label, "已封存");
   });
   assert.equal(state.publication.label, "已在公開作品庫");
   assert.equal(state.next.action, "published");
-  assert.match(state.next.detail, /更新／下架流程/);
+  assert.match(state.next.detail, /更新／下架請聯絡管理員審核/);
 }
 
 {
@@ -95,3 +95,11 @@ assert.equal(core.draftCardBadges({ archived: true })[0].label, "已封存");
 }
 
 console.log("character studio lifecycle core test passed");
+
+// Static completeness is advice, not a submission gate. Actual structural
+// failures must still point authors to repair before preparing their handoff.
+for (const [errors, expected] of [[[], "export"], [["缺少 greeting"], "doctor"]]) {
+  const state = core.derive({ hasDraft: true, installed: true, synced: true,
+    audit: { score: 66, ready: false, errors } });
+  assert.equal(state.next.action, expected);
+}

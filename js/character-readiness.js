@@ -6,6 +6,34 @@
   const unique = list => [...new Set(list.map(x => String(x || "").trim()).filter(Boolean))];
   const pct = (value, total) => total > 0 ? Math.max(0, Math.min(1, value / total)) : 1;
 
+  // Advisory pattern matches, never prompt rewriting or proof of semantic equivalence.
+  function inspectRules(card) {
+    const findings = [];
+    const fields = { system_prompt: "核心設定", npc_rules: "NPC 規則", author_instructions: "作者敘事偏好" };
+    for (const [key, label] of Object.entries(fields)) {
+      const lines = asText(card[key]).split(/\n+/).map(x => x.trim()).filter(Boolean);
+      for (const line of lines) {
+        let kind = "work", message = "作品專屬要求，預設保留。";
+        if (/(忽略|無視|覆蓋).{0,12}(平台|系統|演繹授權)/.test(line)) {
+          kind = "conflict";
+          message = "可能與平台規則衝突：作品不能覆蓋玩家演繹授權或平台邊界，請確認原意。";
+        } else if (/(不得|禁止|不要|嚴禁).{0,20}(代演|代替玩家|替玩家|玩家的?(台詞|心理|行動))/.test(line)) {
+          kind = "conditional";
+          message = "依玩家設定生效：玩家主控有基本保護；小說共創／單輪觀賞另有明確授權。作品中的重大選擇與特殊限制仍須保留。";
+        } else if (/(NPC|角色).{0,14}(不得|禁止|不能).{0,14}(全知|讀心|未在場)/i.test(line)) {
+          kind = "builtin";
+          message = "平台已有基本資訊邊界；若本句還含作品特有的知情條件，請保留，不要整句刪除。";
+        } else if (/(NPC|角色).{0,12}(自主|自己的目標|不必等待)/i.test(line)) {
+          kind = "conditional";
+          message = "平台模式與玩家的角色主動程度會影響演出；請保留本作品特有的作息、動機與行動條件。";
+        }
+        findings.push({ field: key, label, kind, text: line.slice(0, 240), message });
+        if (findings.length >= 40) return findings;
+      }
+    }
+    return findings;
+  }
+
   function audit(raw = {}) {
     const c = CharacterEngine.normalize(raw || {});
     const validation = CharacterEngine.validate(raw || {});
@@ -149,13 +177,12 @@
       [status.enabled && !statusFields.length && "狀態欄已啟用但沒有欄位"]);
 
     const narrative = c.narrative_profile || {};
-    const recommendedStyles = asArray(narrative.recommended_styles);
     if (narrative.recommended_styles !== undefined && !Array.isArray(narrative.recommended_styles)) {
       warnings.push("presentation.narrative.recommended_styles 應為陣列，因為文風包允許複選。");
     }
-    if (!asText(c.author_instructions)) recommendations.push("建議補 author_instructions：敘事鏡頭、節奏、對話格式與描寫原則最好和角色人格分開管理。");
-    if (!recommendedStyles.length) recommendations.push("可以設定 recommended_styles，作為玩家可選文風建議；預設仍不強制開啟。");
-    const narrativeScore = (asText(c.author_instructions) ? 0.55 : 0.25) + (narrative && typeof narrative === "object" ? 0.25 : 0) + (recommendedStyles.length ? 0.20 : 0.10);
+    // Author instructions can already live in the core prompt. Optional style
+    // metadata must never reward adding fields or penalize a faithful import.
+    const narrativeScore = asText(c.system_prompt) ? 1 : 0;
     addSection("narrative", "敘事與作者控制", 15, Math.min(1, narrativeScore));
 
     const supportedDisplay = c.supported_display || {};
@@ -185,6 +212,7 @@
       warnings: unique(warnings),
       recommendations: unique(recommendations),
       sections,
+      ruleDiagnostics: inspectRules(c),
       character: c
     };
   }
@@ -193,13 +221,21 @@
 
   const escape = value => window.App?.escapeHTML ? App.escapeHTML(String(value ?? "")) : String(value ?? "").replace(/[&<>"']/g, x => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[x]));
 
+  function rulesHTML(report) {
+    const labels = { builtin: "平台已內建", conditional: "依玩家設定／模式", work: "作品內容・保留", conflict: "可能衝突" };
+    const items = report.ruleDiagnostics || [];
+    return `<details style="margin-top:16px"><summary>規則檢查提醒（${items.length} 段）</summary><p class="note">只比對部分常見寫法，不代表完整語意判定。不會自動刪除、改寫或阻擋上架；未命中的內容仍保留原作。平台已具備某功能，不代表每個模式都啟用。</p><ul>${items.map(item => `<li><b>${escape(labels[item.kind])} · ${escape(item.label)}</b><blockquote>${escape(item.text)}</blockquote><p>${escape(item.message)}</p></li>`).join("")}</ul></details>`;
+  }
+
   function reportHTML(report, fileName = "角色卡") {
     const status = report.longFormReady ? "可進長篇測試" : report.ready ? "可開始測玩" : "需要補強";
     const group = (title, list, empty) => `<section style="margin-top:16px"><h3 style="margin-bottom:8px">${title}</h3>${list.length ? `<ul>${list.map(item => `<li>${escape(item)}</li>`).join("")}</ul>` : `<p class="note">${empty}</p>`}</section>`;
     return `<div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start"><div><div class="eyebrow">CHARACTER READINESS</div><h2 style="margin:4px 0">${escape(fileName)}</h2><p class="note">${escape(report.character.name)} · ${status}</p></div><div style="text-align:right"><b style="font-size:32px">${report.score}</b><span>/100 · ${report.grade}</span></div></div>
+      <p class="note">這是欄位準備度參考，不是作品品質、審核結果或上架門檻；選配功能不必為了分數而添加。實際演出仍需試玩。</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-top:16px">${report.sections.map(section => `<div class="note"><b>${escape(section.label)}</b><br>${section.score}/${section.weight}</div>`).join("")}</div>
       ${group("必須修正", report.errors, "沒有阻擋匯入的結構錯誤。")}
       ${group("注意事項", report.warnings, "沒有明顯結構衝突。")}
+      ${rulesHTML(report)}
       ${group("建議", report.recommendations, "目前沒有額外建議。")}`;
   }
 
@@ -250,5 +286,5 @@
     if (injectAuditTool() || attempts > 30) clearInterval(timer);
   }, 120);
 
-  window.BAOCharacterReadiness = { audit, showReport, reportHTML };
+  window.BAOCharacterReadiness = { audit, showReport, reportHTML, rulesHTML };
 })();

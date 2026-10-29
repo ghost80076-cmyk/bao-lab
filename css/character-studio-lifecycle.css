@@ -42,6 +42,9 @@
 .studio-lifecycle-next b{display:block;margin-top:2px;font-size:13px}
 .studio-lifecycle-next p{margin:3px 0 0;color:var(--muted);font-size:11px;line-height:1.55}
 .studio-lifecycle-next button{flex:0 0 auto}
+.studio-lifecycle>details{margin-top:14px;overflow-wrap:anywhere}
+.studio-lifecycle>details summary{cursor:pointer;font-weight:600}
+.studio-lifecycle>details p,.studio-lifecycle>details li{line-height:1.7}
 @media(max-width:800px){
   .studio-lifecycle-head{display:block}
   #studio-lifecycle-next-summary{display:inline-block;margin-top:10px}

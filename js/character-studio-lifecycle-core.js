@@ -90,7 +90,7 @@
           label: installed ? "更新本機試玩版本" : "加入我的角色並試玩",
           detail: "這一步只更新你這台裝置的角色庫，不會公開作品。"
         };
-      } else if ((audit.errors || []).length || !audit.ready) {
+      } else if ((audit.errors || []).length) {
         next = {
           action: "doctor",
           label: "執行 BAO Doctor",
@@ -100,13 +100,13 @@
         next = {
           action: "published",
           label: "目前公開版本已存在",
-          detail: "現行上架端點不允許直接覆蓋既有公開作品；更新／下架流程會另行處理。"
+          detail: "本機修改不會更新公開版本。更新／下架請聯絡管理員審核；作品更新由管理頁建立 PR。"
         };
       } else {
         next = {
           action: "export",
-          label: "匯出送審 JSON",
-          detail: "目前公開上架仍由管理員審核；匯出檔不會自動發布。"
+          label: "準備投稿夜灣",
+          detail: "匯出送審 JSON，透過官方社群交給管理員審核。下載不等於已提交；不要求達到指定分數。"
         };
       }
     }
