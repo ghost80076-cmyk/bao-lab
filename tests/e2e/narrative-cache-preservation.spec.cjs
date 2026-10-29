@@ -40,6 +40,57 @@ async function setup(page, width, legacy = false) {
 }
 
 for (const width of [390, 1440]) {
+  test(`author styles stay advisory until explicit story save at ${width}px`, async ({ page }) => {
+    await setup(page, width);
+    await page.evaluate(() => {
+      App.activeCharacter = { ...App.activeCharacter, narrative_profile: {
+        recommended_styles: ['電影感', 'cinematic', '第二人稱', '慢熱關係', '<img src=x onerror=alert(1)>']
+      } };
+      App.config.narrative.playerPortrayal = 'coauthor';
+      App.config.narrative.observationMode = 'one_turn';
+    });
+    const before = await page.evaluate(() => preferenceSnapshot());
+    const prefs = await page.evaluate(() => structuredClone(App.config.narrative));
+    await page.evaluate(() => BAONarrativeSettings.open());
+    const modal = page.getByRole('dialog', { name: '今晚的故事' });
+    const section = modal.locator('[data-author-style-section]');
+    const cinematic = section.locator('[data-author-style="cinematic"]');
+    await expect(section).toBeVisible();
+    await expect(section.locator('[data-author-style]')).toHaveCount(1);
+    await expect(section).toContainText('第二人稱');
+    await expect(section).toContainText('慢熱關係');
+    await expect(section.locator('img')).toHaveCount(0);
+    await expect(cinematic).toHaveAttribute('aria-pressed', 'false');
+    await cinematic.click();
+    await expect(cinematic).toHaveAttribute('aria-pressed', 'true');
+    await expect(section.locator('[data-author-style-status]')).toContainText('待按「套用設定」');
+    expect(await page.evaluate(() => preferenceSnapshot())).toEqual(before);
+    await modal.locator('.bao-modal-close').click();
+    expect(await page.evaluate(() => preferenceSnapshot())).toEqual(before);
+
+    await page.evaluate(() => BAONarrativeSettings.open());
+    await cinematic.click();
+    await modal.locator('[data-narrative-save]').click();
+    expect(await page.evaluate(() => App.config.narrative)).toEqual({
+      ...prefs, stylePacks: [...prefs.stylePacks, 'cinematic']
+    });
+    expect(await page.evaluate(() => localStorage.getItem('bao-lab:narrative-settings-v1'))).toBe(before.defaults);
+    expect(await page.evaluate(() => preferenceSaves)).toBe(1);
+    expect(await page.evaluate(() => preferenceCalls)).toBe(0);
+    await page.evaluate(() => BAONarrativeSettings.open());
+    await expect(cinematic).toHaveAttribute('aria-pressed', 'true');
+    await modal.locator('[data-narrative-reset]').click();
+    await expect(cinematic).toHaveAttribute('aria-pressed', 'false');
+    await modal.locator('.bao-modal-close').click();
+    expect(await page.evaluate(() => App.config.narrative.stylePacks)).toEqual([...prefs.stylePacks, 'cinematic']);
+
+    await page.evaluate(() => {
+      App.activeCharacter = { ...App.activeCharacter, narrative_profile: { recommended_styles: [] } };
+      BAONarrativeSettings.open();
+    });
+    await expect(modal.locator('[data-author-style-section]')).toHaveCount(0);
+  });
+
   test(`reply controls preserve requests on cancel, reset-cancel and unchanged save at ${width}px`, async ({ page }) => {
     await setup(page, width);
     const before = await page.evaluate(() => preferenceSnapshot());

@@ -138,6 +138,24 @@ assert.doesNotMatch(realistPrompt, /每輪必須|強制轉折/);
 BAONarrativeSettings.set({});
 assert.equal(BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()), '');
 
+// Free-text author metadata is display-only until the player explicitly selects
+// a known style. Never infer permissions, pacing or genre from loose labels.
+const suggestionPrefs = BAONarrativeSettings.get();
+const suggestionCard = { narrative_profile: { recommended_styles: [
+  ' 電影感 ', 'cinematic', '自然對話', '第二人稱', '慢熱關係',
+  '__proto__', '<img src=x onerror=alert(1)>', 42, null, ''
+] } };
+const suggestionSource = JSON.stringify(suggestionCard);
+assert.deepEqual(BAONarrativeSettings.authorStyleSuggestions(suggestionCard), [
+  { label: '電影感', pack: 'cinematic' }, { label: '自然對話', pack: 'natural' },
+  { label: '第二人稱', pack: null }, { label: '慢熱關係', pack: null },
+  { label: '__proto__', pack: null }, { label: '<img src=x onerror=alert(1)>', pack: null }
+]);
+assert.equal(JSON.stringify(suggestionCard), suggestionSource);
+assert.deepEqual(BAONarrativeSettings.get(), suggestionPrefs);
+assert.deepEqual(BAONarrativeSettings.authorStyleSuggestions({}), []);
+assert.deepEqual(BAONarrativeSettings.authorStyleSuggestions({ narrative_profile: { recommended_styles: '電影感' } }), []);
+
 BAONarrativeSettings.set({stylePack:'cinematic'});
 assert.deepEqual(BAONarrativeSettings.get().stylePacks, ['cinematic']);
 BAONarrativeSettings.set({...BAONarrativeSettings.get(), stylePacks:[]});

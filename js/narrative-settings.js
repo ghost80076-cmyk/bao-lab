@@ -74,6 +74,40 @@
     return [...new Set(list.filter(key => Object.prototype.hasOwnProperty.call(packs, key)))];
   };
 
+  // This metadata is free text in existing cards. Only exact known names can
+  // select native styles; genre, viewpoint and pacing labels remain advisory.
+  const authorStyleAliases = new Map([
+    ...Object.entries(packs).flatMap(([key, meta]) => [[key, key], [meta[0], key]]),
+    ["電影感", "cinematic"], ["銀幕夜色", "cinematic"],
+    ["鏡頭式描寫", "cinematic"], ["韓式電影感", "female_kfilm"],
+    ["自然對話", "natural"], ["街角暖光", "natural"],
+    ["微光心事", "tender"], ["霧港懸疑", "suspense"],
+    ["深夜書頁", "literary"]
+  ].map(([label, key]) => [label.toLowerCase(), key]));
+
+  const authorStyleSuggestions = (character = App.activeCharacter) => {
+    const raw = character?.narrative_profile?.recommended_styles;
+    const seen = new Set();
+    return (Array.isArray(raw) ? raw : []).filter(x => typeof x === "string").map(x => x.trim().slice(0, 120))
+      .filter(Boolean).slice(0, 24).map(label => ({ label, pack: authorStyleAliases.get(label.toLowerCase()) || null }))
+      .filter(item => {
+        const key = item.pack || item.label.toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+  };
+
+  const authorStylesHTML = suggestions => !suggestions.length ? "" : `
+    <section class="tonight-section" data-author-style-section aria-labelledby="tonight-author-styles">
+      <h3 id="tonight-author-styles">作者建議 <span>選填文風與創作方向</span></h3>
+      <p class="note">點選只會加入該文風，保留你已選的文風與其他設定；按「套用設定」才儲存。作者文字建議不會直接加入寫作指令。</p>
+      <div class="narrative-pack-grid">${suggestions.map(item => item.pack
+        ? `<button type="button" class="narrative-pack" data-author-style="${item.pack}" aria-pressed="false"><b>${App.escapeHTML(item.label)}</b><span data-author-style-state>加入此文風</span></button>`
+        : `<div class="note" style="min-width:0;overflow-wrap:anywhere"><b>${App.escapeHTML(item.label)}</b><p>作者文字建議 · 供參考，沒有對應的文風選項</p></div>`).join("")}</div>
+      <p class="note" data-author-style-status role="status" aria-live="polite">尚未因作者建議變更設定。</p>
+    </section>`;
+
   const STORY_EXPECTATION_LIMIT = 240;
   const normalizeExpectation = value => String(value ?? "").replace(/[\u0000-\u001f\u007f]+/g, " ").trim().slice(0, STORY_EXPECTATION_LIMIT);
 
@@ -319,6 +353,7 @@
     const storyLocal = isStoryLocal();
     const selected = new Set(prefs.stylePacks);
     const focus = worldFocus();
+    const authorStyles = authorStyleSuggestions();
     const wrap = document.createElement("div");
     wrap.className = "bao-modal-backdrop tonight-backdrop";
     wrap.innerHTML = `<section class="bao-modal narrative-settings-modal" role="dialog" aria-modal="true" aria-labelledby="narrative-settings-title">
@@ -326,6 +361,7 @@
       <div class="bao-modal-body">
         <p class="note" data-narrative-source>${App.escapeHTML(sourceSummary(prefs, storyLocal && App.config?.narrative ? "story" : "browser"))}</p>
         <div class="bao-setting-scope" data-setting-scope role="note">${storyLocal ? "本故事：按「套用設定」後，從下次回覆使用；關閉不儲存修改。" : "新故事預設：只影響之後建立的故事；尚未另存敘事偏好的舊故事也會沿用，玩家演繹授權除外。"}</div><div class="tonight-intro"><p>今晚，想讓故事駛向哪裡？</p><p class="tonight-invitation">世界已經準備好了。選一種夜色，順著潮汐，讓故事慢慢發生。</p><small>${storyLocal ? "只套用於目前故事，從下一次回覆生效。" : "作為新故事的起始偏好；未另存偏好的舊故事會沿用。"}</small></div>
+        ${authorStylesHTML(authorStyles)}
         <section class="tonight-section" aria-labelledby="tonight-night"><h3 id="tonight-night">夜色 <span>故事要有什麼氛圍？</span></h3>
           <div class="tonight-nights">${Object.entries(nights).map(([key, meta]) => `<button type="button" class="tonight-night" data-night="${key}" aria-pressed="false"><b>${meta[0]}</b><span>${meta[1]}</span></button>`).join("")}</div>
           <div class="tonight-current" data-tonight-current aria-live="polite"></div>
@@ -489,10 +525,25 @@
     wrap.addEventListener("click", e => { if (e.target === wrap) close(); });
     const refreshNight = () => {
       const chosen = [...wrap.querySelectorAll("[data-style-pack].active")].map(btn => btn.dataset.stylePack);
+      wrap.querySelectorAll("[data-author-style]").forEach(btn => {
+        const on = chosen.includes(btn.dataset.authorStyle);
+        btn.setAttribute("aria-pressed", String(on));
+        btn.classList.toggle("active", on);
+        btn.querySelector("[data-author-style-state]").textContent = on ? "已選此文風" : "加入此文風";
+      });
       const match = Object.entries(nights).find(([, meta]) => meta[2].length === chosen.length && meta[2].every(key => chosen.includes(key)));
       wrap.querySelectorAll("[data-night]").forEach(btn => btn.setAttribute("aria-pressed", String(btn.dataset.night === match?.[0])));
       wrap.querySelector("[data-tonight-current]").textContent = match ? `目前夜色：${match[1][0]}` : "目前夜色：自訂混搭（已保留，可在進階設定調整）";
     };
+    wrap.querySelectorAll("[data-author-style]").forEach(btn => btn.addEventListener("click", () => {
+      const pack = wrap.querySelector(`[data-style-pack="${btn.dataset.authorStyle}"]`);
+      if (!pack) return;
+      pack.classList.add("active");
+      pack.setAttribute("aria-pressed", "true");
+      updatePackStatus(wrap);
+      refreshNight();
+      wrap.querySelector("[data-author-style-status]").textContent = "已加入文風，待按「套用設定」才儲存；關閉可放棄修改。";
+    }));
     wrap.querySelectorAll("[data-night]").forEach(btn => btn.addEventListener("click", () => {
       const chosen = nights[btn.dataset.night][2];
       wrap.querySelectorAll("[data-style-pack]").forEach(pack => {
@@ -750,6 +801,7 @@
     open: openModal,
     openInstructions: () => openModal({ focusInstructions: true }),
     buildPrompt: buildPreferencePrompt,
+    authorStyleSuggestions,
     // Resolve the same normalized source used by buildSystemPrompt, including
     // the existing browser-default fallback for legacy stories without narrative.
     hasExplicitResponseLength: (config = App.config) =>
