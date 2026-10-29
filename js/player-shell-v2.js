@@ -129,7 +129,7 @@
         </div>
 
         <details class="bao-player-more" data-bao-player-more>
-          <summary><span>更多設定與工具</span><small>跨裝置、角色實驗室、探索與支援</small></summary>
+          <summary><span>更多設定與工具</span><small>跨裝置、角色卡創作室、探索與支援</small></summary>
           <div class="bao-player-grid bao-player-secondary-grid">
           <section class="bao-player-panel">
             <h2>跨裝置</h2>
@@ -138,9 +138,9 @@
           </section>
 
           <section class="bao-player-panel">
-            <h2>角色實驗室</h2>
+            <h2>角色卡創作室</h2>
             <p>匯入、修改、測試自己的角色卡；草稿仍留在這台裝置。</p>
-            <a class="secondary" href="character-studio.html">打開角色實驗室</a>
+            <a class="secondary" href="character-studio.html">打開角色卡創作室</a>
           </section>
 
           <section class="bao-player-panel">

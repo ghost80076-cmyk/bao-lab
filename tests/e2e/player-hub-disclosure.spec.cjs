@@ -17,10 +17,10 @@ for (const width of [390, 1280]) {
     await expect(view.getByRole('button', { name: '調整外觀' })).toBeVisible();
     await expect(view.locator('[data-bao-adult-content-toggle]')).toHaveCount(1);
     await expect(more).not.toHaveAttribute('open', '');
-    await expect(view.getByRole('link', { name: '打開角色實驗室' })).toBeHidden();
+    await expect(view.getByRole('link', { name: '打開角色卡創作室' })).toBeHidden();
     await more.locator('summary').click();
     await expect(more).toHaveAttribute('open', '');
-    await expect(view.getByRole('link', { name: '打開角色實驗室' })).toBeVisible();
+    await expect(view.getByRole('link', { name: '打開角色卡創作室' })).toBeVisible();
     await expect(view.getByRole('button', { name: '雲端故事' })).toBeVisible();
     await expect(view.getByRole('button', { name: '探索作品' })).toBeVisible();
 
