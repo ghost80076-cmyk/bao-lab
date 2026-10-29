@@ -40,6 +40,10 @@ const index = read("index.html");
 assert.match(index, /href="author">作者<\/a>/, "main navigation must expose the public author directory");
 assert.match(index, /id="builder-author-link"/, "story setup must expose a public author link");
 
+const playerShell = read("js/player-shell-v2.js");
+assert.match(playerShell, /data-player-nav="authors" href="author"/, "mobile navigation must expose the public author directory");
+assert.match(playerShell, /<b>作者<\/b>/, "mobile author entry must have a visible label");
+
 const authorPage = read("author.html");
 assert.match(authorPage, /href="author">所有作者<\/a>/, "author page must link back to the public directory");
 
