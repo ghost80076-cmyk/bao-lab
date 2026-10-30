@@ -649,6 +649,45 @@
     return { ok: true, effect };
   }
 
+  // A custom read panel can own a module's navigation only when it exposes
+  // all known fields. Historical diffs and builder/actions are not substitutes
+  // for the current state; extra player fields keep the generic view reachable.
+  function modulePanelCoverage(schema, definitions = [], modules = {}) {
+    const result = {};
+    for (const panel of schema?.panels || []) {
+      const paths = new Set();
+      const add = (path, limit = Infinity) => {
+        if (!isDisplayPath(path)) return;
+        const value = getPath({ modules }, path);
+        if (Array.isArray(value) && value.length > limit) return;
+        paths.add(path);
+      };
+      const visit = section => {
+        if (section.type === 'tabs') {
+          for (const tab of section.tabs || []) for (const child of tab.sections || []) visit(child);
+        } else if (section.type === 'list' || section.type === 'cards' || section.type === 'timeline' && section.mode === 'history') add(section.path, section.limit);
+        else if (section.type === 'stats' || section.type === 'meters') {
+          for (const item of section.items || []) for (const path of [item.path, item.value_path, item.max_path]) {
+            // A stats row formats an object as its name/summary, not a full read view.
+            if (splitPath(path).length > 2 && !isObject(getPath({ modules }, path))) add(path, 8);
+          }
+        } else if (section.type === 'location_archive') {
+          for (const key of ['time_path', 'location_path', 'area_path', 'status_path', 'destinations_path']) add(section[key]);
+        }
+      };
+      for (const section of panel.sections || []) visit(section);
+      for (const def of definitions) {
+        if (!def?.id || result[def.id]) continue;
+        const root = `modules.${def.id}`;
+        const keys = new Set((def.fields || []).map(field => field.key));
+        if (isObject(modules?.[def.id])) for (const key of Object.keys(modules[def.id])) keys.add(key);
+        const covered = paths.has(root) || def.kind === 'object' && keys.size > 0 && [...keys].every(key => paths.has(`${root}.${key}`));
+        if (covered) result[def.id] = panel.id;
+      }
+    }
+    return result;
+  }
+
   function captureActionVersions(state) {
     return { ...(state?.gameplayActionVersions || {}) };
   }
@@ -673,6 +712,6 @@
     MAX_PANELS, MAX_SECTIONS, MAX_ITEMS, MAX_ATTRIBUTES, MAX_FIELDS, MAX_TABS,
     THEME_PRESETS, THEME_DENSITIES, THEME_RADII, THEME_METERS, LAYOUT_PRESETS, SCENE_SOURCES, SCENE_FITS, CARD_VARIANTS, TIMELINE_MODES,
     normalize, normalizeTheme, normalizeLayout, builderDefaults, attributeCost, remainingPoints, normalizeBuilderValues, validateBuilderValues, randomizeBuilderValues,
-    captureActionVersions, reconcileActionUpdate, applyBuilderValues, normalizeActionEffect, executeActionEffect, getPath, setPath, isTargetPath, isDisplayPath
+    modulePanelCoverage, captureActionVersions, reconcileActionUpdate, applyBuilderValues, normalizeActionEffect, executeActionEffect, getPath, setPath, isTargetPath, isDisplayPath
   });
 });

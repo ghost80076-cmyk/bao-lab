@@ -138,6 +138,31 @@ assert.equal(cleaned.panels.some(panel => panel.id === 'secret'), false);
 
 assert.equal(Core.normalize(null), null);
 assert.equal(Core.normalize({ version: 2, panels: [] }), null);
+// The reported production card exposes the same world modules through custom
+// read panels. Only remove generic navigation if the full module is reachable.
+{
+  const production = JSON.parse(fs.readFileSync('data/characters/community/8f/heart-contract-custom-lover.json', 'utf8'));
+  const ui = Core.normalize(production.gameplay.gameplay_ui);
+  const defs = production.gameplay.world_modules;
+  const coverage = Core.modulePanelCoverage(ui, defs, {});
+  assert.equal(coverage.lover, 'lover');
+  assert.equal(coverage.contract, 'contract');
+  assert.equal(coverage.relationship, 'relationship');
+  assert.equal(coverage.scene, 'scene', 'nested current-state tabs count as a read view');
+  assert.equal(coverage.client, undefined);
+  assert.equal(coverage.lover_request, undefined);
+  assert.equal(Core.modulePanelCoverage(ui, defs, { lover: { player_extra: '保留入口' } }).lover, undefined,
+    'player-added fields must remain reachable through the generic module');
+  const diffOnly = Core.normalize({ panels: [{ id: 'history', sections: [{ type: 'timeline', mode: 'round_diff', items: defs.find(d => d.id === 'lover').fields.map(f => ({ path: `modules.lover.${f.key}` })) }] }] });
+  assert.equal(Core.modulePanelCoverage(diffOnly, defs).lover, undefined, 'history is not current state');
+  const limited = Core.normalize({ panels: [{ id: 'limited', sections: [{ type: 'list', path: 'modules.people', limit: 1 }] }] });
+  assert.equal(Core.modulePanelCoverage(limited, [{ id: 'people', kind: 'collection' }], { people: [{ name: 'a' }, { name: 'b' }] }).people, undefined, 'a truncated list must not hide access to the rest');
+  const summaryOnly = Core.normalize({ panels: [{ id: 'summary', sections: [{ type: 'stats', items: [{ path: 'modules.lover' }] }] }] });
+  assert.equal(Core.modulePanelCoverage(summaryOnly, defs).lover, undefined, 'a formatted name/summary is not the full object');
+  const sameName = Core.normalize({ panels: [{ id: 'lover', sections: [{ type: 'stats', items: [{ path: 'location' }] }] }] });
+  assert.equal(Core.modulePanelCoverage(sameName, defs).lover, undefined, 'matching labels/IDs alone do not prove duplicate data');
+}
+
 console.log('Gameplay UI Engine core PASS: opt-in schema, safe archive tabs, location archives, timelines, and state binding');
 
 // Custom selects survive normalization, persistence, and initial world binding.

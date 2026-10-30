@@ -49,7 +49,9 @@
       fields: Array.isArray(source.fields || preset.fields) ? (source.fields || preset.fields).slice(0, 24).map(f => ({
         key: String(f?.key || "").trim().slice(0, 40),
         label: String(f?.label || f?.key || "").trim().slice(0, 40),
-        type: ["text", "number", "meter", "boolean"].includes(f?.type) ? f.type : "text",
+        // Older cards use collection for a string-list field inside an object.
+        // Keep it on the existing bounded tags validator instead of coercing it to text.
+        type: f?.type === "collection" ? "tags" : ["text", "number", "meter", "boolean", "tags"].includes(f?.type) ? f.type : "text",
         min: Number.isFinite(Number(f?.min)) ? Number(f.min) : undefined,
         max: Number.isFinite(Number(f?.max)) ? Number(f.max) : undefined
       })).filter(f => f.key) : []

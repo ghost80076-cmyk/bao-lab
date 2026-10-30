@@ -254,7 +254,7 @@
       const effective = { ...config };
       // State extraction can require a longer JSON document than other helper tasks.
       // Keep the tracker's own requested limit, up to 2400; never apply the 700-token cap to it.
-      if (effective.__stateTask) effective.maxOutputTokens = Math.min(Number(effective.maxOutputTokens || 1800), 2400);
+      if (effective.__stateTask) effective.maxOutputTokens = Math.min(Number(effective.maxOutputTokens || 1800), effective.__stateRebuild ? 8192 : 2400);
       else if (effective.__auxiliaryTask) effective.maxOutputTokens = Math.min(Number(effective.maxOutputTokens || 700), 700);
       if (effective.__memoryTask) effective.maxOutputTokens = Math.min(Number(effective.maxOutputTokens || 1800), 1800);
       const previousPrompt = typeof Chat !== "undefined" ? Chat.lastStoryPromptTokens : 0;
