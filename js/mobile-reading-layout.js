@@ -571,7 +571,7 @@
   if (!style) {
     style = document.createElement('link');
     style.rel = 'stylesheet';
-    style.href = 'css/mobile-reading-layout.css?v=23';
+    style.href = 'css/mobile-reading-layout.css?v=25';
   }
   if (document.head.lastElementChild !== style) document.head.append(style);
   sync();
