@@ -67,6 +67,8 @@ test('start and resume first paint has stable reading styles before any deferred
   assert.ok(hrefs.indexOf('css/chat-tool-navigation.css?v=9') < hrefs.indexOf('css/mobile-reading-layout.css?v=25'));
   assert.ok(hrefs.indexOf('css/mobile-reading-layout.css?v=25') > hrefs.indexOf('css/phone-ui.css?v=2'));
   const script = fs.readFileSync('js/mobile-reading-layout.js', 'utf8');
+  assert.match(script, /style\.href = 'css\/mobile-reading-layout\.css\?v=25'/,
+    'lazy mobile CSS fallback must use the same cache version as index.html');
   assert.match(script, /let style = document\.querySelector\('link\[href\^="css\/mobile-reading-layout\.css"\]'\)/,
     'late mobile JS must reuse its preloaded stylesheet');
   assert.match(script, /document\.head\.append\(style\)/,
