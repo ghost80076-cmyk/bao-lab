@@ -58,7 +58,9 @@
     const updated = (messages || []).map((message, index) => index === 0 && message.role === 'system' && !config.__stateRebuild
       ? { ...message, content: `${message.content}\n${extra}` } : message);
     const configuredLimit = Number(App.config?.api?.maxOutputTokens);
-    const maxOutputTokens = Math.min(Number.isFinite(configuredLimit) && configuredLimit > 0 ? configuredLimit : 2400, 2400);
+    const cap = config.__stateRebuild ? 8192 : 2400;
+    const requested = config.__stateRebuild ? Number(config.maxOutputTokens || 4096) : cap;
+    const maxOutputTokens = Math.min(Number.isFinite(configuredLimit) && configuredLimit > 0 ? configuredLimit : requested, requested, cap);
     const owner = GameState.current;
     const result = await next({ ...config, maxOutputTokens }, updated);
     const finishReason = String(result?.finishReason || '').toUpperCase();
@@ -100,7 +102,7 @@
     const note = document.createElement('p');
     note.dataset.statusTracker = 'true';
     note.className = 'note';
-    const phases = { waiting: '待整理', updating: '整理中', updated: '已更新', unchanged: '已檢查／無變化', failed: '暫未更新' };
+    const phases = { waiting: '待整理', updating: '整理中', updated: '已更新', partial: '部分更新', unchanged: '已檢查／無變化', failed: '暫未更新' };
     const pending = Number(tracker?.pending || 0);
     note.textContent = tracker
       ? `狀態模型：${phases[tracker.phase] || '待確認'} · ${tracker.message || ''}${pending ? `（待處理 ${pending} 輪）` : ''}`

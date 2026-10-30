@@ -54,5 +54,11 @@ assert.equal(sandbox.BAOStatusUsageIntegrity.registerNamedNPCs('林慕晴：「�
   await assert.rejects(sandbox.API.send({ __stateTask: true, testFinishReason: 'MAX_TOKENS' }, []), /截斷/);
   assert.equal(state.stateRequestDiagnostics.finishReason, 'MAX_TOKENS');
   assert.equal(state.stateRequestDiagnostics.applied, false);
+  app.config.api.maxOutputTokens = 4096;
+  await sandbox.API.send({ __stateTask: true, __stateRebuild: true, maxOutputTokens: 4096 }, []);
+  assert.equal(calls.at(-1).config.maxOutputTokens, 4096, 'module rebuild must not be clamped back to 2400');
+  app.config.api.maxOutputTokens = 16000;
+  await sandbox.API.send({ __stateTask: true, __stateRebuild: true, maxOutputTokens: 12000 }, []);
+  assert.equal(calls.at(-1).config.maxOutputTokens, 8192, 'manual rebuild still has a bounded ceiling');
   console.log('status usage integrity core test passed');
 })().catch(error => { console.error(error); process.exitCode = 1; });

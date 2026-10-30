@@ -196,7 +196,7 @@
     note.className = 'note';
     note.setAttribute('role', 'status');
     const labels = { waiting: '待整理', updating: '整理中', updated: '已更新',
-      unchanged: '已檢查、無變化', failed: '暫未更新' };
+      partial: '部分更新', unchanged: '已檢查、無變化', failed: '暫未更新' };
     note.textContent = tracker
       ? `狀態模型：${labels[tracker.phase] || '待確認'}。${tracker.message || ''}`
       : '狀態模型：尚未完成第一次整理；初始數值不是 AI 已確認的劇情。';

@@ -40,4 +40,29 @@ assert.equal(state.modules.client.budget, 'NT$20,000');
 assert.equal(state.modules.lover_request.nationality, '韓國');
 assert.equal(state.modules.lover_request.age, 30);
 
+// Runtime normalization and PATCH validation must agree with the card's
+// string-list fields; a correct array response used to be silently dropped.
+{
+  const vm = require('node:vm');
+  const ctx = { console, structuredClone };
+  ctx.window = ctx;
+  vm.createContext(ctx);
+  for (const name of ['state', 'helper-data', 'world-state', 'world-modules']) {
+    vm.runInContext(fs.readFileSync(`js/${name}.js`, 'utf8'), ctx);
+  }
+  vm.runInContext('window.GameState = GameState;', ctx);
+  ctx.App = { activeCharacter: { name: card.meta.name, world_modules: card.gameplay.world_modules, initial_state: card.gameplay.initial_state }, config: {} };
+  ctx.GameState.create(ctx.App.activeCharacter, ctx.App.config);
+  const defs = ctx.GameState.current.moduleDefinitions;
+  assert.equal(defs.find(d => d.id === 'scene').fields.find(f => f.key === 'present_npcs').type, 'tags');
+  const patch = ctx.BAOHelperData.stateUpdate({ modules: {
+    scene: { present_npcs: ['旅人', '鳴海征'] }, lover: { visible_clues: ['換上外套'] }, relationship: { shared_events: ['離開展會'] }
+  } }, defs);
+  ctx.GameState.applyUpdate(patch);
+  assert.deepEqual(Array.from(ctx.GameState.current.modules.scene.present_npcs), ['旅人', '鳴海征']);
+  assert.deepEqual(Array.from(ctx.GameState.current.modules.lover.visible_clues), ['換上外套']);
+  const rejected = ctx.BAOHelperData.stateUpdate({ modules: { scene: { present_npcs: [{ unsafe: 'object' }] } } }, defs);
+  assert.equal(rejected.modules.scene, undefined, 'the alias accepts bounded string lists, not arbitrary objects');
+}
+
 console.log('Heart Contract custom lover card PASS');

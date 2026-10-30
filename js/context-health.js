@@ -178,8 +178,8 @@
 
         <section class="context-health-rebuild" aria-label="人物／世界狀態重建">
           <h3>人物／世界狀態</h3>
-          <p>時間、地點或人物狀態卡住時，可從故事紀錄重新判斷。不修改故事正文；無法確認的欄位會標示未知。</p>
-          <p>重新整理使用近期原文；深度重建加入較早摘要與事件記憶，並非重讀整篇故事。兩者都會呼叫一次狀態模型並產生 API 費用。</p>
+          <p>時間、地點、人物或作品資料（例如關係、契約）卡住時，可從目前已載入的對話重新判斷，不必先手動存檔。手動資料不變；缺乏證據的作品欄位保留原值，結果會列出尚未確認同步的資料。</p>
+          <p>重新整理使用最近 12 則訊息（最多 20,000 字元）；深度重建使用最近 32 則訊息（最多 48,000 字元），並加入較早摘要與事件記憶，並非重讀整篇故事。每次呼叫一次狀態模型並產生 API 費用；成功後會確認寫入裝置。</p>
           <button type="button" class="secondary" data-state-rebuild="recent">重新整理狀態</button>
           <button type="button" class="secondary" data-state-rebuild="deep">深度重建狀態</button>
           <p data-state-rebuild-result role="status" aria-live="polite"></p>
@@ -208,7 +208,7 @@
       try {
         if (!window.WorldStateEngine?.rebuild) throw new Error('請重新整理網頁以載入狀態重建功能。');
         await WorldStateEngine.rebuild(App.config, mode);
-        status.textContent = '目前狀態已重新整理。';
+        if (GameState.current === rebuildOwner) status.textContent = rebuildOwner.stateTracker?.message || '目前狀態已重新整理。';
       } catch (error) { status.textContent = String(error?.message || '重建失敗，請稍後再試。'); }
       finally { buttons.forEach(b => { b.disabled = false; }); }
     }));

@@ -66,6 +66,7 @@
     const pending = Math.max(0, Math.floor(num(pendingTurns) ?? num(tracker?.pending) ?? 0));
     const titles = {
       updated: "最近一次更新成功",
+      partial: "部分完成，作品資料尚未確認同步",
       unchanged: "本輪未確認狀態變化",
       waiting: "等待累積整理",
       updating: "正在整理狀態",
@@ -74,7 +75,7 @@
     const title = titles[phase] || "已啟用，尚無更新結果";
     const detail = [title, pending ? `待補 ${pending} 輪；故事原文仍保留` : "",
       phase === "unchanged" ? "不代表時間或地點已確認為最新" : "",
-      phase === "failed" ? text(tracker?.message) : ""].filter(Boolean).join(" · ");
+      ["failed", "partial"].includes(phase) ? text(tracker?.message) : ""].filter(Boolean).join(" · ");
     return { title, detail };
   }
 

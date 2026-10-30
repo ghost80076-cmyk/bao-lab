@@ -116,3 +116,9 @@ const core = require("../js/context-health-core.js");
 }
 
 console.log("context health core test passed");
+
+{
+  const partial = core.trackerSummary({ phase: 'partial', message: '契約尚未確認同步，保留原值。' }, true, 2);
+  assert.match(partial.title, /部分完成/);
+  assert.match(partial.detail, /契約尚未確認/);
+}

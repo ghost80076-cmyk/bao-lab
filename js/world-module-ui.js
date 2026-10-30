@@ -112,12 +112,15 @@
     const tabs = document.querySelector("#game-ui .ui-tabs");
     if (!tabs) return;
     tabs.querySelectorAll(".module-tab").forEach(x => x.remove());
-    (GameState.current?.moduleDefinitions || []).filter(def => def.visibility !== 'internal').forEach(def => {
+    const definitions = GameState.current?.moduleDefinitions || [];
+    const schema = window.BAOGameplayUI?.schemaFor?.(App.activeCharacter);
+    const covered = window.BAOGameplayUICore?.modulePanelCoverage?.(schema, definitions, GameState.current?.modules) || {};
+    definitions.filter(def => !covered[def.id]).filter(def => def.visibility !== 'internal').forEach(def => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "ui-tab module-tab";
       btn.dataset.panel = `module:${def.id}`;
-      btn.textContent = `${def.icon} ${def.label}`;
+      btn.textContent = `${def.icon} ${def.label}${schema?.panels?.some(panel => panel.id === def.id) ? '・完整資料' : ''}`;
       btn.onclick = () => {
         tabs.querySelectorAll(".ui-tab").forEach(x => x.classList.remove("active"));
         btn.classList.add("active");

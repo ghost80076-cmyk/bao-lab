@@ -55,8 +55,8 @@ increasing(siteUI, [
   'loadBAOScript("js/three-realms-cultivation-core.js?v=1")',
   'loadBAOScript("js/three-realms-event-profiles.js?v=6")',
   'loadBAOScript("js/three-realms-events-core.js?v=6")',
-  'loadBAOScript("js/world-modules.js?v=7")',
-  'loadBAOScript("js/world-state-hook.js?v=6")'
+  'loadBAOScript("js/world-modules.js?v=8")',
+  'loadBAOScript("js/world-state-hook.js?v=7")'
 ], "world-state extension");
 
 // Story chain: story-tools is installed before prompt/cache orchestration and request lifecycle.
@@ -101,7 +101,7 @@ assert.match(siteUI, /window\.BAOEnsureStoryLibrary = \(\) =>/);
 // Modules without their own global idempotency guard currently rely on the loader;
 // protect against accidentally adding a second loader while the wrapper design is unchanged.
 assert.equal(
-  siteUI.split('loadBAOScript("js/world-modules.js?v=7")').length - 1,
+  siteUI.split('loadBAOScript("js/world-modules.js?v=8")').length - 1,
   1,
   "world-modules must be loaded exactly once by site-ui"
 );
