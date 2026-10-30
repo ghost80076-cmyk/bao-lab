@@ -32,7 +32,7 @@ function build(response={ok:true,status:200,body:{content:'測試成功',usage:{
   const context={API:api,App:app,document,window,TextEncoder,MutationObserver:class{observe(){}},fetch:async(url,opt)=>{calls.push([url,opt]);return {ok:response.ok,status:response.status,json:async()=>response.body}}};
   vm.runInNewContext(code,context);
   assert.equal(api.__sendWrapperIds.has('credits-pilot:hosted-transport'),true,'credits pilot must install through API.wrapSend');
-  return {app,api,calls,options,window,elements};
+  return {app,api,calls,options,window,elements,context};
 }
 const token='yb_s_'+'A'.repeat(43);
 const legacyToken='bao_'+'L'.repeat(43);
@@ -419,4 +419,95 @@ test('oversized single history message can be summarized before transport valida
  await s.api.send(cfg,original);
  assert.equal(s.calls.length,1);
  assert.equal(original[0].content.length,80001);
+});
+
+
+test('real bounded summarizer drains a Chinese backlog beyond two batches and checkpoints progress',async()=>{
+ const s=build();
+ s.context.GameState=s.window.GameState;
+ s.window.addEventListener=()=>{};
+ s.window.BAOHelperData={memoryRules:'',memoryText:v=>v==='GOOD'?'可靠摘要':'',parse:()=>({})};
+ s.context.console={warn(){}};
+ vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../js/chat.js'),'utf8')+'\nwindow.Chat=Chat;',s.context);
+ const chat=s.window.Chat;
+ chat.messages=Array.from({length:48},(_,i)=>({id:'m'+i,role:i%2?'assistant':'user',content:'劇'.repeat(3000)}));
+ chat.messages.push({id:'latest',role:'user',content:'繼續'});
+ chat.ensureMessageIds();
+ const snapshot=JSON.stringify(chat.messages);
+ s.app.config={api:cfg,memory:{mode:'smart',maxRounds:20,episodicRecall:false}};
+ let saved=0;
+ s.app.saveStory=()=>{saved++;assert.ok(chat.summarizedUntil>0);};
+ s.app.buildMessages=async()=>[{role:'system',content:'固定設定'+chat.summary},...chat.messages.slice(chat.summarizedUntil)];
+ // Summary requests still pass through the hosted wrapper and independent budget.
+ s.context.fetch=async(url,opt)=>{
+   const body=JSON.parse(opt.body);s.calls.push([url,opt]);
+   return {ok:true,status:200,json:async()=>({content:body.request_kind==='summary'?'GOOD':'續寫',usage:{}})};
+ };
+ await s.api.send(cfg,await s.app.buildMessages());
+ const requests=s.calls.map(c=>JSON.parse(c[1].body));
+ assert.ok(saved>2);
+ assert.equal(requests.filter(r=>r.request_kind==='summary').length,saved);
+ assert.equal(requests.filter(r=>r.request_kind==='chat').length,1);
+ assert.ok(Buffer.byteLength(JSON.stringify(requests.at(-1).messages),'utf8')<=88000);
+ assert.equal(requests.at(-1).messages.at(-1).content,'繼續');
+ assert.equal(JSON.stringify(chat.messages),snapshot);
+ assert.equal(s.window.BAOCreditsPilot.contextBudget().summaryPasses,saved);
+});
+
+function backlogFixture() {
+ const s=build();
+ const original=Array.from({length:4},(_,i)=>({role:i%2?'user':'assistant',content:'劇'.repeat(20000)}));
+ s.app.config={api:cfg,memory:{mode:'smart',maxRounds:20}};
+ s.window.Chat={summarizedUntil:0,async maybeSummarize(){this.summarizedUntil+=2;}};
+ s.app.buildMessages=async()=>original;
+ return {...s,original};
+}
+
+test('recovery checkpoints and stops at twelve batches, then resumes from saved coverage',async()=>{
+ const s=backlogFixture();let saved=0;
+ s.app.saveStory=()=>saved++;
+ await assert.rejects(()=>s.api.send(cfg,s.original),/已達 12 批/);
+ assert.equal(s.window.Chat.summarizedUntil,24);
+ assert.equal(saved,12);assert.equal(s.calls.length,0);
+ s.app.buildMessages=async()=>s.window.Chat.summarizedUntil>24?msgs:s.original;
+ await s.api.send(cfg,s.original);
+ assert.equal(saved,13);assert.equal(s.calls.length,1);
+});
+
+test('failure after successful batches stops immediately and reports actual summary failure',async()=>{
+ const s=backlogFixture();let attempts=0;
+ s.window.Chat.maybeSummarize=async function(){
+   if(++attempts<4)this.summarizedUntil+=2;
+   else this.memoryHealth={phase:'failed',message:'摘要輸出已截斷，尚有內容未整理'};
+ };
+ await assert.rejects(()=>s.api.send(cfg,s.original),/摘要輸出已截斷/);
+ assert.equal(attempts,4);assert.equal(s.window.Chat.summarizedUntil,6);assert.equal(s.calls.length,0);
+});
+
+test('no-progress recovery is finite for large fixed settings',async()=>{
+ const s=backlogFixture();let attempts=0;
+ s.window.Chat.maybeSummarize=async()=>{attempts++;};
+ await assert.rejects(()=>s.api.send(cfg,s.original),/上限 192 KB/);
+ assert.equal(attempts,2);assert.equal(s.calls.length,0);
+});
+
+test('story switch and cancellation during recovery never send the rebuilt story',async()=>{
+ for(const cancel of [false,true]) {
+   const s=backlogFixture();const signal={aborted:false};
+   s.window.Chat.maybeSummarize=async()=>{
+     if(cancel)signal.aborted=true;
+     else s.window.GameState.current={storySessionId:'other'};
+   };
+   await assert.rejects(()=>s.api.send({...cfg,signal},s.original),cancel?/已停止/:/故事已切換/);
+   assert.equal(s.calls.length,0);
+ }
+});
+
+test('auxiliary hosted requests cannot recursively drain story memory',async()=>{
+ for(const kind of ['__memoryTask','__stateTask','__auxiliaryTask','__storyTool','__connectionTest']) {
+   const s=backlogFixture();let attempts=0;
+   s.window.Chat.maybeSummarize=async()=>attempts++;
+   await assert.rejects(()=>s.api.send({...cfg,[kind]:true},s.original),/仍過大/);
+   assert.equal(attempts,0);assert.equal(s.calls.length,0);
+ }
 });
