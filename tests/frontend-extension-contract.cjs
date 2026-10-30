@@ -49,7 +49,7 @@ increasing(index, [
 
 // World-state chain: the bridge must install its guards before world modules.
 increasing(siteUI, [
-  'loadBAOScript("js/global-bridge.js?v=5")',
+  'loadBAOScript("js/global-bridge.js?v=6")',
   'loadBAOScript("js/world-state.js?v=4")',
   'loadBAOScript("js/character-status.js?v=5")',
   'loadBAOScript("js/three-realms-cultivation-core.js?v=1")',
@@ -71,7 +71,7 @@ increasing(siteUI, [
   'then(() => worldModulesReady)',
   'loadBAOScript("js/three-realms-events.js?v=3")',
   'loadBAOScript("js/streaming-ui.js',
-  'loadBAOScript("js/request-lifecycle.js?v=3")'
+  'loadBAOScript("js/request-lifecycle.js?v=4")'
 ], "story extension");
 
 // Stage capability must resolve before Reader Context / Player Shell consume it.

@@ -114,48 +114,54 @@
         && chat?.maybeSummarize && typeof App.buildMessages === "function") {
       const configured = Math.max(4, Number(App.config?.memory?.maxRounds || 20));
       const candidates = [...new Set([Math.min(configured, 8), 4])];
-      recovery: for (const candidateRounds of candidates) {
-        rounds = candidateRounds;
-        // A summary covers only one bounded batch. Drain the backlog while
-        // coverage advances, rebuilding after EVERY batch, without dropping
-        // uncovered turns or raising the transport ceiling.
-        let candidate = await rebuildForRounds(candidateRounds);
-        assertCurrent();
-        if (candidate) {
-          cleaned = candidate;
-          finalBytes = promptBytes(cleaned);
-          if (finalBytes <= HOSTED_SOFT_PROMPT_BYTES) break;
-        }
-        while (summaryPasses < HOSTED_MAX_SUMMARY_PASSES) {
-          assertCurrent();
-          const before = Number(chat.summarizedUntil || 0);
-          await chat.maybeSummarize(storyConfig, true, candidateRounds);
-          assertCurrent();
-          const after = Number(chat.summarizedUntil || 0);
-          if (after > before) {
-            summaryPasses += 1;
-            // Checkpoint paid progress even when the eventual chat is blocked.
-            App.saveStory?.();
-          }
-          candidate = await rebuildForRounds(candidateRounds);
+      const progress = window.BAOChatSystemNotices?.beginMemoryProgress?.('正在檢查較早劇情，已完成 0 批整理。原始對話仍保留。', owner);
+      try {
+        recovery: for (const candidateRounds of candidates) {
+          rounds = candidateRounds;
+          // A summary covers only one bounded batch. Drain the backlog while
+          // coverage advances, rebuilding after EVERY batch, without dropping
+          // uncovered turns or raising the transport ceiling.
+          let candidate = await rebuildForRounds(candidateRounds);
           assertCurrent();
           if (candidate) {
             cleaned = candidate;
             finalBytes = promptBytes(cleaned);
-            if (finalBytes <= HOSTED_SOFT_PROMPT_BYTES) break recovery;
+            if (finalBytes <= HOSTED_SOFT_PROMPT_BYTES) break;
           }
-          if (after <= before) {
-            if (chat.memoryHealth?.phase === "failed" || chat.summarizing) {
-              stopReason = chat.memoryHealth?.message || "記憶整理仍在進行中。";
-              break recovery;
+          while (summaryPasses < HOSTED_MAX_SUMMARY_PASSES) {
+            assertCurrent();
+            window.BAOChatSystemNotices?.updateMemoryProgress?.(progress, `正在整理較早劇情，已完成 ${summaryPasses} 批；每批成功後會保存進度。`);
+            const before = Number(chat.summarizedUntil || 0);
+            await chat.maybeSummarize(storyConfig, true, candidateRounds);
+            assertCurrent();
+            const after = Number(chat.summarizedUntil || 0);
+            if (after > before) {
+              summaryPasses += 1;
+              // Checkpoint paid progress even when the eventual chat is blocked.
+              App.saveStory?.();
             }
-            break; // No eligible old turns at this window; try four rounds.
+            candidate = await rebuildForRounds(candidateRounds);
+            assertCurrent();
+            if (candidate) {
+              cleaned = candidate;
+              finalBytes = promptBytes(cleaned);
+              if (finalBytes <= HOSTED_SOFT_PROMPT_BYTES) break recovery;
+            }
+            if (after <= before) {
+              if (chat.memoryHealth?.phase === "failed" || chat.summarizing) {
+                stopReason = chat.memoryHealth?.message || "記憶整理仍在進行中。";
+                break recovery;
+              }
+              break; // No eligible old turns at this window; try four rounds.
+            }
+          }
+          if (summaryPasses >= HOSTED_MAX_SUMMARY_PASSES) {
+            stopReason = "本次分批整理已達 12 批，已保存完成進度；請再次送出以接續整理。";
+            break;
           }
         }
-        if (summaryPasses >= HOSTED_MAX_SUMMARY_PASSES) {
-          stopReason = "本次分批整理已達 12 批，已保存完成進度；請再次送出以接續整理。";
-          break;
-        }
+      } finally {
+        window.BAOChatSystemNotices?.endMemoryProgress?.(progress);
       }
     }
     lastContextBudget = {

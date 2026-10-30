@@ -15,7 +15,11 @@
     #bao-chat-system-notices[data-state="error"]{border-color:#9c7957;background:#322820;color:#ffddb9}
     #bao-chat-system-notices[data-state="cancelled"]{border-color:#777b86;background:#292b34;color:#eeeef3}
     #bao-chat-system-notices[data-state="truncated"]{border-color:#b78d57;background:#322b23;color:#ffe2b6}
-    #bao-chat-truncation-hint{font-size:13px}
+    #bao-chat-truncation-hint,#bao-chat-memory-progress{font-size:13px}
+    #bao-chat-memory-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    #bao-chat-memory-actions[hidden],#bao-chat-memory-progress[hidden]{display:none!important}
+    #bao-chat-memory-actions button{white-space:normal;min-height:44px}
+    #bao-chat-memory-actions p{flex-basis:100%;margin:0;color:inherit;font-size:12px}
     #bao-chat-system-notices strong{display:block;font-size:13px;margin-bottom:3px}
     #bao-chat-system-notices #bao-chat-request-status{font-size:13px}
     #bao-chat-system-notices #bao-chat-send-feedback{margin:5px 0 0;padding:0;border:0;background:transparent;color:inherit;box-shadow:none}
@@ -40,6 +44,45 @@
   region.append(heading, status, truncation);
   composer.before(region);
 
+  const memoryProgress = document.createElement('div');
+  memoryProgress.id = 'bao-chat-memory-progress';
+  memoryProgress.hidden = true;
+  const memoryActions = document.createElement('div');
+  memoryActions.id = 'bao-chat-memory-actions';
+  memoryActions.hidden = true;
+  const retryMemory = document.createElement('button');
+  retryMemory.type = 'button';
+  retryMemory.className = 'secondary';
+  retryMemory.textContent = '重試自動記憶整理';
+  const inspectMemory = document.createElement('button');
+  inspectMemory.type = 'button';
+  inspectMemory.className = 'secondary';
+  inspectMemory.textContent = '查看記憶狀態';
+  const memoryCost = document.createElement('p');
+  memoryCost.className = 'note';
+  memoryCost.textContent = '重試會使用目前的整理模型並產生費用；不會重新送出故事。手動整理成筆記不會推進自動摘要進度。';
+  memoryActions.append(retryMemory, inspectMemory, memoryCost);
+  region.append(memoryProgress, memoryActions);
+  inspectMemory.addEventListener('click', () => window.BAOMemoryWorkbench?.open?.());
+  retryMemory.addEventListener('click', () => {
+    window.BAOMemoryWorkbench?.open?.();
+    if (App.config?.memory?.mode === 'smart') window.BAOMemoryWorkbench?.retryAutoMemory?.();
+  });
+  const memoryTasks = new Map();
+  const beginMemoryProgress = (message, owner) => {
+    if (!owner || window.GameState?.current !== owner) return null;
+    const task = {};
+    memoryTasks.set(task, { message, owner });
+    sync();
+    return task;
+  };
+  const updateMemoryProgress = (task, message) => {
+    if (!memoryTasks.has(task)) return;
+    memoryTasks.get(task).message = message;
+    sync();
+  };
+  const endMemoryProgress = task => { memoryTasks.delete(task); sync(); };
+
   let feedback = null;
   let feedbackObserver = null;
   let truncationOwner = null;
@@ -54,10 +97,19 @@
     const message = feedback && !feedback.hidden ? feedback.textContent.trim() : '';
     const cancelled = message.startsWith('已取消本次生成');
     const isTruncated = Boolean(truncationOwner && !truncation.hidden);
-    status.textContent = pending ? '正在生成故事…' : cancelled ? '生成已取消' : message ? '請求未完成' : isTruncated ? '回覆可能遭到截斷' : '';
+    for (const [task, value] of memoryTasks) {
+      if (value.owner !== window.GameState?.current) memoryTasks.delete(task);
+    }
+    const memory = memoryTasks.values().next().value;
+    memoryProgress.textContent = memory?.message || '';
+    memoryProgress.hidden = !memory;
+    const memoryFailure = Boolean(message && /記憶|摘要|上下文|送出內容.*過大/.test(message));
+    memoryActions.hidden = pending || Boolean(memory) || !memoryFailure || !window.BAOMemoryWorkbench;
+    retryMemory.textContent = App.config?.memory?.mode === 'smart' ? '重試自動記憶整理' : '開啟自動記憶設定';
+    status.textContent = memory ? '正在整理記憶…' : pending ? '正在生成故事…' : cancelled ? '生成已取消' : message ? '請求未完成' : isTruncated ? '回覆可能遭到截斷' : '';
     status.hidden = !status.textContent;
-    region.dataset.state = pending ? 'pending' : cancelled ? 'cancelled' : message ? 'error' : isTruncated ? 'truncated' : 'idle';
-    region.hidden = !pending && !message && !isTruncated;
+    region.dataset.state = memory || pending ? 'pending' : cancelled ? 'cancelled' : message ? 'error' : isTruncated ? 'truncated' : 'idle';
+    region.hidden = !pending && !message && !isTruncated && !memory;
   };
   const clearCompletion = () => {
     truncationOwner = null;
@@ -112,5 +164,5 @@
   };
   new MutationObserver(hideLoadingText).observe(stream, { childList: true });
   sync();
-  window.BAOChatSystemNotices = { region, sync, reportCompletion, clearCompletion };
+  window.BAOChatSystemNotices = { region, sync, reportCompletion, clearCompletion, beginMemoryProgress, updateMemoryProgress, endMemoryProgress };
 })();

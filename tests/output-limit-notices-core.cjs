@@ -68,6 +68,7 @@ const read = name => fs.readFileSync(path.join(__dirname, '..', 'js', name), 'ut
       this.classList = { contains: () => false };
     }
     setAttribute(key, value) { this.attrs[key] = value; }
+    addEventListener() {}
     append(...nodes) { this.children.push(...nodes); }
     before(node) { this.insertedBefore = node; }
   }
@@ -96,6 +97,15 @@ const read = name => fs.readFileSync(path.join(__dirname, '..', 'js', name), 'ut
   vm.runInContext(read('chat-system-notices.js'), context);
   const notices = context.BAOChatSystemNotices;
   const warning = notices.region.children[2];
+  const outer = notices.beginMemoryProgress('已完成 2 批', owner);
+  const inner = notices.beginMemoryProgress('正在整理本批', owner);
+  assert.equal(notices.region.hidden, false);
+  assert.equal(notices.region.children[3].textContent, '已完成 2 批', 'outer backlog progress wins over a nested helper');
+  notices.endMemoryProgress(inner);
+  notices.updateMemoryProgress(outer, '已完成 3 批');
+  assert.equal(notices.region.children[3].textContent, '已完成 3 批');
+  notices.endMemoryProgress(outer);
+  assert.equal(notices.region.hidden, true, 'progress clears when the operation ends');
   notices.reportCompletion({ finishReason: 'stop' }, owner);
   assert.equal(notices.region.hidden, true, 'normal stop should not display warnings');
   notices.reportCompletion({ finishReason: 'MAX_TOKENS' }, owner);
@@ -110,6 +120,7 @@ const read = name => fs.readFileSync(path.join(__dirname, '..', 'js', name), 'ut
   notices.reportCompletion({ finishReason: 'length' }, owner);
   assert.equal(notices.region.hidden, false);
   assert.match(warning.textContent, /服務商規格/);
+  notices.beginMemoryProgress('舊故事的整理進度', owner);
   context.GameState.current = {};
   const chatObserver = observers.find(observer => observer.target === chat);
   assert.ok(chatObserver, 'notices must watch story-view changes');

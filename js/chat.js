@@ -247,6 +247,7 @@ const Chat = {
       lastModel: memoryApi?.model || "",
       repaired: false
     };
+    const progress = window.BAOChatSystemNotices?.beginMemoryProgress?.('正在整理較早劇情；成功後會更新自動摘要，原始對話仍保留。', owner);
     try {
       let result;
       let summaryConfig;
@@ -331,6 +332,7 @@ const Chat = {
       console.warn("BAO/LAB memory summary failed:", err);
     }
     finally {
+      window.BAOChatSystemNotices?.endMemoryProgress?.(progress);
       if (this.summaryTask === task) {
         this.summaryTask = null;
         this.summarizing = false;
