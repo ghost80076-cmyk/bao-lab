@@ -79,7 +79,7 @@ global.API = { send: async (config, messages) => { prompt = messages[1].content;
   ], modules: { lover: { mood: 'STALE_MOOD', player_note: 'keep' }, contract: { remaining: 'STALE_TIME' }, scene: { atmosphere: 'STALE_SCENE' },
     records: [{ id: 'a', name: '舊項目', status: '進行', manual_note: 'keep' }, { id: 'b', name: '未出現項目', status: '保留' }], manual: { text: '手動內容' } },
     pendingStateTurns: [{ player: '舊', assistant: '舊' }, { player: '離開展會', assistant: '到車旁，契約剩三天，他換上外套。' }] });
-  const moduleReply = () => ({ text: JSON.stringify({ ...JSON.parse(reply().text), modules: {
+  const moduleReply = () => ({ text: JSON.stringify({ ...JSON.parse(reply().text), module_checks: { records: true }, modules: {
     lover: { mood: '安靜' }, contract: { remaining: '三天' }, scene: { atmosphere: '放鬆' },
     records: [{ id: 'a', status: '完成' }, { id: 'c', name: '新項目', status: '新增' }], manual: { text: '惡意覆寫' }, unauthorized: { x: 1 }
   } }) });

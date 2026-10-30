@@ -67,5 +67,9 @@ const { GameState } = context;
   trackedFields = false;
   assert.equal(engine.enabled({ narrativeMode: 'immersive', displayMode: 'ui', stateTracking: false }), false,
     'an explicit saved preference beats the visual mode');
+  GameState.current.moduleDefinitions = [{ id: 'inventory', tracking: 'medium' }];
+  assert.equal(engine.enabled(text), true, 'authored gameplay data remains tracked in prose mode');
+  GameState.current.moduleDefinitions[0].tracking = 'manual';
+  assert.equal(engine.enabled(text), false, 'manual-only modules do not enable automatic tracking');
   console.log('Display/state tracking regression: PASS (new, legacy, save/restore, both switches, API isolation)');
 })().catch(error => { console.error(error); process.exitCode = 1; });

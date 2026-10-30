@@ -107,23 +107,10 @@
   };
   const dueNow = config => queueFor(GameState.current).length + 1 >= intervalFor(config);
 
-  const selectedDefinitions = knownText => {
-    const definitions = (GameState.current?.moduleDefinitions || []).filter(def => def?.tracking !== 'manual');
-    const lastRelevant = new Set(GameState.current?.lastRelevantModules || []);
-    const score = def => {
-      let value = 0;
-      if (def.tracking === 'high') value += 100;
-      if (def.context === 'core') value += 80;
-      if (lastRelevant.has(def.id)) value += 60;
-      if (window.BAOWorldModules?.relevanceScore) value += Math.min(40, BAOWorldModules.relevanceScore(def, knownText) * 5);
-      return value;
-    };
-    return definitions.map(def => ({ def, score: score(def) }))
-      .filter(item => item.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 8)
-      .map(item => item.def);
-  };
+  // New story events are not known before generation. Keyword ranking here
+  // excluded newly acquired items and ui_only pages forever. Offer every
+  // active, nonmanual schema (already bounded by the module manager).
+  const selectedDefinitions = () => (GameState.current?.moduleDefinitions || []).filter(def => def?.tracking !== 'manual');
   const statusSchema = () => {
     const fields = window.BAOCharacterStatus?.configFor?.(App.activeCharacter)?.fields || [];
     return fields.filter(field => field?.track).slice(0, 24).map(field => ({
@@ -159,7 +146,7 @@
       'npcs 只更新有明確變化的人物；presence 只能是 present、away、unknown。不要因轉場自動認定人物仍在場。',
       '更新既有 NPC 時沿用目前狀態的 npc_id；新 NPC 不填 npc_id，由系統建立。新 NPC 可填 aliases、固定 appearance 與當前 outfit。既有 appearance 必須沿用；只有故事明確造成長期外貌變化時才同時回傳 appearance_change:true。只有明確換裝才更新 outfit。first_seen 由系統建立，不得輸出。別名對應到既有人物時使用正式姓名，不能重複建檔。',
       'modules 只使用允許的 module_id 與欄位；character_statuses 只使用允許的 field_key。無法確定的欄位直接省略。',
-      '物件模組只輸出變動欄位；集合模組的陣列會取代該集合，若需更新必須保留既有項目，不能只回傳新增項目。沒有完整依據就省略該集合。',
+      window.BAOHelperData.moduleProtocol || '',
       defs.some(def => def.id === window.BAOThreeRealmsCultivation?.id) ? window.BAOThreeRealmsCultivation.rules : '',
       'world_clock 是可選 PATCH：只有明確經過時間才寫 advance_minutes；只有明確日期、期限、約定、旅程耗時或倒數才 schedule。不得自行創造劇情。resolve/cancel 只能使用目前狀態已有的 wc-* ID。',
       window.BAONPCTimeline?.resolutionContract?.() || '',
@@ -328,7 +315,7 @@
     }
 
     const cultivationSource = [...(merged.priorTurns || []).flatMap(turn => [turn.player, turn.assistant]), playerText, assistantText].join('\n');
-    const clean = window.BAOHelperData.stateUpdate(merged.parsed, merged.defs || [], cultivationSource);
+    const clean = window.BAOHelperData.stateUpdate(merged.parsed, merged.defs || [], cultivationSource, { collectionMode: 'merge', removalEvidence: [...(merged.priorTurns || []).map(turn => turn.assistant), assistantText].join('\n') });
     if (!clean) {
       API.noteRequest?.('state','merged-invalid');
       enqueue(owner, playerText, assistantText);
@@ -348,7 +335,13 @@
     owner.stateRequestDiagnostics.applied = true;
     // Only remove records actually supplied in this request. Concurrent turns
     // and older waiting batches must remain intact; no index-based deletion.
-    const completed = new Set(merged.priorTurns || []);
+    const unconfirmed = window.BAOHelperData.moduleCoverage?.(merged.parsed, clean, merged.defs || []) || [];
+    const missingScene = merged.defs?.length ? window.BAOHelperData.sceneCoverage?.(merged.parsed, explicitScene || {}) || [] : [];
+    if (missingScene.length) unconfirmed.push('__scene__');
+    owner.stateRequestDiagnostics.unconfirmedScene = missingScene;
+    owner.stateRequestDiagnostics.unconfirmedModules = unconfirmed;
+    const completed = new Set(unconfirmed.length ? [] : merged.priorTurns || []);
+    if (unconfirmed.length) enqueue(owner, playerText, assistantText);
     for (let index = pending.length - 1; index >= 0; index -= 1) {
       if (completed.has(pending[index])) pending.splice(index, 1);
     }
@@ -360,7 +353,11 @@
         : key === 'modules'
           ? Object.keys(clean[key] || {}).length
           : true);
-    mark(owner, changed ? 'updated' : 'unchanged', changed
+    const labels = (merged.defs || []).filter(def => unconfirmed.includes(def.id)).map(def => def.visibility === 'internal' ? '其他作品資料' : def.label || def.id);
+    if (missingScene.length) labels.unshift('時間／地點');
+    mark(owner, unconfirmed.length ? 'partial' : changed ? 'updated' : 'unchanged', unconfirmed.length
+      ? `本輪部分狀態已處理；以下作品資料尚未確認同步：${labels.join('、')}。已保留待補輪次，不另發 API 請求。`
+      : changed
       ? '故事與狀態已由同一個模型、同一次 API 請求完成。'
       : '同一次故事請求已檢查狀態，本輪沒有可確認的變化。');
     return Object.keys(safeUpdate).length ? safeUpdate : (scenePatch || {});

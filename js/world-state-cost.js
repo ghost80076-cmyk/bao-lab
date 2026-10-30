@@ -152,17 +152,22 @@
       ...(owner.episodicMemory?.events || []).slice(-24).map(e => `第${e.turn}輪：${e.text}`),
       ...(owner.events || []).slice(0, 8).map(e => typeof e === 'string' ? e : e.text)
     ].filter(Boolean).join('\n').slice(-16000) : '';
+    // Identifiers only: do not let stale prices, quantities, scene or mood
+    // become reconstruction evidence. Needed to target explicit consumption.
+    const collectionIdentities = Object.fromEntries(definitions.filter(def => def.kind === 'collection').map(def => [def.id,
+      (Array.isArray(owner.modules?.[def.id]) ? owner.modules[def.id] : []).slice(0, 100).map(item => ({ id: String(item?.id || '').slice(0, 160), name: String(item?.name || '').slice(0, 160) })).filter(item => item.id || item.name)]));
     const prompt = [
       '從故事證據重建目前時間、地點與人物快照，並更新作品模組。只輸出 JSON，不寫故事。',
       '原文按舊到新排列。最新已發生的事實優先於舊摘要與事件記憶；願望、否定、假設、尚未完成的嘗試不算結果。資料不足填「未確認」，presence 填 unknown；不可用開場或舊值補空。',
       '人物名單只供身分對照，沿用 npc_id、正式姓名、固定外貌；未出場人物不要推演離線活動。npcs 回傳目前有證據的人物狀態，character_statuses 僅使用提供的欄位。不要輸出事件或 world_clock。',
       'modules 必須是物件，只依原文更新下列允許模組及欄位，包括作品的關係、契約、場景或任務。它是有據可查的 PATCH，不是重置所有設定；無法確認或沒有變化的欄位省略，不捏造、不歸零、不用舊快照填空。手動模組不得輸出。',
-      '集合模組只回傳有證據的新增或更新項目，沿用 id 或 name；未列出的舊項目不代表已刪除，空陣列不會清空既有集合。不要為補齊集合而自行創造歷史。',
+      window.BAOHelperData.moduleProtocol || '',
       '格式：{"time":"目前時間或未確認","location":"目前地點或未確認","npcs":[{"npc_id":"npc-1","name":"姓名","mood":"未確認","location":"未確認","relationship":"未確認","outfit":"未確認","presence":"unknown"}],"character_statuses":{"姓名":{}},"modules":{}}',
       `【人物身分對照】${JSON.stringify(identities)}`,
       `【角色名稱】${String(window.App?.activeCharacter?.name || '').slice(0, 200)}`,
       `【人物追蹤欄位】${JSON.stringify(fields)}`,
       `【作品模組允許欄位】${JSON.stringify(moduleSchemas)}`,
+      `【既有集合身分對照：只供識別，不代表仍然持有】${JSON.stringify(collectionIdentities)}`,
       older ? `【較早記憶：可能過時，只作背景】${older}` : '',
       `【近期原始故事：優先依據】\n${recent}`
     ].filter(Boolean).join('\n\n');
@@ -183,29 +188,15 @@
       if (!raw || typeof raw.time !== 'string' || !raw.time.trim() || typeof raw.location !== 'string' || !raw.location.trim() || !Array.isArray(raw.npcs) || !raw.character_statuses || typeof raw.character_statuses !== 'object' || Array.isArray(raw.character_statuses)) throw new Error('未取得完整狀態快照，已保留原狀態。');
       if (definitions.length && (!raw.modules || typeof raw.modules !== 'object' || Array.isArray(raw.modules))) throw new Error('未取得作品模組的整理結果，已保留原狀態；請重試。');
       if (raw.npcs.some(n => !n || typeof n !== 'object' || typeof n.name !== 'string' || !n.name.trim())) throw new Error('人物資料不完整，已保留原狀態。');
-      const data = window.BAOHelperData.stateUpdate({ time: raw.time, location: raw.location, npcs: raw.npcs, character_statuses: raw.character_statuses, modules: raw.modules }, definitions, recent);
+      const data = window.BAOHelperData.stateUpdate({ time: raw.time, location: raw.location, npcs: raw.npcs, character_statuses: raw.character_statuses, modules: raw.modules, module_removals: raw.module_removals }, definitions, recent, { collectionMode: 'merge', removalEvidence: messages.slice(mode === 'deep' ? -32 : -12).filter(m => m.role === 'assistant').map(m => m.content).join('\n').slice(-limit) });
       if (!data?.time?.trim() || !data?.location?.trim()) throw new Error('狀態資料驗證失敗。');
+      const missingIds = new Set(window.BAOHelperData.moduleCoverage(raw, data, definitions));
+      const unconfirmedScene = window.BAOHelperData.sceneCoverage(raw);
       const processed = [], unconfirmed = [];
       for (const def of definitions) {
-        const moduleLabel = def.visibility === 'internal' ? '其他作品資料' : def.label || def.id;
-        if (!Object.prototype.hasOwnProperty.call(data.modules || {}, def.id)) { unconfirmed.push(moduleLabel); continue; }
-        if (def.kind === 'collection' && !data.modules[def.id].length) {
-          delete data.modules[def.id];
-          unconfirmed.push(moduleLabel);
-          continue;
-        }
-        processed.push(moduleLabel);
-        if (def.kind !== 'collection') continue;
-        // A bounded history cannot establish that an older item ceased to exist.
-        // Rebuild updates identified items and preserves unseen records.
-        const items = clone(Array.isArray(owner.modules?.[def.id]) ? owner.modules[def.id] : []);
-        for (const item of data.modules[def.id]) {
-          const index = items.findIndex(old => old && typeof old === 'object' &&
-            (item.id && old.id === item.id || item.name && old.name === item.name && (!item.id || !old.id)));
-          if (index >= 0) items[index] = { ...items[index], ...item };
-          else if (!items.some(old => JSON.stringify(old) === JSON.stringify(item))) items.push(item);
-        }
-        data.modules[def.id] = items;
+        const label = def.visibility === 'internal' ? '其他作品資料' : def.label || def.id;
+        if (missingIds.has(def.id)) unconfirmed.push(label);
+        if (Object.hasOwn(data.modules || {}, def.id)) processed.push(label);
       }
       // Reset only mutable tracked fields. Keep NPC IDs, portraits, manual
       // fields, historical records, clock and all story prose intact.
@@ -220,15 +211,16 @@
       catch (error) { for (const key of Object.keys(owner)) delete owner[key]; Object.assign(owner, rollback); throw error; }
       // Do not discard older failures outside this bounded evidence window, or
       // pretend missing module updates were repaired by this request.
-      if (!unconfirmed.length && !unconfirmedCharacters.length) owner.pendingStateTurns = queue().filter(turn =>
+      if (!unconfirmed.length && !unconfirmedCharacters.length && !unconfirmedScene.length) owner.pendingStateTurns = queue().filter(turn =>
         !recent.includes(`玩家：${turn.player}\n\n故事：${turn.assistant}`));
       owner.stateRebuildBackup = { at: new Date().toISOString(), mode, ...before };
-      owner.stateRebuildReport = { at: new Date().toISOString(), mode, processed, unconfirmed, unconfirmedCharacters, manual: (owner.moduleDefinitions || []).filter(def => def.tracking === 'manual' && def.visibility !== 'internal').map(def => def.label || def.id) };
+      owner.stateRebuildReport = { at: new Date().toISOString(), mode, processed, unconfirmed, unconfirmedCharacters, unconfirmedScene, manual: (owner.moduleDefinitions || []).filter(def => def.tracking === 'manual' && def.visibility !== 'internal').map(def => def.label || def.id) };
       const message = '目前狀態已重新整理。' + (processed.length ? ` 已處理作品資料：${processed.join('、')}。` : '')
         + (unconfirmed.length ? ` 以下作品資料未取得可用更新，保留原值且尚未確認同步：${unconfirmed.join('、')}。` : '')
+        + (unconfirmedScene.length ? ' 時間或地點缺少明確證據，尚未確認同步。' : '')
         + (unconfirmedCharacters.length ? ` 部分人物欄位缺少證據，已保留原值：${unconfirmedCharacters.join('、')}。` : '')
         + (definitions.length ? ' 未提供新證據的作品欄位保留原值；手動資料不變。' : '');
-      report(owner, unconfirmed.length || unconfirmedCharacters.length ? 'partial' : 'updated', message);
+      report(owner, unconfirmed.length || unconfirmedCharacters.length || unconfirmedScene.length ? 'partial' : 'updated', message);
       owner.sceneInfoSource = 'story-state-rebuild';
       const saved = await window.App?.saveStory?.(false);
       let durable = saved !== false;
@@ -300,11 +292,10 @@
       report(owner, "failed", `${scenePatch ? '時間／地點已同步；' : ''}獨立狀態模型的連線金鑰（API Key）尚未重新填入，請到 AI 連線設定補上。`);
       return scenePatch;
     }
-    // Process only one configured batch at a time. If a previous state request
-    // failed, newer turns may queue behind it, but a retry must not grow into an
-    // ever-larger prompt. Successful batches are removed below; queued turns stay
-    // intact for the next update, so cost is bounded without dropping story data.
-    const batch = pending.slice(0, interval);
+    // Keep one bounded batch and prefer newest completed facts. Repeatedly
+    // retrying only the oldest failed scene can keep money/items and location
+    // behind indefinitely. Older unsent evidence remains in the local queue.
+    const batch = pending.slice(-interval);
     // Only an explicit stateApi may select a different model. A bare
     // stateModel value is legacy metadata and must never be sent to the current
     // main endpoint, or old saves can repeatedly fail status extraction.
@@ -354,9 +345,15 @@
         );
         return scenePatch;
       }
-      pending.splice(0, batch.length);
+      const unconfirmed = owner.stateRequestDiagnostics?.unconfirmedModules || [];
+      if (!unconfirmed.length) {
+        const completed = new Set(batch);
+        for (let i = pending.length - 1; i >= 0; i--) if (completed.has(pending[i])) pending.splice(i, 1);
+      }
       const changed = Object.keys(result).some(key => key === "character_statuses" ? Object.keys(result[key] || {}).length : key === "npcs" ? (result[key] || []).length : key === "events" ? (result[key] || []).length : true);
-      report(owner, changed ? "updated" : "unchanged", changed ? "狀態模型已回傳並套用本輪更新。" : "狀態模型已成功檢查，但沒有可確認的變化。");
+      report(owner, unconfirmed.length ? 'partial' : changed ? 'updated' : 'unchanged', unconfirmed.length
+        ? '部分作品資料尚未確認同步，已保留待補輪次；不會把一般狀態更新當成所有分頁都完成。'
+        : changed ? '狀態模型已回傳並套用本輪更新。' : '狀態模型已成功檢查，但沒有可確認的變化。');
       return safeResult;
     } catch (error) {
       if (GameState.current === owner) report(

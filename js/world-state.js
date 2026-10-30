@@ -13,6 +13,7 @@ const WorldStateEngine = {
     const preferred = this.ensureTrackingPreference(config);
     return config?.narrativeMode === "world"
       || preferred
+      || Boolean(GameState.current?.moduleDefinitions?.some(def => def.tracking !== 'manual'))
       || Boolean(window.BAOCharacterStatus?.hasTrackedFields?.());
   },
 

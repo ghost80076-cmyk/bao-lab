@@ -596,6 +596,7 @@ jobs:
         run: |
           node tests/world-state-cost-core.cjs
           node tests/world-state-rebuild-core.cjs
+          node tests/state-module-integrity-core.cjs
       - name: Same-model story and state merge
         run: node tests/same-model-state-merge-core.cjs
       - name: Native Sunrise startup and isolated memory frames
