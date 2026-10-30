@@ -6,6 +6,7 @@
   const blank = () => [{ id: "memory-1", title: "記憶 1", text: "", enabled: true }];
   let saveTimer = null;
   let returnFocus = null;
+  let retryTask = null;
   const backgroundInert = new Map();
   const ensureStyles = () => {
     if (document.querySelector('link[href^="css/memory-workbench.css"]')) return;
@@ -84,8 +85,11 @@
             ? `已有 ${diag.pendingRounds} 輪舊內容等待自動整理；未成功摘要前不會從原文脈絡移除。`
             : `目前 ${diag.totalRounds} 輪仍由近期原文直接提供，尚未需要建立長期摘要。`;
     return `<section class="memory-pane active" data-pane="context"><div class="memory-pane-title"><div><h3>記憶總覽</h3><p>確認故事模型現在使用的近期原文、自動摘要與整理狀態。</p></div><span class="memory-pill">MEMORY HEALTH</span></div>
+      <label class="memory-auto-row"><span><b>自動記憶（建議開啟）</b><br><small class="note">保留近期原文，必要時自動摘要較早劇情；整理會產生模型用量。</small></span><input type="checkbox" data-context-auto-summary ${Chat.summarizing || retryTask || App.__requestPending ? "disabled" : ""} ${App.config?.memory?.mode === "smart" ? "checked" : ""}></label>
+      <details class="memory-player-details" data-memory-guide><summary>記憶怎麼用？</summary><p>一般遊玩：開啟自動記憶即可，平常不用手動整理。</p><p>必記事項／長期筆記：只放重要約定、關係與規則。啟用的筆記每次都會占用上下文，避免貼入整段聊天或重複設定。</p><p>手動整理：產生草稿供你選擇寫入筆記，不會推進自動摘要進度，也不能取代「重試自動記憶整理」。</p><p>出現摘要失敗或內容過大時：先查看下方原因，再重試自動整理；完整故事紀錄仍保留。</p></details>
       <article class="memory-health-card" data-memory-health="${esc(health.phase || "idle")}"><b>${esc(memoryStateLabel(diag))}</b><p>${esc(statusText)}</p><div class="memory-health-meta"><span>摘要模型：${esc(diag.model || "沿用聊天模型")}</span><span>最後紀錄：${esc(timeText)}</span><span>格式修復：${health.repaired ? "曾自動修復" : "未使用"}</span></div></article>
-      <button type="button" class="secondary" data-retry-auto-memory ${Chat.summarizing ? "disabled" : ""}>重試自動記憶整理</button><p class="note">每次最多整理 4 批，截斷時會縮小範圍重試；會產生 API 費用。原始對話保留，失敗冷卻期間請稍後再試。</p>
+      <button type="button" class="secondary" data-retry-auto-memory ${Chat.summarizing || retryTask || App.__requestPending || App.config?.memory?.mode !== "smart" ? "disabled" : ""}>重試自動記憶整理</button><p class="note">每次最多整理 4 批，截斷時會縮小範圍重試；會產生 API 費用。原始對話保留，失敗冷卻期間請稍後再試。</p>
+      <p class="note" role="status" aria-live="polite" data-auto-memory-progress></p>
       ${diag.hasSummary ? `<details class="memory-summary-preview"><summary>查看目前長期摘要</summary><pre>${esc(Chat.summary)}</pre></details>` : ""}
       <div class="memory-pane-title memory-preview-title"><div><h3>近期脈絡預覽</h3><p>下面只顯示最近 12 則訊息作為預覽，不代表模型實際只收到這些內容。</p></div><span class="memory-pill">PREVIEW ONLY</span></div>
       <div class="memory-context-list">${recent.length ? recent.map(m=>`<article class="memory-context-item"><span class="role">${m.role === "user" ? "PLAYER" : "CHARACTER"}</span><p>${esc(String(m.content).slice(0,1200))}</p></article>`).join("") : '<div class="memory-empty">目前還沒有對話。</div>'}</div></section>`;
@@ -104,28 +108,65 @@
     root.querySelectorAll("[data-slot-delete]").forEach(btn=>btn.addEventListener("click",()=>{btn.closest("[data-slot]")?.remove();let slots=collect(root);if(!slots.length)slots=blank();write(slots);render(root,"notes");}));
     root.querySelector("[data-add-note]")?.addEventListener("click",()=>{const slots=collect(root);slots.push({id:`memory-${Date.now()}`,title:`記憶 ${slots.length+1}`,text:"",enabled:true});write(slots);render(root,"notes");});
   };
+  const retryAutoMemory = async () => {
+    if (retryTask || Chat.summarizing || App.__requestPending || App.config?.memory?.mode !== "smart") return;
+    const owner = window.GameState?.current;
+    if (!owner) return;
+    const config = App.config;
+    const task = {};
+    retryTask = task;
+    const progress = window.BAOChatSystemNotices?.beginMemoryProgress?.('正在整理較早劇情，已完成 0 批；不會重新送出故事。', owner);
+    const update = completed => {
+      const root = document.querySelector('.memory-desk-backdrop');
+      const button = root?.querySelector('[data-retry-auto-memory]');
+      if (button) { button.disabled = true; button.textContent = `正在整理…已完成 ${completed} 批`; }
+      const toggle = root?.querySelector('[data-context-auto-summary]');
+      if (toggle) toggle.disabled = true;
+      const text = root?.querySelector('[data-auto-memory-progress]');
+      if (text) text.textContent = `正在整理較早劇情，已完成 ${completed} 批；每批成功後會保存進度。`;
+      window.BAOChatSystemNotices?.updateMemoryProgress?.(progress, `正在整理較早劇情，已完成 ${completed} 批；不會重新送出故事。`);
+    };
+    let completed = 0;
+    update(completed);
+    try {
+      for (let batch = 0; batch < 4 && window.GameState?.current === owner && App.config === config; batch++) {
+        const before = Chat.summarizedUntil;
+        await Chat.maybeSummarize(config, true, 4);
+        if (window.GameState?.current !== owner || App.config !== config) return;
+        if (Chat.summarizedUntil <= before) break;
+        completed++;
+        await App.saveStory?.(false);
+        if (window.GameState?.current !== owner || App.config !== config) return;
+        update(completed);
+      }
+    } catch (error) {
+      if (window.GameState?.current === owner && App.config === config) {
+        Chat.memoryHealth = { ...(Chat.memoryHealth || {}), phase: 'failed', message: String(error?.message || '記憶整理未完成，原始對話仍保留。'), lastFailureAt: new Date().toISOString() };
+      }
+    } finally {
+      if (retryTask === task) retryTask = null;
+      window.BAOChatSystemNotices?.endMemoryProgress?.(progress);
+      const root = document.querySelector('.memory-desk-backdrop');
+      if (window.GameState?.current === owner && App.config === config && root?.isConnected) {
+        window.BAOMemoryWorkbench.refresh(root, 'context');
+        root.querySelector('[data-retry-auto-memory]')?.focus({ preventScroll: true });
+      }
+    }
+  };
   const render = (root,active="context") => {
     const slots = read();
     const box = root.querySelector(".memory-desk-content");
     box.innerHTML = contextHTML()+notesHTML(slots)+refineShellHTML()+canonShellHTML();
     bindNotes(root); switchPane(root,active); stats(root);
-    root.querySelector("[data-retry-auto-memory]")?.addEventListener("click", async event => {
-      const owner = window.GameState?.current;
-      const button = event.currentTarget;
-      button.disabled = true;
-      button.textContent = "正在整理…";
-      try {
-        for (let batch = 0; batch < 4 && window.GameState?.current === owner; batch++) {
-          const before = Chat.summarizedUntil;
-          await Chat.maybeSummarize(App.config, true, 4);
-          if (window.GameState?.current !== owner) return;
-          if (Chat.summarizedUntil > before) await App.saveStory?.(false);
-          else break;
-        }
-      } finally {
-        if (window.GameState?.current === owner && root.isConnected) window.BAOMemoryWorkbench.refresh(root, "context");
-      }
+    root.querySelector("[data-context-auto-summary]")?.addEventListener("change", event => {
+      App.config.memory = App.config.memory || {};
+      App.config.memory.mode = event.target.checked ? "smart" : "rounds";
+      const select = document.getElementById("memory-mode");
+      if (select) select.value = App.config.memory.mode;
+      App.saveStory?.(false);
+      window.BAOMemoryWorkbench.refresh(root, "context");
     });
+    root.querySelector("[data-retry-auto-memory]")?.addEventListener("click", () => retryAutoMemory());
     window.BAOMemoryAI?.mount?.(root,slots);
     window.BAOCanonWorkbench?.mount?.(root);
   };
@@ -157,6 +198,6 @@
   };
   const bindButton=()=>{const btn=document.querySelector('#bao-player-settings [data-bao-open="memory"]');if(!btn)return;btn.textContent="🧠 記憶工作台";btn.onclick=open;};
   const originalRender=App.renderChatShell.bind(App);App.renderChatShell=function(fresh=false){originalRender(fresh);setTimeout(bindButton,0);};
-  window.BAOMemoryWorkbench={open,readSlots:read,writeSlots:write,refresh:(root,tab)=>render(root,tab)};
+  window.BAOMemoryWorkbench={open,retryAutoMemory,readSlots:read,writeSlots:write,refresh:(root,tab)=>render(root,tab)};
   ensureStyles(); setTimeout(bindButton,180);
 })();

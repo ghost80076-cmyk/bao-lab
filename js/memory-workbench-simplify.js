@@ -13,12 +13,14 @@
   const playerLabel = data => {
     if (Chat.summarizing || data.health?.phase === "running") return "正在整理";
     if (data.health?.phase === "failed") return "需要注意";
+    if (App.config?.memory?.mode !== "smart") return "自動記憶已關閉";
     return "記憶正常";
   };
 
   const playerText = data => {
     if (Chat.summarizing || data.health?.phase === "running") return "AI 正在整理較早的劇情；原始對話仍會保留。";
     if (data.health?.phase === "failed") return data.health?.message || "這次整理沒有成功，但原始對話仍完整保留。";
+    if (App.config?.memory?.mode !== "smart") return "自動記憶已關閉，目前只提供設定輪數內的原文。建議開啟下方自動記憶，讓較早劇情持續保留摘要。";
     if (data.hasSummary) return "較早的 " + data.coveredRounds + " 輪已整理成長期記憶；最近劇情仍保留原文。";
     if (data.pendingRounds > 0) return "有 " + data.pendingRounds + " 輪較早內容等待整理；成功整理前不會移除原文。";
     return "目前 " + data.totalRounds + " 輪仍由近期原文直接保留，尚未需要整理舊劇情。";
@@ -100,7 +102,7 @@
     const heading = pane.querySelector(".memory-pane-title h3");
     const copy = pane.querySelector(".memory-pane-title p");
     if (heading) heading.textContent = "必記事項";
-    if (copy) copy.textContent = "只有你真的希望 AI 長期記住的內容才需要放這裡；一般遊玩不用手動整理。";
+    if (copy) copy.textContent = "只放重要約定、關係與規則；啟用的筆記會占用上下文，避免貼入整段聊天或重複設定。";
     pane.querySelector(".memory-pill")?.remove();
     pane.querySelectorAll(".memory-note-meta span:first-child").forEach(node => node.textContent = "只屬於目前故事");
     const add = pane.querySelector("[data-add-note]");
@@ -123,7 +125,7 @@
     const heading = title?.querySelector("h3");
     const copy = title?.querySelector("p");
     if (heading) heading.textContent = "手動整理";
-    if (copy) copy.textContent = "進階工具：從既有對話整理出草稿，再由你決定要不要寫成必記事項。";
+    if (copy) copy.textContent = "從對話產生草稿，再選擇寫入必記事項。這不會推進自動摘要進度；內容過大或摘要失敗時，請回「記憶狀態」重試自動整理。";
     const pill = title?.querySelector(".memory-pill");
     if (pill) pill.textContent = "進階";
     if (title && !title.querySelector("[data-memory-back-notes]")) {
@@ -276,7 +278,7 @@
     const copy = desk.querySelector(".memory-desk-head p");
     if (kicker) kicker.textContent = "MEMORY · YORUBAY";
     if (heading) heading.textContent = "記憶";
-    if (copy) copy.textContent = "平常不用設定。系統會自動維持前情，你只需要在必要時補充「一定要記住」的事情。";
+    if (copy) copy.textContent = "開啟自動記憶後，平常不用手動整理；必記事項只補充重要約定與規則。";
 
     const keepStats = new Set(["auto", "rounds", "notes"]);
     desk.querySelectorAll(".memory-desk-stat").forEach(card => {

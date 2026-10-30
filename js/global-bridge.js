@@ -57,9 +57,9 @@
 })();
 
 // Credits pilot is an optional addition; failure to load must not affect BYOK.
-if (typeof document !== 'undefined' && document.head && !document.querySelector('script[src="js/credits-pilot.js?v=5"]')) {
+if (typeof document !== 'undefined' && document.head && !document.querySelector('script[src="js/credits-pilot.js?v=6"]')) {
   const creditsScript = document.createElement('script');
-  creditsScript.src = 'js/credits-pilot.js?v=5';
+  creditsScript.src = 'js/credits-pilot.js?v=6';
   creditsScript.onerror = () => console.warn('BAO/LAB invited credits pilot failed to load; personal API keys remain available.');
   document.head.appendChild(creditsScript);
 }
