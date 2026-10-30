@@ -1083,8 +1083,9 @@ const WorkerProviderTransport = (() => {
         },
       };
   
-      // Only standalone status helpers use low thinking; story generation keeps its defaults.
-      if (requestKind === "status" && /^gemini-3(?:[.-])/.test(model)) {
+      // Bounded JSON helpers share output space with reasoning. Keep their
+      // thinking low so summary/status text can finish; story defaults stay intact.
+      if ((requestKind === "status" || requestKind === "summary") && /^gemini-3(?:[.-])/.test(model)) {
         payload.generationConfig.thinkingConfig = { thinkingLevel: "low" };
       }
 

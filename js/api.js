@@ -310,7 +310,7 @@ const API = {
     const limit = Number(config.maxOutputTokens || 0);
     const generationConfig = {};
     if (limit > 0) generationConfig.maxOutputTokens = Math.floor(limit);
-    if ((config.__stateTask || config.__inspirationTask) && /^gemini-3(?:[.-])/.test(config.model || "")) {
+    if ((config.__stateTask || config.__inspirationTask || config.__memoryTask) && /^gemini-3(?:[.-])/.test(config.model || "")) {
       generationConfig.thinkingConfig = { thinkingLevel: "low" };
     }
     if (config.__memoryTask || Object.prototype.hasOwnProperty.call(config, "__responseSchema")) {

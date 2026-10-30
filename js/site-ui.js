@@ -205,7 +205,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/player-settings.js?v=13"))
     .then(() => loadBAOScript("js/player-text-replace-mod.js?v=2"))
     .then(() => loadBAOScript("js/narrative-settings.js?v=15"))
-    .then(() => loadBAOScript("js/memory-workbench-core.js?v=6"))
+    .then(() => loadBAOScript("js/memory-workbench-core.js?v=7"))
     .then(() => loadBAOScript("js/memory-workbench-ai.js?v=2"))
     .then(() => loadBAOScript("js/canon-workbench.js?v=3"))
     .then(() => loadBAOScript("js/memory-workbench-simplify.js?v=3"))

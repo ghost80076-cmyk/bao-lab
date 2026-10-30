@@ -261,6 +261,7 @@ const Chat = {
           config?.memory?.episodicRecall === false ? "" : window.BAOEpisodicMemory?.rules,
           config?.memory?.episodicRecall === false || !window.BAOEpisodicMemory ? "" : `【近期事件索引（僅供明確更正時引用 ID，不可當作本次新證據）】\n${JSON.stringify(window.BAOEpisodicMemory.updateContext(owner))}`,
           "刪除重複修辭、寒暄與不影響後續的細節。不要加入原文沒有的資訊，不要寫分析過程。",
+          `【本次完整 JSON 輸出預算】四類長期摘要各最多 ${attempt ? 6 : 8} 項、每項最多 80 字；episodes 與 knowledgeUpdates 各最多 ${attempt ? 2 : 4} 筆。每筆事件的 knowledge 最多 2 筆，每筆 text／claim 最多 60 字，entities／keywords／evidenceIds 各最多 3 項。無新證據可用空陣列。這些上限優先於前述格式的較寬上限；精簡重複內容，保留仍有效的重要事實，必須完成整個 JSON，不可只輸出開頭。`,
           this.summary ? `【既有摘要】\n${this.summary}` : "",
           `【待整理舊對話】\n${transcript}`,
           force ? "目前 Context 使用率偏高，請進一步壓縮，輸出新的完整摘要，盡量控制在 600～1200 字。" : "請輸出新的完整長期記憶摘要，建議 800～1600 字以內。"
@@ -269,6 +270,15 @@ const Chat = {
           ...(config?.memory?.episodicRecall !== false && window.BAOEpisodicMemory ? { __responseSchema: window.BAOEpisodicMemory.schema } : {}) };
         result = await API.send(summaryConfig, [{ role: "system", content: "你是 Observer，不是作者。只輸出記憶規格 JSON，不要續寫故事或模仿正文文風。" }, { role: "user", content: prompt }]);
         if (!isCurrent()) return;
+        this.memoryHealth = {
+          ...this.memoryHealth,
+          lastFinishReason: String(result?.finishReason || '未回報').slice(0, 40),
+          lastRequestedOutputTokens: summaryConfig.maxOutputTokens,
+          lastOutputTokens: result?.usage?.output_tokens ?? result?.usage?.completion_tokens ?? null,
+          lastResponseChars: String(result?.text || '').length,
+          lastChunkTurns: this.turnCount(chunk),
+          lastAttempt: attempt + 1
+        };
         const completionError = this.memoryCompletionError(result);
         if (!completionError) break;
         const truncated = /^(MAX_TOKENS|LENGTH|MAX_OUTPUT_TOKENS|MAX_COMPLETION_TOKENS)$/.test(String(result?.finishReason || '').toUpperCase());
