@@ -139,3 +139,59 @@ test('Gemini merged state crosses the first smart-summary boundary with a large 
   }
   await expect(page.locator('#chat-stream')).not.toContainText('BAO_STATE');
 });
+
+for (const width of [390, 1440]) {
+  test(`all story pages track money and consumed items in prose mode at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    await page.waitForFunction(() => window.BAOSameModelStateMerge && window.BAOChatExperienceRepairs && App.characters.length);
+    await page.evaluate(() => {
+      window.__ledgerCalls = [];
+      const original = window.fetch.bind(window);
+      window.fetch = (input, init = {}) => {
+        if (!String(input?.url || input).startsWith('http://localhost:1234/v1/')) return original(input, init);
+        const body = JSON.parse(init.body); window.__ledgerCalls.push(body);
+        const index = window.__ledgerCalls.length;
+        const checks = { economy: index === 1 ? ['currency'] : ['gold', 'currency'], inventory: true,
+          ...Object.fromEntries(Array.from({ length: 10 }, (_, i) => [`page${i}`, ['value']])) };
+        const patch = index === 1 ? { time: '中午', location: '城門', modules: { economy: { gold: 80 }, inventory: [{ id: 'bread', name: '麵包', quantity: 1 }] }, module_checks: checks }
+          : index === 2 ? { scene_checks: ['time', 'location'], modules: {}, module_removals: { inventory: [{ id: 'potion', evidence: '你喝完最後一瓶藥水。' }] }, module_checks: checks }
+            : { location: '旅館', modules: { economy: { gold: 0 } } };
+        const prose = index === 1 ? '花費二十金幣後，餘額八十。你取得麵包，已到城門。' : index === 2 ? '你喝完最後一瓶藥水。' : '晚上，你已經到旅館。';
+        return Promise.resolve(new Response(JSON.stringify({ choices: [{ message: { content: prose + '<BAO_STATE>' + JSON.stringify(patch) + '</BAO_STATE>' }, finish_reason: 'stop' }] }), { headers: { 'Content-Type': 'application/json' } }));
+      };
+      App.activeCharacter = { ...App.characters[0], id: 'ledger-test', name: '測試角色', greeting: '出發。', world_modules: [
+        { id: 'economy', label: '資產', kind: 'object', tracking: 'medium', fields: [{ key: 'gold', type: 'number' }, { key: 'currency', type: 'text' }] },
+        { id: 'inventory', label: '背包', kind: 'collection', tracking: 'low', context: 'ui_only', fields: [{ key: 'id', type: 'text' }, { key: 'name', type: 'text' }, { key: 'quantity', type: 'number' }] },
+        ...Array.from({ length: 10 }, (_, i) => ({ id: `page${i}`, label: `分頁${i}`, kind: 'object', tracking: 'low', context: 'ui_only', fields: [{ key: 'value', type: 'text' }] }))
+      ] };
+      App.config = { narrativeMode: 'immersive', displayMode: 'text', stateTracking: false, persona: { name: '旅人' }, memory: { mode: 'rounds', maxRounds: 10, cache: false }, cost: { stateApiMode: 'same' }, api: { type: 'lmstudio', route: 'local', protocol: 'openai', model: 'mock', baseUrl: 'http://localhost:1234/v1', key: 'BAO_LOCAL_NO_AUTH' } };
+      Chat.reset(); GameState.create(App.activeCharacter, App.config);
+      GameState.current.modules.economy = { gold: 100, currency: '金幣' };
+      GameState.current.modules.inventory = [{ id: 'potion', name: '藥水', quantity: 1 }, { id: 'key', name: '鑰匙', quantity: 1 }];
+      for (let i = 0; i < 10; i++) GameState.current.modules[`page${i}`] = { value: '原值' };
+      App.renderChatShell(true); App.showView('chat');
+    });
+    for (let index = 1; index <= 3; index++) {
+      await page.locator('#user-input').fill(index === 1 ? '繼續' : index === 2 ? '喝藥水' : '去旅館');
+      await page.evaluate(() => App.sendMessage());
+      await expect.poll(() => page.evaluate(() => GameState.current.stateTracker?.phase)).toBe(index === 3 ? 'partial' : 'updated');
+      expect(await page.evaluate(() => window.__ledgerCalls.length)).toBe(index);
+    }
+    const result = await page.evaluate(async () => {
+      App.saveStory(false); await Storage.flush();
+      const request = window.__ledgerCalls[0].messages.at(-1).content;
+      return { request, state: GameState.current };
+    });
+    expect(result.request).toContain('"page9"');
+    expect(result.state.modules.economy.gold).toBe(0);
+    expect(result.state.modules.inventory.map(i => i.id)).toEqual(['key', 'bread']);
+    expect(result.state.pendingStateTurns).toHaveLength(1);
+    await page.reload();
+    await page.waitForFunction(() => window.BAOSameModelStateMerge && Storage.status().ready && App.characters.length);
+    expect(await page.evaluate(() => {
+      Storage.restoreStory(Storage.loadStory());
+      return { gold: GameState.current.modules.economy.gold, items: GameState.current.modules.inventory.map(i => i.id), phase: GameState.current.stateTracker.phase, pending: GameState.current.pendingStateTurns.length };
+    })).toEqual({ gold: 0, items: ['key', 'bread'], phase: 'partial', pending: 1 });
+  });
+}

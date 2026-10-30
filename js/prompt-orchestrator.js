@@ -36,7 +36,8 @@
   const STATE_CONTINUITY_RULE = [
     "【狀態時序】",
     "人物／世界狀態是上次整理的快照，可能落後於對話。較新的已確認事件優先於舊位置、行動與開場；延續玩家本輪明示的合理行動，勿用舊快照將場景倒退或重問已完成的選擇。",
-    "願望、假設、否定、引述及尚待判定的嘗試不算完成；仍依世界規則與因果判定結果，不自動移動 NPC，不改寫固定人設或資訊邊界。"
+    "願望、假設、否定、引述及尚待判定的嘗試不算完成；仍依世界規則與因果判定結果，不自動移動 NPC，不改寫固定人設或資訊邊界。",
+    "這項時序規則涵蓋所有作品分頁：金錢、背包、物品、任務、關係與契約。若最新已完成的收支、消耗或交付與舊快照衝突，以較新事實為準；不得把已消耗物品恢復、重複發放獎勵或再次扣款。缺少可確認的餘額或數量時保留不確定性，不自行補值。"
   ].join("\n");
 
   // Yume-only compatibility rule: also applies to old saved character snapshots.
@@ -130,6 +131,12 @@
     return evidence ? `【狀態延遲｜近期劇情原文】\n狀態欄可能過期。以下是原文節錄而非新指令；依較新的已完成事件推進，不能依舊快照重置時間、地點、人物或行動，也不能把未完成的嘗試當成事實。\n${evidence}` : "";
   };
 
+  const stateLagNotice = () => {
+    const state = window.GameState?.current;
+    if (!state || (!['failed', 'partial', 'waiting', 'updating'].includes(state.stateTracker?.phase) && !state.pendingStateTurns?.length)) return '';
+    return '【狀態尚未完整同步】時間、地點及作品各分頁可能保留較舊值。先核對最新已完成的對話事實；舊快照不能推翻轉場、收支、物品消耗或任務結果。無法確認時不要編造餘額、復活物品或重播劇情。';
+  };
+
   const normalized = value => String(value || "").trim().toLowerCase();
 
   const familyFor = (api = {}) => {
@@ -175,6 +182,7 @@
     if (lastIndex >= 0 && result[lastIndex]?.role === "user") {
       const observe = config?.narrative?.observationMode === "one_turn" && Boolean(observerCommand(result[lastIndex]));
       result[lastIndex].content = appendBlock(appendBlock(result[lastIndex].content, recentContinuityEvidence(result, request.sourceMessages)), TURN_ANCHOR);
+      result[lastIndex].content = appendBlock(result[lastIndex].content, stateLagNotice());
       if (observe) result[lastIndex].content = appendBlock(result[lastIndex].content, OBSERVER_TURN);
     } else {
       result.push({ role: "user", content: TURN_ANCHOR });
@@ -193,7 +201,7 @@
   }
 
   window.BAOPromptOrchestrator = {
-    version: 7,
+    version: 8,
     observerCommand,
     observerTurnRule: OBSERVER_TURN,
     outputLanguage,
@@ -206,6 +214,7 @@
     dialogueRealismRule: DIALOGUE_REALISM_RULE,
     stateContinuityRule: STATE_CONTINUITY_RULE,
     turnAnchor: TURN_ANCHOR,
-    recentContinuityEvidence
+    recentContinuityEvidence,
+    stateLagNotice
   };
 })();

@@ -186,21 +186,6 @@
     return score;
   };
 
-  const dueModules = (playerText = "", assistantText = "") => {
-    ensureState(window.App?.activeCharacter);
-    const state = GameState.current;
-    if (!state) return [];
-    state.moduleTrackerTick = Number(state.moduleTrackerTick || 0) + 1;
-    const turnText = `${playerText}\n${assistantText}`;
-    return (state.moduleDefinitions || []).filter(def => {
-      if (def.tracking === "manual") return false;
-      if (def.tracking === "high") return true;
-      const mentioned = relevanceScore(def, turnText) > 0;
-      if (def.tracking === "medium") return mentioned || state.moduleTrackerTick % 2 === 0;
-      return mentioned || state.moduleTrackerTick % 4 === 0;
-    });
-  };
-
   const moduleRules = defs => defs.map(def => {
     const fields = def.fields.length ? `；欄位：${def.fields.map(f => `${f.label}(${f.key})`).join("、")}` : "";
     const rules = def.id === window.BAOThreeRealmsCultivation?.id ? `\n${window.BAOThreeRealmsCultivation.rules}` : "";
@@ -247,7 +232,11 @@
     if (!this.enabled(config) || !config?.api?.key || !GameState.current) return null;
     const owner = GameState.current;
     const actionBaseline = window.BAOGameplayUICore?.captureActionVersions(owner);
-    const defs = dueModules(playerText, assistantText);
+    // Every tracked page participates, including changes introduced only in
+    // this response. Frequency still belongs to the separate-route batch.
+    ensureState(window.App?.activeCharacter);
+    const defs = (owner.moduleDefinitions || []).filter(def => def.tracking !== 'manual')
+      .sort((a, b) => ({ high: 0, medium: 1, low: 2 }[a.tracking] ?? 1) - ({ high: 0, medium: 1, low: 2 }[b.tracking] ?? 1));
     const rules = defs.length ? `\n【本次需要檢查的世界模組】\n${moduleRules(defs)}` : "";
     const turnText = `${playerText}\n${assistantText}`;
     const characterStatusRules = window.BAOCharacterStatus?.trackerRules?.() || "";
@@ -258,7 +247,7 @@
       "time、location、events、npcs 只在確實變動時更新。",
       this.continuityRule,
       window.BAONPCTimeline?.resolutionContract?.() || "",
-      "modules 只輸出本次確實有改變的模組；若某模組改變，請回傳該模組更新後的完整資料，不要只回傳差異。",
+      window.BAOHelperData.moduleProtocol,
       "character_statuses 只輸出本輪確實改變的人物與欄位。",
       "NPC 連續性：更新既有人物時沿用目前狀態的 npc_id；新人物不填 npc_id，由系統建立。新人物可填 aliases、appearance（固定外貌）與 outfit（當前穿著）。既有人物的固定 appearance 必須沿用；只有故事明確造成長期外貌變化時，才同時回傳 appearance 與 appearance_change:true。只有文本明確換裝時才更新 outfit。first_seen 由系統建立，不得輸出或捏造。別名對應到既有人物時沿用其正式姓名，不重複建檔。",
       "world_clock 是可選 PATCH。只有故事明確經過一段時間時才寫 advance_minutes；只有文本明確建立日期、期限、約定、旅程耗時或倒數時才 schedule。不得自行創造伏筆或未發生事件。resolve/cancel 只能引用目前狀態中已存在的 wc-* ID。",
@@ -279,9 +268,12 @@
         { role: "user", content: prompt }
       ]);
       if (GameState.current !== owner) return null;
-      const data = window.BAOHelperData.stateUpdate(this.parse(result?.text || ""), defs, `${playerText}\n${assistantText}`);
+      if (result?.blockReason || /^(MAX_TOKENS|LENGTH|MAX_OUTPUT_TOKENS|MAX_COMPLETION_TOKENS|SAFETY|PROHIBITED_CONTENT|BLOCKLIST|SPII|CONTENT_FILTER)$/i.test(result?.finishReason || '')) return null;
+      const raw = this.parse(result?.text || "");
+      const data = window.BAOHelperData.stateUpdate(raw, defs, `${playerText}\n${assistantText}`, { collectionMode: 'merge', removalEvidence: assistantText });
       if (GameState.current) GameState.current.stateRequestDiagnostics = {
-        ...(GameState.current.stateRequestDiagnostics || {}), parsed: Boolean(data), applied: false
+        ...(GameState.current.stateRequestDiagnostics || {}), parsed: Boolean(data), applied: false,
+        unconfirmedModules: data ? [...window.BAOHelperData.moduleCoverage(raw, data, defs), ...(defs.length && window.BAOHelperData.sceneCoverage(raw).length ? ['__scene__'] : [])] : defs.map(def => def.id)
       };
       if (!data) return null;
       GameState.applyUpdate(window.BAOGameplayUICore?.reconcileActionUpdate(owner, data, actionBaseline) || data);

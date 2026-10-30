@@ -38,7 +38,7 @@ increasing(index, [
   'src="js/story-history-core.js?v=2"',
   'src="js/state.js?v=3"',
   'src="js/api.js?v=8"',
-  'src="js/helper-data.js?v=3"',
+  'src="js/helper-data.js?v=4"',
   'src="js/episodic-memory-core.js?v=6"',
   'src="js/chat.js',
   'src="js/character.js?v=10"',
@@ -50,12 +50,12 @@ increasing(index, [
 // World-state chain: the bridge must install its guards before world modules.
 increasing(siteUI, [
   'loadBAOScript("js/global-bridge.js?v=4")',
-  'loadBAOScript("js/world-state.js?v=3")',
+  'loadBAOScript("js/world-state.js?v=4")',
   'loadBAOScript("js/character-status.js?v=5")',
   'loadBAOScript("js/three-realms-cultivation-core.js?v=1")',
   'loadBAOScript("js/three-realms-event-profiles.js?v=6")',
   'loadBAOScript("js/three-realms-events-core.js?v=6")',
-  'loadBAOScript("js/world-modules.js?v=8")',
+  'loadBAOScript("js/world-modules.js?v=9")',
   'loadBAOScript("js/world-state-hook.js?v=7")'
 ], "world-state extension");
 
@@ -101,7 +101,7 @@ assert.match(siteUI, /window\.BAOEnsureStoryLibrary = \(\) =>/);
 // Modules without their own global idempotency guard currently rely on the loader;
 // protect against accidentally adding a second loader while the wrapper design is unchanged.
 assert.equal(
-  siteUI.split('loadBAOScript("js/world-modules.js?v=8")').length - 1,
+  siteUI.split('loadBAOScript("js/world-modules.js?v=9")').length - 1,
   1,
   "world-modules must be loaded exactly once by site-ui"
 );

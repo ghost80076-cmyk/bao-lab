@@ -43,3 +43,46 @@ Source/config/module changes during the request invalidate the result. Pending t
 outside the bounded source window, and turns with incomplete module/character recovery,
 remain queued. Rebuild waits for storage flushing and persistence verification; storage
 failure preserves the repaired in-memory data and asks the player to export it.
+
+## Per-turn module integrity
+
+Every active, nonmanual module schema is offered to both merged and separate
+state routes. Module `context` controls narrative context inclusion, not whether
+its data can be updated. A prose renderer does not disable authored gameplay
+tracking. Manual-only modules do not turn on tracking. The separate route keeps
+its configured request interval; merged mode still uses one story request.
+
+`modules` object fields are absolute updated values, including zero. Collection
+updates merge by existing `id`, falling back to unique `name`; unseen entries and
+player fields survive. `module_checks` explicitly lists reviewed unchanged
+object fields; collection `true` acknowledges review of the whole collection.
+A valid JSON response, one changed field, or one changed module does not certify
+all pages. Missing/invalid coverage is reported as partial and retains pending
+turns. The next story prompt warns of stale snapshots even in short/smart stories.
+Both routes prioritize newer completed evidence over older waiting batches.
+
+`module_removals` supports completed consumption/delivery/discard without
+requiring a full inventory replacement. Each entry identifies one existing item
+and quotes a verbatim assistant-story sentence containing its name. Unknown or
+ambiguous identifiers, invented quotes, player-only intent, and removal quotes
+followed by a newer mention are rejected conservatively. The model must still
+interpret completion versus negation, hypothetical actions, and failed attempts;
+structural validation is not an independent semantic inventory ledger.
+
+Rebuild uses the same protocol, with collection identity references only (not old
+balances/quantities). It keeps the existing bounded recent/deep evidence window;
+it does not replay the whole story or invent missing accounting history. A
+collection can become empty through validated removals; merely returning `[]`
+does not erase unmentioned possessions. Explicit zeros remain zeros. Reapplying
+an absolute balance cannot deduct a transaction twice. Unresolved history stays
+visible as partial, and existing rebuild backups/persistence checks remain active.
+
+For authored gameplay, `scene_checks` explicitly acknowledges unchanged `time`
+and/or `location`; returned scene values or the current response's explicit scene
+appendix cover changed fields. Missing scene review also produces partial status.
+
+Legacy `tracking: high/medium/low` values stay save-compatible and now order
+review priority rather than skipping automatic module checks. Player settings
+label these as automatic priority/general/secondary; `manual` remains excluded.
+The `ui_only` context description distinguishes narrative-background omission
+from opted-in state tracking, which still needs module data to validate updates.

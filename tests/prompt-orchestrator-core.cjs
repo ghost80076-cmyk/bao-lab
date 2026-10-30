@@ -31,7 +31,7 @@ assert.equal(
   true,
   "prompt orchestrator must install through App.wrapBuildMessages"
 );
-assert.equal(BAOPromptOrchestrator.version, 7);
+assert.equal(BAOPromptOrchestrator.version, 8);
 assert.equal(BAOPromptOrchestrator.observerCommand({content: "玩家最新輸入"}), "");
 assert.match(BAOPromptOrchestrator.observerTurnRule, /本輪觀賞授權/);
 assert.match(BAOPromptOrchestrator.playerAgencyRule, /對話選項與行動建議/);
@@ -139,6 +139,14 @@ for (const model of ["gpt-5.6", "google/gemini-3.1-pro-preview", "anthropic/clau
   const recovered = await App.buildMessages(localConfig);
   assert.doesNotMatch(recovered.at(-1).content, /狀態延遲｜近期劇情原文/, 'no repeating raw transcript once tracker is healthy');
 
+  // Even short/smart-mode stories need the stale-state warning when pages lag.
+  GameState.current = { stateTracker: { phase: 'partial' }, pendingStateTurns: [] };
+  assert.match(BAOPromptOrchestrator.stateLagNotice(), /金錢|收支/);
+  GameState.current.stateTracker.phase = 'updated';
+  assert.equal(BAOPromptOrchestrator.stateLagNotice(), '');
+  GameState.current.stateTracker.phase = 'partial';
+  const partialPrompt = await App.buildMessages(localConfig);
+  assert.match(partialPrompt.at(-1).content, /狀態尚未完整同步/);
   console.log("prompt orchestrator core test passed");
 })().catch(error => {
   console.error(error);

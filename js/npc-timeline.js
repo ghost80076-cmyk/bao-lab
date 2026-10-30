@@ -158,8 +158,8 @@
   const apply = GameState.applyUpdate.bind(GameState);
   GameState.applyUpdate = function(update = {}, ...args) { const result = apply(update,...args); advance(); applyResolutions(update.npc_timeline); return result; };
   const normalize = window.BAOHelperData?.stateUpdate;
-  if (normalize) window.BAOHelperData.stateUpdate = function(data, defs = [], sourceText = '') {
-    const result = normalize.call(this,data,defs,sourceText);
+  if (normalize) window.BAOHelperData.stateUpdate = function(data, defs = [], sourceText = '', ...options) {
+    const result = normalize.call(this,data,defs,sourceText,...options);
     const resolve = checkedResolutions(data?.npc_timeline,sourceText);
     if (result && resolve.length) result.npc_timeline = {resolve};
     return result;
