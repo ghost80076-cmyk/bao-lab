@@ -47,6 +47,7 @@
   // context-window limit.
   const HOSTED_SOFT_PROMPT_BYTES = 88_000;
   const HOSTED_HARD_PROMPT_BYTES = 192_000;
+  const HOSTED_MAX_SUMMARY_PASSES = 12;
   const promptBytes = messages => encoder.encode(JSON.stringify(messages)).length;
   const cleanMessages = messages => messages.map(m => ({ role: m.role, content: API.contentToText(m.content) }));
   const hostedStorySessionId = () => {
@@ -98,31 +99,63 @@
       && !config?.__storyTool && !config?.__connectionTest;
     const smart = App.config?.memory?.mode === "smart";
     const chat = window.Chat;
+    const owner = window.GameState?.current;
+    const storyConfig = App.config;
+    const assertCurrent = () => {
+      if (window.GameState?.current !== owner || App.config !== storyConfig || window.Chat !== chat) {
+        throw new Error("故事已切換，已停止這次送出；請在目前故事重新操作。");
+      }
+      if (config.signal?.aborted || API.activeSignal?.aborted) {
+        throw new Error("已停止這次送出；完成的記憶整理仍保留。");
+      }
+    };
+    let stopReason = "";
     if ((initialBytes > HOSTED_SOFT_PROMPT_BYTES || !basicMessagesValid(cleaned)) && isStoryChat && smart
         && chat?.maybeSummarize && typeof App.buildMessages === "function") {
       const configured = Math.max(4, Number(App.config?.memory?.maxRounds || 20));
       const candidates = [...new Set([Math.min(configured, 8), 4])];
-      for (const candidateRounds of candidates) {
+      recovery: for (const candidateRounds of candidates) {
         rounds = candidateRounds;
-        // Rebuild first: an existing summary may already cover enough history,
-        // in which case no extra paid helper request is needed.
+        // A summary covers only one bounded batch. Drain the backlog while
+        // coverage advances, rebuilding after EVERY batch, without dropping
+        // uncovered turns or raising the transport ceiling.
         let candidate = await rebuildForRounds(candidateRounds);
+        assertCurrent();
         if (candidate) {
           cleaned = candidate;
           finalBytes = promptBytes(cleaned);
           if (finalBytes <= HOSTED_SOFT_PROMPT_BYTES) break;
         }
-        const before = Number(chat.summarizedUntil || 0);
-        await chat.maybeSummarize(App.config, true, candidateRounds);
-        const after = Number(chat.summarizedUntil || 0);
-        if (after > before) summaryPasses += 1;
-        candidate = await rebuildForRounds(candidateRounds);
-        if (candidate) {
-          cleaned = candidate;
-          finalBytes = promptBytes(cleaned);
-          if (finalBytes <= HOSTED_SOFT_PROMPT_BYTES) break;
+        while (summaryPasses < HOSTED_MAX_SUMMARY_PASSES) {
+          assertCurrent();
+          const before = Number(chat.summarizedUntil || 0);
+          await chat.maybeSummarize(storyConfig, true, candidateRounds);
+          assertCurrent();
+          const after = Number(chat.summarizedUntil || 0);
+          if (after > before) {
+            summaryPasses += 1;
+            // Checkpoint paid progress even when the eventual chat is blocked.
+            App.saveStory?.();
+          }
+          candidate = await rebuildForRounds(candidateRounds);
+          assertCurrent();
+          if (candidate) {
+            cleaned = candidate;
+            finalBytes = promptBytes(cleaned);
+            if (finalBytes <= HOSTED_SOFT_PROMPT_BYTES) break recovery;
+          }
+          if (after <= before) {
+            if (chat.memoryHealth?.phase === "failed" || chat.summarizing) {
+              stopReason = chat.memoryHealth?.message || "記憶整理仍在進行中。";
+              break recovery;
+            }
+            break; // No eligible old turns at this window; try four rounds.
+          }
         }
-        if (after <= before && candidateRounds === 4) break;
+        if (summaryPasses >= HOSTED_MAX_SUMMARY_PASSES) {
+          stopReason = "本次分批整理已達 12 批，已保存完成進度；請再次送出以接續整理。";
+          break;
+        }
       }
     }
     lastContextBudget = {
@@ -134,7 +167,8 @@
       adaptive: finalBytes < initialBytes,
       smart,
       rounds,
-      summaryPasses
+      summaryPasses,
+      stopReason
     };
     return cleaned;
   };
@@ -292,13 +326,14 @@
       throw new Error("本次內容包含無法安全送出的訊息格式或單則內容過大；故事不會刪除。");
     }
     cleaned = await adaptHostedContext(config, cleaned);
+    const recoveryReason = lastContextBudget?.stopReason ? `整理狀態：${lastContextBudget.stopReason}\n` : "";
     if (!basicMessagesValid(cleaned)) {
-      throw new Error("本次送出的上下文仍超過 100 則訊息或單則 80,000 字元的限制。智慧記憶會先嘗試整理；若仍超限，請確認摘要是否成功，或使用記憶工作台整理。完整故事紀錄不會刪除。");
+      throw new Error(recoveryReason + "本次送出的上下文仍超過 100 則訊息或單則 80,000 字元的限制。智慧記憶會先嘗試整理；若仍超限，請確認摘要是否成功，或使用記憶工作台整理。完整故事紀錄不會刪除。");
     }
     const hostedBytes = promptBytes(cleaned);
     if (hostedBytes > HOSTED_HARD_PROMPT_BYTES) {
       if (App.config?.memory?.mode === "smart") {
-        throw new Error("本次送出內容仍過大。夜灣 已嘗試整理較早故事脈絡，但固定角色／世界設定與尚未整理內容仍超過安全上限。故事不會刪除；請開啟「記憶 → 記憶狀態」查看失敗原因，並使用「重試自動記憶整理」。若摘要成功後仍超限，請回報作品設定過大，或改用自己的 API Key。");
+        throw new Error(recoveryReason + `本次送出內容仍過大（約 ${Math.ceil(hostedBytes / 1000)} KB，上限 192 KB）。夜灣已嘗試分批整理較早故事脈絡，剩餘內容仍超過安全上限。` + "故事不會刪除；請開啟「記憶 → 記憶狀態」查看失敗原因，並使用「重試自動記憶整理」。若摘要成功後仍超限，請回報作品設定過大，或改用自己的 API Key。");
       }
       throw new Error("本次送出內容過大，而且目前不是智慧記憶模式。切換智慧記憶可讓 夜灣 自動整理較早脈絡，或改用自己的 API Key；故事不會刪除。");
     }
