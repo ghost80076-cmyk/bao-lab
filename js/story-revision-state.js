@@ -167,9 +167,11 @@
     const current = () => sameStory() && App.config === appConfig && JSON.stringify(App.config) === settings
       && sourceSignature() === source && signatureOf(latestAssistant().message) === signature;
     const actions = () => window.BAOGameplayUICore?.captureActionVersions(GameState.current) || {};
+    const controlSignature = () => JSON.stringify(['actorMode', 'worldbookLibrary', 'phoneSurface', 'worldModuleCustomization', 'characterStatusCustomization'].map(key => GameState.current?.[key]));
     const receive = async (prepared, baseline) => {
+      const controls = controlSignature();
       const result = await next(config, prepared);
-      if (!current() || JSON.stringify(actions()) !== JSON.stringify(baseline))
+      if (!current() || controlSignature() !== controls || JSON.stringify(actions()) !== JSON.stringify(baseline))
         throw Object.assign(new Error('故事、設定或本機操作已變更，未套用過期修訂。'), { code: 'BAO_ABORTED' });
       return result;
     };
