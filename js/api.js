@@ -341,7 +341,7 @@ const API = {
     const data = await this.readJSON(response);
     if (!response.ok) throw new Error(this.friendlyError(response.status, data, "Gemini API"));
     const text = (data?.candidates?.[0]?.content?.parts || []).map(p => typeof p?.text === "string" ? p.text : "").filter(Boolean).join("\n");
-    return { text: text || this.geminiEmptyResponseMessage(data), finishReason: data?.candidates?.[0]?.finishReason || null, usage: this.normalizeUsage(data?.usageMetadata || {}, "gemini") };
+    return { text: text || this.geminiEmptyResponseMessage(data), finishReason: data?.candidates?.[0]?.finishReason || null, blockReason: data?.promptFeedback?.blockReason || null, usage: this.normalizeUsage(data?.usageMetadata || {}, "gemini") };
   },
 
   networkError(err) {
@@ -433,17 +433,18 @@ const API = {
     return { text: text || "模型沒有回傳內容。", finishReason, usage: this.normalizeUsage(usage, "anthropic") };
   },
   async readGeminiStream(response, config) {
-    let text = "", usage = {}, lastData = null, finishReason = null;
+    let text = "", usage = {}, lastData = null, finishReason = null, blockReason = null;
     await this.readSSE(response, ({ data: raw }) => {
       const data = this.parseStreamJSON(raw, "Gemini API");
       if (data?.error) throw this.streamEventError(data, "Gemini API");
       lastData = data;
       finishReason = data?.candidates?.[0]?.finishReason || finishReason;
+      blockReason = data?.promptFeedback?.blockReason || blockReason;
       const delta = (data?.candidates?.[0]?.content?.parts || []).map(part => typeof part?.text === "string" ? part.text : "").filter(Boolean).join("");
       if (delta) { text += delta; this.emitDelta(config, delta, text); }
       if (data?.usageMetadata) usage = data.usageMetadata;
     });
-    return { text: text || this.geminiEmptyResponseMessage(lastData || {}), finishReason, usage: this.normalizeUsage(usage, "gemini") };
+    return { text: text || this.geminiEmptyResponseMessage(lastData || {}), finishReason, blockReason, usage: this.normalizeUsage(usage, "gemini") };
   },
   contentToText(content) { if (typeof content === "string") return content; if (Array.isArray(content)) return content.map(p => typeof p === "string" ? p : (p?.text || "")).filter(Boolean).join("\n"); return content == null ? "" : String(content); },
   geminiEmptyResponseMessage(data) { const finishReason = data?.candidates?.[0]?.finishReason; const blockReason = data?.promptFeedback?.blockReason; if (blockReason) return `Gemini 未產生內容（${blockReason}）。`; if (finishReason) return `Gemini 未產生文字內容（${finishReason}）。`; return "Gemini 沒有回傳文字內容。"; },

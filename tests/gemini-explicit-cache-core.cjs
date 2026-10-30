@@ -20,7 +20,7 @@ const ctx = {
     requests.push({ url, body: JSON.parse(options.body) });
     if (url.endsWith(':countTokens')) return { ok: true, json: async () => ({ totalTokens: 5000 }) };
     if (url.endsWith('/cachedContents')) return { ok: true, json: async () => ({ name: 'cachedContents/test', expireTime: new Date(Date.now() + 60000).toISOString() }) };
-    return { ok: true, json: async () => ({ candidates: [{ content: { parts: [{ text: 'Partial' }] }, finishReason: 'MAX_TOKENS' }], usageMetadata: { totalTokenCount: 6000 } }) };
+    return { ok: true, json: async () => ({ candidates: [{ content: { parts: [{ text: 'Partial' }] }, finishReason: 'MAX_TOKENS' }], promptFeedback: { blockReason: 'SAFETY' }, usageMetadata: { totalTokenCount: 6000 } }) };
   }
 };
 ctx.window = ctx;
@@ -33,6 +33,7 @@ vm.runInContext(fs.readFileSync(require('node:path').join(__dirname, '../js/gemi
   const result = await ctx.API.sendGemini(cfg, messages);
   assert.equal(requests.at(-1).body.cachedContent, 'cachedContents/test');
   assert.equal(result.finishReason, 'MAX_TOKENS');
+  assert.equal(result.blockReason, 'SAFETY');
   const before = requests.length;
   await ctx.API.sendGemini({ ...cfg, __stateTask: true }, messages);
   await ctx.API.sendGemini({ ...cfg, __memoryTask: true }, messages);

@@ -73,7 +73,8 @@
     };
     const title = titles[phase] || "已啟用，尚無更新結果";
     const detail = [title, pending ? `待補 ${pending} 輪；故事原文仍保留` : "",
-      phase === "unchanged" ? "不代表時間或地點已確認為最新" : ""].filter(Boolean).join(" · ");
+      phase === "unchanged" ? "不代表時間或地點已確認為最新" : "",
+      phase === "failed" ? text(tracker?.message) : ""].filter(Boolean).join(" · ");
     return { title, detail };
   }
 

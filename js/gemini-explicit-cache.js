@@ -130,7 +130,7 @@
     const data = await API.readJSON(response);
     if (!response.ok) throw new Error(API.friendlyError(response.status, data, 'Gemini 快取'));
     const text = (data?.candidates?.[0]?.content?.parts || []).map(p => typeof p?.text === 'string' ? p.text : '').filter(Boolean).join('\n');
-    return { text: text || API.geminiEmptyResponseMessage(data), finishReason: data?.candidates?.[0]?.finishReason || null, usage: API.normalizeUsage(data?.usageMetadata || {}, 'gemini') };
+    return { text: text || API.geminiEmptyResponseMessage(data), finishReason: data?.candidates?.[0]?.finishReason || null, blockReason: data?.promptFeedback?.blockReason || null, usage: API.normalizeUsage(data?.usageMetadata || {}, 'gemini') };
   };
   const open = () => {
     status(configNow() ? description(current()) : '僅支援玩家自己的 Google 官方 Gemini API，不支援中轉。');

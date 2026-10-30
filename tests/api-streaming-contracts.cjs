@@ -54,6 +54,18 @@ global.fetch = async (url, options) => {
 };
 
 (async () => {
+  // Gemini may report prompt blocking before the final stream chunk. Retain
+  // that metadata even when the last chunk carries only usage.
+  const blocked = await API.readGeminiStream(sseResponse([
+    `data: ${JSON.stringify({ promptFeedback: { blockReason: 'PROHIBITED_CONTENT' } })}`,
+    `data: ${JSON.stringify({ usageMetadata: { totalTokenCount: 2 } })}`
+  ].join('\n\n') + '\n\n'), {});
+  assert.equal(blocked.blockReason, 'PROHIBITED_CONTENT');
+  const originalFetch = global.fetch;
+  global.fetch = async () => new Response(JSON.stringify({ promptFeedback: { blockReason: 'SAFETY' } }), { status: 200, headers: { 'content-type': 'application/json' } });
+  const blockedJSON = await API.sendGemini({ protocol: 'gemini', model: 'gemini-test', key: 'test' }, messages);
+  assert.equal(blockedJSON.blockReason, 'SAFETY');
+  global.fetch = originalFetch;
   const openAIDeltas = [];
   const openAI = await API.send({ type: "openai", protocol: "openai", model: "openai-stream", baseUrl: "https://api.openai.com/v1/chat/completions", key: "SECRET", stream: true, onDelta: (delta, text) => openAIDeltas.push({ delta, text }) }, messages);
   assert.equal(openAI.text, "第一段＋第二段");
