@@ -41,9 +41,9 @@ jobs:
           )
           for attempt in $(seq 1 24); do
             ok=1
-            curl -fsSL --max-time 15 "$root" | grep -Fq 'href="terms"' || ok=0
+            curl -fsSL --max-time 15 "$root" | grep -F 'href="terms"' >/dev/null || ok=0
             for page in "${pages[@]}"; do
-              curl -fsSL --max-time 15 "${root}${page}" | grep -Fq '夜灣' || ok=0
+              curl -fsSL --max-time 15 "${root}${page}" | grep -F '夜灣' >/dev/null || ok=0
             done
             if [ "$ok" -eq 1 ]; then
               echo 'PASS: published policy center is live and linked.'
