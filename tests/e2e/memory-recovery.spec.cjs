@@ -39,7 +39,7 @@ for (const width of [390, 1280]) {
       GameState.create(App.activeCharacter, App.config);
       Chat.reset();
       for (let i=0;i<30;i++) { Chat.add('user', '行動'+i+'文'.repeat(1000)); Chat.add('assistant', '結果'+i+'文'.repeat(1000)); }
-      BAOMemoryWorkbench.writeSlots([{id:'promise',title:'約定',text:'明天回到港口',enabled:true}]);
+      GameState.current.memorySlots=[{id:'promise',title:'約定',text:'明天回到港口',enabled:true}];
       App.renderChatShell(false); App.showView('chat');
       window.savedCoverage=[];
       App.saveStory=async()=>savedCoverage.push(Chat.summarizedUntil);
