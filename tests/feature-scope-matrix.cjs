@@ -28,11 +28,11 @@ const begin=(character,mode='immersive',display='text')=>{
       await c.API.send(api(protocol),[{role:'system',content:prompt},{role:'user',content:'TRIGGER'}]);
       assert.equal(JSON.stringify(bodies.at(-1)).includes('MOD_MARKER'),context!=='ui_only',`${protocol}: module context survived serialization`);
     }
-    // Tracking frequency is independent of context/display. Four state calls
-    // reveal only the due modules in their snapshots/schema, including ui_only.
+    // Automatic tracking covers all pages independent of context/display.
+    // Legacy priority values cannot skip newly introduced story changes.
     for(let tick=1;tick<=4;tick++){
       await c.WorldStateEngine.update(c.App.config,'普通閒聊','沒有提到模組');
-      const expected=tracking==='high'||tracking==='medium'&&tick%2===0||tracking==='low'&&tick%4===0;
+      const expected=tracking!=='manual';
       assert.equal(JSON.stringify(bodies.at(-1)).includes('MOD_MARKER'),expected,`${tracking}: tick ${tick}`);
     }
     moduleCases++;
@@ -52,5 +52,5 @@ const begin=(character,mode='immersive',display='text')=>{
   assert.equal(c.BAOCharacterStatus.hasTrackedFields(),false,'disabled field system must not force paid state tracking');
   assert.equal(c.WorldStateEngine.enabled(c.App.config),false);
   const before=bodies.length;await c.WorldStateEngine.update(c.App.config,'QUERY','STORY');assert.equal(bodies.length,before);
-  console.log(`PASS ${moduleCases} module context/tracking/mode/layout cases × 3 protocols + 4 tracking ticks; ${fieldCases} character field type/context/tracking cases; disabled fields make zero state calls`);
+  console.log(`PASS ${moduleCases} module context/tracking/mode/layout cases × 3 protocols + 4 complete-page tracking passes; ${fieldCases} character field type/context/tracking cases; disabled fields make zero state calls`);
 })().catch(error=>{console.error(error);process.exitCode=1;});

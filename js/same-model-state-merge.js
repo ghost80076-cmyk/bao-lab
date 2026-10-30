@@ -110,7 +110,8 @@
   // New story events are not known before generation. Keyword ranking here
   // excluded newly acquired items and ui_only pages forever. Offer every
   // active, nonmanual schema (already bounded by the module manager).
-  const selectedDefinitions = () => (GameState.current?.moduleDefinitions || []).filter(def => def?.tracking !== 'manual');
+  const selectedDefinitions = () => (GameState.current?.moduleDefinitions || []).filter(def => def?.tracking !== 'manual')
+    .sort((a, b) => ({ high: 0, medium: 1, low: 2 }[a.tracking] ?? 1) - ({ high: 0, medium: 1, low: 2 }[b.tracking] ?? 1));
   const statusSchema = () => {
     const fields = window.BAOCharacterStatus?.configFor?.(App.activeCharacter)?.fields || [];
     return fields.filter(field => field?.track).slice(0, 24).map(field => ({

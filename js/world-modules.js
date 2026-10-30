@@ -235,7 +235,8 @@
     // Every tracked page participates, including changes introduced only in
     // this response. Frequency still belongs to the separate-route batch.
     ensureState(window.App?.activeCharacter);
-    const defs = (owner.moduleDefinitions || []).filter(def => def.tracking !== 'manual');
+    const defs = (owner.moduleDefinitions || []).filter(def => def.tracking !== 'manual')
+      .sort((a, b) => ({ high: 0, medium: 1, low: 2 }[a.tracking] ?? 1) - ({ high: 0, medium: 1, low: 2 }[b.tracking] ?? 1));
     const rules = defs.length ? `\n【本次需要檢查的世界模組】\n${moduleRules(defs)}` : "";
     const turnText = `${playerText}\n${assistantText}`;
     const characterStatusRules = window.BAOCharacterStatus?.trackerRules?.() || "";

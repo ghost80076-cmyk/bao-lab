@@ -1,7 +1,7 @@
 (() => {
   if (typeof App === "undefined" || !window.BAOWorldModules) return;
 
-  const TRACKING_LABELS = { high: "高頻", medium: "一般", low: "低頻", manual: "手動" };
+  const TRACKING_LABELS = { high: "自動・優先", medium: "自動・一般", low: "自動・次要", manual: "手動" };
   const CONTEXT_LABELS = { core: "核心", relevant: "相關時", ui_only: "只顯示" };
   const KIND_LABELS = { object: "欄位物件", collection: "清單" };
   const clone = value => {
@@ -34,8 +34,8 @@
         <section class="world-manager-card world-manager-presets-card" data-world-section="official"><h3>官方模組 <button type="button" class="bao-help-button" data-bao-help="three_realms" aria-label="了解三界功能怎麼選">?</button></h3><p>選擇這個故事需要的功能，作品預設的模組會標示來源。篩選僅改變列表顯示。</p><div class="world-manager-preset-discovery" aria-label="尋找官方模組"><input type="search" data-world-preset-search aria-label="搜尋官方模組" placeholder="搜尋官方模組，例如背包、任務、修煉"><div class="world-manager-preset-filters" aria-label="官方模組篩選"><button type="button" data-world-preset-filter="all" aria-pressed="true">全部</button><button type="button" data-world-preset-filter="enabled" aria-pressed="false">已啟用</button><button type="button" data-world-preset-filter="available" aria-pressed="false">可新增</button></div><p data-world-preset-count role="status" aria-live="polite"></p></div><div class="world-manager-presets" data-world-presets></div><p class="world-manager-preset-empty" data-world-preset-empty hidden>沒有符合條件的模組，請清除搜尋或切回「全部」。</p></section>
         <section class="world-manager-card world-manager-custom-card-list" data-world-section="mine"><h3>我的模組</h3><p>你為目前故事建立或匯入的模組；可以是欄位物件或項目清單，並直接接入既有 World Modules tracker。</p><div class="world-manager-custom" data-world-custom></div></section>
       </main><aside class="world-manager-guide">
-        <section class="world-manager-card"><h3>Context 原則</h3><p><b>核心</b>：每輪精簡提供。</p><p><b>相關時</b>：文字命中或手動查看時提供。</p><p><b>只顯示</b>：保留在介面，不送主模型。</p></section>
-        <section class="world-manager-card"><h3>追蹤頻率</h3><p><b>高頻</b>每次狀態整理都檢查；一般與低頻依提及和輪次檢查；手動不交給 AI 更新。</p></section>
+        <section class="world-manager-card"><h3>Context 原則</h3><p><b>核心</b>：每輪精簡提供。</p><p><b>相關時</b>：文字命中或手動查看時提供。</p><p><b>只顯示</b>：不加入敘事背景；若啟用自動追蹤，仍提供給狀態模型核對。</p></section>
+        <section class="world-manager-card"><h3>追蹤方式</h3><p>自動模組每次狀態整理都會核對，優先項目先處理；手動資料不交給 AI 更新。故事與狀態使用同模型時合併一次請求；獨立狀態模型依你設定的整理間隔執行。</p></section>
       </aside></div>
       <footer class="world-manager-foot"><button type="button" class="secondary" data-world-reset>恢復角色卡預設</button><span data-world-message></span><button type="button" class="primary" data-world-save>套用到目前故事</button></footer>
     </section>`;
@@ -45,7 +45,7 @@
     guideDetails.className = "world-manager-guide-details";
     guideDetails.open = window.YoruExperience?.get?.().level === "pro";
     const guideSummary = document.createElement("summary");
-    guideSummary.textContent = "進階說明：AI 資料使用與追蹤頻率";
+    guideSummary.textContent = "進階說明：AI 資料使用與追蹤方式";
     const guideContent = document.createElement("div");
     guideContent.className = "world-manager-guide-content";
     while (guide.firstChild) guideContent.appendChild(guide.firstChild);
@@ -164,7 +164,7 @@
           <label>圖示<input data-custom-prop="icon" maxlength="4" value="${esc(def.icon)}"></label>
           <label>資料形式<select data-custom-prop="kind">${Object.entries(KIND_LABELS).map(([key, text]) => `<option value="${key}" ${def.kind === key ? "selected" : ""}>${text}</option>`).join("")}</select></label>
           <label>AI 使用方式<select data-custom-prop="context">${Object.entries(CONTEXT_LABELS).map(([key, text]) => `<option value="${key}" ${def.context === key ? "selected" : ""}>${text}</option>`).join("")}</select></label>
-          <label>追蹤頻率<select data-custom-prop="tracking">${Object.entries(TRACKING_LABELS).map(([key, text]) => `<option value="${key}" ${def.tracking === key ? "selected" : ""}>${text}</option>`).join("")}</select></label>
+          <label>追蹤方式<select data-custom-prop="tracking">${Object.entries(TRACKING_LABELS).map(([key, text]) => `<option value="${key}" ${def.tracking === key ? "selected" : ""}>${text}</option>`).join("")}</select></label>
           <label class="world-custom-enabled"><input type="checkbox" data-custom-enabled ${enabled ? "checked" : ""}> 啟用</label>
           <label class="wide">觸發詞<input data-custom-prop="triggers" value="${esc((def.triggers || []).join("、"))}" placeholder="例如：契約、組織、情報"></label>
           <label class="wide">給狀態 AI 的說明<textarea data-custom-prop="description" maxlength="500">${esc(def.description || "")}</textarea></label>

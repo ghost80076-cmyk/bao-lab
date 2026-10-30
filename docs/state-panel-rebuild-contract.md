@@ -80,3 +80,9 @@ visible as partial, and existing rebuild backups/persistence checks remain activ
 For authored gameplay, `scene_checks` explicitly acknowledges unchanged `time`
 and/or `location`; returned scene values or the current response's explicit scene
 appendix cover changed fields. Missing scene review also produces partial status.
+
+Legacy `tracking: high/medium/low` values stay save-compatible and now order
+review priority rather than skipping automatic module checks. Player settings
+label these as automatic priority/general/secondary; `manual` remains excluded.
+The `ui_only` context description distinguishes narrative-background omission
+from opted-in state tracking, which still needs module data to validate updates.

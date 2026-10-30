@@ -64,7 +64,7 @@
         .map(([key, value]) => `${labelFor(def, key)}：${pretty(decodeCollectionText(value))}`);
     }).map(displayValue);
   };
-  const trackLabel = value => value === "high" ? "高頻" : value === "medium" ? "一般" : value === "low" ? "低頻" : "手動";
+  const trackLabel = value => value === "high" ? "自動・優先" : value === "medium" ? "自動・一般" : value === "low" ? "自動・次要" : "手動";
   const objectHTML = (def,value) => {
     const obj = value && typeof value === "object" && !Array.isArray(value) ? value : {};
     const keys = def.fields?.length ? def.fields.map(f => f.key).filter(k => obj[k] !== undefined) : Object.keys(obj);
@@ -138,7 +138,7 @@
     const card = document.createElement("div");
     card.id = "world-module-builder-card";
     card.className = "narrative-builder-card";
-    card.innerHTML = `<h4>這張作品會追蹤的資料 <span class="chip">作者設定</span></h4><p>世界型作品可以把狀態、背包、技能、任務、勢力等拆成獨立模組。不同資料用不同頻率更新，不需要每輪把整個世界都重讀一次。</p><div class="narrative-summary">${defs.map(d => `<span class="on">${esc(d.icon)} ${esc(d.label)} · ${esc(trackLabel(d.tracking))}</span>`).join("")}</div>`;
+    card.innerHTML = `<h4>這張作品會追蹤的資料 <span class="chip">作者設定</span></h4><p>世界型作品可以把狀態、背包、技能、任務、勢力等拆成獨立模組。每次狀態整理都核對已啟用的自動模組，只更新有依據的變化；手動資料保留由你管理。</p><div class="narrative-summary">${defs.map(d => `<span class="on">${esc(d.icon)} ${esc(d.label)} · ${esc(trackLabel(d.tracking))}</span>`).join("")}</div>`;
     step.appendChild(card);
   };
   const originalPanel = App.renderUIPanel.bind(App);
