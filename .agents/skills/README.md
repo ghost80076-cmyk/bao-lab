@@ -28,3 +28,25 @@ No production runtime, billing, cloud deployment, website assets, or user conten
 ## Checks
 
 Verify that Codex lists these six project skills when opening a checkout containing this PR. If Codex does not detect them, inspect its project skill discovery settings; do not assume a global Windows install. Validate any subsequent product changes in separate PRs with core and browser regressions.
+
+## Working with Impeccable (PR #873)
+
+- In addition to the six game-development Skills above, the project includes the independently sourced `impeccable` Skill in `.agents/skills/impeccable/` (upstream: https://github.com/pbakaus/impeccable; its own `LICENSE` and `NOTICE.md` apply). It is a **Codex development aid**, not part of YoruBay's runtime.
+- Codex's repository-wide coordination rules are in [`AGENTS.md`](../../AGENTS.md). Do not modify the pinned upstream `router/SKILL.md` or `impeccable/SKILL.md` merely to add local routing advice.
+
+### Which Skill owns what?
+
+| Situation | Default selection | Responsibility |
+| --- | --- | --- |
+| Gameplay HUD/Stage/Phone screen flow, focus or UI-state contracts | `game-ui-ux` (optionally `router`) | Behavior, navigation, safe areas and contract compatibility |
+| Visual hierarchy, typography, spacing, contrast, responsive presentation, first-run UX, visual review | `impeccable` | Presentation and independent critique; preserve YoruBay's established design |
+| Both interaction and appearance change | `game-ui-ux` **then** `impeccable` | Settle interactions and data boundaries first, review the rendered visuals second |
+| Visual Novel mode | `visual-novel` when explicitly relevant | Optional Stage-specific presentation/QoL, not a replacement for LLM-driven storytelling |
+
+Keep Skill loading minimal. An Impeccable `audit` is not a substitute for Playwright functional regressions, and a `game-ui-ux` review is not permission to replace the site's color tokens or typography.
+
+### Impeccable execution boundaries
+
+The official `.codex/hooks.json` may invoke Impeccable's detector after UI edits. Whether Codex trusts/runs those Hooks on a local computer is separate from installing files in GitHub. Do not report Windows execution or Hook activation as verified without observing it. For the first combined task, prefer review-only `impeccable critique` / `impeccable audit`; require a separate, scoped implementation and tests for any fixes.
+
+Use existing `tests/e2e/`, GitHub Actions, screenshot and geometry audits, and the relevant Stage/Phone/Reader contracts as the acceptance baseline. Real-device virtual-keyboard checks remain separate from simulated viewport tests.
