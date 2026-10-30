@@ -140,6 +140,8 @@ const lastRequest = () => requests.at(-1);
   assert.equal(lastRequest().body.generationConfig.thinkingConfig.thinkingLevel, 'low', 'memory JSON needs output space after reasoning');
   await API.send({ type: 'gemini', protocol: 'gemini', model: 'gemini-3.1-pro-preview', key: 'mock' }, messages);
   assert.equal(lastRequest().body.generationConfig?.thinkingConfig, undefined, 'normal story calls preserve provider thinking defaults');
+  await API.send({ type: 'gemini', protocol: 'gemini', model: 'gemini-3.1-pro-preview', key: 'mock', __inspirationTask: true }, messages);
+  assert.equal(lastRequest().body.generationConfig.thinkingConfig.thinkingLevel, 'low', 'action inspiration retains low thinking after memory helpers join the policy');
 
   const canonSchema = {
     type: "object",
