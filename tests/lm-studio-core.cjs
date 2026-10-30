@@ -22,7 +22,7 @@ const local = require('../js/lm-studio-core.js');
   const fetchMock = async (url, init) => {
     calls.push({ url, init });
     if (url.endsWith('/models')) return response({ data: [{ id: 'gemma4-26b-a4b' }, { id: 'other-model' }] });
-    return response({ choices: [{ message: { content: 'OK' } }], usage: { total_tokens: 10 } });
+    return response({ choices: [{ message: { content: 'OK' }, finish_reason: 'length' }], usage: { total_tokens: 10 } });
   };
   const api = {
     activeSignal: null,
@@ -36,6 +36,7 @@ const local = require('../js/lm-studio-core.js');
   assert.deepEqual(await local.listModels(config, fetchMock), ['gemma4-26b-a4b', 'other-model']);
   const result = await local.send(config, [{ role: 'user', content: 'Hi' }], api, fetchMock);
   assert.equal(result.text, 'OK');
+  assert.equal(result.finishReason, 'length', 'local JSON responses retain truncation diagnostics');
   assert.equal(result.usage.total_tokens, 10);
   assert.equal(calls[1].url, 'http://localhost:1234/v1/chat/completions');
   assert.equal(calls[1].init.headers.Authorization, undefined, 'Never send synthetic key to localhost');

@@ -117,7 +117,7 @@
 
   // Rebuild derives a fresh mutable snapshot; old scene values never enter
   // the prompt. Share the incremental tracker's owner lock to avoid races.
-  const rebuildFields = ['time', 'location', 'npcs', 'characterStatuses', 'modules', 'moduleDefinitions', 'gameplayActionVersions', 'pendingStateTurns'];
+  const rebuildFields = ['time', 'location', 'npcs', 'characterStatuses', 'modules', 'moduleDefinitions', 'gameplayActionVersions', 'pendingStateTurns', 'phoneUI'];
   const clone = value => value === undefined ? undefined : JSON.parse(JSON.stringify(value));
   const historySignature = () => JSON.stringify(window.Chat?.messages || []);
   const mutableSnapshot = owner => Object.fromEntries(rebuildFields.map(key => [key, clone(owner[key])]));
@@ -143,7 +143,8 @@
     // single reply is exceptionally long; do not silently claim a full replay.
     const limit = mode === 'deep' ? 48000 : 20000;
     const recent = messages.slice(mode === 'deep' ? -32 : -12).map(m => `${m.role === 'user' ? '玩家' : '故事'}：${m.content}`).join('\n\n').slice(-limit);
-    const fields = window.BAOCharacterStatus?.configFor?.(window.App?.activeCharacter)?.fields?.filter(f => f.track) || [];
+    const characterConfig = window.BAOCharacterStatus?.configFor?.(window.App?.activeCharacter);
+    const fields = characterConfig?.enabled === false ? [] : characterConfig?.fields?.filter(f => f.track) || [];
     const definitions = (owner.moduleDefinitions || []).filter(def => def.tracking !== 'manual');
     const moduleSchemas = window.BAOHelperData.moduleSchemas(definitions);
     const identities = (owner.npcs || []).slice(0, 80).map(n => ({ npc_id: n.npc_id, name: n.name, aliases: n.aliases, appearance: String(n.appearance || '').slice(0, 160) }));
@@ -207,20 +208,25 @@
       // disclose incomplete coverage instead. Explicit validated values apply below.
       const unconfirmedCharacters = Object.entries(owner.characterStatuses || {}).flatMap(([name, status]) =>
         fields.some(field => status[field.key] !== undefined && !Object.prototype.hasOwnProperty.call(data.character_statuses?.[name] || {}, field.key)) ? [name] : []);
-      try { GameState.applyUpdate(data); }
+      let phone = { applied: false, unconfirmed: false };
+      try {
+        GameState.applyUpdate(data);
+        phone = window.BAOPhoneStoryBridge?.rebuildFromHistory?.(owner, window.Chat?.messages) || phone;
+      }
       catch (error) { for (const key of Object.keys(owner)) delete owner[key]; Object.assign(owner, rollback); throw error; }
       // Do not discard older failures outside this bounded evidence window, or
       // pretend missing module updates were repaired by this request.
-      if (!unconfirmed.length && !unconfirmedCharacters.length && !unconfirmedScene.length) owner.pendingStateTurns = queue().filter(turn =>
+      if (!unconfirmed.length && !unconfirmedCharacters.length && !unconfirmedScene.length && !phone.unconfirmed) owner.pendingStateTurns = queue().filter(turn =>
         !recent.includes(`玩家：${turn.player}\n\n故事：${turn.assistant}`));
       owner.stateRebuildBackup = { at: new Date().toISOString(), mode, ...before };
-      owner.stateRebuildReport = { at: new Date().toISOString(), mode, processed, unconfirmed, unconfirmedCharacters, unconfirmedScene, manual: (owner.moduleDefinitions || []).filter(def => def.tracking === 'manual' && def.visibility !== 'internal').map(def => def.label || def.id) };
+      owner.stateRebuildReport = { at: new Date().toISOString(), mode, processed, unconfirmed, unconfirmedCharacters, unconfirmedScene, phone, manual: (owner.moduleDefinitions || []).filter(def => def.tracking === 'manual' && def.visibility !== 'internal').map(def => def.label || def.id) };
       const message = '目前狀態已重新整理。' + (processed.length ? ` 已處理作品資料：${processed.join('、')}。` : '')
         + (unconfirmed.length ? ` 以下作品資料未取得可用更新，保留原值且尚未確認同步：${unconfirmed.join('、')}。` : '')
+        + (phone.applied ? ' 手機動態已依目前版本的保存來源重新核對。' : phone.unconfirmed ? ' 手機動態缺少可核對來源，保留原值且尚未確認同步。' : '')
         + (unconfirmedScene.length ? ' 時間或地點缺少明確證據，尚未確認同步。' : '')
         + (unconfirmedCharacters.length ? ` 部分人物欄位缺少證據，已保留原值：${unconfirmedCharacters.join('、')}。` : '')
         + (definitions.length ? ' 未提供新證據的作品欄位保留原值；手動資料不變。' : '');
-      report(owner, unconfirmed.length || unconfirmedCharacters.length || unconfirmedScene.length ? 'partial' : 'updated', message);
+      report(owner, unconfirmed.length || unconfirmedCharacters.length || unconfirmedScene.length || phone.unconfirmed ? 'partial' : 'updated', message);
       owner.sceneInfoSource = 'story-state-rebuild';
       const saved = await window.App?.saveStory?.(false);
       let durable = saved !== false;

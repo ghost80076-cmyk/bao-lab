@@ -51,6 +51,7 @@
         id: uid("variant"),
         type: "original",
         content: String(message.content || ""),
+        ...(message.phonePatch ? { phonePatch: clone(message.phonePatch) } : {}),
         createdAt: new Date().toISOString()
       }];
       message.activeVariant = 0;
@@ -74,9 +75,19 @@
 
   const addVariant = (message, content, type, meta = {}) => {
     normalizeAssistantMessage(message);
-    const text = String(content || "").trim();
+    const phone = window.BAOPhoneStoryBridge?.extractRevision?.(content);
+    const text = String(phone?.text ?? content ?? '').trim();
     if (!text) return false;
-    const existingIndex = message.variants.findIndex(item => String(item.content || "").trim() === text);
+    if (phone?.patch) meta = { ...meta, phonePatch: phone.patch };
+    const current = message.variants[message.activeVariant];
+    // Capture lazily when a real revision is committed, not on every normal
+    // turn: long stories already keep the pre-reply revisionBase snapshot.
+    if (current && !current.derivedSnapshot && message === Chat.messages.findLast(item => item?.role === 'assistant')) {
+      const snapshot = window.BAOStoryRevisionState?.captureSnapshot?.();
+      if (snapshot) current.derivedSnapshot = snapshot;
+    }
+    const modelRevision = ['regenerate', 'ai-rewrite'].includes(type);
+    const existingIndex = modelRevision ? -1 : message.variants.findIndex(item => String(item.content || "").trim() === text);
     if (existingIndex >= 0) {
       message.activeVariant = existingIndex;
       message.content = String(message.variants[existingIndex].content || "");
@@ -191,6 +202,7 @@
   };
   const mainModelToolConfig = kind => ({ ...App.config.api, __storyTool: true, __storyRevision: kind, __storyRevisionToken: {} });
   const commitRevisionEvidence = (message, config) => {
+    window.BAOSameModelStateMerge?.commitRevision?.(message, config.__storyRevisionToken);
     try { window.BAOContextInspector?.commitRevision?.(message, config.__storyRevisionToken); }
     catch (_) { /* Optional diagnostics never block a revision. */ }
     try { window.BAORequestLedger?.commitRevision?.(message, config.__storyRevisionToken); }

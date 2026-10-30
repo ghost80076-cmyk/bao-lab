@@ -78,9 +78,30 @@ function runtime() {
     await flush();
     c.GameState.current = { location: 'B' }; c.Chat.messages = []; c.Chat.summary = 'B summary';
     g.resolve({ text: 'old result' });
-    await pending;
+    await assert.rejects(pending, error => error.code === 'BAO_ABORTED');
     assert.equal(c.GameState.current.location, 'B', 'old snapshot finally cannot restore into another story');
     assert.equal(c.Chat.summary, 'B summary');
+  }
+  for (const change of ['source', 'action', 'phone']) {
+    const c = runtime(), g = gate();
+    c.BAOGameplayUICore = require('../js/gameplay-ui-core.js');
+    c.GameState.current.modules = { economy: { gold: 100 } };
+    c.Chat.messages[1].revisionBase.state.modules = { economy: { gold: 100 } };
+    c.API.send = () => g.promise;
+    vm.runInContext(read('story-revision-state.js'), c);
+    const pending = c.API.send({ __storyTool: true }, [{ role: 'system', content: 'prompt' }]);
+    await flush();
+    if (change === 'source') c.Chat.messages[0].content = 'new player source';
+    else if (change === 'phone') c.GameState.current.phoneSurface = { owner: 'new owner' };
+    else {
+      c.GameState.current.modules.economy.gold = 80;
+      c.GameState.current.gameplayActionVersions = { 'modules.economy.gold': 1 };
+    }
+    g.resolve({ text: 'stale revision' });
+    await assert.rejects(pending, error => error.code === 'BAO_ABORTED');
+    assert.equal(c.GameState.current.location, 'current');
+    if (change === 'phone') assert.equal(c.GameState.current.phoneSurface.owner, 'new owner', 'phone owner changes survive cancelling old-owner output');
+    if (change === 'action') assert.equal(c.GameState.current.modules.economy.gold, 80, 'in-flight local payment survives restoring the pre-request world');
   }
   console.log('status/revision entry ownership core test passed');
 })().catch(error => { console.error(error); process.exitCode = 1; });

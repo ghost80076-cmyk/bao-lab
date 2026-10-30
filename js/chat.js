@@ -138,6 +138,15 @@ const Chat = {
     };
   },
 
+  memoryCompletionError(result) {
+    const finish = String(result?.finishReason || '').toUpperCase();
+    if (result?.blockReason || /^(SAFETY|PROHIBITED_CONTENT|BLOCKLIST|SPII|CONTENT_FILTER|IMAGE_SAFETY)$/.test(finish))
+      return '供應商回報記憶輸出遭阻擋；保留原摘要與原始對話。';
+    if (/^(MAX_TOKENS|LENGTH|MAX_OUTPUT_TOKENS|MAX_COMPLETION_TOKENS)$/.test(finish))
+      return '記憶輸出已截斷；保留原摘要與原始對話，未標記為已整理。';
+    return '';
+  },
+
   async normalizeMemoryResult(summaryConfig, raw) {
     const first = window.BAOHelperData.memoryText(raw || "");
     if (first) return { summary: first, repaired: false, error: "" };
@@ -153,6 +162,8 @@ const Chat = {
           { role: "user", content: `請把以下內容轉成指定 JSON；只輸出 JSON。\n\n${window.BAOHelperData.memoryRules}\n\n【待修復輸出】\n${source.slice(0, 12000)}` }
         ]
       );
+      const completionError = this.memoryCompletionError(repair);
+      if (completionError) return { summary: '', repaired: true, error: completionError };
       const repaired = window.BAOHelperData.memoryText(repair?.text || "");
       return repaired
         ? { summary: repaired, repaired: true, error: "" }
@@ -254,6 +265,8 @@ const Chat = {
         ...(config?.memory?.episodicRecall !== false && window.BAOEpisodicMemory ? { __responseSchema: window.BAOEpisodicMemory.schema } : {}) };
       const result = await API.send(summaryConfig, [{ role: "system", content: "你是 Observer，不是作者。只輸出記憶規格 JSON，不要續寫故事或模仿正文文風。" }, { role: "user", content: prompt }]);
       if (!isCurrent()) return;
+      const completionError = this.memoryCompletionError(result);
+      if (completionError) throw new Error(completionError);
       const normalized = await this.normalizeMemoryResult(summaryConfig, result?.text || "");
       if (!isCurrent()) return;
       const summary = normalized.summary;

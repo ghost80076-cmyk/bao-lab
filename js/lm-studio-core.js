@@ -52,7 +52,7 @@
       const detail = String(data?.error?.message || data?.message || '').slice(0, 350);
       throw new Error(`LM Studio 回傳 ${response.status}。${detail || '請確認模型已載入、端點正確，以及本地伺服器的驗證設定。'}`);
     }
-    return { text: api.contentToText(data?.choices?.[0]?.message?.content) || '模型沒有回傳內容。', usage: api.normalizeUsage(data?.usage || {}, 'openai') };
+    return { text: api.contentToText(data?.choices?.[0]?.message?.content) || '模型沒有回傳內容。', finishReason: data?.choices?.[0]?.finish_reason || null, usage: api.normalizeUsage(data?.usage || {}, 'openai') };
   };
   const listModels = async (config, fetchImpl = fetch) => {
     const target = endpoint(config?.baseUrl);

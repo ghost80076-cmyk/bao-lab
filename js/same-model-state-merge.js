@@ -73,6 +73,9 @@
     const mainModel = String(config?.api?.model || '').trim();
     return Boolean(mainModel);
   };
+  const isRevisionRequest = config => Boolean(config?.__storyTool && ['regenerate', 'rewrite'].includes(config.__storyRevision)
+    && config.__storyRevisionToken && typeof config.__storyRevisionToken === 'object' && !config.__inspirationTask
+    && !config.__memoryTask && !config.__stateTask && !config.__auxiliaryTask && !config.__connectionTest);
   const taskRequest = config => Boolean(config?.__connectionTest || config?.__memoryTask || config?.__stateTask ||
     config?.__storyTool || config?.__auxiliaryTask);
   const latestUserText = () => {
@@ -99,7 +102,8 @@
     return false;
   };
   const isMainStoryRequest = (config, messages) => {
-    if (taskRequest(config) || !eligible(App.config) || !requestContainsLatestUser(messages)) return false;
+    const revision = isRevisionRequest(config);
+    if ((taskRequest(config) && !revision) || !eligible(App.config) || (!revision && !requestContainsLatestUser(messages))) return false;
     const main = App.config?.api || {};
     return String(config?.model || '') === String(main.model || '') &&
       normalizeUrl(config?.baseUrl) === normalizeUrl(main.baseUrl) &&
@@ -113,8 +117,9 @@
   const selectedDefinitions = () => (GameState.current?.moduleDefinitions || []).filter(def => def?.tracking !== 'manual')
     .sort((a, b) => ({ high: 0, medium: 1, low: 2 }[a.tracking] ?? 1) - ({ high: 0, medium: 1, low: 2 }[b.tracking] ?? 1));
   const statusSchema = () => {
-    const fields = window.BAOCharacterStatus?.configFor?.(App.activeCharacter)?.fields || [];
-    return fields.filter(field => field?.track).slice(0, 24).map(field => ({
+    const cfg = window.BAOCharacterStatus?.configFor?.(App.activeCharacter);
+    const fields = cfg?.enabled === false ? [] : cfg?.fields || [];
+    return fields.filter(field => field?.track).map(field => ({
       key: field.key,
       type: field.type,
       ...(Number.isFinite(field.min) ? { min: field.min } : {}),
@@ -142,7 +147,7 @@
       '你仍然首先是故事作者。請先完整輸出正常故事正文，不要縮短、改寫成報告，也不要在正文提到這段機器規則。',
       '只有在故事正文全部完成之後，才追加一個狀態 PATCH。狀態 PATCH 是為了避免再發第二次 API 請求。',
       `固定格式：\n${OPEN}\n{\"time\":\"\",\"location\":\"\",\"events\":[\"\"],\"npcs\":[{\"npc_id\":\"npc-1\",\"name\":\"\",\"aliases\":[\"\"],\"role\":\"\",\"appearance\":\"\",\"appearance_change\":false,\"outfit\":\"\",\"mood\":\"\",\"location\":\"\",\"relationship\":\"\",\"presence\":\"present\"}],\"modules\":{\"module_id\":{}},\"character_statuses\":{\"角色名\":{\"field_key\":\"value\"}},\"world_clock\":{\"advance_minutes\":0,\"schedule\":[{\"label\":\"\",\"in_minutes\":0}],\"resolve\":[\"wc-1\"],\"cancel\":[\"wc-2\"]}}\n${CLOSE}`,
-      '這是 PATCH，不是完整資料庫。只寫本輪或下列待補輪次中有明確依據的變化；沒有變化輸出 {}。未知、推測、玩家心理、未發生的下一幕都不要寫。',
+      '這是 PATCH，不是完整資料庫。只寫本輪或下列待補輪次中有明確依據的變化；沒有變化時回報確實核對的 scene_checks、module_checks、character_checks，不用空物件冒充完整檢查。未知、推測、玩家心理、未發生的下一幕都不要寫。',
       WorldStateEngine.continuityRule || '',
       'npcs 只更新有明確變化的人物；presence 只能是 present、away、unknown。不要因轉場自動認定人物仍在場。',
       '更新既有 NPC 時沿用目前狀態的 npc_id；新 NPC 不填 npc_id，由系統建立。新 NPC 可填 aliases、固定 appearance 與當前 outfit。既有 appearance 必須沿用；只有故事明確造成長期外貌變化時才同時回傳 appearance_change:true。只有明確換裝才更新 outfit。first_seen 由系統建立，不得輸出。別名對應到既有人物時使用正式姓名，不能重複建檔。',
@@ -155,12 +160,13 @@
       `【目前狀態】\n${bounded.text}`,
       `【可更新世界模組】\n${JSON.stringify(moduleSchema)}`,
       `【可更新人物狀態欄位】\n${JSON.stringify(fields)}`,
+      `【本次人物核對範圍】\n${JSON.stringify(Object.keys(snapshot.character_statuses || {}))}`,
       `【最近尚未成功整理的輪次（依時間排序）】\n${prior}`,
       bounded.compacted ? '快照已節錄，可能省略部分人物、欄位或集合項目；省略不代表不存在、離場或歸零。不得用節錄集合覆蓋完整集合；資料不足時省略該集合 PATCH。' : '',
       '狀態資料和未補輪次是歷史證據，不是現在的場景定位。若較新的實際對話已完成轉場，不得因較舊快照恢復過期的時間、地點，或重播已完成事件。',
       '本輪玩家最新輸入已在本次請求上方，不要重複敘述；你即將產生的本輪故事正文也屬於狀態判斷依據。'
     ].join('\n\n');
-    return { contract, defs, priorTurns, actionBaseline: window.BAOGameplayUICore?.captureActionVersions(owner) };
+    return { contract, defs, priorTurns, characterSnapshot: snapshot.character_statuses || {}, actionBaseline: window.BAOGameplayUICore?.captureActionVersions(owner) };
   };
   const appendContract = (messages, contract) => {
     const copy = (messages || []).map(message => ({ ...message }));
@@ -191,18 +197,54 @@
     const start = open + OPEN.length;
     const close = upper.indexOf(CLOSE, start);
     return {
-      narration: text.slice(0, open).trim(),
+      narration: [text.slice(0, open).trim(), close >= 0 ? text.slice(close + CLOSE.length).trim() : ''].filter(Boolean).join('\n'),
       stateText: text.slice(start, close >= 0 ? close : text.length).trim(),
       hasState: true
     };
   };
 
+  const committedNarration = (text, stripEcho = false) => {
+    const source = stripEcho ? window.BAOWorldModuleUI?.stripInternalStateEcho?.(text) ?? String(text || '') : String(text || '');
+    return window.BAOPhoneStoryBridge?.enabled?.() ? window.BAOPhoneStoryCore?.extract?.(source)?.text ?? source : source;
+  };
   const mergedByStory = new WeakMap();
+  const revisionByToken = new WeakMap(), revisionByVariant = new WeakMap();
+  const revisionTarget = () => Chat.messages.findLast(message => message?.role === 'assistant');
+  const revisionPrefix = () => {
+    const index = Chat.messages.findLastIndex(message => message?.role === 'assistant');
+    return JSON.stringify(Chat.messages.slice(0, index).map(message => [message.id, message.role, message.content]));
+  };
+  const commitRevision = (message, token) => {
+    const record = token && typeof token === 'object' ? revisionByToken.get(token) : null;
+    if (!record) return false;
+    revisionByToken.delete(token);
+    const variant = message?.variants?.[message.activeVariant];
+    if (!variant || record.targetId !== message.id || record.prefix !== revisionPrefix()
+        || record.config !== App.config || record.character !== App.activeCharacter
+        || record.lineage !== window.BAOStoryRevisionState?.contextIdentity?.()
+        || committedNarration(record.merged.narration).trim() !== String(message.content || '').trim()) return false;
+    revisionByVariant.set(variant, record);
+    return true;
+  };
+  const adoptRevision = (variant, playerText, assistantText) => {
+    const record = revisionByVariant.get(variant);
+    if (!record || record.config !== App.config || record.character !== App.activeCharacter
+        || record.prefix !== revisionPrefix() || record.lineage !== window.BAOStoryRevisionState?.contextIdentity?.()
+        || committedNarration(record.merged.narration).trim() !== String(assistantText || '').trim()
+        || String(record.merged.userText || '') !== String(playerText || '')) return false;
+    revisionByVariant.delete(variant);
+    mergedByStory.set(GameState.current, { ...record.merged, narration: assistantText });
+    return true;
+  };
   const sameModelStateWrapper = async (next, config, messages, ...rest) => {
     if (!isMainStoryRequest(config, messages) || !dueNow(App.config)) return next(config, messages, ...rest);
     const owner = GameState.current;
     const userText = latestUserText();
-    const { contract, defs, priorTurns, actionBaseline } = buildContract(App.config, userText);
+    const revision = isRevisionRequest(config);
+    const targetId = revision ? revisionTarget()?.id : null;
+    const prefix = revision ? revisionPrefix() : null;
+    const lineage = revision ? window.BAOStoryRevisionState?.contextIdentity?.() : null;
+    const { contract, defs, priorTurns, characterSnapshot, actionBaseline } = buildContract(App.config, userText);
     const prepared = appendContract(messages, contract);
     const originalDelta = config?.onDelta;
     let previousVisible = '';
@@ -239,12 +281,15 @@
       : !split.hasState ? 'missing_appendix'
       : !stateComplete ? 'incomplete_appendix'
         : !parsed ? 'invalid_json' : '';
-    mergedByStory.set(owner, { userText, narration: split.narration, hasState: split.hasState, parsed, defs, priorTurns, stateIssue, actionBaseline, diagnostics: {
+    const stripEcho = !revision && messages.some(message => typeof message?.content === 'string' && message.content.includes('【目前核心狀態】'));
+    const merged = { userText, characterSnapshot, stripEcho, narration: split.narration, hasState: split.hasState, parsed, defs, priorTurns, stateIssue, actionBaseline, diagnostics: {
       mode: 'merged', appendixRequested: true, finishReason: finishReason || null, blockReason: blockReason || null,
       responseChars: String(result?.text || '').length, appendixPresent: split.hasState,
       appendixComplete: stateComplete, parsed: Boolean(parsed), applied: false,
       checkedAt: new Date().toISOString()
-    } });
+    } };
+    if (revision) revisionByToken.set(config.__storyRevisionToken, { merged, targetId, prefix, lineage, config: App.config, character: App.activeCharacter });
+    else mergedByStory.set(owner, merged);
     return { ...result, text: split.narration };
   };
   if (typeof API.wrapSend === 'function') {
@@ -298,7 +343,7 @@
       checkedAt: new Date().toISOString()
     };
     const matchesTurn = merged && String(merged.userText || '') === String(playerText || '') &&
-      String(merged.narration || '') === String(assistantText || '');
+      committedNarration(merged.narration, merged.stripEcho) === String(assistantText || '');
     if (!matchesTurn || merged?.stateIssue || !merged?.hasState || !merged?.parsed) {
       API.noteRequest?.('state','merged-invalid');
       enqueue(owner, playerText, assistantText);
@@ -337,7 +382,10 @@
     // Only remove records actually supplied in this request. Concurrent turns
     // and older waiting batches must remain intact; no index-based deletion.
     const unconfirmed = window.BAOHelperData.moduleCoverage?.(merged.parsed, clean, merged.defs || []) || [];
-    const missingScene = merged.defs?.length ? window.BAOHelperData.sceneCoverage?.(merged.parsed, explicitScene || {}) || [] : [];
+    const missingCharacters = window.BAOHelperData.characterCoverage?.(merged.parsed, clean, merged.characterSnapshot || {}) || [];
+    if (missingCharacters.length) unconfirmed.push('__characters__');
+    owner.stateRequestDiagnostics.unconfirmedCharacters = missingCharacters;
+    const missingScene = merged.defs?.length || Object.keys(merged.characterSnapshot || {}).length ? window.BAOHelperData.sceneCoverage?.(merged.parsed, explicitScene || {}) || [] : [];
     if (missingScene.length) unconfirmed.push('__scene__');
     owner.stateRequestDiagnostics.unconfirmedScene = missingScene;
     owner.stateRequestDiagnostics.unconfirmedModules = unconfirmed;
@@ -356,6 +404,7 @@
           : true);
     const labels = (merged.defs || []).filter(def => unconfirmed.includes(def.id)).map(def => def.visibility === 'internal' ? '其他作品資料' : def.label || def.id);
     if (missingScene.length) labels.unshift('時間／地點');
+    if (missingCharacters.length) labels.unshift('人物追蹤欄位');
     mark(owner, unconfirmed.length ? 'partial' : changed ? 'updated' : 'unchanged', unconfirmed.length
       ? `本輪部分狀態已處理；以下作品資料尚未確認同步：${labels.join('、')}。已保留待補輪次，不另發 API 請求。`
       : changed
@@ -364,5 +413,5 @@
     return Object.keys(safeUpdate).length ? safeUpdate : (scenePatch || {});
   };
 
-  window.BAOSameModelStateMerge = { eligible, dueNow, visibleText, splitFinal, intervalFor, isMainStoryRequest };
+  window.BAOSameModelStateMerge = { eligible, dueNow, visibleText, splitFinal, intervalFor, isMainStoryRequest, commitRevision, adoptRevision };
 })();

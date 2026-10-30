@@ -90,5 +90,13 @@ async function turn(player, story, patch) {
   assert.equal(GameState.current.modules.economy.gold, 80);
   assert.deepEqual(GameState.current.modules.inventory.map(i => i.id), ['key']);
   assert.equal(GameState.current.stateTracker.phase, 'partial', 'unresolvable repeated removal is disclosed conservatively');
+  global.BAOCharacterStatus = { configFor: () => ({ enabled: true, fields: [{ key: 'score', type: 'number', track: true }] }) };
+  const badCharacter = { character_statuses: { '旅人': { score: '99' } }, character_checks: { '旅人': ['score'] } };
+  const normalizedCharacter = BAOHelperData.stateUpdate(badCharacter);
+  assert.deepEqual(BAOHelperData.characterCoverage(badCharacter, normalizedCharacter, { '旅人': { score: 5 } }), ['旅人']);
+  const zeroCharacter = { character_statuses: { '旅人': { score: 0 } } };
+  assert.deepEqual(BAOHelperData.characterCoverage(zeroCharacter, BAOHelperData.stateUpdate(zeroCharacter), { '旅人': { score: 5 } }), []);
+  BAOCharacterStatus.configFor = () => ({ enabled: false, fields: [{ key: 'score', type: 'number', track: true }] });
+  assert.deepEqual(BAOHelperData.stateUpdate(zeroCharacter).character_statuses['旅人'], {});
   console.log('state module integrity: all pages, money, inventory, consumption, partial coverage and rebuild passed');
 })().catch(e => { console.error(e); process.exitCode = 1; });
