@@ -67,7 +67,7 @@
     const index = Math.max(0, Math.min(Number(message.activeVariant || 0), message.variants.length - 1));
     return message.variants[index] || null;
   };
-  const signatureOf = message => message?.id ? `${message.id}\n${String(message.content || "")}` : "";
+  const signatureOf = message => message?.id ? `${message.id}\n${activeVariant(message)?.id || ''}\n${String(message.content || "")}` : "";
   const baseFromPayload = payload => payload?.state ? {
     state: cleanState(payload.state),
     summary: String(payload.chat?.summary || ""),

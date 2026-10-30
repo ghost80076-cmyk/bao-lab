@@ -86,7 +86,8 @@
       const snapshot = window.BAOStoryRevisionState?.captureSnapshot?.();
       if (snapshot) current.derivedSnapshot = snapshot;
     }
-    const existingIndex = message.variants.findIndex(item => String(item.content || "").trim() === text);
+    const modelRevision = ['regenerate', 'ai-rewrite'].includes(type);
+    const existingIndex = modelRevision ? -1 : message.variants.findIndex(item => String(item.content || "").trim() === text);
     if (existingIndex >= 0) {
       message.activeVariant = existingIndex;
       message.content = String(message.variants[existingIndex].content || "");

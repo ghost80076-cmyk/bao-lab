@@ -173,3 +173,22 @@ test('trusted internal-echo cleanup does not invalidate a matching state appendi
   await page.locator('#user-input').fill('出發');await page.evaluate(()=>App.sendMessage());
   expect(await page.evaluate(()=>({text:Chat.messages.at(-1).content,phase:GameState.current.stateTracker.phase,gold:GameState.current.modules.economy.gold}))).toEqual({text:'真正正文。',phase:'updated',gold:80});
 });
+
+test('identical regenerated prose still reconciles the new state receipt once',async({page})=>{
+  await setup(page);
+  await page.evaluate(()=>{
+    const original=fetch.bind(window);window.__identicalCalls=0;
+    window.fetch=(input,init={})=>{
+      if(!String(input?.url||input).startsWith('http://localhost:1234/v1'))return original(input,init);
+      __identicalCalls++;
+      const patch=__identicalCalls===1?{time:'16:00',location:'車旁',modules:{economy:{gold:80}}}:{time:'16:00',location:'車旁',modules:{economy:{gold:60}}};
+      return Promise.resolve(new Response(JSON.stringify({choices:[{message:{content:'你確認了目前的餘額。<BAO_STATE>'+JSON.stringify(patch)+'</BAO_STATE>'},finish_reason:'stop'}]}),{headers:{'Content-Type':'application/json'}}));
+    };
+  });
+  await page.locator('#user-input').fill('核對餘額');await page.evaluate(()=>App.sendMessage());
+  expect(await page.evaluate(()=>GameState.current.modules.economy.gold)).toBe(80);
+  await page.evaluate(()=>document.querySelector('[data-regenerate]').click());
+  await expect.poll(()=>page.evaluate(()=>Chat.messages.at(-1).variants.length)).toBe(2);
+  await page.evaluate(()=>BAOStoryRevisionState.whenIdle());
+  expect(await page.evaluate(()=>({text:Chat.messages.at(-1).content,gold:GameState.current.modules.economy.gold,calls:__identicalCalls,phase:GameState.current.stateTracker.phase}))).toEqual({text:'你確認了目前的餘額。',gold:60,calls:2,phase:'updated'});
+});
