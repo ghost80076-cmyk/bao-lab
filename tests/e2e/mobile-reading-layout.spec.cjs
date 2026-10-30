@@ -56,8 +56,31 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     expect(boxes.titleWhiteSpace).toBe('nowrap');
     expect(boxes.pageWidth).toBeLessThanOrEqual(boxes.viewport + 1);
 
+    // Combined game-ui-ux/Impeccable check: the four first-party touch
+    // controls have real 44px targets at both regular and narrow widths.
+    // The story title remains visible and the page must not overflow.
+    const headerTargets = await page.evaluate(() => {
+      const selectors = [
+        '#bao-mobile-exit',
+        '#bao-conversation-search-open',
+        '#bao-play-status-toggle'
+      ];
+      return selectors.map(selector => {
+        const rect = document.querySelector(selector)?.getBoundingClientRect();
+        return { selector, width: rect?.width || 0, height: rect?.height || 0 };
+      });
+    });
+    for (const target of headerTargets) {
+      expect(target.width, target.selector + ' hit width').toBeGreaterThanOrEqual(44);
+      expect(target.height, target.selector + ' hit height').toBeGreaterThanOrEqual(44);
+    }
+    await page.screenshot({ path: 'test-results/mobile-story-tap-targets-' + viewport.width + '.png', animations: 'disabled' });
+
     await info.click();
     await expect(page.locator('#chat-view')).toHaveClass(/bao-play-status-open/);
+    const stageClose = await page.locator('#bao-mobile-panel-close').boundingBox();
+    expect(stageClose?.width || 0, 'Stage close hit width').toBeGreaterThanOrEqual(44);
+    expect(stageClose?.height || 0, 'Stage close hit height').toBeGreaterThanOrEqual(44);
     await expect(page.locator('#game-ui')).toBeVisible();
     await page.locator('#bao-mobile-panel-close').click();
     await expect(page.locator('#chat-view')).not.toHaveClass(/bao-play-status-open/);
