@@ -1,4 +1,8 @@
 const { test, expect } = require('@playwright/test');
+// Memory recovery uses local fixtures and mocked model calls only.
+test.beforeEach(async ({ page }) => {
+  await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort());
+});
 for (const width of [390, 1280]) {
   test(`existing story retries automatic memory and saves coverage (${width}px)`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
