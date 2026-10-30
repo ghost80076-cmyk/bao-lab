@@ -16,6 +16,8 @@ jobs:
       SITE_URL: https://yorubay.com/
       EXPECTED_TITLE: 夜灣 YoruBay｜AI 角色扮演、AI 聊天與世界模擬
     steps:
+      - uses: actions/checkout@v4
+
       - name: Wait for live Pages metadata
         shell: bash
         run: |
@@ -72,11 +74,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          expected_loader="$(grep -E "^[[:space:]]*script\.src = 'js/gemini-explicit-cache\.js\?v=[0-9]+';$" js/prompt-cache.js | sed 's/^[[:space:]]*//')"
+          test -n "${expected_loader}"
           ok=0
           for attempt in $(seq 1 24); do
             loader="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}js/prompt-cache.js" || true)"
             cache="$(curl --fail --silent --show-error --location --max-time 15 "${SITE_URL}js/gemini-explicit-cache.js" || true)"
-            if grep -Fq "script.src = 'js/gemini-explicit-cache.js?v=2'" <<<"${loader}" \
+            if grep -Fq "${expected_loader}" <<<"${loader}" \
               && grep -Fq 'window.BAOGeminiExplicitCache = { open, inspect, create, remove }' <<<"${cache}" \
               && grep -Fq 'Gemini 顯式快取（進階）' <<<"${cache}"; then
               ok=1
