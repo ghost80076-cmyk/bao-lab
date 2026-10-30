@@ -135,8 +135,11 @@
     });
     return missing.length || !fields.length ? [def.id] : [];
   });
-  const sceneCoverage = (raw, explicit = {}) => ['time', 'location'].filter(key =>
-    !(typeof raw?.[key] === 'string' && raw[key].trim() && !/^(未確認|未知|未設定)$/.test(raw[key].trim())) && !explicit[key] && !(Array.isArray(raw?.scene_checks) && raw.scene_checks.includes(key)));
+  const sceneCoverage = (raw, explicit = {}) => ['time', 'location'].filter(key => {
+    if (explicit[key]) return false;
+    if (raw && Object.hasOwn(raw, key)) return !(typeof raw[key] === 'string' && raw[key].trim() && !/^(未確認|未知|未設定)$/.test(raw[key].trim()));
+    return !(Array.isArray(raw?.scene_checks) && raw.scene_checks.includes(key));
+  });
   const moduleProtocol = [
     '時間與地點也須核對：有變化回傳 time、location；已確認未變動的欄位列在 scene_checks，例如 ["time","location"]。不能只更新分頁而漏檢場景。',
     '所有允許的作品模組都屬於狀態追蹤，包括各分頁的時間、地點、關係、契約、金錢、物品與任務；不得只檢查一般狀態。',

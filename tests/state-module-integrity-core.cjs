@@ -67,6 +67,9 @@ async function turn(player, story, patch) {
   assert.equal(playerOnly.modules.inventory, undefined, 'player intent alone is not completed consumption');
   const olderRemoval = BAOHelperData.stateUpdate({ module_removals: { inventory: [{ id: 'key', evidence: '你丟掉鑰匙。' }] } }, defs, '你丟掉鑰匙。\n你又撿回鑰匙。', { collectionMode: 'merge' });
   assert.equal(olderRemoval.modules.inventory, undefined, 'older removal cannot undo a later reacquisition mention');
+  assert.deepEqual(BAOHelperData.sceneCoverage({ time: '未確認', scene_checks: ['time', 'location'] }), ['time'], 'unknown scene values cannot be disguised as unchanged');
+  assert.deepEqual(BAOHelperData.sceneCoverage({ time: 123, scene_checks: ['time', 'location'] }), ['time']);
+  assert.deepEqual(BAOHelperData.sceneCoverage({ scene_checks: 'time location' }), ['time', 'location']);
   // Rebuild uses live unsaved history, absolute balances and explicit removals.
   GameState.current = fresh();
   Chat.messages = [{ role: 'user', content: '購買麵包後喝藥' }, { role: 'assistant', content: '金幣剩八十枚。你喝完最後一瓶藥水。' }];
