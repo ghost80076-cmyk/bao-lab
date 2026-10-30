@@ -54,6 +54,40 @@ global.fetch = async (url, options) => {
 };
 
 (async () => {
+  const event = data => `data: ${JSON.stringify(data)}\n\n`;
+  const readers = [
+    ['readOpenAIStream', { choices: [{ delta: { content: '未完成' } }] },
+      event({ choices: [{ finish_reason: 'stop' }] })],
+    ['readAnthropicStream', { type: 'content_block_delta', delta: { type: 'text_delta', text: '未完成' } },
+      event({ type: 'message_stop' })],
+    ['readGeminiStream', { candidates: [{ content: { parts: [{ text: '未完成' }] } }] },
+      event({ candidates: [{ finishReason: 'STOP' }] })]
+  ];
+  for (const [method, delta, terminal] of readers) {
+    const received = [];
+    await assert.rejects(API[method](sseResponse(event(delta)), {
+      onDelta: (_delta, text) => received.push(text)
+    }), error => error.code === 'BAO_STREAM_PROTOCOL' && /完成訊號/.test(error.message),
+    `${method}: clean EOF without terminal metadata must not commit a partial response`);
+    assert.deepEqual(received, ['未完成']);
+    await assert.rejects(API[method](sseResponse(': keepalive\n\n'), {}),
+      error => error.code === 'BAO_STREAM_PROTOCOL', `${method}: empty stream must fail`);
+    // A final event without a trailing blank line is still valid SSE at EOF.
+    const complete = await API[method](sseResponse(event(delta) + terminal.trimEnd()), {});
+    assert.equal(complete.text, '未完成');
+    await assert.rejects(API[method](sseResponse('data: {broken\n\n'), {}),
+      error => error.code === 'BAO_STREAM_PROTOCOL');
+    const aborted = new Response(new ReadableStream({
+      start(controller) { controller.error(Object.assign(new Error('aborted'), { name: 'AbortError' })); }
+    }));
+    await assert.rejects(API[method](aborted, {}), error => error.code === 'BAO_ABORTED');
+  }
+  assert.equal((await API.readOpenAIStream(sseResponse(
+    event({ choices: [{ delta: { content: '完成' } }] }) + 'data: [DONE]\n\n'
+  ), {})).text, '完成', 'DONE-only compatible gateways remain supported');
+  await assert.rejects(API.readAnthropicStream(sseResponse(
+    event({ type: 'message_delta', delta: { stop_reason: 'end_turn' } })
+  ), {}), error => error.code === 'BAO_STREAM_PROTOCOL', 'Anthropic requires message_stop');
   // Gemini may report prompt blocking before the final stream chunk. Retain
   // that metadata even when the last chunk carries only usage.
   const blocked = await API.readGeminiStream(sseResponse([

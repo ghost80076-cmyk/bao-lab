@@ -403,10 +403,16 @@ const API = {
     error.code = "BAO_STREAM_PROTOCOL";
     return error;
   },
+  assertStreamComplete(complete, protocol) {
+    if (complete) return;
+    const error = new Error(`${protocol} 串流在收到完成訊號前已結束，本次回應未儲存；請重新送出。`);
+    error.code = "BAO_STREAM_PROTOCOL";
+    throw error;
+  },
   async readOpenAIStream(response, config) {
-    let text = "", usage = {}, finishReason = null;
+    let text = "", usage = {}, finishReason = null, done = false;
     await this.readSSE(response, ({ data: raw }) => {
-      if (raw.trim() === "[DONE]") return;
+      if (raw.trim() === "[DONE]") { done = true; return; }
       const data = this.parseStreamJSON(raw, "OpenAI-compatible API");
       if (data?.error) throw this.streamEventError(data, "OpenAI-compatible API");
       const delta = this.contentToText(data?.choices?.[0]?.delta?.content);
@@ -414,14 +420,17 @@ const API = {
       if (data?.usage) usage = data.usage;
       finishReason = data?.choices?.[0]?.finish_reason || finishReason;
     });
+    // Compatible gateways may send either finish_reason or [DONE].
+    this.assertStreamComplete(done || Boolean(finishReason), "OpenAI-compatible API");
     return { text: text || "模型沒有回傳內容。", finishReason, usage: this.normalizeUsage(usage, "openai") };
   },
   async readAnthropicStream(response, config) {
-    let text = "", finishReason = null;
+    let text = "", finishReason = null, stopped = false;
     const usage = {};
     await this.readSSE(response, ({ data: raw }) => {
       const data = this.parseStreamJSON(raw, "Anthropic-compatible API");
       if (data?.type === "error" || data?.error) throw this.streamEventError(data, "Anthropic-compatible API");
+      if (data?.type === "message_stop") stopped = true;
       if (data?.type === "message_start") Object.assign(usage, data.message?.usage || {});
       if (data?.type === "message_delta") {
         Object.assign(usage, data.usage || {});
@@ -430,6 +439,7 @@ const API = {
       const delta = data?.type === "content_block_delta" && data?.delta?.type === "text_delta" ? data.delta.text : "";
       if (delta) { text += delta; this.emitDelta(config, delta, text); }
     });
+    this.assertStreamComplete(stopped, "Anthropic-compatible API");
     return { text: text || "模型沒有回傳內容。", finishReason, usage: this.normalizeUsage(usage, "anthropic") };
   },
   async readGeminiStream(response, config) {
@@ -444,6 +454,7 @@ const API = {
       if (delta) { text += delta; this.emitDelta(config, delta, text); }
       if (data?.usageMetadata) usage = data.usageMetadata;
     });
+    this.assertStreamComplete(Boolean(finishReason || blockReason), "Gemini API");
     return { text: text || this.geminiEmptyResponseMessage(lastData || {}), finishReason, blockReason, usage: this.normalizeUsage(usage, "gemini") };
   },
   contentToText(content) { if (typeof content === "string") return content; if (Array.isArray(content)) return content.map(p => typeof p === "string" ? p : (p?.text || "")).filter(Boolean).join("\n"); return content == null ? "" : String(content); },
