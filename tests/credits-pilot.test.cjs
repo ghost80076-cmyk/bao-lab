@@ -136,6 +136,14 @@ test('OpenRouter hosted chat keeps one session per story and changes it for anot
  assert.notEqual(first,third);
  assert.equal(third,'bao-lab:other-story:22222222-2222-4222-8222-222222222222:chat');
 });
+test('summary allowance reaches Worker independently of chat allowance',async()=>{
+ const s=build();
+ s.app.config.api={...cfg,maxOutputTokens:256};
+ await s.api.send({...cfg,model:'gemini-3.1-pro-preview',__memoryTask:true,maxOutputTokens:8192},msgs);
+ const body=JSON.parse(s.calls[0][1].body);
+ assert.equal(body.request_kind,'summary');
+ assert.equal(body.max_output_tokens,8192);
+});
 test('YoruBay requests clamp only above the shared 8192 Worker ceiling',async()=>{
  const s=build();
  await s.api.send({...cfg,model:'anthropic/claude-sonnet-4.6',maxOutputTokens:12000},msgs);

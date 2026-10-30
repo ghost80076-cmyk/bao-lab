@@ -52,9 +52,9 @@ const addTurns = n => { for (let i = 0; i < n; i++) { Chat.add('user', `玩家-$
   const cursorBeforeIncomplete = Chat.summarizedUntil;
   for (const completion of [{ finishReason: 'MAX_TOKENS' }, { finishReason: 'SAFETY' }, { blockReason: 'PROHIBITED_CONTENT' }]) {
     let calls = 0;
-    ctx.API.send = async () => { calls++; return { text: '{"events":["不可套用的摘要"]}', ...completion }; };
+    ctx.API.send = async (api) => { assert.ok(!api.__memoryRepairTask, 'truncation must never invoke JSON repair'); calls++; return { text: '{"events":["不可套用的摘要"]}', ...completion }; };
     await Chat.afterTurn(config);
-    assert.equal(calls, 1, 'known truncated/blocked memory must not trigger a paid format-repair request');
+    assert.equal(calls, completion.finishReason === 'MAX_TOKENS' ? 3 : 1, 'only truncated output may retry, at most twice; blocks must stop immediately');
     assert.equal(Chat.summary, summaryBeforeIncomplete);
     assert.equal(Chat.summarizedUntil, cursorBeforeIncomplete);
     assert.equal(Chat.memoryHealth.phase, 'failed');

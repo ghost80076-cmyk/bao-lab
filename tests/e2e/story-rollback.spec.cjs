@@ -47,9 +47,19 @@ async function seedStory(page) {
 }
 
 async function revealRollback(page, id) {
-  await page.evaluate(() => BAOMobileReadingLayout.syncMessageActions());
-  const details = page.locator(`.story-message-tools:has([data-story-rollback="${id}"]) details.bao-message-more`);
-  if (await details.count() && await details.getAttribute('open') === null) await details.locator('summary').click();
+  // Startup/render hooks can regroup actions after the first synchronous sync.
+  // Operate the current menu and verify the target, rather than trusting a
+  // one-time count/open snapshot from a menu that may be replaced.
+  await expect(async () => {
+    await page.evaluate(() => BAOMobileReadingLayout.syncMessageActions());
+    const target = page.locator(`[data-story-rollback="${id}"]`);
+    if (!await target.isVisible()) {
+      const details = page.locator(`details.bao-message-more:has([data-story-rollback="${id}"])`);
+      await expect(details).toBeVisible();
+      if (await details.getAttribute('open') === null) await details.locator(':scope > summary').click();
+    }
+    await expect(target).toBeVisible({ timeout: 1000 });
+  }).toPass({ timeout: 10000 });
 }
 
 const state = page => page.evaluate(() => ({
