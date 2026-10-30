@@ -241,6 +241,7 @@
     const turnText = `${playerText}\n${assistantText}`;
     const characterStatusRules = window.BAOCharacterStatus?.trackerRules?.() || "";
     const statusBlock = characterStatusRules ? `【人物狀態欄位】\n只有角色狀態真的改變時，才在 character_statuses 內回傳該角色更新後的欄位。不得猜測沒有證據的身體、服裝、心理或關係變化。\n${characterStatusRules}` : "";
+    const snapshot = this.stateSnapshot(defs, turnText);
     const prompt = [
       "你是角色扮演遊戲的狀態追蹤器，不是故事作者。",
       "只根據本輪玩家輸入與故事回覆更新有明確依據的狀態，不得自行補劇情。",
@@ -251,13 +252,13 @@
       "character_statuses 只輸出本輪確實改變的人物與欄位。",
       "NPC 連續性：更新既有人物時沿用目前狀態的 npc_id；新人物不填 npc_id，由系統建立。新人物可填 aliases、appearance（固定外貌）與 outfit（當前穿著）。既有人物的固定 appearance 必須沿用；只有故事明確造成長期外貌變化時，才同時回傳 appearance 與 appearance_change:true。只有文本明確換裝時才更新 outfit。first_seen 由系統建立，不得輸出或捏造。別名對應到既有人物時沿用其正式姓名，不重複建檔。",
       "world_clock 是可選 PATCH。只有故事明確經過一段時間時才寫 advance_minutes；只有文本明確建立日期、期限、約定、旅程耗時或倒數時才 schedule。不得自行創造伏筆或未發生事件。resolve/cancel 只能引用目前狀態中已存在的 wc-* ID。",
-      "未發生變化時可以輸出空物件 {}。",
+      "未發生變化但已核對的欄位使用 scene_checks、module_checks、character_checks；證據不足則省略，不用空物件冒充所有資料都同步。",
       "只輸出合法 JSON，不要 Markdown、註解或解釋。",
       `格式：{\"time\":\"\",\"location\":\"\",\"events\":[\"\"],\"npcs\":[{\"npc_id\":\"npc-1\",\"name\":\"\",\"aliases\":[\"\"],\"role\":\"\",\"appearance\":\"\",\"appearance_change\":false,\"outfit\":\"\",\"mood\":\"\",\"location\":\"\",\"relationship\":\"\",\"presence\":\"present\"}],\"modules\":{\"module_id\":{}},\"character_statuses\":{\"角色名\":{\"field_key\":\"value\"}},\"world_clock\":{\"advance_minutes\":0,\"schedule\":[{\"label\":\"\",\"in_minutes\":0}],\"resolve\":[\"wc-1\"],\"cancel\":[\"wc-2\"]}}`,
       rules,
       statusBlock,
       `【世界模組允許欄位】\n${JSON.stringify(window.BAOHelperData.moduleSchemas(defs))}`,
-      `【目前狀態】\n${JSON.stringify(this.stateSnapshot(defs, turnText))}`,
+      `【目前狀態】\n${JSON.stringify(snapshot)}`,
       `【玩家】\n${playerText}`,
       `【故事回覆】\n${assistantText}`
     ].filter(Boolean).join("\n\n");
@@ -271,9 +272,11 @@
       if (result?.blockReason || /^(MAX_TOKENS|LENGTH|MAX_OUTPUT_TOKENS|MAX_COMPLETION_TOKENS|SAFETY|PROHIBITED_CONTENT|BLOCKLIST|SPII|CONTENT_FILTER)$/i.test(result?.finishReason || '')) return null;
       const raw = this.parse(result?.text || "");
       const data = window.BAOHelperData.stateUpdate(raw, defs, `${playerText}\n${assistantText}`, { collectionMode: 'merge', removalEvidence: assistantText });
+      const missingCharacters = data ? window.BAOHelperData.characterCoverage(raw, data, snapshot.character_statuses || {}) : [];
       if (GameState.current) GameState.current.stateRequestDiagnostics = {
         ...(GameState.current.stateRequestDiagnostics || {}), parsed: Boolean(data), applied: false,
-        unconfirmedModules: data ? [...window.BAOHelperData.moduleCoverage(raw, data, defs), ...(defs.length && window.BAOHelperData.sceneCoverage(raw).length ? ['__scene__'] : [])] : defs.map(def => def.id)
+        unconfirmedCharacters: missingCharacters,
+        unconfirmedModules: data ? [...(missingCharacters.length ? ['__characters__'] : []), ...window.BAOHelperData.moduleCoverage(raw, data, defs), ...((defs.length || Object.keys(snapshot.character_statuses || {}).length) && window.BAOHelperData.sceneCoverage(raw).length ? ['__scene__'] : [])] : defs.map(def => def.id)
       };
       if (!data) return null;
       GameState.applyUpdate(window.BAOGameplayUICore?.reconcileActionUpdate(owner, data, actionBaseline) || data);

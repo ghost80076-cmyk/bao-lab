@@ -22,16 +22,24 @@
     summarizedUntil: Number(Chat.summarizedUntil || 0),
     capturedAt: new Date().toISOString()
   });
-  const applySnapshot = snapshot => {
+  const applySnapshot = (snapshot, actionBaseline = null) => {
     if (!snapshot?.state || !window.GameState) return false;
     const token = storyToken();
     const controls = GameState.current || {};
     const restored = clone(snapshot.state);
     // Player controls stay current across every internal rewind/reconcile,
     // including cached variants. Only generated world facts travel in time.
-    for (const key of ["actorMode", "worldbookLibrary", "phoneSurface"]) {
+    for (const key of ["actorMode", "worldbookLibrary", "phoneSurface", "worldModuleCustomization", "characterStatusCustomization"]) {
       if (Object.hasOwn(controls, key)) restored[key] = clone(controls[key]);
       else delete restored[key];
+    }
+    if (actionBaseline && window.BAOGameplayUICore) {
+      const reconciled = BAOGameplayUICore.reconcileActionUpdate(controls, { modules: restored.modules || {} }, actionBaseline);
+      restored.modules = reconciled.modules;
+      for (const [path, version] of Object.entries(controls.gameplayActionVersions || {})) if (version !== actionBaseline[path]) {
+        restored.gameplayActionVersions = { ...restored.gameplayActionVersions,
+          [path]: Math.max(Number(restored.gameplayActionVersions?.[path] || 0), Number(version || 0)) + 1 };
+      }
     }
     GameState.current = restored;
     lineages.set(GameState.current, token);
@@ -153,23 +161,34 @@
     const { message } = latestAssistant();
     if (!message) return next(config, messages);
     const signature = signatureOf(message);
-    const current = () => storyToken() === token && App.config === appConfig && App.activeCharacter === character
-      && signatureOf(latestAssistant().message) === signature;
+    const sourceSignature = () => JSON.stringify(Chat.messages.map(item => [item.id, item.role, item.content, item.context_content || '']));
+    const source = sourceSignature(), settings = JSON.stringify(appConfig);
+    const sameStory = () => storyToken() === token && App.activeCharacter === character;
+    const current = () => sameStory() && App.config === appConfig && JSON.stringify(App.config) === settings
+      && sourceSignature() === source && signatureOf(latestAssistant().message) === signature;
+    const actions = () => window.BAOGameplayUICore?.captureActionVersions(GameState.current) || {};
+    const receive = async (prepared, baseline) => {
+      const result = await next(config, prepared);
+      if (!current() || JSON.stringify(actions()) !== JSON.stringify(baseline))
+        throw Object.assign(new Error('故事、設定或本機操作已變更，未套用過期修訂。'), { code: 'BAO_ABORTED' });
+      return result;
+    };
     const base = await resolveBase(message);
     if (!current()) throw Object.assign(new Error('故事已切換或修訂來源已變更。'), { code: 'BAO_ABORTED' });
     if (!base) {
       const prepared = typeof App.buildMessages === "function" ? await rebuildStoryToolMessages(messages) : messages;
       if (!current()) throw Object.assign(new Error('故事已切換或修訂來源已變更。'), { code: 'BAO_ABORTED' });
-      return next(config, prepared);
+      return receive(prepared, actions());
     }
     const snapshot = captureSnapshot();
     applySnapshot(base);
+    const baseline = actions();
     try {
       const prepared = await rebuildStoryToolMessages(messages);
       if (!current()) throw Object.assign(new Error('故事已切換或修訂來源已變更。'), { code: 'BAO_ABORTED' });
-      return await next(config, prepared);
+      return await receive(prepared, baseline);
     } finally {
-      if (current()) applySnapshot(snapshot);
+      if (sameStory()) applySnapshot(snapshot, baseline);
     }
   };
   if (typeof API.wrapSend === "function") {
@@ -189,6 +208,7 @@
   };
 
   const refreshDerivedUI = () => {
+    window.BAOPhoneUI?.refreshFromState?.();
     const memory = document.getElementById("usage-memory");
     if (memory && App.config?.memory) memory.textContent = Chat.memoryStatus(App.config.memory.maxRounds);
     if (App.config?.displayMode === "ui") {
@@ -219,6 +239,8 @@
       return false;
     }
     applySnapshot(base);
+    if (variant?.phonePatch && window.BAOPhoneStoryBridge?.enabled?.()) window.BAOPhoneStoryCore?.apply?.(GameState.current, variant.phonePatch, message.id);
+    window.BAOSameModelStateMerge?.adoptRevision?.(variant, player.content, expectedContent);
     if (window.WorldStateEngine?.update) await WorldStateEngine.update(App.config, player.content, expectedContent);
     if (!current()) return false;
     await Chat.afterTurn?.(App.config);

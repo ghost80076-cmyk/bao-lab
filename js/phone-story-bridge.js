@@ -15,6 +15,7 @@
     const parsed = Core.extract(content);
     const message = originalAdd(role, parsed.text);
     if (parsed.patch) {
+      message.phonePatch = parsed.patch;
       Core.apply(GameState.current, parsed.patch, message.id);
       window.BAOPhoneUI?.refreshFromState?.();
     }
@@ -37,5 +38,26 @@
         (detail ? '\n\n【本輪人物覆寫】\n'+detail : '');
     });
   }
-  window.BAOPhoneStoryBridge = Object.freeze({enabled});
+  // Rebuild only from stored, selected reply evidence. The status model must
+  // never invent messages, photos or calls to make a phone page look current.
+  const rebuildFromHistory = (owner, messages) => {
+    if (owner !== window.GameState?.current || !enabled()) return { applied: false, unconfirmed: false };
+    const entries = (messages || []).filter(message => message?.role === 'assistant').flatMap(message => {
+      const selected = Array.isArray(message.variants) && message.variants.length ? message.variants[message.activeVariant || 0] : null;
+      const patch = Core.normalizePatch(selected ? selected.phonePatch : message.phonePatch);
+      return patch ? [{ message, patch }] : [];
+    });
+    if (!entries.length) return { applied: false, unconfirmed: Boolean(owner.phoneUI) };
+    const base = entries[0].message.revisionBase?.state;
+    if (!base || base.phoneUI && base.phoneUI.version !== 1) return { applied: false, unconfirmed: true };
+    const covered = new Set([...(base.phoneUI?.seenIds || []), ...entries.map(entry => entry.message.id)]);
+    if ((owner.phoneUI?.seenIds || []).some(id => !covered.has(id))) return { applied: false, unconfirmed: true };
+    const shadow = { phoneUI: base.phoneUI ? structuredClone(base.phoneUI) : Core.empty() };
+    for (const { message, patch } of entries) Core.apply(shadow, patch, message.id);
+    const read = new Map(Core.notifications(owner.phoneUI).map(item => [item.id, item.read]));
+    for (const item of shadow.phoneUI.notifications || []) if (read.has(item.id)) item.read = read.get(item.id);
+    owner.phoneUI = shadow.phoneUI;
+    return { applied: true, unconfirmed: false };
+  };
+  window.BAOPhoneStoryBridge = Object.freeze({enabled, rebuildFromHistory, extractRevision: content => enabled() ? Core.extract(content) : { text: String(content || ''), patch: null }});
 })();

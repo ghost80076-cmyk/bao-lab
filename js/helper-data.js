@@ -135,12 +135,24 @@
     });
     return missing.length || !fields.length ? [def.id] : [];
   });
+  const characterCoverage = (raw, clean, expected = {}) => {
+    const config = window.BAOCharacterStatus?.configFor?.(window.App?.activeCharacter);
+    if (config?.enabled === false) return [];
+    const fields = (config?.fields || []).filter(field => field.track);
+    return Object.entries(expected).flatMap(([name, status]) => fields.some(field => {
+      if (!Object.hasOwn(status || {}, field.key)) return false;
+      if (object(raw?.character_statuses?.[name]) && Object.hasOwn(raw.character_statuses[name], field.key))
+        return cleanValue(field, raw.character_statuses[name][field.key]) === undefined || !Object.hasOwn(clean?.character_statuses?.[name] || {}, field.key);
+      return !(Array.isArray(raw?.character_checks?.[name]) && raw.character_checks[name].includes(field.key));
+    }) ? [name] : []);
+  };
   const sceneCoverage = (raw, explicit = {}) => ['time', 'location'].filter(key => {
     if (explicit[key]) return false;
     if (raw && Object.hasOwn(raw, key)) return !(typeof raw[key] === 'string' && raw[key].trim() && !/^(未確認|未知|未設定)$/.test(raw[key].trim()));
     return !(Array.isArray(raw?.scene_checks) && raw.scene_checks.includes(key));
   });
   const moduleProtocol = [
+    'character_statuses 更新本輪有據可查的人物欄位；已核對且未改變的欄位可列在 character_checks，例如 {"小夏":["outfit"]}。不得只更新世界模組而漏掉人物追蹤欄位；缺乏證據不能宣稱已確認。',
     '時間與地點也須核對：有變化回傳 time、location；已確認未變動的欄位列在 scene_checks，例如 ["time","location"]。不能只更新分頁而漏檢場景。',
     '所有允許的作品模組都屬於狀態追蹤，包括各分頁的時間、地點、關係、契約、金錢、物品與任務；不得只檢查一般狀態。',
     'module_checks 記錄已核對且沒有變化的物件欄位，例如 {"economy":["gold"]}；缺乏證據不能冒充已確認。已變動欄位放 modules，數值是變動後絕對值（含 0），不是加減量；不重複計算已入帳的事件。',
@@ -166,7 +178,8 @@
       if (["present", "away", "unknown"].includes(n.presence)) clean.presence = n.presence;
       return clean;
     }).filter(n => n.name?.trim() && safeKey(n.name));
-    const fields = window.BAOCharacterStatus?.configFor?.(window.App?.activeCharacter)?.fields?.filter(f => f.track) || [];
+    const characterConfig = window.BAOCharacterStatus?.configFor?.(window.App?.activeCharacter);
+    const fields = characterConfig?.enabled === false ? [] : characterConfig?.fields?.filter(f => f.track) || [];
     const knownNames = new Set([window.App?.activeCharacter?.name, ...Object.keys(window.GameState?.current?.characterStatuses || {}), ...(out.npcs || []).map(n => n.name)]);
     if (object(data.character_statuses)) {
       out.character_statuses = {};
@@ -217,5 +230,5 @@
     }
     return out;
   };
-  window.BAOHelperData = { parse, memoryRules, memoryText, stateUpdate, moduleSchemas, worldClockPatch, moduleCoverage, sceneCoverage, moduleProtocol };
+  window.BAOHelperData = { parse, memoryRules, memoryText, stateUpdate, moduleSchemas, worldClockPatch, moduleCoverage, characterCoverage, sceneCoverage, moduleProtocol };
 })();

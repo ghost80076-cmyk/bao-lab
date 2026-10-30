@@ -48,6 +48,21 @@ const addTurns = n => { for (let i = 0; i < n; i++) { Chat.add('user', `玩家-$
   assert.equal(Chat.summarizedUntil, 16, 'invalid prose must not consume source or replace memory');
   assert.match(Chat.summary, /艾琳坦白/);
   assert.equal(Chat.memoryHealth.phase, 'failed', 'invalid summary output must be observable instead of silently returning');
+  const summaryBeforeIncomplete = Chat.summary;
+  const cursorBeforeIncomplete = Chat.summarizedUntil;
+  for (const completion of [{ finishReason: 'MAX_TOKENS' }, { finishReason: 'SAFETY' }, { blockReason: 'PROHIBITED_CONTENT' }]) {
+    let calls = 0;
+    ctx.API.send = async () => { calls++; return { text: '{"events":["不可套用的摘要"]}', ...completion }; };
+    await Chat.afterTurn(config);
+    assert.equal(calls, 1, 'known truncated/blocked memory must not trigger a paid format-repair request');
+    assert.equal(Chat.summary, summaryBeforeIncomplete);
+    assert.equal(Chat.summarizedUntil, cursorBeforeIncomplete);
+    assert.equal(Chat.memoryHealth.phase, 'failed');
+  }
+  ctx.API.send = async () => ({ text: '{"events":["不可套用的修復摘要"]}', finishReason: 'LENGTH' });
+  const incompleteRepair = await Chat.normalizeMemoryResult({}, 'invalid memory JSON');
+  assert.equal(incompleteRepair.summary, '');
+  assert.match(incompleteRepair.error, /截斷/);
   // Grow the unsummarized backlog beyond the critical raw-window target.
   // Even under extreme Context Guard pressure, the first unsummarized message
   // must still be present in the next main-model context.

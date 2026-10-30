@@ -7,6 +7,7 @@ async function openDemoStory(page) {
   const card = page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' });
   await expect(card).toBeVisible();
   await card.click();
+  await page.getByRole('button', { name: '查看作品', exact: true }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
   await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let i = 0; i < 3; i++) await page.getByRole('button', { name: '下一步' }).click();
@@ -45,6 +46,12 @@ async function seedStory(page) {
   });
 }
 
+async function revealRollback(page, id) {
+  await page.evaluate(() => BAOMobileReadingLayout.syncMessageActions());
+  const details = page.locator(`.story-message-tools:has([data-story-rollback="${id}"]) details.bao-message-more`);
+  if (await details.count() && await details.getAttribute('open') === null) await details.locator('summary').click();
+}
+
 const state = page => page.evaluate(() => ({
   messages: Chat.messages.map(m => m.content),
   time: GameState.current.time,
@@ -57,6 +64,7 @@ const state = page => page.evaluate(() => ({
 test('rolls back from a message into a separate branch and can switch to the original story', async ({ page }) => {
   await openDemoStory(page);
   const { firstId, originalChapterId } = await seedStory(page);
+  await revealRollback(page, firstId);
   const rollbackButton = page.locator(`[data-story-rollback="${firstId}"]`);
   await expect(rollbackButton).toBeVisible();
   page.once('dialog', dialog => dialog.accept());
@@ -69,7 +77,7 @@ test('rolls back from a message into a separate branch and can switch to the ori
     refs: { parentChapterId: originalChapterId }
   });
   expect(rewound.refs.chapterId).not.toBe(originalChapterId);
-  await page.locator('#story-branch-button').click();
+  await page.evaluate(() => BAOStoryBranches.open());
   await expect(page.locator('.story-branch-node')).toHaveCount(2);
   await page.locator(`[data-chapter="${originalChapterId}"]`).getByRole('button', { name: '切換' }).click();
   await expect.poll(() => page.evaluate(() => Chat.messages.length)).toBe(4);
@@ -84,6 +92,9 @@ test('mobile message exposes a rollback action without overflowing the viewport'
   await page.setViewportSize({ width: 390, height: 844 });
   await openDemoStory(page);
   const { firstId } = await seedStory(page);
-  await expect(page.locator(`[data-story-rollback="${firstId}"]`)).toBeVisible();
+  await expect(async () => {
+    await revealRollback(page, firstId);
+    await expect(page.locator(`[data-story-rollback="${firstId}"]`)).toBeVisible({ timeout: 500 });
+  }).toPass({ timeout: 8000 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
