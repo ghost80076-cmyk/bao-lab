@@ -298,7 +298,7 @@
     const hostedBytes = promptBytes(cleaned);
     if (hostedBytes > HOSTED_HARD_PROMPT_BYTES) {
       if (App.config?.memory?.mode === "smart") {
-        throw new Error("本次送出內容仍過大。夜灣 已嘗試整理較早故事脈絡，但固定角色／世界設定與尚未整理內容仍超過安全上限。故事不會刪除；可先用記憶工作台整理、縮減大型固定設定，或改用自己的 API Key。");
+        throw new Error("本次送出內容仍過大。夜灣 已嘗試整理較早故事脈絡，但固定角色／世界設定與尚未整理內容仍超過安全上限。故事不會刪除；請開啟「記憶 → 記憶狀態」查看失敗原因，並使用「重試自動記憶整理」。若摘要成功後仍超限，請回報作品設定過大，或改用自己的 API Key。");
       }
       throw new Error("本次送出內容過大，而且目前不是智慧記憶模式。切換智慧記憶可讓 夜灣 自動整理較早脈絡，或改用自己的 API Key；故事不會刪除。");
     }

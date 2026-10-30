@@ -85,6 +85,7 @@
             : `目前 ${diag.totalRounds} 輪仍由近期原文直接提供，尚未需要建立長期摘要。`;
     return `<section class="memory-pane active" data-pane="context"><div class="memory-pane-title"><div><h3>記憶總覽</h3><p>確認故事模型現在使用的近期原文、自動摘要與整理狀態。</p></div><span class="memory-pill">MEMORY HEALTH</span></div>
       <article class="memory-health-card" data-memory-health="${esc(health.phase || "idle")}"><b>${esc(memoryStateLabel(diag))}</b><p>${esc(statusText)}</p><div class="memory-health-meta"><span>摘要模型：${esc(diag.model || "沿用聊天模型")}</span><span>最後紀錄：${esc(timeText)}</span><span>格式修復：${health.repaired ? "曾自動修復" : "未使用"}</span></div></article>
+      <button type="button" class="secondary" data-retry-auto-memory ${Chat.summarizing ? "disabled" : ""}>重試自動記憶整理</button><p class="note">每次最多整理 4 批，截斷時會縮小範圍重試；會產生 API 費用。原始對話保留，失敗冷卻期間請稍後再試。</p>
       ${diag.hasSummary ? `<details class="memory-summary-preview"><summary>查看目前長期摘要</summary><pre>${esc(Chat.summary)}</pre></details>` : ""}
       <div class="memory-pane-title memory-preview-title"><div><h3>近期脈絡預覽</h3><p>下面只顯示最近 12 則訊息作為預覽，不代表模型實際只收到這些內容。</p></div><span class="memory-pill">PREVIEW ONLY</span></div>
       <div class="memory-context-list">${recent.length ? recent.map(m=>`<article class="memory-context-item"><span class="role">${m.role === "user" ? "PLAYER" : "CHARACTER"}</span><p>${esc(String(m.content).slice(0,1200))}</p></article>`).join("") : '<div class="memory-empty">目前還沒有對話。</div>'}</div></section>`;
@@ -108,6 +109,23 @@
     const box = root.querySelector(".memory-desk-content");
     box.innerHTML = contextHTML()+notesHTML(slots)+refineShellHTML()+canonShellHTML();
     bindNotes(root); switchPane(root,active); stats(root);
+    root.querySelector("[data-retry-auto-memory]")?.addEventListener("click", async event => {
+      const owner = window.GameState?.current;
+      const button = event.currentTarget;
+      button.disabled = true;
+      button.textContent = "正在整理…";
+      try {
+        for (let batch = 0; batch < 4 && window.GameState?.current === owner; batch++) {
+          const before = Chat.summarizedUntil;
+          await Chat.maybeSummarize(App.config, true, 4);
+          if (window.GameState?.current !== owner) return;
+          if (Chat.summarizedUntil > before) await App.saveStory?.(false);
+          else break;
+        }
+      } finally {
+        if (window.GameState?.current === owner && root.isConnected) window.BAOMemoryWorkbench.refresh(root, "context");
+      }
+    });
     window.BAOMemoryAI?.mount?.(root,slots);
     window.BAOCanonWorkbench?.mount?.(root);
   };
