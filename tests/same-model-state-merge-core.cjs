@@ -20,6 +20,8 @@ assert.equal(vm.runInContext('API.installed', boot), 'same-model-state-merge:mai
 const sent = [];
 let separateUpdates = 0;
 let providerMode = 'normal';
+let largeSnapshot = null;
+let moduleSchemasOverride = null;
 let releaseResponse;
 const owner = { pendingStateTurns: [], moduleDefinitions: [], time: '晚上', location: '房間', events: [], npcs: [] };
 const TURN_ANCHOR = '【本輪】依玩家最新輸入延續一輪；保持已確認事實與資訊邊界，依故事授權演繹玩家。';
@@ -37,13 +39,13 @@ global.GameState = {
 };
 global.Chat = { messages: [] };
 global.BAOHelperData = {
-  moduleSchemas: () => ({}),
+  moduleSchemas: defs => moduleSchemasOverride ? Object.fromEntries(defs.map(def => [def.id, moduleSchemasOverride[def.id]])) : ({}),
   stateUpdate: data => data && typeof data === 'object' && !Array.isArray(data) ? data : null
 };
 global.WorldStateEngine = {
   enabled: () => true,
   interval: config => Number(config?.cost?.stateInterval || 2),
-  stateSnapshot: () => ({ time: GameState.current.time, location: GameState.current.location }),
+  stateSnapshot: () => largeSnapshot || ({ time: GameState.current.time, location: GameState.current.location }),
   parse(text) { try { return JSON.parse(String(text).trim()); } catch { return null; } },
   markPersistenceHint() {},
   explicitSceneInfo(text) {
@@ -81,6 +83,9 @@ global.API = {
         previous = full;
       }
     }
+    if (providerMode === 'truncated') return { text: '故事二<BAO_STATE>{"time":"不能套用"}</BAO_STATE>', finishReason: 'MAX_TOKENS', usage: {} };
+    if (providerMode === 'blocked') return { text: '故事二', finishReason: 'SAFETY', usage: {} };
+    if (providerMode === 'prompt-blocked') return { text: '故事二', blockReason: 'PROHIBITED_CONTENT', usage: {} };
     if (!withContract) return { text: '故事一', usage: {} };
     if (providerMode === 'missing') return { text: '故事缺狀態', usage: {} };
     if (providerMode === 'incomplete') return { text: '故事二<BAO_STATE>{"time":"沒有結尾"}', usage: {} };
@@ -243,6 +248,68 @@ assert.equal(API.__sendWrapperIds.has('same-model-state-merge:main-story'), true
   assert.equal(owner.location, '新房間', 'confirmed narration must win over stale PATCH location');
   assert.equal(owner.time, '凌晨四點', 'confirmed narration must win over stale PATCH time');
   assert.equal(protectedResult.location, '新房間', 'the returned state must match the committed scene');
+  providerMode = 'normal';
+
+  // Long-lived snapshots used to cross the 12k limit and become invalid JSON,
+  // deleting the trailing module/status definitions from the prompt altogether.
+  largeSnapshot = { time: '週三 15:30', location: '展會外',
+    npcs: Array.from({ length: 30 }, (_, i) => ({ npc_id: `npc-${i}`, name: `人物${i}`, appearance: '外觀描述'.repeat(200), presence: 'present' })),
+    modules: { tonight: { location: '車旁', summary: '已發生的事'.repeat(400) } },
+    character_statuses: { 角色: { trust: 72 } } };
+  const originalSnapshot = JSON.stringify(largeSnapshot);
+  owner.pendingStateTurns = [];
+  // Simulate the first summary handoff at 24 rounds, then further history growth.
+  for (let turn = 1; turn <= 40; turn++) {
+    Chat.messages.push({ role: 'user', content: `長篇驗收${turn}` });
+    if (turn === 24) { Chat.summary = '較早劇情'; Chat.summarizedUntil = 8; }
+    result = await API.send(App.config.api, [{ role: 'system', content: '固定前綴' }, { role: 'user', content: orchestrated(`長篇驗收${turn}`) }]);
+    const contract = sent.at(-1).messages.at(-1).content;
+    const snapshotText = contract.split('【目前狀態】\n')[1].split('\n\n【可更新世界模組】')[0];
+    assert.ok(snapshotText.length <= 12000, 'long snapshot keeps its input bound');
+    const snapshot = JSON.parse(snapshotText);
+    assert.equal(snapshot.location, '展會外');
+    assert.equal(snapshot.npcs.length, 30, 'compact descriptions before dropping entire people');
+    assert.equal(snapshot.modules.tonight.location, '車旁', 'later module state must survive a growing NPC roster');
+    assert.equal(snapshot.character_statuses.角色.trust, 72, 'later character status must survive');
+    assert.match(contract, /省略不代表不存在/);
+    await WorldStateEngine.update(App.config, `長篇驗收${turn}`, result.text);
+    assert.equal(owner.stateTracker.phase, 'updated');
+    assert.equal(owner.stateRequestDiagnostics.applied, true);
+    Chat.messages.push({ role: 'assistant', content: result.text });
+    assert.equal(owner.pendingStateTurns.length, 0);
+  }
+  assert.equal(JSON.stringify(largeSnapshot), originalSnapshot, 'prompt compaction never edits local state');
+  largeSnapshot = null;
+  // A larger module schema must remain complete: truncating it can hide all
+  // subsequent allowed module keys. Existing selection is already capped at 8 modules.
+  owner.moduleDefinitions = [{ id: 'large', tracking: 'high' }, { id: 'small', tracking: 'high' }];
+  moduleSchemasOverride = { large: { fields: ['x'.repeat(6000)] }, small: { fields: [{ key: 'trust', type: 'number' }] } };
+  Chat.messages.push({ role: 'user', content: '模組預算' });
+  result = await API.send(App.config.api, [{ role: 'user', content: '模組預算' }]);
+  const schemaText = sent.at(-1).messages.at(-1).content.split('【可更新世界模組】\n')[1].split('\n\n【可更新人物狀態欄位】')[0];
+  assert.deepEqual(Object.keys(JSON.parse(schemaText)), ['large', 'small']);
+  assert.equal(JSON.parse(schemaText).large.fields[0].length, 6000);
+  await WorldStateEngine.update(App.config, '模組預算', result.text);
+  owner.moduleDefinitions = []; moduleSchemasOverride = null;
+
+  for (const [mode, expected, finish] of [
+    ['truncated', 'output_truncated', 'MAX_TOKENS'],
+    ['blocked', 'provider_blocked', 'SAFETY'],
+    ['prompt-blocked', 'provider_blocked', null],
+    ['missing', 'missing_appendix', null]
+  ]) {
+    providerMode = mode;
+    Chat.messages.push({ role: 'user', content: `原因${mode}` });
+    const before = sent.length, previousTime = owner.time;
+    result = await API.send(App.config.api, [{ role: 'user', content: `原因${mode}` }]);
+    await WorldStateEngine.update(App.config, `原因${mode}`, result.text);
+    assert.equal(owner.stateTracker.diagnostic, expected);
+    assert.equal(owner.stateRequestDiagnostics.finishReason, finish);
+    assert.equal(owner.stateRequestDiagnostics.applied, false);
+    assert.equal(owner.time, previousTime);
+    assert.equal(sent.length, before + 1, 'diagnostics must never make a second paid call');
+    assert.equal(JSON.stringify(owner.stateRequestDiagnostics).includes('故事二'), false, 'metadata must not store the raw provider reply');
+  }
   providerMode = 'normal';
 
   App.config.cost.stateApi = null;

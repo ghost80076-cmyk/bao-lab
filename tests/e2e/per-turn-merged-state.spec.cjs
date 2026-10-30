@@ -80,3 +80,62 @@ for (const width of [390, 1440]) {
     ]) });
   });
 }
+
+test('Gemini merged state crosses the first smart-summary boundary with a large roster', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await page.waitForFunction(() => window.BAOSameModelStateMerge && window.BAOChatExperienceRepairs && App.characters.length);
+  await page.evaluate(() => {
+    window.__geminiCalls = [];
+    const original = window.fetch.bind(window);
+    window.fetch = (input, init = {}) => {
+      const url = String(input?.url || input);
+      if (!url.startsWith('https://generativelanguage.googleapis.com/v1beta/models/')) return original(input, init);
+      const body = JSON.parse(init.body);
+      const memory = Boolean(body.generationConfig?.responseFormat);
+      const turn = 22 + window.__geminiCalls.filter(call => !call.memory).length;
+      window.__geminiCalls.push({ memory, body });
+      const text = memory ? JSON.stringify({ events: ['已離開展會'], knownFacts: ['目前在車旁'], relationships: [], openThreads: [] })
+        : turn === 22 || turn === 24 ? `第${turn}輪故事。`
+          : `第${turn}輪故事。<BAO_STATE>{"location":"車旁${turn}","time":"週三 16:${turn}"}</BAO_STATE>`;
+      const finishReason = !memory && turn === 23 ? 'MAX_TOKENS' : !memory && turn === 24 ? 'SAFETY' : 'STOP';
+      const event = { candidates: [{ content: { parts: [{ text }] }, finishReason }], usageMetadata: { promptTokenCount: 1000, candidatesTokenCount: 50, totalTokenCount: 1050 } };
+      return Promise.resolve(new Response(url.includes('alt=sse') ? `data: ${JSON.stringify(event)}\n\n` : JSON.stringify(event),
+        { headers: { 'Content-Type': url.includes('alt=sse') ? 'text/event-stream' : 'application/json' } }));
+    };
+    App.activeCharacter = { ...App.characters[0], id: 'gemini-long-story-test', name: '測試角色', greeting: '', world_modules: [] };
+    App.config = {
+      narrativeMode: 'world', displayMode: 'ui', stateTracking: true, persona: { name: '玩家' },
+      memory: { mode: 'smart', maxRounds: 20, summaryInterval: 4, maxContext: 1000000, cache: false, summaryApiMode: 'same' },
+      cost: { stateApiMode: 'same' },
+      api: { type: 'gemini', protocol: 'gemini', model: 'gemini-3.1-pro-preview', baseUrl: 'https://generativelanguage.googleapis.com/v1beta/models', key: 'mock-key' }
+    };
+    Chat.reset(); GameState.create(App.activeCharacter, App.config);
+    for (let i = 1; i <= 21; i++) { Chat.add('user', `先前行動${i}`); Chat.add('assistant', `先前故事${i}`); }
+    GameState.current.npcs = Array.from({ length: 30 }, (_, i) => ({ npc_id: `npc-${i}`, name: `人物${i}`, appearance: '人物固定外觀'.repeat(180), presence: 'away' }));
+    App.renderChatShell(true); App.showView('chat');
+  });
+  for (let turn = 22; turn <= 28; turn++) {
+    await page.locator('#user-input').fill(`繼續故事${turn}`);
+    await page.evaluate(() => App.sendMessage());
+    const result = await page.evaluate(() => ({
+      phase: GameState.current.stateTracker?.phase, diagnostic: GameState.current.stateTracker?.diagnostic,
+      meta: GameState.current.stateRequestDiagnostics, location: GameState.current.location,
+      calls: window.__geminiCalls, summary: Chat.summary, cursor: Chat.summarizedUntil,
+      pending: GameState.current.pendingStateTurns.length, text: Chat.messages.at(-1).content
+    }));
+    expect(result.calls.filter(call => !call.memory)).toHaveLength(turn - 21);
+    expect(result.text).toBe(`第${turn}輪故事。`);
+    expect(result.diagnostic).toBe(turn === 22 ? 'missing_appendix' : turn === 23 ? 'output_truncated' : turn === 24 ? 'provider_blocked' : '');
+    expect(result.meta.applied).toBe(turn >= 25);
+    if (turn >= 25) { expect(result.location).toBe(`車旁${turn}`); expect(result.pending).toBe(0); }
+    for (const call of result.calls.filter(call => !call.memory)) {
+      const prompt = call.body.contents.at(-1).parts[0].text;
+      const json = prompt.split('【目前狀態】\n')[1].split('\n\n【可更新世界模組】')[0];
+      expect(json.length).toBeLessThanOrEqual(12000);
+      expect(JSON.parse(json).npcs).toHaveLength(30);
+    }
+    if (turn === 24) { expect(result.summary).toContain('已離開展會'); expect(result.cursor).toBeGreaterThan(0); }
+  }
+  await expect(page.locator('#chat-stream')).not.toContainText('BAO_STATE');
+});

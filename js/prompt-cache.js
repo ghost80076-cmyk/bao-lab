@@ -194,9 +194,9 @@
   patchMemoryRequestGuard();
   window.BAOPromptCache = { partitionSystemPrompt, storySessionId, cacheMetricKnown };
   // The small Node unit-test DOM has no querySelector/head; load only inside real browsers.
-  if (typeof document.querySelector === 'function' && document.head && !document.querySelector('script[src="js/gemini-explicit-cache.js?v=2"]')) {
+  if (typeof document.querySelector === 'function' && document.head && !document.querySelector('script[src="js/gemini-explicit-cache.js?v=3"]')) {
     const script = document.createElement('script');
-    script.src = 'js/gemini-explicit-cache.js?v=2';
+    script.src = 'js/gemini-explicit-cache.js?v=3';
     script.onerror = () => console.warn('BAO/LAB optional Gemini cache controls failed to load');
     document.head.appendChild(script);
   }

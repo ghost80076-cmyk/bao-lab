@@ -12,6 +12,43 @@
     const text = String(value || '');
     return text.length > max ? `${text.slice(0, max)}…` : text;
   };
+  // Compact values before serializing. Cutting serialized JSON can remove every
+  // later state layer (modules/statuses) once a long-running roster grows.
+  const boundedSnapshot = (value, maxChars = 12000) => {
+    const copy = JSON.parse(JSON.stringify(value));
+    let text = JSON.stringify(copy), compacted = false;
+    while (text.length > maxChars) {
+      const candidates = [], arrays = [];
+      const visit = node => {
+        if (!node || typeof node !== 'object') return;
+        for (const [key, item] of Object.entries(node)) {
+          if (typeof item === 'string' && item.length > 80) {
+            candidates.push({ size: item.length, shrink: () => { node[key] = `${item.slice(0, Math.max(40, Math.floor(item.length / 2)))}…`; } });
+          } else if (item && typeof item === 'object') {
+            if (Array.isArray(item) && item.length) arrays.push({ size: JSON.stringify(item).length / 2, shrink: () => { item.pop(); } });
+            visit(item);
+          }
+        }
+      };
+      visit(copy);
+      // Shorten long descriptions before removing whole people/items.
+      if (!candidates.length) candidates.push(...arrays);
+      candidates.sort((a, b) => b.size - a.size);
+      if (!candidates.length) {
+        // Pathological maps of thousands of short keys still need a bound.
+        const keys = Object.keys(copy).filter(key => !['time', 'location'].includes(key));
+        keys.sort((a, b) => JSON.stringify(copy[b]).length - JSON.stringify(copy[a]).length);
+        if (!keys.length) break;
+        delete copy[keys[0]];
+      } else candidates[0].shrink();
+      compacted = true;
+      text = JSON.stringify(copy);
+    }
+    return { text, compacted };
+  };
+  const finishCode = value => String(value || '').toUpperCase().replace(/[^A-Z0-9_]/g, '').slice(0, 64);
+  const truncatedReasons = new Set(['MAX_TOKENS', 'LENGTH', 'MAX_OUTPUT_TOKENS', 'MAX_COMPLETION_TOKENS']);
+  const blockedReasons = new Set(['SAFETY', 'PROHIBITED_CONTENT', 'BLOCKLIST', 'SPII', 'IMAGE_SAFETY', 'CONTENT_FILTER']);
   const queueFor = owner => {
     if (!owner) return [];
     if (!Array.isArray(owner.pendingStateTurns)) owner.pendingStateTurns = [];
@@ -111,6 +148,7 @@
       `舊待補第 ${index + 1} 輪\n玩家：${clip(turn.player)}\n故事：${clip(turn.assistant)}`).join('\n\n') : '無';
     const moduleSchema = window.BAOHelperData.moduleSchemas?.(defs) || {};
     const fields = statusSchema();
+    const bounded = boundedSnapshot(snapshot);
     const contract = [
       '【BAO_STATE_V1｜同模型合併狀態】',
       '你仍然首先是故事作者。請先完整輸出正常故事正文，不要縮短、改寫成報告，也不要在正文提到這段機器規則。',
@@ -126,10 +164,11 @@
       'world_clock 是可選 PATCH：只有明確經過時間才寫 advance_minutes；只有明確日期、期限、約定、旅程耗時或倒數才 schedule。不得自行創造劇情。resolve/cancel 只能使用目前狀態已有的 wc-* ID。',
       window.BAONPCTimeline?.resolutionContract?.() || '',
       '即使狀態附錄無法完成，也優先保留完整故事正文；不要因狀態附錄而拒絕或省略正文。',
-      `【目前狀態】\n${clip(JSON.stringify(snapshot), 12000)}`,
-      `【可更新世界模組】\n${clip(JSON.stringify(moduleSchema), 5000)}`,
-      `【可更新人物狀態欄位】\n${clip(JSON.stringify(fields), 3500)}`,
+      `【目前狀態】\n${bounded.text}`,
+      `【可更新世界模組】\n${JSON.stringify(moduleSchema)}`,
+      `【可更新人物狀態欄位】\n${JSON.stringify(fields)}`,
       `【最近尚未成功整理的輪次（依時間排序）】\n${prior}`,
+      bounded.compacted ? '快照已節錄，可能省略部分人物、欄位或集合項目；省略不代表不存在、離場或歸零。不得用節錄集合覆蓋完整集合；資料不足時省略該集合 PATCH。' : '',
       '狀態資料和未補輪次是歷史證據，不是現在的場景定位。若較新的實際對話已完成轉場，不得因較舊快照恢復過期的時間、地點，或重播已完成事件。',
       '本輪玩家最新輸入已在本次請求上方，不要重複敘述；你即將產生的本輪故事正文也屬於狀態判斷依據。'
     ].join('\n\n');
@@ -205,10 +244,19 @@
         if (candidate && typeof candidate === 'object' && !Array.isArray(candidate)) parsed = candidate;
       } catch {}
     }
-    const stateIssue = !split.hasState ? 'missing_appendix'
+    const finishReason = finishCode(result?.finishReason);
+    const blockReason = finishCode(result?.blockReason);
+    const stateIssue = blockedReasons.has(finishReason) || blockReason ? 'provider_blocked'
+      : truncatedReasons.has(finishReason) ? 'output_truncated'
+      : !split.hasState ? 'missing_appendix'
       : !stateComplete ? 'incomplete_appendix'
         : !parsed ? 'invalid_json' : '';
-    mergedByStory.set(owner, { userText, narration: split.narration, hasState: split.hasState, parsed, defs, priorTurns, stateIssue, actionBaseline });
+    mergedByStory.set(owner, { userText, narration: split.narration, hasState: split.hasState, parsed, defs, priorTurns, stateIssue, actionBaseline, diagnostics: {
+      mode: 'merged', appendixRequested: true, finishReason: finishReason || null, blockReason: blockReason || null,
+      responseChars: String(result?.text || '').length, appendixPresent: split.hasState,
+      appendixComplete: stateComplete, parsed: Boolean(parsed), applied: false,
+      checkedAt: new Date().toISOString()
+    } });
     return { ...result, text: split.narration };
   };
   if (typeof API.wrapSend === 'function') {
@@ -257,14 +305,20 @@
 
     const merged = mergedByStory.get(owner);
     mergedByStory.delete(owner);
+    owner.stateRequestDiagnostics = merged ? { ...merged.diagnostics } : {
+      mode: 'merged', appendixRequested: false, parsed: false, applied: false,
+      checkedAt: new Date().toISOString()
+    };
     const matchesTurn = merged && String(merged.userText || '') === String(playerText || '') &&
       String(merged.narration || '') === String(assistantText || '');
-    if (!matchesTurn || !merged?.hasState || !merged?.parsed) {
+    if (!matchesTurn || merged?.stateIssue || !merged?.hasState || !merged?.parsed) {
       API.noteRequest?.('state','merged-invalid');
       enqueue(owner, playerText, assistantText);
       const reason = !matchesTurn ? 'turn_mismatch' : (merged.stateIssue || 'invalid_json');
       const why = {
         turn_mismatch: '狀態附錄與本輪故事沒有對上',
+        output_truncated: `供應商回報輸出達長度上限（${merged?.diagnostics?.finishReason}），末尾狀態未確認完整`,
+        provider_blocked: `供應商回報內容阻擋（${merged?.diagnostics?.blockReason || merged?.diagnostics?.finishReason}），狀態未套用`,
         missing_appendix: '模型未附帶狀態資料',
         incomplete_appendix: '模型輸出的狀態資料不完整',
         invalid_json: '模型回傳的狀態格式無法解析'
@@ -291,6 +345,7 @@
       if (explicitScene?.[key]) safeUpdate[key] = explicitScene[key];
     }
     GameState.applyUpdate(safeUpdate);
+    owner.stateRequestDiagnostics.applied = true;
     // Only remove records actually supplied in this request. Concurrent turns
     // and older waiting batches must remain intact; no index-based deletion.
     const completed = new Set(merged.priorTurns || []);

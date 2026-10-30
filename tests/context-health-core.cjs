@@ -90,9 +90,10 @@ const core = require("../js/context-health-core.js");
 }
 
 {
-  const failed = core.trackerSummary({ phase: "failed", pending: 5 }, true, 5);
+  const failed = core.trackerSummary({ phase: "failed", pending: 5, message: "供應商回報輸出達長度上限（MAX_TOKENS）" }, true, 5);
   assert.match(failed.title, /失敗/);
   assert.match(failed.detail, /待補 5 輪/);
+  assert.match(failed.detail, /MAX_TOKENS/);
   const waiting = core.trackerSummary({ phase: "waiting" }, true, 2);
   assert.match(waiting.detail, /等待累積整理/);
   const updating = core.trackerSummary({ phase: "updating" }, true, 1);
