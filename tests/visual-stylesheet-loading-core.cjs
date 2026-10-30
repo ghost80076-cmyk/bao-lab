@@ -56,7 +56,7 @@ test('start and resume first paint has stable reading styles before any deferred
   const critical = [
     'css/story-reader.css?v=3',
     'css/chat-tool-navigation.css?v=9',
-    'css/mobile-reading-layout.css?v=24'
+    'css/mobile-reading-layout.css?v=25'
   ];
   for (const href of critical) {
     const path = pathOf(href);
@@ -64,8 +64,8 @@ test('start and resume first paint has stable reading styles before any deferred
     assert.ok(hrefs.includes(href), 'match the lazy fallback version for ' + path);
   }
   assert.ok(hrefs.indexOf('css/story-reader.css?v=3') < hrefs.indexOf('css/chat-tool-navigation.css?v=9'));
-  assert.ok(hrefs.indexOf('css/chat-tool-navigation.css?v=9') < hrefs.indexOf('css/mobile-reading-layout.css?v=24'));
-  assert.ok(hrefs.indexOf('css/mobile-reading-layout.css?v=24') > hrefs.indexOf('css/phone-ui.css?v=2'));
+  assert.ok(hrefs.indexOf('css/chat-tool-navigation.css?v=9') < hrefs.indexOf('css/mobile-reading-layout.css?v=25'));
+  assert.ok(hrefs.indexOf('css/mobile-reading-layout.css?v=25') > hrefs.indexOf('css/phone-ui.css?v=2'));
   const script = fs.readFileSync('js/mobile-reading-layout.js', 'utf8');
   assert.match(script, /let style = document\.querySelector\('link\[href\^="css\/mobile-reading-layout\.css"\]'\)/,
     'late mobile JS must reuse its preloaded stylesheet');
