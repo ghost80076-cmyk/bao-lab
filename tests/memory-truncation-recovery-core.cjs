@@ -50,11 +50,18 @@ function setup() {
   const calls = [];
   s.ctx.API.send = async (config, messages) => {
     calls.push({ config, text: messages.at(-1).content });
-    return calls.length < 3 ? { text: 'partial', finishReason: 'MAX_TOKENS' } : { text: 'GOOD', finishReason: 'STOP' };
+    return calls.length < 3 ? { text: 'partial', finishReason: 'MAX_TOKENS', usage: {output_tokens: 120} } : { text: 'GOOD', finishReason: 'STOP', usage: {output_tokens: 24} };
   };
   await s.chat.maybeSummarize(s.config, true);
   assert.equal(calls.length, 3);
   assert.ok(calls.every(c => c.config.maxOutputTokens === 8192));
+  assert.match(calls[0].text, /本次完整 JSON 輸出預算/);
+  assert.match(calls[0].text, /episodes 與 knowledgeUpdates 各最多 4 筆/);
+  assert.match(calls[1].text, /episodes 與 knowledgeUpdates 各最多 2 筆/);
+  assert.equal(s.chat.memoryHealth.lastFinishReason, 'STOP');
+  assert.equal(s.chat.memoryHealth.lastRequestedOutputTokens, 8192);
+  assert.equal(s.chat.memoryHealth.lastOutputTokens, 24);
+  assert.equal(s.chat.memoryHealth.lastAttempt, 3);
   assert.ok(calls[1].text.length < calls[0].text.length);
   assert.ok(calls[2].text.length < calls[1].text.length);
   assert.equal(s.chat.memoryHealth.phase, 'success');
@@ -69,6 +76,8 @@ function setup() {
   assert.equal(s.chat.summarizedUntil, prior);
   assert.equal(s.chat.summary, summary);
   assert.equal(s.chat.memoryHealth.phase, 'failed');
+  assert.equal(s.chat.memoryHealth.lastFinishReason, 'LENGTH');
+  assert.equal(s.chat.memoryHealth.lastAttempt, 3);
   let blocked = 0;
   s.ctx.API.send = async () => { blocked++; return { finishReason: 'SAFETY' }; };
   await s.chat.maybeSummarize(s.config, true);

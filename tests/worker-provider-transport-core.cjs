@@ -482,8 +482,10 @@ const jsonResponse = (body, status = 200) =>
 
     for (const [model, kind, expected] of [
       ["gemini-3.1-pro-preview", "status", "low"],
+      ["gemini-3.1-pro-preview", "summary", "low"],
       ["gemini-3.1-pro-preview", "chat", undefined],
-      ["gemini-2.5-pro", "status", undefined]
+      ["gemini-2.5-pro", "status", undefined],
+      ["gemini-2.5-pro", "summary", undefined]
     ]) {
       await providerCall({ AWS_RELAY_URL: "https://relay.example", BAO_INTERNAL_TOKEN: "relay-secret" },
         "gemini", model, messages, 2400, null, "", kind);

@@ -137,6 +137,9 @@ const lastRequest = () => requests.at(-1);
   assert.equal(lastRequest().body.generationConfig.responseFormat.text.mimeType, "application/json", "Gemini memory requests must opt into structured JSON output");
   assert.deepEqual(lastRequest().body.generationConfig.responseFormat.text.schema.required, ["events", "knownFacts", "relationships", "openThreads"]);
   assert.equal(lastRequest().body.generationConfig.maxOutputTokens, 1400);
+  assert.equal(lastRequest().body.generationConfig.thinkingConfig.thinkingLevel, 'low', 'memory JSON needs output space after reasoning');
+  await API.send({ type: 'gemini', protocol: 'gemini', model: 'gemini-3.1-pro-preview', key: 'mock' }, messages);
+  assert.equal(lastRequest().body.generationConfig?.thinkingConfig, undefined, 'normal story calls preserve provider thinking defaults');
 
   const canonSchema = {
     type: "object",

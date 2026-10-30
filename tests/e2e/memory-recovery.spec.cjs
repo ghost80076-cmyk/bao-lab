@@ -24,6 +24,8 @@ for (const width of [390, 1280]) {
     await expect(retry).toBeVisible();
     await retry.click();
     await expect(page.locator('.memory-health-card')).toContainText('已整理');
+    await expect(page.locator('.memory-diagnostics')).toContainText('模型結束原因：STOP');
+    await expect(page.locator('.memory-diagnostics')).toContainText('摘要輸出額度：8192 Token');
     const result = await page.evaluate(() => ({ cursor:Chat.summarizedUntil, messages:Chat.messages.length, saves:recoverySaves, notes:BAOMemoryWorkbench.readSlots().filter(x=>x.text).length }));
     expect(result.cursor).toBe(174);
     expect(result.messages).toBe(182);
