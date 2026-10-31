@@ -88,7 +88,7 @@
       <label class="memory-auto-row"><span><b>自動記憶（建議開啟）</b><br><small class="note">保留近期原文，必要時自動摘要較早劇情；整理會產生模型用量。</small></span><input type="checkbox" data-context-auto-summary ${Chat.summarizing || retryTask || App.__requestPending ? "disabled" : ""} ${App.config?.memory?.mode === "smart" ? "checked" : ""}></label>
       <details class="memory-player-details" data-memory-guide><summary>記憶怎麼用？</summary><p>一般遊玩：開啟自動記憶即可，平常不用手動整理。</p><p>必記事項／長期筆記：只放重要約定、關係與規則。啟用的筆記每次都會占用上下文，避免貼入整段聊天或重複設定。</p><p>手動整理：產生草稿供你選擇寫入筆記，不會推進自動摘要進度，也不能取代「重試自動記憶整理」。</p><p>出現摘要失敗或內容過大時：先查看下方原因，再重試自動整理；完整故事紀錄仍保留。</p></details>
       <article class="memory-health-card" data-memory-health="${esc(health.phase || "idle")}"><b>${esc(memoryStateLabel(diag))}</b><p>${esc(statusText)}</p><div class="memory-health-meta"><span>摘要模型：${esc(diag.model || "沿用聊天模型")}</span><span>最後紀錄：${esc(timeText)}</span><span>格式修復：${health.repaired ? "曾自動修復" : "未使用"}</span>${health.lastFinishReason ? `<span>模型結束原因：${esc(health.lastFinishReason)}</span><span>摘要請求額度：${esc(health.lastRequestedOutputTokens || "未回報")} Token</span><span>實際送出額度：${esc(health.lastEffectiveOutputTokens ?? "未回報")} Token</span><span>額度來源：${esc(health.lastBudgetSource || "未回報")}</span><span>思考用量：${esc(health.lastReasoningTokens ?? "未回報")} Token</span>${health.lastRequestId ? `<span>診斷編號：${esc(health.lastRequestId)}</span>` : ""}<span>模型回報輸出：${esc(health.lastOutputTokens ?? "未回報")} Token</span><span>回傳文字：${esc(health.lastResponseChars ?? "未回報")} 字元</span><span>本批 ${esc(health.lastChunkTurns ?? "—")} 輪 · 第 ${esc(health.lastAttempt || 1)} 次嘗試</span>` : ""}</div></article>
-      <button type="button" class="secondary" data-retry-auto-memory ${Chat.summarizing || retryTask || App.__requestPending || App.config?.memory?.mode !== "smart" ? "disabled" : ""}>重試自動記憶整理</button><p class="note">每次最多整理 4 批，截斷時會縮小範圍重試；會產生 API 費用。原始對話保留，失敗冷卻期間請稍後再試。</p>
+      <section class="memory-pane-title"><div><h3>從頭修復舊劇情</h3><p>原始對話分批重建，完成前不修改既有記憶。</p></div></section><div data-full-memory-rebuild></div><button type="button" class="secondary" data-retry-auto-memory ${Chat.summarizing || retryTask || App.__requestPending || App.config?.memory?.mode !== "smart" ? "disabled" : ""}>重試自動記憶整理</button><p class="note">每次最多整理 4 批，截斷時會縮小範圍重試；會產生 API 費用。原始對話保留，失敗冷卻期間請稍後再試。</p>
       <p class="note" role="status" aria-live="polite" data-auto-memory-progress></p>
       ${diag.hasSummary ? `<details class="memory-summary-preview"><summary>查看目前長期摘要</summary><pre>${esc(Chat.summary)}</pre></details>` : ""}
       <div class="memory-pane-title memory-preview-title"><div><h3>近期脈絡預覽</h3><p>下面只顯示最近 12 則訊息作為預覽，不代表模型實際只收到這些內容。</p></div><span class="memory-pill">PREVIEW ONLY</span></div>
@@ -168,6 +168,7 @@
     });
     root.querySelector("[data-retry-auto-memory]")?.addEventListener("click", () => retryAutoMemory());
     window.BAOMemoryAI?.mount?.(root,slots);
+    window.BAOFullStoryMemoryRebuild?.mount?.(root);
     window.BAOCanonWorkbench?.mount?.(root);
   };
   const open = () => {
