@@ -207,7 +207,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/player-text-replace-mod.js?v=2"))
     .then(() => loadBAOScript("js/narrative-settings.js?v=15"))
     .then(() => loadBAOScript("js/memory-workbench-core.js?v=12"))
-    .then(() => loadBAOOptionalGroup("full-story-memory-rebuild", ["js/full-story-memory-rebuild-core.js?v=1", "js/full-story-memory-rebuild.js?v=2"]))
+    .then(() => loadBAOOptionalGroup("full-story-memory-rebuild", ["js/full-story-memory-rebuild-core.js?v=2", "js/full-story-memory-rebuild.js?v=3"]))
     .then(() => loadBAOScript("js/memory-workbench-ai.js?v=4"))
     .then(() => loadBAOScript("js/canon-workbench.js?v=5"))
     .then(() => loadBAOScript("js/memory-workbench-simplify.js?v=4"))
