@@ -183,7 +183,7 @@ global.API = { send: async (config, messages) => { prompt = messages[1].content;
     assert.equal(cfg.__auxiliaryTask, true);
     assert.equal(cfg.__stateRebuild, true);
     const content = messages[1].content;
-    const match = content.match(/第 (\d+) 輪\\n玩家/);
+    const match = content.match(/第 (\d+) 輪\n玩家/);
     assert(match, 'scan must include a numbered source turn');
     scanStarts.push(Number(match[1]));
     requests++;
@@ -215,7 +215,7 @@ global.API = { send: async (config, messages) => { prompt = messages[1].content;
   requests = 0;
   API.send = async (cfg, messages) => {
     requests++;
-    const match = messages[1].content.match(/第 (\d+) 輪\\n玩家/);
+    const match = messages[1].content.match(/第 (\d+) 輪\n玩家/);
     return { text: JSON.stringify({ reviewed_turns: 4, facts: [`依原文核對第${match[1]}輪`] }) };
   };
   for (let pass = 0; pass < 5 && !WorldStateEngine.pendingRecoveryStatus().ready; pass++)
