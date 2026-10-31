@@ -1,7 +1,7 @@
 {
   "owner_id": "chicofy",
   "author": "齊格飛",
-  "status": "external_urls_preserved_not_mirrored",
+  "status": "six_original_pngs_mirrored_and_mobile_webp_committed",
   "cover_reference": "https://i.meee.com.tw/BORVsUi.png",
   "portraits": [
     {
@@ -10,7 +10,10 @@
       "alt": "美月",
       "source_url": "https://objects.lunatalk.ai/asset/0543a8ff-1c0e-4661-859f-64f3d315fbdb.png",
       "planned_local_path": "assets/characters/chicofy-six-timelines/mizuki.png",
-      "local_file_committed": false
+      "local_file_committed": true,
+      "local_path": "assets/characters/chicofy-six-timelines/mizuki.png",
+      "optimized_webp_path": "assets/characters/chicofy-six-timelines/mizuki.webp",
+      "usage": "opening_uses_first_party_webp_original_png_retained"
     },
     {
       "id": "runa",
@@ -18,7 +21,10 @@
       "alt": "琉奈",
       "source_url": "https://objects.lunatalk.ai/asset/8302ed4f-ce41-4857-b731-92ccbab2e796.png",
       "planned_local_path": "assets/characters/chicofy-six-timelines/runa.png",
-      "local_file_committed": false
+      "local_file_committed": true,
+      "local_path": "assets/characters/chicofy-six-timelines/runa.png",
+      "optimized_webp_path": "assets/characters/chicofy-six-timelines/runa.webp",
+      "usage": "opening_uses_first_party_webp_original_png_retained"
     },
     {
       "id": "sumie",
@@ -26,7 +32,10 @@
       "alt": "澄江",
       "source_url": "https://objects.lunatalk.ai/asset/52972d89-9e25-4d6d-8721-2718863d6613.png",
       "planned_local_path": "assets/characters/chicofy-six-timelines/sumie.png",
-      "local_file_committed": false
+      "local_file_committed": true,
+      "local_path": "assets/characters/chicofy-six-timelines/sumie.png",
+      "optimized_webp_path": "assets/characters/chicofy-six-timelines/sumie.webp",
+      "usage": "opening_uses_first_party_webp_original_png_retained"
     },
     {
       "id": "maho",
@@ -34,7 +43,10 @@
       "alt": "真帆",
       "source_url": "https://objects.lunatalk.ai/asset/0c5f2e43-5d6c-4003-b7b2-5fcbc501397b.png",
       "planned_local_path": "assets/characters/chicofy-six-timelines/maho.png",
-      "local_file_committed": false
+      "local_file_committed": true,
+      "local_path": "assets/characters/chicofy-six-timelines/maho.png",
+      "optimized_webp_path": "assets/characters/chicofy-six-timelines/maho.webp",
+      "usage": "opening_uses_first_party_webp_original_png_retained"
     },
     {
       "id": "kanon",
@@ -42,7 +54,10 @@
       "alt": "花音",
       "source_url": "https://objects.lunatalk.ai/asset/bbfa2b0d-fcc7-4b37-9981-32db428e91b0.png",
       "planned_local_path": "assets/characters/chicofy-six-timelines/kanon.png",
-      "local_file_committed": false
+      "local_file_committed": true,
+      "local_path": "assets/characters/chicofy-six-timelines/kanon.png",
+      "optimized_webp_path": "assets/characters/chicofy-six-timelines/kanon.webp",
+      "usage": "opening_uses_first_party_webp_original_png_retained"
     },
     {
       "id": "shiori",
@@ -50,7 +65,10 @@
       "alt": "詩織",
       "source_url": "https://objects.lunatalk.ai/asset/1d8409d2-04d8-45d0-9c94-dc6c46c4aeae.png",
       "planned_local_path": "assets/characters/chicofy-six-timelines/shiori.png",
-      "local_file_committed": false
+      "local_file_committed": true,
+      "local_path": "assets/characters/chicofy-six-timelines/shiori.png",
+      "optimized_webp_path": "assets/characters/chicofy-six-timelines/shiori.webp",
+      "usage": "opening_uses_first_party_webp_original_png_retained"
     }
   ]
 }
