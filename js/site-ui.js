@@ -186,7 +186,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/three-realms-events-core.js?v=6"))
     .then(() => loadBAOScript("js/world-modules.js?v=10"))
     .then(() => loadBAOScript("js/world-clock.js?v=1"))
-    .then(() => loadBAOScript("js/world-state-cost.js?v=11"))
+    .then(() => loadBAOScript("js/world-state-cost.js?v=12"))
     .then(() => loadBAOScript("js/same-model-state-merge.js?v=14"))
     .then(() => loadBAOScript("js/world-module-ui.js?v=11"))
     .then(() => loadBAOScript("js/world-module-manager.js?v=11"))
