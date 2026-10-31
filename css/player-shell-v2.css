@@ -503,3 +503,16 @@
     min-height:44px;
   }
 }
+
+
+/* Compact Story (821–1080px): the inherited 68px portrait can overhang
+   its short header and cover the first story line. Size it to the header
+   instead of increasing chrome height at the reading breakpoint. */
+@media (min-width:821px) and (max-width:1080px) {
+  #chat-view.bao-player-reading-v2[data-bao-surface="play"] .chat-title-avatar {
+    box-sizing:border-box;
+    width:44px;
+    height:44px;
+    flex:0 0 44px;
+  }
+}
