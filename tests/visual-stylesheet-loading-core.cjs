@@ -68,7 +68,10 @@ test('start and resume first paint has stable reading styles before any deferred
   }
   assert.ok(hrefs.indexOf('css/story-reader.css?v=3') < hrefs.indexOf('css/chat-tool-navigation.css?v=9'));
   assert.ok(hrefs.indexOf('css/chat-tool-navigation.css?v=9') < hrefs.indexOf(mobileHref));
-  assert.ok(hrefs.indexOf(mobileHref) > hrefs.indexOf('css/phone-ui.css?v=2'));
+  const phoneHref = hrefs.find(link => pathOf(link) === 'css/phone-ui.css');
+  assert.ok(phoneHref, 'phone UI stylesheet must be preloaded');
+  assert.ok(hrefs.indexOf(mobileHref) > hrefs.indexOf(phoneHref),
+    'mobile reading CSS must follow phone UI in the first paint');
   const script = fs.readFileSync('js/mobile-reading-layout.js', 'utf8');
   assert.ok(script.includes("style.href = '" + mobileHref + "'"),
     'lazy mobile CSS fallback must use the same cache version as index.html');
