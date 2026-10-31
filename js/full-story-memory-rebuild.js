@@ -123,7 +123,7 @@
           !Chat.summarizing && (() => { try { source(active); return true; } catch { return false; } })();
         if (!stable()) throw new Error('來源已改變或故事已切換，本批未寫入。');
         if (active.stage === 'extract') {
-          const chunk = core.batch(planned.units, active.cursor, memory, cfg, text => requestMessages(extractPrompt(text, planned.units.slice(active.cursor, active.cursor + 20))));
+          const chunk = core.batch(planned.units, active.cursor, memory, cfg, (text, groups) => requestMessages(extractPrompt(text, groups)));
           // Recalculate using actual group count; the initial planning above is conservative.
           const prompt = extractPrompt(core.transcript(chunk), chunk);
           if (!memory.fits(cfg, requestMessages(prompt))) throw new Error('本批包含完整輪次的指令仍超過模型預算；請更換較大容量模型。');
@@ -185,6 +185,7 @@
       memoryHealth: core.copy(Chat.memoryHealth || {}), memory: core.copy(owner.memory || []) };
     const priorJob = job, appliedJob = { ...core.copy(job), stage: 'applied', appliedAt: new Date().toISOString() };
     const beforeBackup = owner.fullMemoryRebuildBackup;
+    appliedJob.appliedSummaryFingerprint = core.fingerprint([latest, endIndex + 1]);
     owner.fullMemoryRebuildBackup = { at: new Date().toISOString(), ...old };
     Chat.summary = latest;
     Chat.summarizedUntil = endIndex + 1;
@@ -214,6 +215,8 @@
     const owner = story(), saved = owner?.fullMemoryRebuildBackup;
     if (!owner || !saved || busy.has(owner) || Chat.summarizing || App.__requestPending)
       throw new Error('沒有可還原的前一版正式記憶，或另有任務正在執行。');
+    if (owner.fullMemoryRebuild?.appliedSummaryFingerprint !== core.fingerprint([Chat.summary, Chat.summarizedUntil]))
+      throw new Error('套用後正式記憶已被後續摘要修改，為避免覆蓋新進度，不能直接回滾。');
     const old = { summary: Chat.summary, summarizedUntil: Chat.summarizedUntil,
       memoryHealth: Chat.memoryHealth, memory: owner.memory, job: owner.fullMemoryRebuild, backup: saved };
     Chat.summary = saved.summary; Chat.summarizedUntil = saved.summarizedUntil;
