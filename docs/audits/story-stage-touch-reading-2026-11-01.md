@@ -23,3 +23,8 @@ Main baseline: `361a6b9a4eb156a6d0ffd2da2e3a63cec797efb9` (含 #904)。本項工
 - 現有 `tests/e2e/stage-capability.spec.cjs` 已對 820/821、1080/1081、scene 1279/1280、RPG 1429/1430 的嵌入／面板轉換、焦點、state 保持提供獨立驗收，本 PR 不造第二份 renderer。
 - 驗收須看 Playwright screenshots 與 `Fast Browser E2E`、Gameplay UI 等相關 CI。實機 iOS／Android 軟鍵盤、手勢與觸控驗收無法單憑 Chromium `hasTouch` 宣稱完成。
 - 僅 PR，未經下一輪明確授權不合併部署。
+
+
+## 第一次 CI 問題與修正
+
+首輪 Fast Browser E2E Story Experience（run `41227029199`）除新增測試外，其餘 37 項通過。新增測試錯把實際「林沉風」故事當成沒有 Gameplay UI 的 Reader，硬性要求 1081px+ 必為 `sheet`；但 Stage Capability 的 `presentationFor()` 明定 `gameplay` 為 `panel`，屬正常支援的作品型態。已更新新增測試，於每個分界把現行 DOM 的 `shell`／`renderer`／`presentation` 對齊 `BAOStageCapabilities.resolve()` 的權威決策，並獨立確認 mobile/compact/desktop 分類。原有 `stage-capability.spec.cjs` 仍檢查 Reader、Scene RPG、RPG dashboard、Terminal 的精確門檻。沒有修改 Stage 路由或作品行為。
