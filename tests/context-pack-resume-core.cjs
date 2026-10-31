@@ -88,6 +88,8 @@ global.API = {
   }
 };
 
+global.addEventListener = () => {};
+vm.runInThisContext(fs.readFileSync(require('node:path').join(__dirname, '..', 'js/chat.js'), 'utf8') + '\nObject.assign(Chat, globalThis.Chat); globalThis.Chat = Chat;');
 const source = fs.readFileSync(require("node:path").join(__dirname, "..", "js/context-pack-resume.js"), "utf8");
 vm.runInThisContext(source, { filename: "context-pack-resume.js" });
 
@@ -146,6 +148,15 @@ assert.equal(JSON.stringify(GameState.current.contextPackDraftResume).includes("
   assert.equal(GameState.current.contextPackDraftProgress, undefined);
   assert.equal(result.playerConfirmed, false);
   assert.ok(result.summary);
+  const freshPack = BAOContextPackResume.beginDraft(sourceMessages, { type: 'current-story' });
+  const savedDraft = JSON.stringify(GameState.current.contextPackDraft);
+  const send = API.send;
+  for (const finishReason of ['MAX_TOKENS', 'length', 'content_filter']) {
+    API.send = async (...args) => ({ ...await send.apply(API, args), finishReason });
+    await assert.rejects(BAOContextPackResume.organizeDraft(freshPack, sourceMessages, () => {}, { skipConfirm: true }), /截斷|阻擋/);
+    assert.equal(GameState.current.contextPackDraftResume.work.nextChunk, 0);
+    assert.equal(JSON.stringify(GameState.current.contextPackDraft), savedDraft, 'incomplete JSON response must not change the draft/checkpoint');
+  }
   console.log("Context Pack resumable organization core checks passed.");
 })().catch(error => {
   console.error(error);

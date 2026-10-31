@@ -85,7 +85,12 @@
     `本次模式：${mode==="full"?"完整重建":mode==="incremental"?"增量更新":"階層式中間合併"}；合併層級 ${level}；處理後訊息數為 ${totalMessages}。`,`只輸出合法 JSON，格式：${schema}`,
     final&&prior.notebooks.length?`【既有 Canon（僅供比對）】\n${JSON.stringify(prior.notebooks)}`:"",`【分段提取結果】\n${JSON.stringify(fragments)}`
   ].filter(Boolean).join("\n\n");
-  const request=async(prompt,maxOutputTokens=2200)=>API.send({...App.config.api,__memoryTask:true,__responseSchema:canonResponseSchema,maxOutputTokens},[{role:"system",content:"只進行劇情 Canon 整理與校驗，只輸出合法 JSON。"},{role:"user",content:prompt}]);
+  const request=async(prompt,maxOutputTokens=2200)=>{
+    const result=await API.send({...App.config.api,__memoryTask:true,__responseSchema:canonResponseSchema,maxOutputTokens},[{role:"system",content:"只進行劇情 Canon 整理與校驗，只輸出合法 JSON。"},{role:"user",content:prompt}]);
+    const completionError=Chat.memoryCompletionError(result);
+    if(completionError)throw new Error(completionError);
+    return result;
+  };
   const MERGE_BATCH_SIZE=4;
   const mergeCallCount=count=>{let size=Math.max(1,Number(count||0)),calls=1;while(size>MERGE_BATCH_SIZE){const full=Math.floor(size/MERGE_BATCH_SIZE),remainder=size%MERGE_BATCH_SIZE;calls+=full+(remainder>1?1:0);size=full+(remainder?1:0);}return calls;};
   const processedStart=(prior,messages)=>{if(prior.lastProcessedMessageId){const index=messages.findIndex(message=>message.id===prior.lastProcessedMessageId);if(index>=0)return index+1;}return Math.min(prior.lastProcessedMessageCount,messages.length);};

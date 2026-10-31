@@ -252,11 +252,17 @@
         throw new Error(`已達本次故事預算上限 NT${cfg.budgetTwd.toFixed(0)}。可提高預算或改用較便宜的模型後繼續。`);
       }
       const effective = { ...config };
+      // Memory jobs own their output budgets (summary, notes, Canon and Context Pack).
+      // Do not silently replace them with a generic helper cap. Transport/provider
+      // limits still apply, and the story-wide cost ceiling above remains enforced.
+      if (effective.__memoryTask) {
+        const requested = Number(effective.maxOutputTokens);
+        effective.maxOutputTokens = Number.isFinite(requested) && requested > 0 ? Math.max(1, Math.floor(requested)) : 1800;
+      }
       // State extraction can require a longer JSON document than other helper tasks.
       // Keep the tracker's own requested limit, up to 2400; never apply the 700-token cap to it.
-      if (effective.__stateTask) effective.maxOutputTokens = Math.min(Number(effective.maxOutputTokens || 1800), effective.__stateRebuild ? 8192 : 2400);
+      else if (effective.__stateTask) effective.maxOutputTokens = Math.min(Number(effective.maxOutputTokens || 1800), effective.__stateRebuild ? 8192 : 2400);
       else if (effective.__auxiliaryTask) effective.maxOutputTokens = Math.min(Number(effective.maxOutputTokens || 700), 700);
-      if (effective.__memoryTask) effective.maxOutputTokens = Math.min(Number(effective.maxOutputTokens || 1800), 1800);
       const previousPrompt = typeof Chat !== "undefined" ? Chat.lastStoryPromptTokens : 0;
       const result = await next(effective, messages, ...rest);
       if (effective.__auxiliaryTask && typeof Chat !== "undefined") {

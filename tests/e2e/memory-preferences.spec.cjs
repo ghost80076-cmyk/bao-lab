@@ -3,7 +3,7 @@ if (process.env.BAO_LIVE_URL) test.use({ baseURL: process.env.BAO_LIVE_URL });
 const openMemory = async page => {
   await page.goto('./');
   await page.waitForFunction(() => window.BAOMemoryPreferences && window.BAOStoryBranches && App.characters.length && document.getElementById('helper-routing-box'));
-  await page.evaluate(() => { App.openCharacter(App.characters[0].id); App.openBuilder(); App.setStep(5); });
+  await page.evaluate(async () => { await App.openCharacter(App.characters[0].id); App.openBuilder(); App.setStep(5); });
   await expect(page.locator('#helper-routing-box')).toBeHidden();
 };
 for (const width of [390, 1440]) {
@@ -13,7 +13,9 @@ for (const width of [390, 1440]) {
     await expect(page.locator('#memory-mode-label')).toHaveText('智慧整理（推薦・長篇故事）');
     await expect(page.locator('[name="memory-strength"][value="balanced"]')).toBeChecked();
     await expect(page.locator('#api-type option[value="bao-credits"]')).toHaveCount(1);
+    await page.evaluate(() => App.setStep(4));
     await page.locator('#api-type').selectOption('bao-credits');
+    await page.evaluate(() => App.setStep(5));
     await expect(page.locator('#memory-mode')).toHaveValue('smart');
     await expect(page.locator('#memory-hosted-recommendation')).toBeVisible();
     await expect(page.locator('#memory-hosted-recommendation')).toHaveText('推薦 · 長篇故事');
@@ -58,7 +60,7 @@ test('main completes before interval state and memory helpers', async ({ page })
     App.config.displayMode = 'ui';
     App.config.api = { type: 'custom', protocol: 'openai', model: 'test', key: 'test-only-key', baseUrl: new URL('phase1-mock', location.href).href };
     App.config.memory = { mode: 'smart', maxRounds: 4, summaryInterval: 4 };
-    App.config.cost = { stateInterval: 2 };
+    App.config.cost = { stateInterval: 2, stateApiMode: 'separate', stateApi: { ...App.config.api } };
     Chat.reset(); GameState.create(App.activeCharacter, App.config);
     for (let i = 0; i < 6; i++) { Chat.add('user', `舊玩家${i}`); Chat.add('assistant', `舊角色${i}`); }
     App.renderChatShell(false); App.showView('chat');
@@ -68,9 +70,11 @@ test('main completes before interval state and memory helpers', async ({ page })
     await page.locator('[data-send-message]').click();
     await expect(page.locator('[data-send-message]')).toBeEnabled();
   }
-  expect(requests.map(r => r.kind)).toEqual(['main', 'main', 'state', 'memory']);
+  expect(requests.slice(0, 2).map(r => r.kind)).toEqual(['main', 'main']);
+  expect(requests.slice(2).map(r => r.kind).sort()).toEqual(['memory', 'state']);
   expect(JSON.stringify(requests.find(r => r.kind === 'state').body)).not.toContain('舊玩家0');
   expect(JSON.stringify(requests.find(r => r.kind === 'memory').body)).not.toContain('去市場1');
+  expect(requests.find(r => r.kind === 'memory').body.max_tokens).toBe(8192);
   expect(await page.evaluate(() => Chat.summary)).toContain('已進入市場');
   expect(await page.evaluate(() => JSON.stringify(Storage.buildStoryPayload('test')))).not.toContain('test-only-key');
 });

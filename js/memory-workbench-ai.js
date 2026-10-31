@@ -51,6 +51,8 @@
       try{
         const cfg={...selectedRoute,model,__memoryTask:true,maxOutputTokens:1400,cacheEnabled:false};
         const result=await API.send(cfg,[{role:"system",content:"只進行記憶整理，不要續寫故事。"},{role:"user",content:prompt(src,style)}]);
+        const completionError=Chat.memoryCompletionError(result);
+        if(completionError)throw new Error(completionError);
         const normalized=await Chat.normalizeMemoryResult(cfg,result?.text||"");
         draft=normalized.summary||"";
         area.querySelector("[data-refine-draft]").textContent=draft||(normalized.error||"模型沒有產生可用整理稿；原始故事仍保留。");
