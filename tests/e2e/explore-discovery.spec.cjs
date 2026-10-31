@@ -43,6 +43,20 @@ for (const viewport of [
     const card = page.locator('#character-list [data-character-id="night-sky-magic-academy"]');
     await expect(card).toBeVisible();
     const favorite = card.locator('[data-explore-favorite]');
+    // On a 390px phone, the discovery heading and filters should no longer
+    // push the poster row below most of the first viewport. Keep 320px stacked.
+    if (viewport.width === 390) {
+      const firstPosterY = await card.evaluate(node => node.getBoundingClientRect().top + scrollY);
+      expect(firstPosterY).toBeLessThan(600);
+      const searchRect = await searchBox.boundingBox();
+      const filterRect = await page.locator('[data-explore-filter-open]').boundingBox();
+      expect(Math.abs((searchRect?.bottom || 0) - ((filterRect?.y || 0) + (filterRect?.height || 0)))).toBeLessThanOrEqual(3);
+    }
+    if (viewport.width === 320) {
+      const searchRect = await searchBox.boundingBox();
+      const filterRect = await page.locator('[data-explore-filter-open]').boundingBox();
+      expect(filterRect?.y || 0).toBeGreaterThanOrEqual((searchRect?.y || 0) + (searchRect?.height || 0));
+    }
     const favoriteBox = await favorite.boundingBox();
     expect(favoriteBox?.width || 0).toBeGreaterThanOrEqual(44);
     expect(favoriteBox?.height || 0).toBeGreaterThanOrEqual(44);
