@@ -18,7 +18,7 @@ Read `AGENTS.md`, `docs/yorubay-visual-direction-audit.md`, `docs/ui-style-owner
 
 ## This phase: Explore / find-a-work
 
-Ownership: `css/explore-discovery.css` (loaded in `index.html`), `js/explore-discovery.js` (existing actions). The latter remains unchanged. Later gallery art and typography ownership in `bao-editorial-cinema.css` stays unchanged.
+Ownership: `css/explore-discovery.css` (loaded in `index.html`) for search and filters; `css/bao-editorial-cinema.css` / `js/bao-gallery-focus.js` for the existing gallery heading and late stylesheet cache load; `js/explore-discovery.js` (existing actions) remains unchanged. Poster artwork and card composition remain unchanged.
 
 Confirmed source-level issues, distinct from the completed journey audit:
 - Search input forcibly removes its own outline, while its parent has no keyboard focus affordance.
@@ -26,14 +26,16 @@ Confirmed source-level issues, distinct from the completed journey audit:
 - Favorites are rendered as 34px circles (32px at <=700px) and also suppress visible focus outlines.
 - Active filter chips are 30px tall; filter choices are 38px tall; mobile filter trigger is 42px.
 - Search results and empty-state supporting text fall to 10–11px on phones.
+- Reviewing the PR's first 390×900 Chromium journey capture shows the first poster row starts around **y=619px**: the large multi-line heading and stacked search/filter controls leave relatively little artwork in the initial viewport, contrary to the intended Poster-first discovery hierarchy.
 
 Changes:
 1. Preserve poster images, catalog/card composition, the existing search/filter logic, local favorites, preview modal and content gating.
 2. Give search a visible focus-within outline; make placeholders and supporting text easier to read.
 3. Enlarge **actual** hit boxes for clear, favorite, filter trigger/choices/active chips to >=44 CSS px; provide visible keyboard focus styling.
 4. Allow narrow badge rows to wrap beside the larger favorite control instead of hiding image badges or overlaying the favorite.
-5. Bump stylesheet cache version, without adding a new cascade layer.
-6. Extend Playwright at 320×568, 390×844, 1180×820 to check action geometry, focus, favorite toggling, filter selection, badge separation, horizontal overflow, and screenshot evidence.
+5. Keep the mobile Explore heading editorial but more compact, and keep search + filter on one row at 390px while stacking at <=360px. This improves artwork visibility without hiding category, import, or search functions. Update the existing cinema style owner and loader cache version rather than appending a competing override.
+6. Bump stylesheet cache versions, without adding a new cascade layer.
+7. Extend Playwright at 320×568, 390×844, 1180×820 to check action geometry, focus, favorite toggling, filter selection, badge separation, horizontal overflow, and screenshot evidence.
 
 These sizes are product touch comfort targets, **not claims of WCAG violations**. Do not change the authored character HTML/JS sandbox, BYOK, storage schema, memory pipeline, model calls, mobile Story shell or Stage renderer.
 
