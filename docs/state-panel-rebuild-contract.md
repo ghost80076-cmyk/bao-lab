@@ -120,3 +120,22 @@ This is evidence-assisted recovery, not an independent semantic accounting
 ledger: the model can still omit or misinterpret a fact. The checkpoint records
 what was scanned and the final validation records which fields remain uncertain;
 neither constitutes proof of perfect reconstruction. Backup before remediation.
+
+## Provider routing and failed-commit safety
+
+Incremental state tracking, manual 12/32-message rebuilds, and historical
+pending-turn scans use the *same* route decision: an explicitly configured
+`cost.stateApi` with a model and endpoint (unless `stateApiMode=same`) is
+used as a complete provider configuration. Its key, protocol, endpoint,
+provider, capabilities and output limit stay together. A legacy `stateModel`
+string alone never changes the main route. Missing independent credentials
+must not silently fall back to the main story key/model.
+
+Rebuild output is applied only after a complete, validated model response.
+If the subsequent local save or readback cannot be confirmed, restore the
+entire pre-apply in-memory story state (scene, people, modules, phone and
+pending recovery) rather than keeping an uncommitted half-update. A best-effort
+local re-save of the pre-apply snapshot is allowed, but a storage failure
+still requires the player to export a full backup; persistence cannot be
+promised when device storage itself is malfunctioning. Never retry the paid
+model call as part of storage rollback.
