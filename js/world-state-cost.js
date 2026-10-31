@@ -262,15 +262,18 @@
         + (definitions.length ? ' 未提供新證據的作品欄位保留原值；手動資料不變。' : '');
       report(owner, unconfirmed.length || unconfirmedCharacters.length || unconfirmedScene.length || phone.unconfirmed ? 'partial' : 'updated', message);
       owner.sceneInfoSource = 'story-state-rebuild';
-      const saved = await window.App?.saveStory?.(false);
-      let durable = saved !== false;
-      if (durable && window.Storage?.flush) {
-        try {
+      // Saving itself can throw (quota, an unavailable backend, or a write
+      // guard), not only return false or fail later in flush/readback.
+      let durable = false;
+      try {
+        const saved = await window.App?.saveStory?.(false);
+        durable = saved !== false;
+        if (durable && window.Storage?.flush) {
           await Storage.flush();
           const check = window.BAOStorageWriteGuard?.verify?.(Storage.loadStory?.());
           durable = !check || check.ok;
-        } catch (_) { durable = false; }
-      }
+        }
+      } catch (_) { durable = false; }
       if (!durable) {
         // A queued write is not a successful commit. Restore *all* mutable
         // fields, reports and phone data, not just the pending evidence queue.
