@@ -7,38 +7,12 @@ const path = require('node:path');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'js/provider-policy-guard.js'), 'utf8');
 
-function setup() {
-  const calls = [];
-  const notices = [];
-  const story = {};
-  const window = { GameState: { current: story },
-    BAOChatSystemNotices: { sync() { notices.push('refresh'); } } };
-  const api = {
-    async send(config) {
-      calls.push(config);
-      return { text: '已完成', finishReason: 'STOP' };
-    },
-    noteRequest() {},
-    wrapSend(_name, wrapper) {
-      const next = this.send.bind(this);
-      this.send = (config, messages) => wrapper(next, config, messages);
-    }
-  };
-  const ctx = vm.createContext({ window, API: api, URL, Date, console });
-  vm.runInContext(source, ctx);
-  return { window, api, calls, notices, story, guard: window.BAOProviderPolicyGuard };
-}
 const route = { model: 'gemini-3.1-pro-preview', route: 'bao-credits',
   baseUrl: 'https://api.yorubay.com/chat', __automaticPolicyTask: false };
 const policyError = () => Object.assign(new Error('Google 拒絕此內容'), { code: 'BAO_PROVIDER_BLOCKED' });
 
 test('two actual provider policy rejections pause auto state and summary for this story/model only', async () => {
-  const s = setup();
-  let failures = 0;
-  s.api.send = s.api.send.bind(s.api);
-  // Replace the transport under a fresh guard so failures pass through the real wrapper.
   const another = setupWithTransport(async () => {
-    failures++;
     throw policyError();
   });
   await assert.rejects(another.api.send(route, []), error => error.code === 'BAO_PROVIDER_BLOCKED');
@@ -50,7 +24,6 @@ test('two actual provider policy rejections pause auto state and summary for thi
     error => error.code === 'BAO_POLICY_CIRCUIT_OPEN');
   await assert.rejects(another.api.send({ ...route, __stateTask: true }, []),
     error => error.code === 'BAO_POLICY_CIRCUIT_OPEN');
-  assert.equal(failures, 0);
   assert.equal(another.calls.length, 2, 'suppressed automatic requests must not reach the provider');
   const otherStory = {};
   another.window.GameState.current = otherStory;
