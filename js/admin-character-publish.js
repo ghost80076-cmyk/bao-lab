@@ -223,6 +223,10 @@
     const description = String($("publish-description").value || "").trim();
     const author = String($("publish-author").value || "").trim();
     const authorId = String($("publish-author-id")?.value || "").trim().toLowerCase();
+    // A reviewed admin entry overrides imported credit; otherwise retain source
+    // attribution even for flat cards, where source.meta no longer exists.
+    const creditedAuthor = author || c.creator || c.author || c.import_metadata?.creator || sourceMeta.creator || sourceMeta.author || "";
+    const creditedAuthorId = authorId || c.creator_id || c.author_id || sourceMeta.creator_id || sourceMeta.author_id || "";
 
     const card = {
       schema_version: String(source.schema_version || "1.5"),
@@ -239,8 +243,10 @@
         description,
         audience: c.audience || [],
         categories: c.categories || [],
-        creator: author || c.import_metadata?.creator || sourceMeta.creator || "",
-        creator_id: authorId || sourceMeta.creator_id || ""
+        creator: creditedAuthor,
+        creator_id: creditedAuthorId,
+        author: creditedAuthor,
+        author_id: creditedAuthorId
       },
       content: {
         ...sourceContent,
