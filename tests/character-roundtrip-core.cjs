@@ -55,22 +55,14 @@ for (const [format, input] of [['native', card], ['flat', engine.normalize(card)
   sameCapabilities(prepared.card, format + ' worker publication', true);
   assert.equal(prepared.card.asset_manifest, undefined, 'an empty asset manifest is omitted by the publication Worker');
 }
-// The admin form must show exactly the credit already present on flat and
-// native cards; otherwise the independent author-license actions use blanks.
+// Admin import form displays credits from both flat and native cards.
 const fillBody = adminSource.slice(adminSource.indexOf('  function fillForm('), adminSource.indexOf('  async function parseSelectedFile('));
 function formFor(input) {
   const fields = Object.create(null);
-  const elements = name => fields[name] ||= { value: '', textContent: '' };
+  const getElement = name => fields[name] ||= { value: '', textContent: '' };
   const state = {};
-  const fill = new Function('engine', 'state', '
-const empty = studioExport({id: 'empty', name: 'Empty', greeting: 'Hi', system_prompt: 'Setting'});
-for (const key of ['story_startup', 'actor_mode', 'timeline_policy']) assert.equal(empty.gameplay[key], undefined);
-assert.equal(empty.presentation.phone_ui, undefined, 'basic cards must not gain a phone');
-console.log('Native/flat studio → JSON → admin → Worker capability preservation passed');
-
-const minimal = studioExport({id: 'no-author', name: '未署名', greeting: '開始', system_prompt: '世界'});
-for (const key of ['author', 'author_id', 'creator', 'creator_id']) assert.equal(Object.hasOwn(minimal.meta, key), false, 'no invented author: ' + key);
-, fillBody + ';return fillForm;')(engine, state, elements);
+  const fill = new Function('engine', 'state', String.fromCharCode(36),
+    fillBody + ';return fillForm;')(engine, state, getElement);
   fill(input, 'JSON');
   return fields;
 }
@@ -80,9 +72,9 @@ assert.equal(flatCredit['publish-author-id'].value, 'credit-one');
 const nativeCredit = formFor({meta: {id: 'native-credit', name: '測試', author: '作者乙', author_id: 'credit-two'}});
 assert.equal(nativeCredit['publish-author'].value, '作者乙');
 assert.equal(nativeCredit['publish-author-id'].value, 'credit-two');
-const noCredit = formFor({id: 'unsigned', name: '測試'});
-assert.equal(noCredit['publish-author'].value, '');
-assert.equal(noCredit['publish-author-id'].value, '');
+const unsigned = formFor({id: 'unsigned', name: '測試'});
+assert.equal(unsigned['publish-author'].value, '');
+assert.equal(unsigned['publish-author-id'].value, '');
 
 assert.equal(JSON.stringify(card), original, 'roundtrip must not mutate the source');
 const empty = studioExport({id: 'empty', name: 'Empty', greeting: 'Hi', system_prompt: 'Setting'});
