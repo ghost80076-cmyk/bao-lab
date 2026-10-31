@@ -67,3 +67,54 @@ for (const width of [390, 1280]) {
     expect(after).toBe(before);
   });
 }
+
+test('existing players upgrade only the untouched official Chicofy carousel; manual edits and permissions survive', async ({page}) => {
+  await page.goto('./');
+  await page.waitForFunction(()=>Boolean(window.BAOAuthorInline && window.BAOAuthorCardBind && window.BAOAuthorRegexCore && App.loadCharacter));
+  const response=await page.request.get('./docs/author-migrations/chicofy-six-timelines/welcome.regex.json');
+  expect(response.ok()).toBe(true);
+  const legacy=await response.json();
+  await page.evaluate(async raw => {
+    const character=await App.loadCharacter('jielai-rensheng');
+    if(!character)throw new Error('Missing Chicofy official character');
+    App.activeCharacter=character;
+    App.config={
+      narrativeMode:'immersive',displayMode:'text',
+      persona:{name:'測試玩家',gender:'未指定',identity:'',personality:'',relationship:'',extra:''},
+      api:{type:'custom',protocol:'openai',model:'offline-test',baseUrl:'',key:''},
+      memory:{mode:'smart',maxRounds:20,maxContext:32000,cache:false}
+    };
+    Chat.reset();GameState.create(character,App.config);
+    const key='bao-lab:author-regex:v1:jielai-rensheng';
+    const rules=BAOAuthorRegexCore.normalize(raw);
+    localStorage.setItem(key,JSON.stringify({
+      source:'official-sidecar',sourcePath:'data/characters/general/jielai-rensheng.regex.json',
+      enabled:true,allowScripts:false,allowExternalAssets:false,allowStateSharing:true,
+      rules:[{...rules[0],replacement:rules[0].replacement+'<!--player-edit-->'}]
+    }));
+    App.renderChatShell(true);App.showView('chat');
+  },legacy);
+  const key='bao-lab:author-regex:v1:jielai-rensheng';
+  await page.waitForFunction(k=>JSON.parse(localStorage.getItem(k)).rules[0].replacement.endsWith('<!--player-edit-->'),key);
+  let saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),key);
+  expect(saved.sourceRevision).toBeUndefined();
+  // Swap the custom edit for an exact archived official rule, then sync again.
+  await page.evaluate(async args => {
+    const cfg=JSON.parse(localStorage.getItem(args.key));
+    cfg.rules=BAOAuthorRegexCore.normalize(args.legacy);
+    localStorage.setItem(args.key,JSON.stringify(cfg));
+    await BAOAuthorCardBind.sync();
+  },{key,legacy});
+  await expect.poll(()=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)).sourceRevision,key)).toBe(2);
+  saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),key);
+  expect(saved.rules[0].replacement).toContain('yb-static-rotor');
+  expect(saved.rules[0].replacement).toContain('chicofy-six-timelines/mizuki.webp');
+  expect(saved.allowScripts).toBe(false);
+  expect(saved.allowExternalAssets).toBe(false);
+  expect(saved.allowStateSharing).toBe(true);
+  expect(saved.enabled).toBe(true);
+  const frame=page.frameLocator('iframe[title="聊天內作者隔離介面"]');
+  await expect(frame.locator('.yb-static-rotor')).toBeVisible();
+  await frame.locator('.yb-route-tab[for="yb-route-4"]').click();
+  await expect(frame.locator('#yb-route-4')).toBeChecked();
+});
