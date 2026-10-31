@@ -40,12 +40,28 @@ jobs:
               dest.write_bytes(body)
               print(f"OK {item['id']}: {width}x{height}, {len(body)} bytes (HTTP {status})")
           PY
+      - name: Generate lighter first-party WebP portraits for mobile
+        shell: bash
+        run: |
+          python3 -m pip install --quiet pillow
+          python3 - <<'PY'
+          from PIL import Image, ImageOps
+          from pathlib import Path
+          for png in sorted(Path('assets/characters/chicofy-six-timelines').glob('*.png')):
+              with Image.open(png) as img:
+                  img=ImageOps.exif_transpose(img)
+                  img.thumbnail((1000, 1000), Image.Resampling.LANCZOS)
+                  rgb=img.convert('RGBA' if img.has_transparency_data else 'RGB')
+                  out=png.with_suffix('.webp')
+                  rgb.save(out,'WEBP',quality=78,method=6)
+                  print(f'Optimized {out}: {img.size}, {out.stat().st_size} bytes')
+          PY
       - name: Commit only verified original author image bytes to this PR branch
         shell: bash
         run: |
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git config user.name 'github-actions[bot]'
-          git add assets/characters/chicofy-six-timelines/*.png
+          git add assets/characters/chicofy-six-timelines/*.png assets/characters/chicofy-six-timelines/*.webp
           if git diff --cached --quiet; then
             echo 'All original files already tracked'
           else
