@@ -12,7 +12,10 @@
   ]);
   const keyFor = config => {
     const model = String(config?.model || '').trim().slice(0, 160);
-    const provider = String(config?.route || config?.type || config?.protocol || '').trim().slice(0, 48);
+    // The helper router may fill in type='custom'; keep the identity stable
+    // between its preflight route and the effective routed request.
+    const provider = String(config?.route ||
+      ((config?.type && config.type !== 'custom') ? config.type : (config?.protocol || 'openai'))).trim().slice(0, 48);
     let host = '';
     try { host = new URL(String(config?.baseUrl || '')).host.toLowerCase().slice(0, 100); }
     catch (_) { /* An incomplete BYOK route must not poison the key. */ }
