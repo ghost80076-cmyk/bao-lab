@@ -93,7 +93,11 @@ for (const width of [390, 1280]) {
     await desk.locator('[data-tab="notes"]').click();
     await desk.locator('[data-memory-ai-helper]').click();
     await desk.locator('[data-run-refine]').click();
-    await expect(desk.locator('[data-refine-status]')).toContainText('完成');
+    // Progress text contains 「已完成 N 批」 before the final draft is committed.
+    // Do not treat that intermediate status as a completed AI-notes run.
+    await expect(desk.locator('[data-refine-status]')).toContainText('完成 · 共');
+    await expect(desk.locator('[data-refine-draft]')).toContainText('已確認的約定');
+    await expect(desk.locator('[data-run-refine]')).toBeEnabled();
     const draft = await desk.locator('[data-refine-draft]').textContent();
     await desk.locator('[data-run-refine]').click();
     await expect(desk.locator('[data-refine-status]')).toContainText('截斷');
