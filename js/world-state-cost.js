@@ -447,7 +447,13 @@
       report(owner, "waiting", `${scenePatch ? '已同步回覆明示的時間／地點；' : ''}已累積 ${pending.length}／${interval} 輪。繼續故事即可，系統會在達到整理回合時自動更新。`);
       return scenePatch;
     }
-    const selectedApi = stateApiFor(config);
+    let selectedApi;
+    try { selectedApi = stateApiFor(config); }
+    catch (error) {
+      noteRequest('route-invalid');
+      report(owner, 'failed', String(error.message || error));
+      return scenePatch;
+    }
     window.BAOCreditsPilot?.prepareAccountConfig?.(selectedApi);
     if (!selectedApi?.key && !window.BAOCreditsPilot?.isAccountReady?.(selectedApi)) {
       noteRequest('not-connected');
