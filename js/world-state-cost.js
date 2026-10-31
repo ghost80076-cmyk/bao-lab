@@ -5,6 +5,12 @@
   const originalUpdate = WorldStateEngine.update.bind(WorldStateEngine);
   let persistenceHint = false;
   const activeOwners = new WeakSet();
+  const beginMaintenance = owner => {
+    const guard = window.BAOStoryMaintenanceLock;
+    if (!guard) return () => {};
+    if (!guard.start(owner)) return null;
+    return () => guard.end(owner);
+  };
   // The configured state helper is a complete API route, not merely a model
   // override on the story provider. Explicit "same" ignores stale helper data.
   const stateApiFor = config => {
