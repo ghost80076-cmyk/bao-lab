@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "record_type": "unpublished_author_migration",
+  "migration_id": "chicofy-six-timelines",
+  "publication_status": "awaiting_original_character_card",
+  "author_id": "chicofy",
+  "author": "齊格飛",
+  "source_of_author_id": "data/authors.json",
+  "character_meta": {
+    "author": "齊格飛",
+    "author_id": "chicofy",
+    "creator": "齊格飛",
+    "creator_id": "chicofy"
+  },
+  "published_character_id": null,
+  "published_work_title": null,
+  "public_catalog_entry": false,
+  "requires_full_original_card": true,
+  "preserved_files": [
+    "roleWelcome_original.html",
+    "roleWelcome_yorubay.html",
+    "welcome.regex.json",
+    "assets.json"
+  ],
+  "notes": "Author provenance for the unpublished adaptation; never auto-publish as a complete character card or assign GitHub committer as creator."
+}
