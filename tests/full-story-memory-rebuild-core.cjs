@@ -95,7 +95,8 @@ const service=global.BAOFullStoryMemoryRebuild;
   assert.equal(Chat.summarizedUntil,40);
   assert.equal(GameState.current.fullMemoryRebuildBackup,null);
 
-  await service.run(20); // start a new job
+  await service.run(20); // four paid extraction calls
+  await service.run(20); // explicit second action for final merge
   assert.equal(GameState.current.fullMemoryRebuild.stage,'ready');
   await service.apply();
   Chat.summary='AUTO_SUMMARY_MOVED_ON';
