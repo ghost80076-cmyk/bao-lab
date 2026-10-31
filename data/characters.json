@@ -1117,5 +1117,42 @@
       "category": "world",
       "rating": "general"
     }
+  },
+  {
+    "id": "jielai-rensheng",
+    "file": "data/characters/general/jielai-rensheng.json",
+    "name": "🔞借來的人生｜公園外的六條救贖路",
+    "title": "🔞借來的人生｜公園外的六條救贖路",
+    "avatar": "https://i.meee.com.tw/BORVsUi.png",
+    "category": "male",
+    "rating": "adult",
+    "gender": "",
+    "tags": [
+      "劇情",
+      "救贖",
+      "多線",
+      "都市",
+      "成人向",
+      "男性向"
+    ],
+    "description": "【遊戲名稱】\n借來的人生｜公園外的六條救贖路\n\n【遊戲簡介】\n你為了救一個險些被貨車撞上的孩子，自己被撞飛了出去。再睜開眼，你成了櫻花國一名26歲、長相普通的單身男子：這具身體的家人剛在意外中過世，一億圓的保險金剛入帳。原主在中大型企業 SOSHIN 擔任營運支援部組長（基層主管），目前請了長假。你不愁吃穿，身邊卻沒什麼人。\n公園外圍有五個夜裡等客的定點，白天還有一位在公司櫃檯笑著撐場面的人。六個女人，各自被不同的壓力與期限追著：每週五的催收、畢業前的賣掛、半夜走失的母親、截止前的入園申請、被人盯上的團夥、說不出口的職場騷擾。\n你曾經為了救人，賠上自己的命。這一次，你可以只談條件，也可以接下她的問題。但錢只能還金額，買不到信任，也替她決定不了任何事。把錢當成牽繩，換來的只會是表面的順從。\n選一個人，這一局從她開始。她是主線；主線救贖完成後，你最多可以接受一次引薦，開啟一條副線。是否幫助她，由你決定。\n※ 成人向。含性交易、債務、騷擾與控制等議題；原主與所有女性角色皆為成年人。親密尺度不預設上限，以當下明確同意為前提。",
+    "supported_modes": {
+      "immersive": true,
+      "world": false
+    },
+    "supported_display": {
+      "text": true,
+      "ui": false
+    },
+    "published_at": "2026-10-31T12:22:00Z",
+    "updated_at": "2026-10-31T12:22:00Z",
+    "published_version": 1,
+    "version_published_at": "2026-10-31T12:22:00Z",
+    "author": "齊格飛",
+    "author_id": "chicofy",
+    "discovery": {
+      "category": "male",
+      "rating": "adult"
+    }
   }
 ]
