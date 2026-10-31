@@ -363,6 +363,8 @@
     if (baseline.ready) return baseline;
     const api = prepareStateApi(config);
     const configSignature = JSON.stringify(config);
+    const endMaintenance = beginMaintenance(owner);
+    if (!endMaintenance) throw new Error('另一項記憶或狀態重建正在執行。');
     activeOwners.add(owner);
     try {
       for (let request = 0; request < 4; request++) {
@@ -423,6 +425,7 @@
       throw error;
     } finally {
       activeOwners.delete(owner);
+      endMaintenance();
     }
   };
 
