@@ -12,7 +12,7 @@ assert(adminHTML.includes('src="js/character.js?v=12"'));
 assert(adminHTML.includes('src="js/admin-character-publish.js?v=4"'));
 assert(memoryWorkbenchSource.includes('data-summary-mode-notice'));
 assert(siteUI.includes('js/world-state-cost.js?v=11'));
-assert(siteUI.includes('js/full-story-memory-rebuild.js?v=2'));
+assert(siteUI.includes('js/full-story-memory-rebuild.js?v=3'));
 const appSource = read("js/app.js");
 const bridge = read("js/global-bridge.js");
 const helper = read("js/helper-api-routing.js");
