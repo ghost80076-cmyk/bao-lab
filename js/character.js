@@ -143,6 +143,11 @@ const CharacterEngine = {
       categories: Array.isArray(categories) ? categories : [categories].filter(Boolean),
       tags: Array.isArray(tags) ? tags : [tags].filter(Boolean),
       description: raw.description || meta.description || "",
+      // Provenance is display metadata, never proof of publication rights.
+      author: String(raw.author ?? meta.author ?? "").trim().slice(0, 120),
+      author_id: String(raw.author_id ?? meta.author_id ?? "").trim().slice(0, 64),
+      creator: String(raw.creator ?? meta.creator ?? "").trim().slice(0, 120),
+      creator_id: String(raw.creator_id ?? meta.creator_id ?? "").trim().slice(0, 64),
       quote: raw.quote || content.quote || "",
       greeting: raw.greeting || content.greeting || "",
       greeting_context: String(raw.greeting_context || content.greeting_context || "").trim(),
