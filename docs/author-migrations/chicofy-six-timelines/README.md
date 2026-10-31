@@ -17,6 +17,15 @@
 - 首次進入轉盤與角色圖不需任何額外授權，但 **「確認選角」要填入玩家輸入框仍須明確同意作者互動腳本**。新增開場旁「啟用選角確認」入口，確認後只允許在 opaque iframe 內執行腳本；不會自動送出訊息、不讀取狀態、不授權第三方外部資源。
 - 無須修改卡片內容：`data/characters/general/jielai-rensheng.json` 的 `system_prompt`、13 條世界書、時間線、資金及作者署名 `齊格飛/chicofy` 原封不動。
 
+## 舊玩家快取升級
+
+初版官方作品正則一旦存進 `localStorage`，夜灣不會覆寫已有設定。這是原先出現「網站版本更新、玩家仍看到舊轉盤」的第三個原因。此次在 `author-regex-card-bind.js` 加入**僅限本作品**的版本轉換：
+
+- 僅處理 `source=official-sidecar`、相符的 `sourcePath`、與封存初版預設規則一致的名稱、描述、比對式、屬性、長度和 FNV-1a 指紋；
+- 只替換官方正則 `rules`，保留玩家原有 `enabled`、`allowScripts`、`allowExternalAssets`、`allowStateSharing` 及其他本地設定；
+- 玩家自行修改過規則、手動匯入或在載入途中變更設定，均不覆蓋；記錄 `sourceRevision=2`，並通知現有介面重新呈現；
+- 主站 `index.html`、`js/regex-chat.js` 的腳本 URL 版本同步提升，避免舊版 JavaScript 長時間保留在瀏覽器快取。
+
 ## 圖像範圍與限制
 
 六張選角立繪及作者提供的封面 `https://i.meee.com.tw/BORVsUi.png` **均已鏡像保存 PNG 原檔及本地 WebP**。正式作品目錄和角色卡封面改用 `assets/characters/chicofy-six-timelines/cover.webp`；世界書中的 Cloudinary 圖像網址仍是第三方來源，**本次未整批鏡像世界書 72 個參照網址**。若後續玩家在**劇情內插圖**遇到圖片不可用，不應與本次已修復的六張**選角圖**混為一談。
