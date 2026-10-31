@@ -178,7 +178,7 @@ window.addEventListener("DOMContentLoaded", () => {
   loadBAOScript("js/autonomous-world-workbench.js")
     .then(() => loadBAOScript("js/autonomous-world-display.js"))
     .catch(err => console.warn("BAO/LAB autonomous world workbench or display failed to load:", err));
-  const worldModulesReady = loadBAOScript("js/global-bridge.js?v=6")
+  const worldModulesReady = loadBAOScript("js/global-bridge.js?v=7")
     .then(() => loadBAOScript("js/world-state.js?v=4"))
     .then(() => loadBAOScript("js/character-status.js?v=5"))
     .then(() => loadBAOScript("js/three-realms-cultivation-core.js?v=1"))
@@ -205,7 +205,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/player-settings.js?v=13"))
     .then(() => loadBAOScript("js/player-text-replace-mod.js?v=2"))
     .then(() => loadBAOScript("js/narrative-settings.js?v=15"))
-    .then(() => loadBAOScript("js/memory-workbench-core.js?v=7"))
+    .then(() => loadBAOScript("js/memory-workbench-core.js?v=8"))
     .then(() => loadBAOScript("js/memory-workbench-ai.js?v=2"))
     .then(() => loadBAOScript("js/canon-workbench.js?v=3"))
     .then(() => loadBAOScript("js/memory-workbench-simplify.js?v=3"))

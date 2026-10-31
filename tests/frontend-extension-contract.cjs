@@ -37,7 +37,7 @@ increasing(index, [
   'src="js/storage.js?v=9"',
   'src="js/story-history-core.js?v=2"',
   'src="js/state.js?v=3"',
-  'src="js/api.js?v=9"',
+  'src="js/api.js?v=10"',
   'src="js/helper-data.js?v=5"',
   'src="js/episodic-memory-core.js?v=6"',
   'src="js/chat.js',
@@ -49,7 +49,7 @@ increasing(index, [
 
 // World-state chain: the bridge must install its guards before world modules.
 increasing(siteUI, [
-  'loadBAOScript("js/global-bridge.js?v=6")',
+  'loadBAOScript("js/global-bridge.js?v=7")',
   'loadBAOScript("js/world-state.js?v=4")',
   'loadBAOScript("js/character-status.js?v=5")',
   'loadBAOScript("js/three-realms-cultivation-core.js?v=1")',

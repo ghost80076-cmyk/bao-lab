@@ -19,6 +19,7 @@ const API = {
     const cacheWrite = pick(details.cache_write_tokens, raw.cache_write_tokens, raw.cache_creation_input_tokens);
     const output = pick(raw.output_tokens, raw.completion_tokens, raw.candidatesTokenCount);
     const total = pick(raw.total_tokens, raw.totalTokenCount);
+    const reasoning = pick(raw.reasoning_tokens, raw.completion_tokens_details?.reasoning_tokens, raw.output_tokens_details?.reasoning_tokens, raw.thoughtsTokenCount);
 
     // Anthropic reports uncached input separately from cache reads/writes.
     if (protocol === "anthropic" && input !== null) input += (cached || 0) + (cacheWrite || 0);
@@ -30,6 +31,7 @@ const API = {
       new_input_tokens: newInput,
       output_tokens: output,
       total_tokens: total,
+      reasoning_tokens: reasoning,
       // Backward-compatible aliases used by existing saves and cost controls.
       prompt_tokens: input,
       completion_tokens: output
@@ -341,7 +343,7 @@ const API = {
     const data = await this.readJSON(response);
     if (!response.ok) throw new Error(this.friendlyError(response.status, data, "Gemini API"));
     const text = (data?.candidates?.[0]?.content?.parts || []).map(p => typeof p?.text === "string" ? p.text : "").filter(Boolean).join("\n");
-    return { text: text || this.geminiEmptyResponseMessage(data), finishReason: data?.candidates?.[0]?.finishReason || null, blockReason: data?.promptFeedback?.blockReason || null, usage: this.normalizeUsage(data?.usageMetadata || {}, "gemini") };
+    return { text: text || this.geminiEmptyResponseMessage(data), finishReason: data?.candidates?.[0]?.finishReason || null, blockReason: data?.promptFeedback?.blockReason || null, outputBudget: { requested: limit || null, effective: limit || null, source: 'gemini-direct' }, usage: this.normalizeUsage(data?.usageMetadata || {}, "gemini") };
   },
 
   networkError(err) {

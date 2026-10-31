@@ -512,3 +512,20 @@ Only after both checks pass should the browser catalog be merged and deployed.
 ## Refactor safety map
 
 The current Worker uses a reviewed module manifest and keeps all but the extracted account-auth, account-rate-limit, account-validation, chat-input, admin-auth, admin-player-directory-routes, admin-player-mutation-routes, admin-publication-routes, admin-usage-routes, author-ownership, author-profile-publication, publication-format, GitHub-publication-transport, runtime-config, model-pricing, provider-routing, crypto and HTTP boundaries in `worker.js`. The responsibility boundaries and safe refactor order are documented in [`docs/worker-architecture-boundaries.md`](../../docs/worker-architecture-boundaries.md).
+
+
+### Memory summary output reservation
+
+Gemini summary requests may reserve up to 16,384 output tokens because reasoning
+and response text share the provider output budget. Story/status requests and
+non-Gemini summary requests retain the 8,192-token ceiling. This does not raise
+prompt/body byte limits. Legacy billing reserves the full requested token allowance;
+USD-wallet billing rejects a summary before creating a usage record or calling the
+provider when the wallet cannot reserve its complete requested output allowance.
+Ordinary chat retains its existing partial-affordability policy. Successful USD
+settlement still charges verified actual usage rather than the reserved maximum.
+
+Both billing responses expose requested/effective output budgets. The client keeps
+these separately from returned output and reasoning tokens; missing metadata is
+shown as unknown rather than treating the requested allowance as proof of the
+actual provider request. No player chat content is added to these diagnostics.

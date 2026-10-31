@@ -266,7 +266,9 @@ const Chat = {
           `【待整理舊對話】\n${transcript}`,
           force ? "目前 Context 使用率偏高，請進一步壓縮，輸出新的完整摘要，盡量控制在 600～1200 字。" : "請輸出新的完整長期記憶摘要，建議 800～1600 字以內。"
         ].filter(Boolean).join("\n\n");
-        summaryConfig = { ...memoryApi, __memoryTask: true, cacheEnabled: false, maxOutputTokens: 8192,
+        const geminiSummary = /^gemini-3(?:[.-])/.test(memoryApi.model || '') &&
+          (memoryApi.protocol === 'gemini' || memoryApi.type === 'gemini' || window.BAOCreditsPilot?.isAccountConnection?.(memoryApi));
+        summaryConfig = { ...memoryApi, __memoryTask: true, cacheEnabled: false, maxOutputTokens: geminiSummary ? 16384 : 8192,
           ...(config?.memory?.episodicRecall !== false && window.BAOEpisodicMemory ? { __responseSchema: window.BAOEpisodicMemory.schema } : {}) };
         result = await API.send(summaryConfig, [{ role: "system", content: "你是 Observer，不是作者。只輸出記憶規格 JSON，不要續寫故事或模仿正文文風。" }, { role: "user", content: prompt }]);
         if (!isCurrent()) return;
@@ -274,6 +276,10 @@ const Chat = {
           ...this.memoryHealth,
           lastFinishReason: String(result?.finishReason || '未回報').slice(0, 40),
           lastRequestedOutputTokens: summaryConfig.maxOutputTokens,
+          lastEffectiveOutputTokens: result?.outputBudget?.effective ?? null,
+          lastBudgetSource: result?.outputBudget?.source || '未回報',
+          lastReasoningTokens: result?.usage?.reasoning_tokens ?? result?.credits?.reasoning_tokens ?? null,
+          lastRequestId: String(result?.credits?.request_id || '').slice(0, 80),
           lastOutputTokens: result?.usage?.output_tokens ?? result?.usage?.completion_tokens ?? null,
           lastResponseChars: String(result?.text || '').length,
           lastChunkTurns: this.turnCount(chunk),

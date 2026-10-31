@@ -82,5 +82,17 @@ function setup() {
   s.ctx.API.send = async () => { blocked++; return { finishReason: 'SAFETY' }; };
   await s.chat.maybeSummarize(s.config, true);
   assert.equal(blocked, 1, 'blocked content must not be retried');
+  s.seed(12);
+  s.config.api={key:'mock',protocol:'gemini',model:'gemini-3.1-pro-preview'};
+  s.ctx.API.send=async config=>{
+    assert.equal(config.maxOutputTokens,16384);
+    return {text:'partial',finishReason:'MAX_TOKENS',outputBudget:{requested:16384,effective:16384,source:'gemini-direct'},usage:{output_tokens:1796,reasoning_tokens:14588}};
+  };
+  await s.chat.maybeSummarize(s.config,true);
+  assert.equal(s.chat.summarizedUntil,0);
+  assert.equal(s.chat.memoryHealth.lastRequestedOutputTokens,16384);
+  assert.equal(s.chat.memoryHealth.lastEffectiveOutputTokens,16384);
+  assert.equal(s.chat.memoryHealth.lastReasoningTokens,14588);
+  assert.equal(s.chat.memoryHealth.lastBudgetSource,'gemini-direct');
   console.log('PASS memory truncation bounded recovery and history preservation');
 })().catch(error => { console.error(error); process.exitCode = 1; });

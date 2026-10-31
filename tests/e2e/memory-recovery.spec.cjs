@@ -25,7 +25,7 @@ for (const width of [390, 1280]) {
     await retry.click();
     await expect(page.locator('.memory-health-card')).toContainText('已整理');
     await expect(page.locator('.memory-diagnostics')).toContainText('模型結束原因：STOP');
-    await expect(page.locator('.memory-diagnostics')).toContainText('摘要輸出額度：8192 Token');
+    await expect(page.locator('.memory-diagnostics')).toContainText('摘要請求額度：8192 Token');
     const result = await page.evaluate(() => ({ cursor:Chat.summarizedUntil, messages:Chat.messages.length, saves:recoverySaves, notes:BAOMemoryWorkbench.readSlots().filter(x=>x.text).length }));
     expect(result.cursor).toBe(174);
     expect(result.messages).toBe(182);
@@ -108,4 +108,24 @@ for (const width of [390, 1280]) {
     await desk.locator('.memory-desk-close').click();
     await expect(actions.getByRole('button',{name:'重試自動記憶整理',exact:true})).toBeFocused();
   });
+
+  test(`memory diagnostic separates requested, effective and thinking tokens (${width}px)`, async ({page})=>{
+    await prepare(page);
+    await page.evaluate(()=>{
+      App.config.api={key:'mock',protocol:'gemini',model:'gemini-3.1-pro-preview'};
+      API.send=async()=>({text:'partial',finishReason:'MAX_TOKENS',outputBudget:{requested:16384,effective:16384,source:'gemini-direct'},usage:{output_tokens:1796,reasoning_tokens:14588}});
+      BAOMemoryWorkbench.open();
+    });
+    await page.locator('[data-retry-auto-memory]').click();
+    await expect(page.locator('.memory-health-card')).toContainText('截斷');
+    const diagnostic=page.locator('.memory-diagnostics');
+    await diagnostic.locator('summary').click();
+    await expect(diagnostic).toContainText('摘要請求額度：16384 Token');
+    await expect(diagnostic).toContainText('實際送出額度：16384 Token');
+    await expect(diagnostic).toContainText('思考用量：14588 Token');
+    await expect(diagnostic).toContainText('模型回報輸出：1796 Token');
+    expect(await page.evaluate(()=>Chat.summarizedUntil)).toBe(0);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
+  });
+
 }

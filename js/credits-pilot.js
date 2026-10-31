@@ -348,7 +348,7 @@
     const requested = Number(config.maxOutputTokens || (config.__connectionTest ? 16 : 6144));
     // Keep YoruBay frontend and Worker ceilings aligned. Auxiliary tasks still
     // pass their own smaller maxOutputTokens values, so this is only a hard cap.
-    const outputCap = 8192;
+    const outputCap = kind === 'summary' && upstreamProvider === 'gemini' ? 16384 : 8192;
     const maxOutput = Number.isFinite(requested) ? Math.max(1, Math.min(outputCap, Math.floor(requested))) : Math.min(6144, outputCap);
     let response;
     try {
@@ -390,6 +390,7 @@
         unauthorized: "登入已失效，請重新登入夜灣帳號。",
         insufficient_credits: "舊版測試額度不足，請向管理員補充額度。",
         insufficient_wallet_balance: "夜灣燈火不足，請添燈後再試。",
+        insufficient_wallet_balance_for_summary: "可用燈火不足以預留完整摘要輸出額度，本次尚未呼叫模型。可改用較便宜的記憶整理模型，或補充燈火後再試；完整故事仍保留。",
         wallet_disabled: "這個帳號的夜灣燈火功能已停用，請聯絡管理員。",
         daily_limit_or_insufficient_balance: "後端仍在使用舊的每日次數限制；請管理員更新 Worker。",
         insufficient_balance: "玩家測試額度不足，請管理員更新 Worker。",
@@ -483,9 +484,15 @@
     const result = {
       text: data.content,
       finishReason: data.finish_reason || null,
+      outputBudget: {
+        requested: Number.isInteger(data.usage?.requested_max_output_tokens) ? data.usage.requested_max_output_tokens : maxOutput,
+        effective: Number.isInteger(data.usage?.effective_max_output_tokens) ? data.usage.effective_max_output_tokens : null,
+        source: 'hosted-worker'
+      },
       usage: API.normalizeUsage({
         input_tokens: input,
         output_tokens: output,
+        reasoning_tokens: data.usage?.reasoning_tokens ?? null,
         cached_tokens: cached,
         cache_write_tokens: cacheWrite,
         new_input_tokens: input != null && cached != null ? Math.max(0, input - cached) : null,

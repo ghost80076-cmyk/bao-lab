@@ -498,6 +498,11 @@ const jsonResponse = (body, status = 200) =>
     assert.equal(requests.at(-1).body.payload.generationConfig.maxOutputTokens, 8192,
       "summary allowance must reach the Gemini provider payload unchanged");
 
+    await providerCall({ AWS_RELAY_URL:'https://relay.example', BAO_INTERNAL_TOKEN:'relay-secret' },
+      'gemini','gemini-3.1-pro-preview',messages,16384,null,'','summary');
+    assert.equal(requests.at(-1).body.payload.generationConfig.maxOutputTokens,16384,'16K summary budget reaches the AWS relay unchanged');
+    assert.equal(requests.at(-1).body.payload.generationConfig.thinkingConfig.thinkingLevel,'low');
+
     const anthropic = await providerCall(
       {
         ANTHROPIC_API_KEY: "anthropic-secret",

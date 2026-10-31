@@ -511,3 +511,32 @@ test('auxiliary hosted requests cannot recursively drain story memory',async()=>
    assert.equal(attempts,0);assert.equal(s.calls.length,0);
  }
 });
+
+
+test('Gemini summary has independent 16K allowance while story and other providers retain 8K',async()=>{
+ const s=build();
+ for(const [extra,expected] of [
+   [{__memoryTask:true,maxOutputTokens:16384},16384],
+   [{maxOutputTokens:16384},8192],
+   [{__stateTask:true,maxOutputTokens:16384},8192],
+   [{model:'anthropic/claude-sonnet-4.6',__memoryTask:true,maxOutputTokens:16384},8192]
+ ]) {
+   await s.api.send({...cfg,...extra},msgs);
+   assert.equal(JSON.parse(s.calls.at(-1)[1].body).max_output_tokens,expected);
+ }
+});
+
+test('hosted memory retains effective Worker budget and reasoning usage',async()=>{
+ const s=build({ok:true,status:200,body:{content:'partial',finish_reason:'MAX_TOKENS',usage:{input_tokens:100,output_tokens:1796,reasoning_tokens:1000,requested_max_output_tokens:8192,effective_max_output_tokens:1796},request_id:'budget-test'}});
+ const result=await s.api.send({...cfg,__memoryTask:true,maxOutputTokens:8192},msgs);
+ assert.equal(result.outputBudget.requested,8192);
+ assert.equal(result.outputBudget.effective,1796);
+ assert.equal(result.outputBudget.source,'hosted-worker');
+ assert.equal(result.usage.reasoning_tokens,1000);
+});
+
+test('insufficient summary reserve explains no model call and does not retry',async()=>{
+ const s=build({ok:false,status:402,body:{error:'insufficient_wallet_balance_for_summary',model_called:false}});
+ await assert.rejects(()=>s.api.send({...cfg,__memoryTask:true,maxOutputTokens:16384},msgs),/本次尚未呼叫模型/);
+ assert.equal(s.calls.length,1);
+});
