@@ -108,6 +108,13 @@ const errorCode = async response => (await response.json()).error;
     "reservation denial must stop before provider transport or settlement follow-up SQL"
   );
 
+  const geminiEnv={MODELS_JSON:JSON.stringify([{provider:'gemini',model:'gemini-3.1-pro-preview'}])};
+  const geminiSummary={provider:'gemini',model:'gemini-3.1-pro-preview',request_kind:'summary',max_output_tokens:16384,messages:requestBody.messages};
+  const fullSummaryDenied=await legacyChatRoute(new Request('https://worker.test/v1/chat',{method:'POST'}),geminiEnv,deniedDb,player,geminiSummary);
+  assert.equal(fullSummaryDenied.status,402,'16K Gemini summary reaches the legacy full-reserve check');
+  assert.equal(await errorCode(fullSummaryDenied),'insufficient_credits');
+  const chatOverCap=await legacyChatRoute(new Request('https://worker.test/v1/chat',{method:'POST'}),geminiEnv,{},player,{...geminiSummary,request_kind:'chat'});
+  assert.equal(chatOverCap.status,400,'legacy story output remains capped at 8192');
   console.log("worker legacy chat settlement core test passed");
 })().catch(error => {
   console.error(error);

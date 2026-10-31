@@ -12,7 +12,7 @@ import {
 } from "./billing-constants.js";
 
 import {
-  MAX_OUTPUT,
+  maxOutputForRequest,
   normalizeHostedSessionId,
   normalizeMessages,
 } from "./chat-input.js";
@@ -145,7 +145,7 @@ async function costUsdChatRoute(
     !integer(
       requestedMaxOutput,
       1,
-      MAX_OUTPUT
+      maxOutputForRequest(provider, kind)
     )
   ) {
     return fail(
@@ -200,6 +200,18 @@ async function costUsdChatRoute(
           0,
       }
     );
+  }
+
+  // A shortened JSON summary can consume money without producing valid memory.
+  // Reserve its full requested output or stop before creating a paid request.
+  if (kind === 'summary' && plan.effectiveMaxOutput < requestedMaxOutput) {
+    return fail('insufficient_wallet_balance_for_summary', 402, {
+      requested_max_output_tokens: requestedMaxOutput,
+      effective_max_output_tokens: plan.effectiveMaxOutput,
+      affordable_output_tokens: plan.effectiveMaxOutput,
+      wallet_balance_microusd: walletBalance,
+      model_called: false
+    });
   }
 
   const requestId =

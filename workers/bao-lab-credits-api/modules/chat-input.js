@@ -2,6 +2,8 @@
 // Keep this module independent of runtime bindings, storage, billing and providers.
 // Output limits are transport / abuse guards, not model context-window limits.
 const MAX_OUTPUT = 8192;
+// Gemini reasoning and text share this ceiling. Other task/provider limits stay unchanged.
+const maxOutputForRequest = (provider, kind) => provider === 'gemini' && kind === 'summary' ? 16384 : MAX_OUTPUT;
 const MAX_PROMPT_BYTES = 192_000;
 const MAX_MESSAGES = 100;
 const chatInputEncoder = new TextEncoder();
@@ -118,12 +120,14 @@ function normalizeHostedSessionId(
 
 const WorkerChatInput = Object.freeze({
   MAX_OUTPUT,
+  maxOutputForRequest,
   normalizeMessages,
   normalizeHostedSessionId,
 });
 
 export {
   MAX_OUTPUT,
+  maxOutputForRequest,
   WorkerChatInput,
   normalizeHostedSessionId,
   normalizeMessages,

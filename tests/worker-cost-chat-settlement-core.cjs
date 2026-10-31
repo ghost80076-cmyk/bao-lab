@@ -127,6 +127,36 @@ const errorCode = async response => (await response.json()).error;
   assert.equal(unpriced.status, 503);
   assert.equal(await errorCode(unpriced), "pricing_not_configured");
 
+  const geminiEnv = {MODELS_JSON:JSON.stringify([{provider:'gemini',model:'gemini-3.1-pro-preview',input_microusd_per_million:100000,output_microusd_per_million:200000}])};
+  let balance=500, usageWrites=0, fetches=0;
+  const budgetDb={
+    prepare(sql){
+      const q={bind(){return q;},async all(){return {results:[]};},async first(){return {balance_microusd:balance};},async run(){
+        if(sql.includes('INSERT INTO api_usage')){usageWrites++;throw new Error('REACHED_RESERVATION');}
+        return {meta:{changes:0}};
+      }};return q;
+    },async batch(queries){return Promise.all(queries.map(q=>q.run()));}
+  };
+  const geminiBody={provider:'gemini',model:'gemini-3.1-pro-preview',messages:requestBody.messages,request_kind:'summary',max_output_tokens:16384};
+  const originalFetch=globalThis.fetch;
+  globalThis.fetch=async()=>{fetches++;throw new Error('unexpected provider call');};
+  try {
+    const short=await costUsdChatRoute(request(),geminiEnv,budgetDb,enabledPlayer,geminiBody);
+    const detail=await short.json();
+    assert.equal(short.status,402);
+    assert.equal(detail.error,'insufficient_wallet_balance_for_summary');
+    assert.equal(detail.model_called,false);
+    assert.equal(detail.requested_max_output_tokens,16384);
+    assert.ok(detail.effective_max_output_tokens<16384);
+    assert.equal(usageWrites,0,'denied summary must not create a paid request');
+    assert.equal(fetches,0,'denied summary must not reach the model');
+    const overChat=await costUsdChatRoute(request(),geminiEnv,budgetDb,enabledPlayer,{...geminiBody,request_kind:'chat'});
+    assert.equal(overChat.status,400,'normal story cap remains 8192');
+    await assert.rejects(()=>costUsdChatRoute(request(),geminiEnv,budgetDb,enabledPlayer,{...geminiBody,request_kind:'chat',max_output_tokens:8192}),/REACHED_RESERVATION/,'ordinary chat retains its partial-affordability policy');
+    balance=100000;
+    await assert.rejects(()=>costUsdChatRoute(request(),geminiEnv,budgetDb,enabledPlayer,geminiBody),/REACHED_RESERVATION/,'fully funded 16K Gemini summary passes validation');
+  } finally {globalThis.fetch=originalFetch;}
+
   console.log("worker USD chat settlement core test passed");
 })().catch(error => {
   console.error(error);

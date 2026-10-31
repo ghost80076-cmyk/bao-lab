@@ -35,11 +35,16 @@ assert.match(
 (async () => {
   const {
     WorkerChatInput,
+    maxOutputForRequest,
     normalizeMessages,
     normalizeHostedSessionId,
   } = await import(pathToFileURL(modulePath).href);
 
   assert.equal(WorkerChatInput.normalizeMessages, normalizeMessages);
+  assert.equal(maxOutputForRequest('gemini','summary'),16384);
+  assert.equal(maxOutputForRequest('gemini','chat'),8192);
+  assert.equal(maxOutputForRequest('gemini','status'),8192);
+  assert.equal(maxOutputForRequest('openrouter','summary'),8192);
   assert.equal(
     WorkerChatInput.normalizeHostedSessionId,
     normalizeHostedSessionId

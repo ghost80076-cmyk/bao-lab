@@ -1,7 +1,7 @@
 // Pure hosted-model allowlist, pricing and reservation calculations.
 // Keep this module independent of storage, sessions, HTTP and provider transport.
 const DEFAULT_PRICING_VERSION = "2026-09-25-v1";
-const MODEL_PRICING_MAX_OUTPUT = 8192;
+const MODEL_PRICING_MAX_OUTPUT = 16384;
 const MODEL_PRICING_MIN_AFFORDABLE_OUTPUT_TOKENS = 64;
 
 const modelPricingSafeInt = (n) =>

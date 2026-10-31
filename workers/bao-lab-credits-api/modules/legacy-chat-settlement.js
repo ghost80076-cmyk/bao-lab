@@ -5,7 +5,7 @@ import {
 } from "./billing-constants.js";
 
 import {
-  MAX_OUTPUT,
+  maxOutputForRequest,
   normalizeHostedSessionId,
   normalizeMessages,
 } from "./chat-input.js";
@@ -124,7 +124,7 @@ async function legacyChatRoute(
     !integer(
       maxOutput,
       1,
-      MAX_OUTPUT
+      maxOutputForRequest(provider, kind)
     )
   ) {
     return fail(
@@ -723,6 +723,8 @@ async function legacyChatRoute(
     finish_reason: result.finishReason || null,
 
     usage: {
+      requested_max_output_tokens: maxOutput,
+      effective_max_output_tokens: maxOutput,
       input_tokens:
         verified
           ? stored.input
