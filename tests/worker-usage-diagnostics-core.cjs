@@ -74,6 +74,12 @@ assert.match(adminHtml, /rate_limit_scope/);
       request_bytes: 12345,
       elapsed_ms: 170000,
       timeout_ms: 170000,
+      finish_reason: null,
+      prompt_block_reason: null,
+      response_shape: null,
+      candidate_count: null,
+      observed_input_tokens: null,
+      observed_output_tokens: null,
     }
   );
 
@@ -101,12 +107,30 @@ assert.match(adminHtml, /rate_limit_scope/);
   assert.equal(sanitized.request_bytes, null);
   assert.equal(sanitized.elapsed_ms, null);
   assert.equal(sanitized.timeout_ms, null);
+  assert.equal(sanitized.finish_reason, null);
+  assert.equal(sanitized.response_shape, null);
+  assert.equal(sanitized.observed_output_tokens, null);
+  const empty = normalizeUsageDiagnostic("provider_empty_text", {
+    finishReason: "MAX_TOKENS", promptBlockReason: "SAFETY",
+    responseShape: "thought_only", candidateCount: 1, input: 128, output: 64,
+    rawProviderResponse: "never persist",
+  });
+  assert.equal(empty.finish_reason, "MAX_TOKENS");
+  assert.equal(empty.prompt_block_reason, "SAFETY");
+  assert.equal(empty.response_shape, "thought_only");
+  assert.equal(empty.candidate_count, 1);
+  assert.equal(empty.observed_input_tokens, 128);
+  assert.equal(empty.observed_output_tokens, 64);
 
   const queries = [];
   const binds = [];
   const db = {
     prepare(sql) {
       queries.push(sql);
+      if (/PRAGMA table_info\(api_usage_diagnostics\)/.test(sql)) {
+        // Simulate an existing D1 table from before the additive columns.
+        return { all: async () => ({ results: [{ name: "request_id" }] }) };
+      }
       return {
         bind(...values) {
           binds.push(values);
@@ -138,9 +162,11 @@ assert.match(adminHtml, /rate_limit_scope/);
     ),
     true
   );
-  assert.equal(queries.length, 2);
+  assert.equal(queries.length, 9, "old D1 tables get six additive migrations");
   assert.match(queries[0], /CREATE TABLE IF NOT EXISTS api_usage_diagnostics/);
-  assert.match(queries[1], /INSERT INTO api_usage_diagnostics/);
+  assert.match(queries[1], /PRAGMA table_info/);
+  assert.equal(queries.filter(q => /ALTER TABLE api_usage_diagnostics ADD COLUMN/.test(q)).length, 6);
+  assert.match(queries[8], /INSERT INTO api_usage_diagnostics/);
   assert.deepEqual(
     binds[0],
     [
@@ -153,6 +179,12 @@ assert.match(adminHtml, /rate_limit_scope/);
       "unknown",
       null,
       4567,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
       null,
       null,
     ]

@@ -10,7 +10,22 @@ const TRANSPORT_FAILURES = new Set([
   "network",
 ]);
 
+const RESPONSE_SHAPES = new Set([
+  "no_candidates", "no_parts", "empty_parts",
+  "thought_only", "no_text_parts", "blank_text",
+]);
+const EXTRA_COLUMNS = Object.freeze({
+  finish_reason: "TEXT",
+  prompt_block_reason: "TEXT",
+  response_shape: "TEXT",
+  candidate_count: "INTEGER",
+  observed_input_tokens: "INTEGER",
+  observed_output_tokens: "INTEGER",
+});
+const ensuredDatabases = new WeakSet();
+
 function boundedInteger(value, minimum, maximum) {
+  if (value === null || value === undefined || value === "") return null;
   const number = Number(value);
   return Number.isInteger(number) &&
     number >= minimum &&
@@ -122,12 +137,20 @@ function normalizeUsageDiagnostic(
         1,
         600_000
       ),
+
+    finish_reason: safeCode(result.finishReason, /^[A-Z][A-Z0-9_]*$/, 32),
+    prompt_block_reason: safeCode(result.promptBlockReason, /^[A-Z][A-Z0-9_]*$/, 32),
+    response_shape: RESPONSE_SHAPES.has(result.responseShape) ? result.responseShape : null,
+    candidate_count: boundedInteger(result.candidateCount, 0, 100),
+    observed_input_tokens: boundedInteger(result.input, 0, 1_000_000_000),
+    observed_output_tokens: boundedInteger(result.output, 0, 1_000_000_000),
   };
 }
 
 async function ensureUsageDiagnostics(
   db
 ) {
+  if (ensuredDatabases.has(db)) return;
   await db
     .prepare(
       `
@@ -143,12 +166,34 @@ async function ensureUsageDiagnostics(
         request_bytes INTEGER,
         elapsed_ms INTEGER,
         timeout_ms INTEGER,
+        finish_reason TEXT,
+        prompt_block_reason TEXT,
+        response_shape TEXT,
+        candidate_count INTEGER,
+        observed_input_tokens INTEGER,
+        observed_output_tokens INTEGER,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
       )
       `
     )
     .run();
+
+  // Existing D1 databases predate these columns. Add them in place without
+  // overwriting prior request logs; this runs once per binding instance.
+  const existing = await db.prepare("PRAGMA table_info(api_usage_diagnostics)").all();
+  if (!Array.isArray(existing?.results)) throw new Error("usage diagnostics schema cannot be inspected");
+  const known = new Set(existing.results.map((column) => column.name));
+  for (const [name, type] of Object.entries(EXTRA_COLUMNS)) {
+    if (known.has(name)) continue;
+    try {
+      await db.prepare(`ALTER TABLE api_usage_diagnostics ADD COLUMN ${name} ${type}`).run();
+    } catch (error) {
+      // A concurrent request may have migrated the column after our PRAGMA.
+      if (!/duplicate column name/i.test(String(error?.message || error))) throw error;
+    }
+  }
+  ensuredDatabases.add(db);
 }
 
 async function recordUsageFailure(
@@ -182,11 +227,17 @@ async function recordUsageFailure(
           retry_after_seconds,
           request_bytes,
           elapsed_ms,
-          timeout_ms
+          timeout_ms,
+          finish_reason,
+          prompt_block_reason,
+          response_shape,
+          candidate_count,
+          observed_input_tokens,
+          observed_output_tokens
         )
 
         VALUES (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
 
         ON CONFLICT(request_id) DO UPDATE SET
@@ -200,6 +251,12 @@ async function recordUsageFailure(
           request_bytes = excluded.request_bytes,
           elapsed_ms = excluded.elapsed_ms,
           timeout_ms = excluded.timeout_ms,
+          finish_reason = excluded.finish_reason,
+          prompt_block_reason = excluded.prompt_block_reason,
+          response_shape = excluded.response_shape,
+          candidate_count = excluded.candidate_count,
+          observed_input_tokens = excluded.observed_input_tokens,
+          observed_output_tokens = excluded.observed_output_tokens,
           updated_at = CURRENT_TIMESTAMP
         `
       )
@@ -214,7 +271,13 @@ async function recordUsageFailure(
         diagnostic.retry_after_seconds,
         diagnostic.request_bytes,
         diagnostic.elapsed_ms,
-        diagnostic.timeout_ms
+        diagnostic.timeout_ms,
+        diagnostic.finish_reason,
+        diagnostic.prompt_block_reason,
+        diagnostic.response_shape,
+        diagnostic.candidate_count,
+        diagnostic.observed_input_tokens,
+        diagnostic.observed_output_tokens
       )
       .run();
 

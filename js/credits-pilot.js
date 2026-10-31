@@ -216,6 +216,9 @@
   const emptyTextMessage = (name, data) => {
     const reason = String(data?.finish_reason || "").trim().toUpperCase();
     const blockedStage = providerBlockedStage(data);
+    if (data?.response_shape === "thought_only") {
+      return `${name} 僅回傳思考內容、沒有可顯示正文（原因：${reason || '未提供'}）。請回報診斷編號，並可在記憶設定改用其他整理模型；不要連續重送相同請求。`;
+    }
     if (reason === "MAX_TOKENS" || reason === "LENGTH") {
       return `${name} 未產生文字（原因：${reason}）。本次輸出預算可能不足，請提高「回覆輸出上限」後重試。`;
     }
@@ -228,8 +231,11 @@
       }
       return `${name} 在供應商端停止本次生成（原因：${reason}）。可重新生成或調整本次內容。`;
     }
+    if (data?.response_shape === "no_candidates") {
+      return `${name} 的上游回應沒有候選文字（原因：${reason || "未提供"}）。請回報診斷編號；這不代表已超過上下文上限。`;
+    }
     if (reason) {
-      return `${name} 已回應，但沒有可顯示文字（原因：${reason}）。請先重新生成；若持續發生，再回報診斷編號。`;
+      return `${name} 已回應，但沒有可顯示文字（原因：${reason}）。若持續發生，請回報診斷編號。`;
     }
     return `${name} 已回應，但沒有可顯示文字。請先重新生成；若持續發生，再回報診斷編號。`;
   };
@@ -469,7 +475,18 @@
             timeoutMs ? `截止：${(timeoutMs / 1000).toFixed(0)} 秒` : ''
           ].filter(Boolean).join('；')}）`
         : '';
-      const upstreamError = new Error(`${detail}${transportDiagnostic}${sizeDiagnostic}${rateDiagnostic}${googleStatus}${diagnosticId}`);
+      const isUpstreamServerError = data?.error === 'provider_http_error' &&
+        Number(data?.upstream_http_status) >= 500;
+      const upstreamTiming = isUpstreamServerError
+        ? `（${[
+            routeLabel ? `路徑：${routeLabel}` : '',
+            requestBytes ? `送出大小：約 ${(requestBytes / 1024).toFixed(1)} KB` : '',
+            Number.isInteger(data?.elapsed_ms) && data.elapsed_ms >= 0
+              ? `約 ${(data.elapsed_ms / 1000).toFixed(1)} 秒後收到 HTTP 錯誤` : '',
+            timeoutMs ? `Worker 逾時設定：${(timeoutMs / 1000).toFixed(0)} 秒` : ''
+          ].filter(Boolean).join('；')}）`
+        : '';
+      const upstreamError = new Error(`${detail}${upstreamTiming}${transportDiagnostic}${sizeDiagnostic}${rateDiagnostic}${googleStatus}${diagnosticId}`);
       const finishReason = String(data?.finish_reason || "").trim().toUpperCase();
       if (data?.error === "provider_empty_text" && providerBlockReasons.has(finishReason)) {
         upstreamError.code = "BAO_PROVIDER_BLOCKED";

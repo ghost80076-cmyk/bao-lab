@@ -539,7 +539,13 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     if(row.retry_after_seconds!=null) parts.push("retry "+String(row.retry_after_seconds)+"s");
     if(row.elapsed_ms!=null) parts.push("elapsed "+String(row.elapsed_ms)+"ms");
     if(row.timeout_ms!=null) parts.push("timeout "+String(row.timeout_ms)+"ms");
-    if(row.request_bytes!=null) parts.push(String(row.request_bytes)+" bytes");
+    if(row.request_bytes!=null) parts.push("請求 "+String(row.request_bytes)+" bytes");
+    if(row.finish_reason) parts.push("結束 "+String(row.finish_reason));
+    if(row.prompt_block_reason) parts.push("阻擋 "+String(row.prompt_block_reason));
+    if(row.response_shape) parts.push("回覆形態 "+String(row.response_shape));
+    if(row.candidate_count!=null) parts.push("候選 "+String(row.candidate_count));
+    if(row.observed_input_tokens!=null) parts.push("上游回報輸入 "+String(row.observed_input_tokens));
+    if(row.observed_output_tokens!=null) parts.push("上游回報輸出 "+String(row.observed_output_tokens));
     return parts.length?parts.join(" · "):"—";
   }
   function renderUsage(){

@@ -1460,12 +1460,10 @@ const WorkerProviderTransport = (() => {
           rateLimit
             ?.scope,
 
-        retryAfterSeconds:
-          rateLimit
-            ?.retryAfterSeconds,
-  
+        retryAfterSeconds: rateLimit?.retryAfterSeconds,
         route,
         requestBytes,
+        transportTimeoutMs,
       };
     }
   
@@ -1720,20 +1718,32 @@ const WorkerProviderTransport = (() => {
       };
     }
   
-    const text =
-      data.candidates?.[0]
-        ?.content
-        ?.parts
-        ?.filter(
-          (p) =>
-            typeof p.text ===
-              "string"
-        )
-        .map(
-          (p) =>
-            p.text
-        )
-        .join("");
+    // Only visible model text is user content; thought parts are not displayable.
+    // A 200 response with no candidate/only thoughts is a distinct diagnostic.
+    const candidates = Array.isArray(data.candidates) ? data.candidates : [];
+    const candidate = candidates[0] || null;
+    const parts = Array.isArray(candidate?.content?.parts) ? candidate.content.parts : [];
+    const visibleParts = parts.filter((part) =>
+      typeof part?.text === "string" && part.thought !== true
+    );
+    const text = visibleParts.map((part) => part.text).join("");
+    const candidateFinishReason = String(candidate?.finishReason || "")
+      .replace(/[^A-Z_]/g, "").slice(0, 32);
+    const promptBlockReason = String(data.promptFeedback?.blockReason || "")
+      .replace(/[^A-Z_]/g, "").slice(0, 32);
+    const responseShape = candidates.length === 0
+      ? "no_candidates"
+      : !Array.isArray(candidate?.content?.parts)
+        ? "no_parts"
+        : parts.length === 0
+          ? "empty_parts"
+          : parts.every((part) => part?.thought === true)
+            ? "thought_only"
+            : visibleParts.length === 0
+              ? "no_text_parts"
+              : !text.trim()
+                ? "blank_text"
+                : "visible_text";
   
     const usage =
       data.usageMetadata ||
@@ -1814,25 +1824,19 @@ const WorkerProviderTransport = (() => {
       providerCost:
         null,
   
-      category:
-        "provider_empty_text",
-  
-      finishReason:
-        String(
-          data.candidates?.[0]
-            ?.finishReason ||
-          data.promptFeedback
-            ?.blockReason ||
-          ""
-        )
-          .replace(
-            /[^A-Z_]/g,
-            ""
-          )
-          .slice(
-            0,
-            32
-          ),
+      category: "provider_empty_text",
+      requestBytes,
+      transportTimeoutMs,
+      responseShape,
+      candidateCount: candidates.length,
+      candidateFinishReason,
+      promptBlockReason,
+      blockedStage: /^(SAFETY|BLOCKLIST|PROHIBITED_CONTENT|SPII|IMAGE_SAFETY|CONTENT_FILTER)$/.test(candidateFinishReason)
+        ? "output"
+        : promptBlockReason
+          ? "input"
+          : null,
+      finishReason: candidateFinishReason || promptBlockReason,
     };
   }
   
@@ -1938,13 +1942,32 @@ const WorkerProviderTransport = (() => {
           .retryAfterSeconds;
     }
   
-    if (
-      result
-        .finishReason
-    ) {
-      extra.finish_reason =
-        result
-          .finishReason;
+    if (result.finishReason) {
+      extra.finish_reason = result.finishReason;
+    }
+    if (Number.isInteger(result.elapsedMs) && result.elapsedMs >= 0 && result.elapsedMs <= 600_000) {
+      extra.elapsed_ms = result.elapsedMs;
+    }
+    if (Number.isInteger(result.transportTimeoutMs) && result.transportTimeoutMs > 0 && result.transportTimeoutMs <= 600_000) {
+      extra.timeout_ms = result.transportTimeoutMs;
+    }
+    if (["no_candidates", "no_parts", "empty_parts", "thought_only", "no_text_parts", "blank_text"].includes(result.responseShape)) {
+      extra.response_shape = result.responseShape;
+    }
+    if (Number.isInteger(result.candidateCount) && result.candidateCount >= 0 && result.candidateCount <= 100) {
+      extra.candidate_count = result.candidateCount;
+    }
+    if (result.promptBlockReason) {
+      extra.prompt_block_reason = result.promptBlockReason;
+    }
+    if (["input", "output"].includes(result.blockedStage)) {
+      extra.blocked_stage = result.blockedStage;
+    }
+    if (Number.isInteger(result.input) && result.input >= 0 && result.input <= 1e9) {
+      extra.observed_input_tokens = result.input;
+    }
+    if (Number.isInteger(result.output) && result.output >= 0 && result.output <= 1e9) {
+      extra.observed_output_tokens = result.output;
     }
   
     return fail(

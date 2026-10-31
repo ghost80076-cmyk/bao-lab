@@ -4,6 +4,12 @@ const vm = require('node:vm');
 const fs = require('node:fs');
 const path = require('node:path');
 const code = fs.readFileSync(path.join(__dirname, '../js/credits-pilot.js'), 'utf8');
+const siteLoader = fs.readFileSync(path.join(__dirname, '../js/site-ui.js'), 'utf8');
+const siteHtml = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8');
+assert.match(siteLoader, /loadBAOScript\("js\/credits-pilot\.js\?v=1"\)/,
+  "Hosted credits must actually load before relying on its production error handler");
+assert.match(siteHtml, /js\/site-ui\.js\?v=166/,
+  "the page must load the updated lazy loader after release");
 const registry = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/presets/models.json'), 'utf8'));
 function build(response={ok:true,status:200,body:{content:'測試成功',usage:{input_tokens:10,output_tokens:6,charged_credits:1}}}) {
   const calls=[]; const options=[];
@@ -237,9 +243,13 @@ test('propagates quota and provider-specific upstream errors without exposing pl
    assert.match(error.message,/診斷編號/);
    return true;
  });
- const upstream500=build({ok:false,status:502,body:{error:'provider_http_error',upstream_http_status:500,request_id:'610dc846-559c-4273-9ac2-e251a7db0971'}});
+ const upstream500=build({ok:false,status:502,body:{error:'provider_http_error',upstream_http_status:500,request_id:'610dc846-559c-4273-9ac2-e251a7db0971',route:'aws_relay',request_bytes:111469,elapsed_ms:65944,timeout_ms:170000}});
  await assert.rejects(()=>upstream500.api.send(cfg,msgs),error=>{
    assert.match(error.message,/夜灣連線鏈路暫時異常（HTTP 500）/);
+   assert.match(error.message,/夜灣 AWS 中繼/);
+   assert.match(error.message,/108\.9 KB/);
+   assert.match(error.message,/65\.9 秒後收到 HTTP 錯誤/);
+   assert.match(error.message,/Worker 逾時設定：170 秒/);
    assert.doesNotMatch(error.message,/Google Gemini 拒絕本次請求/);
    assert.match(error.message,/診斷編號/);
    return true;
@@ -250,6 +260,15 @@ test('propagates quota and provider-specific upstream errors without exposing pl
  await assert.rejects(()=>empty.api.send(cfg,msgs),error=>{
    assert.match(error.message,/MAX_TOKENS/);
    assert.match(error.message,/提高「回覆輸出上限」/);
+   return true;
+ });
+ const noCandidates=build({ok:false,status:502,body:{error:'provider_empty_text',response_shape:'no_candidates'}});
+ await assert.rejects(()=>noCandidates.api.send(cfg,msgs),/沒有候選文字/);
+ const thinkingOnly=build({ok:false,status:502,body:{error:'provider_empty_text',response_shape:'thought_only',finish_reason:'MAX_TOKENS'}});
+ await assert.rejects(()=>thinkingOnly.api.send(cfg,msgs),error=>{
+   assert.match(error.message,/僅回傳思考內容/);
+   assert.match(error.message,/MAX_TOKENS/);
+   assert.doesNotMatch(error.message,/提高「回覆輸出上限」/);
    return true;
  });
  const safety=build({ok:false,status:502,body:{error:'provider_empty_text',finish_reason:'SAFETY'}});
