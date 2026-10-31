@@ -9,6 +9,7 @@ global.GameState = { current: null, applyUpdate(data) { Object.assign(this.curre
 global.BAOCharacterStatus = { configFor: () => ({ fields: [{ key: 'activity', track: true }] }) };
 global.WorldStateEngine = { enabled: () => true, update: async () => ({}), parse: JSON.parse };
 vm.runInThisContext(fs.readFileSync('js/helper-data.js', 'utf8'));
+vm.runInThisContext(fs.readFileSync('js/story-maintenance-lock.js', 'utf8'));
 vm.runInThisContext(fs.readFileSync('js/world-state-cost.js', 'utf8'));
 const initial = () => ({ time: '02:16', location: '公寓', npcs: [{ npc_id: 'npc-1', name: '小夏', location: '公寓', presence: 'present', portrait: 'keep.png' }], characterStatuses: { 小夏: { activity: '等在公寓', manual: 'keep' } }, pendingStateTurns: [{ player: '舊', assistant: '舊' }], events: ['保留歷史'], modules: { inventory: ['keep'] } });
 const reply = () => ({ text: JSON.stringify({ time: '03:00', location: '醫院', npcs: [{ npc_id: 'npc-1', name: '小夏', location: '醫院', presence: 'present' }], character_statuses: { 小夏: { activity: '掛號' } } }) });
@@ -326,6 +327,36 @@ global.API = { send: async (config, messages) => { prompt = messages[1].content;
     return reply();
   };
   await WorldStateEngine.rebuild(same);
+
+  // Explicit incomplete helper routes cannot leak requests into the story
+  // model. Pending story evidence remains untouched for subsequent repair.
+  const incomplete = { ...same, cost: { stateApiMode: 'separate',
+    stateApi: { model: '', baseUrl: '' } } };
+  App.config = incomplete;
+  GameState.current = initial();
+  let sent = 0;
+  API.send = async () => { sent++; return reply(); };
+  await assert.rejects(WorldStateEngine.rebuild(incomplete), /尚未設定完整/);
+  GameState.current.pendingStateTurns = pending76.slice(0, 4);
+  await assert.rejects(WorldStateEngine.recoverPending(incomplete), /尚未設定完整/);
+  assert.equal(sent, 0);
+  assert.equal(GameState.current.pendingStateTurns.length, 4);
+  incomplete.cost.stateInterval = 1;
+  await WorldStateEngine.update(incomplete, '新一輪', '故事');
+  assert.equal(sent, 0);
+  assert.equal(GameState.current.pendingStateTurns.length, 5);
+  assert.match(GameState.current.stateTracker.message, /尚未設定完整/);
+
+  // Simulate the full memory recovery owning this story. No paid state
+  // rebuilding or scanning may start concurrently, but no queue is cleared.
+  App.config = same;
+  assert.equal(BAOStoryMaintenanceLock.start(GameState.current), true);
+  await assert.rejects(WorldStateEngine.rebuild(same), /正在執行/);
+  await assert.rejects(WorldStateEngine.recoverPending(same), /正在執行/);
+  assert.equal(sent, 0);
+  assert.equal(GameState.current.pendingStateTurns.length, 5);
+  BAOStoryMaintenanceLock.end(GameState.current);
+  assert.equal(BAOStoryMaintenanceLock.has(GameState.current), false);
 
   console.log('world state rebuild core tests passed');
 })().catch(e => { console.error(e); process.exitCode = 1; });

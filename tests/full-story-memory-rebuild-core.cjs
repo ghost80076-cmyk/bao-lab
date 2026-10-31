@@ -58,10 +58,22 @@ global.API={send:async (cfg, messages) => {
   assert(prompt.includes('【已按時間排序的分段整理】'));
   return {text:JSON.stringify({events:['最新已驗證摘要'],knownFacts:[],relationships:[],openThreads:[]}),finishReason:'STOP'};
 }};
+vm.runInThisContext(fs.readFileSync(require('node:path').join(__dirname,'../js/story-maintenance-lock.js'),'utf8'));
 vm.runInThisContext(fs.readFileSync(require('node:path').join(__dirname,'../js/full-story-memory-rebuild.js'),'utf8'));
 const service=global.BAOFullStoryMemoryRebuild;
 (async () => {
+  const owner = GameState.current;
+  assert.equal(BAOStoryMaintenanceLock.start(owner), true);
+  await assert.rejects(service.run(20), /正在執行/);
+  assert.equal(calls, 0, 'a busy story must not consume a paid request');
+  BAOStoryMaintenanceLock.end(owner);
+  const originalSend = API.send;
+  API.send = async (...args) => {
+    assert.equal(BAOStoryMaintenanceLock.has(owner), true, 'maintenance owns this story during each paid call');
+    return originalSend(...args);
+  };
   await assert.rejects(service.run(20), /阻擋/);
+  assert.equal(BAOStoryMaintenanceLock.has(owner), false, 'blocked provider releases the maintenance guard');
   const paused=service.getDisplayJob();
   assert.equal(paused.job.cursor,20);
   assert.equal(Chat.summary,'OLD_OFFICIAL');

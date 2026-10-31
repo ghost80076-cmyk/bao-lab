@@ -6,6 +6,13 @@ const root = path.join(__dirname, "..");
 const read = file => fs.readFileSync(path.join(root, file), "utf8");
 const index = read("index.html");
 const siteUI = read("js/site-ui.js");
+const adminHTML = read("admin-wallet.html");
+const memoryWorkbenchSource = read("js/memory-workbench-core.js");
+assert(adminHTML.includes('src="js/character.js?v=12"'));
+assert(adminHTML.includes('src="js/admin-character-publish.js?v=4"'));
+assert(memoryWorkbenchSource.includes('data-summary-mode-notice'));
+assert(siteUI.includes('js/world-state-cost.js?v=11'));
+assert(siteUI.includes('js/full-story-memory-rebuild.js?v=2'));
 const appSource = read("js/app.js");
 const bridge = read("js/global-bridge.js");
 const helper = read("js/helper-api-routing.js");
@@ -45,6 +52,7 @@ increasing(index, [
   'src="js/character.js?v=11"',
   'src="js/app.js',
   'src="js/chat-markup.js?v=6"',
+  'src="js/story-maintenance-lock.js?v=1"',
   'src="js/site-ui.js'
 ], "core script");
 

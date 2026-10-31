@@ -5,12 +5,21 @@
   const originalUpdate = WorldStateEngine.update.bind(WorldStateEngine);
   let persistenceHint = false;
   const activeOwners = new WeakSet();
+  const beginMaintenance = owner => {
+    const guard = window.BAOStoryMaintenanceLock;
+    if (!guard) return () => {};
+    if (!guard.start(owner)) return null;
+    return () => guard.end(owner);
+  };
   // The configured state helper is a complete API route, not merely a model
   // override on the story provider. Explicit "same" ignores stale helper data.
   const stateApiFor = config => {
     const helper = config?.cost?.stateApi;
-    return String(config?.cost?.stateApiMode || '').trim() !== 'same'
-      && helper?.model && helper?.baseUrl ? helper : config?.api;
+    const mode = String(config?.cost?.stateApiMode || '').trim();
+    if (mode === 'same') return config?.api;
+    if (mode === 'separate' && (!helper?.model || !helper?.baseUrl))
+      throw new Error('獨立狀態模型尚未設定完整，請重新選擇模型與連線網址。');
+    return helper?.model && helper?.baseUrl ? helper : config?.api;
   };
   const prepareStateApi = config => {
     const route = stateApiFor(config);
@@ -194,6 +203,8 @@
       recoveredFacts ? `【已逐批核對的待補歷史：按輪次排序，不能壓過較新的原文】\n${recoveredFacts}` : '',
       `【近期原始故事：優先依據】\n${recent}`
     ].filter(Boolean).join('\n\n');
+    const endMaintenance = beginMaintenance(owner);
+    if (!endMaintenance) throw new Error('另一項記憶或狀態重建正在執行。');
     activeOwners.add(owner);
     report(owner, 'updating', mode === 'deep' ? '正在深度重建目前狀態…' : '正在從近期故事重新整理狀態…');
     try {
@@ -298,7 +309,10 @@
     } catch (error) {
       if (GameState.current === owner) report(owner, 'failed', String(error?.message || '狀態重建失敗，已保留原資料。'));
       throw error;
-    } finally { activeOwners.delete(owner); }
+    } finally {
+      activeOwners.delete(owner);
+      endMaintenance();
+    }
   };
 
   // Scan old pending turns into a private checkpoint without touching current
@@ -325,6 +339,8 @@
   WorldStateEngine.resetPendingRecovery = async function() {
     const owner = GameState.current;
     if (!owner || activeOwners.has(owner)) throw new Error('狀態整理正在執行，無法重設掃描紀錄。');
+    const endMaintenance = beginMaintenance(owner);
+    if (!endMaintenance) throw new Error('另一項記憶或狀態重建正在執行。');
     const before = clone(owner.stateRecovery);
     owner.stateRecovery = null;
     try {
@@ -335,7 +351,7 @@
     } catch (error) {
       owner.stateRecovery = before;
       throw new Error('無法儲存重設結果；舊掃描紀錄已保留。');
-    }
+    } finally { endMaintenance(); }
     return recoveryStatus(owner);
   };
   WorldStateEngine.recoverPending = async function(config) {
@@ -349,6 +365,8 @@
     if (baseline.ready) return baseline;
     const api = prepareStateApi(config);
     const configSignature = JSON.stringify(config);
+    const endMaintenance = beginMaintenance(owner);
+    if (!endMaintenance) throw new Error('另一項記憶或狀態重建正在執行。');
     activeOwners.add(owner);
     try {
       for (let request = 0; request < 4; request++) {
@@ -409,6 +427,7 @@
       throw error;
     } finally {
       activeOwners.delete(owner);
+      endMaintenance();
     }
   };
 
@@ -444,7 +463,13 @@
       report(owner, "waiting", `${scenePatch ? '已同步回覆明示的時間／地點；' : ''}已累積 ${pending.length}／${interval} 輪。繼續故事即可，系統會在達到整理回合時自動更新。`);
       return scenePatch;
     }
-    const selectedApi = stateApiFor(config);
+    let selectedApi;
+    try { selectedApi = stateApiFor(config); }
+    catch (error) {
+      noteRequest('route-invalid');
+      report(owner, 'failed', String(error.message || error));
+      return scenePatch;
+    }
     window.BAOCreditsPilot?.prepareAccountConfig?.(selectedApi);
     if (!selectedApi?.key && !window.BAOCreditsPilot?.isAccountReady?.(selectedApi)) {
       noteRequest('not-connected');
@@ -468,6 +493,12 @@
     };
     const combinedPlayer = batch.map((turn, index) => `第 ${index + 1} 輪：${turn.player}`).join("\n\n");
     const combinedAssistant = batch.map((turn, index) => `第 ${index + 1} 輪：${turn.assistant}`).join("\n\n");
+    const endMaintenance = beginMaintenance(owner);
+    if (!endMaintenance) {
+      noteRequest("busy");
+      report(owner, "waiting", "另一項記憶或狀態重建正在執行，本輪已保存待補佇列。");
+      return scenePatch;
+    }
     report(owner, "updating", `正在整理 ${batch.length} 輪${pending.length > batch.length ? `（其餘 ${pending.length - batch.length} 輪排隊）` : ""}，完成後會自動套用最新狀態。`);
     const dispatchedSceneRevision = explicitSceneVersions.get(owner)?.revision || 0;
     activeOwners.add(owner);
@@ -522,6 +553,7 @@
       return scenePatch;
     } finally {
       activeOwners.delete(owner);
+      endMaintenance();
     }
   };
 

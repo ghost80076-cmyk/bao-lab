@@ -55,6 +55,27 @@ for (const [format, input] of [['native', card], ['flat', engine.normalize(card)
   sameCapabilities(prepared.card, format + ' worker publication', true);
   assert.equal(prepared.card.asset_manifest, undefined, 'an empty asset manifest is omitted by the publication Worker');
 }
+// Admin import form displays credits from both flat and native cards.
+const fillBody = adminSource.slice(adminSource.indexOf('  function fillForm('), adminSource.indexOf('  async function parseSelectedFile('));
+function formFor(input) {
+  const fields = Object.create(null);
+  const getElement = name => fields[name] ||= { value: '', textContent: '' };
+  const state = {};
+  const fill = new Function('engine', 'state', String.fromCharCode(36),
+    fillBody + ';return fillForm;')(engine, state, getElement);
+  fill(input, 'JSON');
+  return fields;
+}
+const flatCredit = formFor({id: 'flat-credit', name: '測試', author: '作者甲', author_id: 'credit-one'});
+assert.equal(flatCredit['publish-author'].value, '作者甲');
+assert.equal(flatCredit['publish-author-id'].value, 'credit-one');
+const nativeCredit = formFor({meta: {id: 'native-credit', name: '測試', author: '作者乙', author_id: 'credit-two'}});
+assert.equal(nativeCredit['publish-author'].value, '作者乙');
+assert.equal(nativeCredit['publish-author-id'].value, 'credit-two');
+const unsigned = formFor({id: 'unsigned', name: '測試'});
+assert.equal(unsigned['publish-author'].value, '');
+assert.equal(unsigned['publish-author-id'].value, '');
+
 assert.equal(JSON.stringify(card), original, 'roundtrip must not mutate the source');
 const empty = studioExport({id: 'empty', name: 'Empty', greeting: 'Hi', system_prompt: 'Setting'});
 for (const key of ['story_startup', 'actor_mode', 'timeline_policy']) assert.equal(empty.gameplay[key], undefined);

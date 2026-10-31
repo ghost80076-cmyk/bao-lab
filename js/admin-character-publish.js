@@ -428,8 +428,12 @@
     if ($("publish-rating")) $("publish-rating").value = c.rating === "adult" ? "adult" : "general";
     $("publish-description").value = c.description || "";
     $("publish-tags").value = (c.tags || []).join(", ");
-    $("publish-author-id").value = String(state.sourceCard?.meta?.creator_id || "").trim().toLowerCase();
-    $("publish-author").value = c.import_metadata?.creator || state.sourceCard?.meta?.creator || "";
+    // Display exactly the attribution that buildCard() will preserve, for
+    // both native and flat cards. A reviewer can still edit the form.
+    $("publish-author-id").value = String(c.creator_id || c.author_id || state.sourceCard?.meta?.creator_id ||
+      state.sourceCard?.meta?.author_id || "").trim().toLowerCase();
+    $("publish-author").value = String(c.creator || c.author || c.import_metadata?.creator ||
+      state.sourceCard?.meta?.creator || state.sourceCard?.meta?.author || "").trim();
     $("publish-author-bio").value = "";
     $("publish-author-support-label").value = "支持作者";
     $("publish-author-support-url").value = "";

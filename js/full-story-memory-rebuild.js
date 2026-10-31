@@ -110,14 +110,16 @@
     if (saved && saved.routeId !== routeId(cfg)) throw new Error('整理模型已變更；為避免不同模型的中間稿混用，請先重設草稿。');
     if (saved && saved.plan.keepRounds !== Number(keepRounds)) throw new Error('近期保留輪數已改變，請先重設重建草稿。');
     const job = saved || makeJob(Number(keepRounds), cfg);
-    if (fresh) await persist(owner, saved, job);
-    const planned = source(job);
-    const isCurrent = () => story() === owner && App.config === config &&
-      owner.fullMemoryRebuild === job && !Chat.summarizing &&
-      (() => { try { source(job); return true; } catch { return false; } })();
+    const guard = window.BAOStoryMaintenanceLock;
+    if (guard && !guard.start(owner)) throw new Error('另一項記憶或狀態重建正在執行。');
     busy.add(owner);
     let active = job, calls = 0;
     try {
+      if (fresh) await persist(owner, saved, job);
+      const planned = source(job);
+      const isCurrent = () => story() === owner && App.config === config &&
+        owner.fullMemoryRebuild === job && !Chat.summarizing &&
+        (() => { try { source(job); return true; } catch { return false; } })();
       while (calls < 4 && active.stage !== 'ready') {
         if (!isCurrent() && owner.fullMemoryRebuild !== active) throw new Error('重建作業被更換，停止使用舊回覆。');
         const stable = () => story() === owner && App.config === config && owner.fullMemoryRebuild === active &&
@@ -171,13 +173,19 @@
       onProgress(active.stage === 'ready' ? '草稿完成，請預覽並確認套用' :
         '已保存進度；下次可繼續', active.cursor, planned.units.length);
       return { stage: active.stage, cursor: active.cursor, eligible: planned.units.length, calls };
-    } finally { busy.delete(owner); }
+    } finally {
+      busy.delete(owner);
+      guard?.end(owner);
+    }
   }
   async function apply() {
     const owner = story(), job = current();
     if (!owner || !job || job.stage !== 'ready' || !job.candidate) throw new Error('尚未完成全部歷史重建。');
     if (busy.has(owner) || Chat.summarizing || App.__requestPending)
       throw new Error('故事／摘要工作正在執行，暫不可套用。');
+    const guard = window.BAOStoryMaintenanceLock;
+    if (guard && !guard.start(owner)) throw new Error('另一項記憶或狀態重建正在執行。');
+    try {
     const endIndex = source(job).endIndex, latest = core.summary(job.candidate);
     if (!latest) throw new Error('新摘要沒有可確認內容，不允許覆寫既有記憶。');
     if (Chat.messages[endIndex]?.id !== job.plan.endId || Chat.messages[endIndex]?.role !== 'assistant')
@@ -203,10 +211,14 @@
       throw new Error('正式記憶未能安全保存，已恢復原記憶；請先備份故事。' + String(error.message || ''));
     }
     return { covered: job.plan.eligible, summary: latest };
+    } finally { guard?.end(owner); }
   }
   async function reset() {
     const owner = story();
     if (!owner || busy.has(owner)) throw new Error('目前無法重設正在執行的故事重建。');
+    const guard = window.BAOStoryMaintenanceLock;
+    if (guard && !guard.start(owner)) throw new Error('另一項記憶或狀態重建正在執行。');
+    try {
     const previous = owner.fullMemoryRebuild, previousBackup = owner.fullMemoryRebuildBackup;
     delete owner.fullMemoryRebuild;
     // Applied jobs are not drafts. Explicit reset discards their rollback point
@@ -218,6 +230,7 @@
       owner.fullMemoryRebuildBackup = previousBackup;
       throw new Error('重設未成功保存，原進度仍保留。');
     }
+    } finally { guard?.end(owner); }
   }
   async function rollback() {
     const owner = story(), saved = owner?.fullMemoryRebuildBackup;
@@ -225,6 +238,9 @@
       throw new Error('沒有可還原的前一版正式記憶，或另有任務正在執行。');
     if (owner.fullMemoryRebuild?.appliedSummaryFingerprint !== core.fingerprint([Chat.summary, Chat.summarizedUntil]))
       throw new Error('套用後正式記憶已被後續摘要修改，為避免覆蓋新進度，不能直接回滾。');
+    const guard = window.BAOStoryMaintenanceLock;
+    if (guard && !guard.start(owner)) throw new Error('另一項記憶或狀態重建正在執行。');
+    try {
     const old = { summary: Chat.summary, summarizedUntil: Chat.summarizedUntil,
       memoryHealth: Chat.memoryHealth, memory: owner.memory, job: owner.fullMemoryRebuild, backup: saved };
     Chat.summary = saved.summary; Chat.summarizedUntil = saved.summarizedUntil;
@@ -238,6 +254,7 @@
       owner.fullMemoryRebuild = old.job; owner.fullMemoryRebuildBackup = old.backup;
       throw new Error('舊記憶未能安全寫回，操作已撤銷。');
     }
+    } finally { guard?.end(owner); }
   }
   const UI = () => {
     const status = getDisplayJob(), job = status?.job;
@@ -296,7 +313,10 @@
       finally { const message = msg.textContent; rerender(); const out = root.querySelector('[data-full-message]'); if (out) out.textContent = message; }
     });
     area.querySelector('[data-full-apply]')?.addEventListener('click', async () => {
-      if (!confirm('已閱讀新舊摘要差異？確定套用新的正式長期摘要與覆蓋游標？世界狀態和作品資料不會被自動改寫。')) return;
+      const modeWarning = App.config?.memory?.mode !== 'smart'
+        ? '\\n目前不是智慧整理模式，套用後摘要仍不會自動進入故事模型上下文。'
+        : '';
+      if (!confirm('已閱讀新舊摘要差異？確定套用新的正式長期摘要與覆蓋游標？世界狀態和作品資料不會被自動改寫。' + modeWarning)) return;
       lock(true);
       try { await apply(); rerender(); }
       catch (e) { lock(false); msg.textContent = String(e.message || e); }
