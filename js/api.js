@@ -165,6 +165,7 @@ const API = {
     "streaming-ui:main-story": 80,
     "same-model-state-merge:main-story": 90,
     "global-bridge:memory-presentation": 100,
+    "provider-policy-guard:circuit": 105,
     "cost-control:budget": 110,
     "chat:request-usage": 120,
     "context-inspector:request": 125,
