@@ -205,6 +205,7 @@
 <p id="studio-action-preview-status" class="note" role="status" aria-live="polite"></p>
 
 </details>
+<p class="note">匯出夜灣 JSON 只包含角色卡資料；Regex、互動 HTML 與本機圖片需使用完整作品 ZIP 一起交付，否則可能遺失原作互動。作者署名是來源資料，不等於夜灣已完成發布授權驗證。</p>
 <div class="studio-button-row"><button type="button" class="secondary" id="studio-preview-button">預覽</button><button type="button" class="secondary" id="studio-doctor">BAO Doctor</button><button type="button" class="secondary" id="studio-save-draft">儲存草稿</button><button type="button" class="secondary" id="studio-export">匯出夜灣 JSON</button><button type="button" class="primary" id="studio-install">加入我的角色</button></div><p class="note">BAO Doctor v1 只分析目前角色卡結構與長篇準備度，不會呼叫 AI，也不會假裝判斷尚未實測的記憶／Context／模型問題。</p>
 </form><section id="studio-preview" class="studio-preview hidden" aria-label="角色卡預覽"><h3>本機預覽（不會呼叫 AI）</h3><img id="studio-preview-image" alt="角色圖片預覽" src="assets/bao-bun.svg"><h4 id="studio-preview-name"></h4><p id="studio-preview-description"></p><div class="studio-preview-label">初始訊息</div><p id="studio-preview-greeting"></p><div class="studio-preview-label">核心設定摘要</div><p id="studio-preview-prompt"></p></section>
 </section></div>
@@ -213,7 +214,7 @@
 <script src="js/phone-ui-core.js?v=4"></script>
 <script src="js/avatar-chat-core.js?v=1"></script>
 <script src="js/portrait-input.js?v=1"></script>
-<script src="js/character.js?v=7"></script>
+<script src="js/character.js?v=8"></script>
 <script>window.CharacterEngine = CharacterEngine;</script>
 <script src="js/character-readiness.js"></script>
 <script src="js/lorebook.js?v=3"></script>
@@ -224,7 +225,7 @@
 <script src="js/character-studio-flow-core.js"></script>
 <script src="js/character-studio-lifecycle-core.js"></script>
 <script src="js/character-studio-actions-core.js"></script>
-<script src="js/character-studio.js?v=8"></script>
+<script src="js/character-studio.js?v=9"></script>
 <script src="js/character-studio-phone-builder.js?v=2"></script>
 <script src="js/character-studio-flow.js?v=6"></script>
 <script src="js/npc-personality-helper-core.js?v=1"></script>
