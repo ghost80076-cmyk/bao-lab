@@ -207,10 +207,17 @@
   async function reset() {
     const owner = story();
     if (!owner || busy.has(owner)) throw new Error('目前無法重設正在執行的故事重建。');
-    const previous = owner.fullMemoryRebuild;
+    const previous = owner.fullMemoryRebuild, previousBackup = owner.fullMemoryRebuildBackup;
     delete owner.fullMemoryRebuild;
+    // Applied jobs are not drafts. Explicit reset discards their rollback point
+    // without reverting the officially saved summary.
+    if (previous?.stage === 'applied') delete owner.fullMemoryRebuildBackup;
     try { await saveVerified(); }
-    catch (error) { owner.fullMemoryRebuild = previous; throw new Error('重設未成功保存，原進度仍保留。'); }
+    catch (error) {
+      owner.fullMemoryRebuild = previous;
+      owner.fullMemoryRebuildBackup = previousBackup;
+      throw new Error('重設未成功保存，原進度仍保留。');
+    }
   }
   async function rollback() {
     const owner = story(), saved = owner?.fullMemoryRebuildBackup;
@@ -263,7 +270,7 @@
       '<button type="button" class="secondary" data-full-run ' +
       (status && !status.valid || job?.stage === 'applied' || job?.stage === 'ready' ? 'disabled' : '') +
       '>' + (job ? '繼續重建' : '從第 1 輪重建') + '</button>' +
-      '<button type="button" class="secondary" data-full-reset ' + (!job ? 'disabled' : '') + '>捨棄重建草稿</button>' +
+      '<button type="button" class="secondary" data-full-reset ' + (!job ? 'disabled' : '') + '>' + (job?.stage === 'applied' ? '結束重建並清除回滾備份' : '捨棄重建草稿') + '</button>' +
       '<button type="button" class="secondary" data-full-apply ' + (job?.stage === 'ready' && status?.valid ? '' : 'disabled') +
       '>確認套用新摘要</button>' +
       '<button type="button" class="secondary" data-full-rollback ' + (!story()?.fullMemoryRebuildBackup ? 'disabled' : '') +
@@ -292,7 +299,9 @@
       catch (e) { lock(false); msg.textContent = String(e.message || e); }
     });
     area.querySelector('[data-full-reset]')?.addEventListener('click', async () => {
-      if (!confirm('只捨棄目前重建草稿和進度？不影響正式摘要或故事原文。')) return;
+      if (!confirm(current()?.stage === 'applied'
+        ? '這份重建已正式套用。結束重建會刪除回滾備份，但不改變目前正式摘要或原文。確定？'
+        : '只捨棄目前重建草稿和進度？不影響正式摘要或故事原文。')) return;
       lock(true);
       try { await reset(); rerender(); }
       catch (e) { lock(false); msg.textContent = String(e.message || e); }
