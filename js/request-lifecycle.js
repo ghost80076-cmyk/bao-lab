@@ -90,7 +90,7 @@
   // the SSE transport or committed story records.
   if (document.head?.append && !document.querySelector('script[src^="js/chat-system-notices.js"]')) {
     const script = document.createElement('script');
-    script.src = 'js/chat-system-notices.js?v=4';
+    script.src = 'js/chat-system-notices.js?v=5';
     script.onerror = () => console.warn('BAO/LAB chat system notices failed to load');
     document.head.append(script);
   }
