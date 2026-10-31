@@ -26,7 +26,7 @@ card.asset_manifest = {version: 1, assets: []};
 card.import_metadata = {preserved_source: {private: 'not-for-publication'}};
 const original = JSON.stringify(card);
 const expected = plain(engine.normalize(card));
-const capabilities = ['story_startup', 'timeline_policy', 'actor_mode', 'gameplay_ui', 'phone_ui', 'dialogue', 'reading_background', 'opening', 'play_info_surface', 'greeting_context', 'asset_manifest', 'discovery', 'initial_state'];
+const capabilities = ['author', 'author_id', 'creator', 'creator_id', 'story_startup', 'timeline_policy', 'actor_mode', 'gameplay_ui', 'phone_ui', 'dialogue', 'reading_background', 'opening', 'play_info_surface', 'greeting_context', 'asset_manifest', 'discovery', 'initial_state'];
 function sameCapabilities(result, label, worker = false) {
   const normalized = plain(engine.normalize(result));
   for (const key of capabilities.filter(key => !worker || key !== "asset_manifest")) assert.deepEqual(normalized[key], expected[key], label + ': ' + key);
@@ -40,10 +40,16 @@ function adminExport(input) {
 for (const [format, input] of [['native', card], ['flat', engine.normalize(card)]]) {
   const exported = studioExport(input);
   sameCapabilities(exported, format + ' studio export');
+  for (const key of ['author', 'author_id', 'creator', 'creator_id']) {
+    assert.equal(exported.meta[key], expected[key], format + ' studio meta attribution: ' + key);
+  }
   sameCapabilities(studioExport(exported), format + ' second studio export');
   assert.equal(exported.import_metadata, undefined, 'normal JSON export does not include private provenance');
   const published = adminExport(input);
   sameCapabilities(published, format + ' admin payload');
+  for (const key of ['author', 'author_id', 'creator', 'creator_id']) {
+    assert.equal(published.meta[key], expected[key], format + ' admin meta attribution: ' + key);
+  }
   assert.ok(!JSON.stringify(published).includes('not-for-publication'));
   const prepared = prepareCharacterPublication({rights_confirmed: true, card: published});
   sameCapabilities(prepared.card, format + ' worker publication', true);
@@ -54,3 +60,6 @@ const empty = studioExport({id: 'empty', name: 'Empty', greeting: 'Hi', system_p
 for (const key of ['story_startup', 'actor_mode', 'timeline_policy']) assert.equal(empty.gameplay[key], undefined);
 assert.equal(empty.presentation.phone_ui, undefined, 'basic cards must not gain a phone');
 console.log('Native/flat studio → JSON → admin → Worker capability preservation passed');
+
+const minimal = studioExport({id: 'no-author', name: '未署名', greeting: '開始', system_prompt: '世界'});
+for (const key of ['author', 'author_id', 'creator', 'creator_id']) assert.equal(Object.hasOwn(minimal.meta, key), false, 'no invented author: ' + key);
