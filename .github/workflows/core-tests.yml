@@ -643,6 +643,11 @@ jobs:
         run: |
           node tests/episodic-recall-ownership-core.cjs
           node tests/worldbook-recall-ownership-core.cjs
+      - name: Full-story memory reconstruction and safe apply
+        run: |
+          node --check js/full-story-memory-rebuild-core.js
+          node --check js/full-story-memory-rebuild.js
+          node tests/full-story-memory-rebuild-core.cjs
       - name: Memory request isolation and cooldown
         run: node tests/memory-request-guard-core.cjs
       - name: P1 completed-turn memory integrity
