@@ -281,7 +281,7 @@
     const msg = area.querySelector('[data-full-message]'),
       buttons = area.querySelectorAll('button');
     const lock = value => buttons.forEach(b => b.disabled = value);
-    const rerender = () => mount(root);
+    const rerender = () => window.BAOMemoryWorkbench?.refresh?.(root, 'context') || mount(root);
     area.querySelector('[data-full-run]')?.addEventListener('click', async () => {
       const keep = Number(area.querySelector('[data-full-keep]')?.value || 20);
       if (!confirm('從原始歷史整理或繼續？這次最多會產生 4 次付費模型呼叫；每批成功後保存進度，正式摘要直到你確認才變更。')) return;
