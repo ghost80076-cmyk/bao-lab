@@ -20,6 +20,37 @@ const undone = make(4); undone.splice(2, 0, { id:'orphan', role:'user', content:
 assert.throws(() => core.plan(undone, 1), /沒有角色回覆/, 'incomplete middle turns must not silently disappear');
 const greeting = [{ id:'greeting',role:'assistant',content:'故事開場' }, ...make(5)];
 assert.equal(core.units(greeting)[0].messages[0].id, 'greeting');
+
+const sourceForRescue = {
+  characterId: 'character-1', characterName: '測試故事', label: '原始篇章',
+  config: { api: { key: '', model: 'gemini-3.1-pro-preview' }, memory: { mode: 'full', maxRounds: 40 } },
+  chat: { messages: make(100), summary: 'ORIGINAL', summarizedUntil: 40, memoryHealth: { phase: 'failed' } },
+  state: { money: 120, modules: { inventory: ['唯一信物'] }, memory: ['ORIGINAL'],
+    fullMemoryRebuild: { stage: 'ready' }, fullMemoryRebuildBackup: { summary: 'OLD' } }
+};
+const continuation = core.continuationPayload(sourceForRescue, {
+  summary: '已核對的劇情摘要', endIndex: 159, keepRounds: 20, model: 'gemini-3.8-flash'
+});
+assert.equal(continuation.chat.summary, '已核對的劇情摘要');
+assert.equal(continuation.chat.summarizedUntil, 160);
+assert.equal(continuation.chat.messages.length, 200, 'rescue keeps all local transcript turns');
+assert.equal(continuation.chat.messages[159].id, 'a-80');
+assert.equal(continuation.config.memory.mode, 'smart');
+assert.equal(continuation.config.memory.maxRounds, 20);
+assert.equal(continuation.state.modules.inventory[0], '唯一信物');
+assert.equal(continuation.state.money, 120);
+assert.equal(continuation.state.memory[0], '已核對的劇情摘要');
+assert.equal(continuation.state.fullMemoryRebuild, undefined, 'no stale rescue job in copy');
+assert.equal(continuation.state.fullMemoryRebuildBackup, undefined);
+assert.equal(sourceForRescue.chat.summary, 'ORIGINAL', 'original memory untouched');
+assert.equal(sourceForRescue.chat.summarizedUntil, 40, 'original coverage untouched');
+assert.equal(sourceForRescue.config.memory.mode, 'full', 'original mode untouched');
+assert.equal(sourceForRescue.state.fullMemoryRebuild.stage, 'ready', 'original draft untouched');
+continuation.chat.messages[0].content = '副本改動';
+assert.equal(sourceForRescue.chat.messages[0].content, '玩家第1輪', 'original transcript not shared by reference');
+assert.throws(() => core.continuationPayload(sourceForRescue, { summary: '', endIndex: 159 }), /摘要/);
+assert.throws(() => core.continuationPayload(sourceForRescue, { summary: 'ok', endIndex: 160 }), /覆蓋游標/);
+
 const budget = { fits: (_, m) => JSON.stringify(m).length < 850 };
 const picked = core.batch(plan.units, 0, budget, {}, text => [{ role:'user',content:text }]);
 assert(picked.length > 0 && picked.length < 20);

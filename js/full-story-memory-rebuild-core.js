@@ -126,5 +126,37 @@
     return KEYS.filter(k => result[k]?.length).map(k => labels[k] + '：\n' +
       result[k].map(v => '- ' + v).join('\n')).join('\n\n');
   }
-  return Object.freeze({ units, plan, restore, transcript, batch, parse, cleanResult, summary, sourceFingerprint, fingerprint, copy, keys: KEYS });
+
+  // Build a detached continuation from verified history, never mutate the source save.
+  // Original turns stay locally readable; smart-mode context uses the new covered cursor.
+  function continuationPayload(source, options = {}) {
+    const { summary: verifiedSummary, endIndex, keepRounds = 20, model = '' } = options;
+    if (!source || !source.config || !source.chat || !Array.isArray(source.chat.messages) || !source.state)
+      throw new Error('原故事備份不完整，不能建立救援副本。');
+    if (!Number.isInteger(endIndex) || endIndex < 0 || endIndex >= source.chat.messages.length ||
+      source.chat.messages[endIndex]?.role !== 'assistant')
+      throw new Error('重建覆蓋游標沒有對上已完成的故事回覆。');
+    if (!Number.isInteger(keepRounds) || keepRounds < 4 || keepRounds > 100)
+      throw new Error('保留近期輪數不正確。');
+    const text = String(verifiedSummary || '').trim();
+    if (!text) throw new Error('沒有經過核對的故事摘要，不能建立續玩副本。');
+    const next = copy(source);
+    next.label = '救援續玩 · ' + String(source.characterName || source.label || '故事').slice(0, 60);
+    next.savedAt = new Date().toISOString();
+    next.config.memory = { ...(next.config.memory || {}), mode: 'smart', maxRounds: keepRounds };
+    next.chat.summary = text;
+    next.chat.summarizedUntil = endIndex + 1;
+    next.chat.lastStoryPromptTokens = 0;
+    next.chat.memoryHealth = { ...(next.chat.memoryHealth || {}), phase: 'success',
+      message: '已從原始故事核對並建立獨立續玩副本；舊劇情仍保留在本地歷史。',
+      lastSuccessAt: new Date().toISOString(), lastModel: String(model || ''), rebuilt: true };
+    next.state.config = next.config;
+    next.state.memory = [text];
+    // A new story must not inherit an in-progress rebuild or its rollback checkpoint.
+    delete next.state.fullMemoryRebuild;
+    delete next.state.fullMemoryRebuildBackup;
+    return next;
+  }
+
+  return Object.freeze({ units, plan, restore, transcript, batch, parse, cleanResult, summary, sourceFingerprint, fingerprint, copy, continuationPayload, keys: KEYS });
 });
