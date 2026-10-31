@@ -245,7 +245,11 @@ const plan = BAOStoryTools.organizationPlan(longMessages, { maxTokens: 90 });
 assert.equal(plan.totalCalls, plan.chunkCount + plan.mergeCalls);
 assert.equal(storyToolsSource.includes("slice(-400)"), false);
 assert.equal(storyToolsSource.includes("slice(-80000)"), false);
-assert.equal(storyToolsSource.includes("while (level.length > 1)"), true);
+// Context Pack merge orchestration moved to the resumable module.
+// Check both the stable Story Tools entrypoint and the actual merge loop.
+const contextPackResumeSource = fs.readFileSync(path.join(__dirname, "..", "js/context-pack-resume.js"), "utf8");
+assert.equal(storyToolsSource.includes("return window.BAOContextPackResume.organizeDraft(pack, messages, onProgress)"), true);
+assert.equal(contextPackResumeSource.includes("while (work.mergeInput.length > 1)"), true);
 assert.equal(storyToolsSource.includes("contextPackDraftProgress"), true);
 assert.equal(storyToolsSource.includes("繼續未確認草稿"), true);
 assert.equal(storyToolsSource.includes("const libraryScreen = async host"), true);
