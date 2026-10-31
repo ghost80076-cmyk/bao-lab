@@ -70,5 +70,8 @@
       "optimized_webp_path": "assets/characters/chicofy-six-timelines/shiori.webp",
       "usage": "opening_uses_first_party_webp_original_png_retained"
     }
-  ]
+  ],
+  "cover_original_png": "assets/characters/chicofy-six-timelines/cover.png",
+  "cover_optimized_webp": "assets/characters/chicofy-six-timelines/cover.webp",
+  "cover_local_file_committed": true
 }
