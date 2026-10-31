@@ -83,7 +83,7 @@ increasing(siteUI, [
   'then(() => worldModulesReady)',
   'loadBAOScript("js/three-realms-events.js?v=3")',
   'loadBAOScript("js/streaming-ui.js',
-  'loadBAOScript("js/request-lifecycle.js?v=4")'
+  'loadBAOScript("js/request-lifecycle.js?v=5")'
 ], "story extension");
 
 // Stage capability must resolve before Reader Context / Player Shell consume it.
