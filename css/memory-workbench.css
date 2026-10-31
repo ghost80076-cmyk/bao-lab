@@ -202,3 +202,36 @@ html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk
   }
 }
 .memory-desk [hidden]{display:none!important}
+
+
+/* Full-history recovery: keep long evidence, controls and summaries usable on phones. */
+.memory-desk [data-full-memory-rebuild]{
+  display:grid;gap:12px;min-width:0;margin:12px 0 20px;padding:14px;
+  border:1px solid var(--yoru-card-border);border-radius:14px;
+  background:var(--yoru-card);
+}
+.memory-desk [data-full-memory-rebuild] h3{margin:0;font-size:1rem;color:var(--yoru-text)}
+.memory-desk [data-full-memory-rebuild] details{min-width:0}
+.memory-desk [data-full-memory-rebuild] summary{cursor:pointer}
+.memory-desk [data-full-memory-rebuild] pre{
+  white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;
+  max-height:260px;overflow:auto;padding:12px;
+  background:var(--yoru-input);color:var(--yoru-text);
+  border:1px solid var(--yoru-input-border);border-radius:10px;
+  font:inherit;font-size:.9rem;line-height:1.65;
+}
+.memory-desk [data-full-memory-rebuild] [data-full-keep]{
+  width:min(100%,260px);padding:10px;color:var(--yoru-text);
+  background:var(--yoru-input);border:1px solid var(--yoru-input-border);border-radius:10px;
+}
+.memory-desk [data-full-memory-rebuild] .memory-draft-actions{
+  display:flex;flex-wrap:wrap;gap:8px;min-width:0;
+}
+.memory-desk [data-full-memory-rebuild] button{min-height:44px;white-space:normal}
+.memory-desk [data-full-memory-rebuild] [role="status"]{
+  overflow-wrap:anywhere;min-height:1.5rem;color:var(--yoru-muted)
+}
+@media(max-width:540px){
+  .memory-desk [data-full-memory-rebuild]{padding:12px}
+  .memory-desk [data-full-memory-rebuild] .memory-draft-actions button{flex:1 1 100%}
+}
