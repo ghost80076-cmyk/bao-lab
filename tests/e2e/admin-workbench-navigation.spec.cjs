@@ -10,6 +10,14 @@ for (const width of [320, 390, 1280]) {
       const request = route.request();
       const pathname = new URL(request.url()).pathname;
       calls.push({ method: request.method(), pathname });
+      if (request.method() === 'OPTIONS') {
+        await route.fulfill({ status:204, headers:{
+          'access-control-allow-origin':'*',
+          'access-control-allow-methods':'GET,POST,OPTIONS',
+          'access-control-allow-headers':'authorization,content-type'
+        } });
+        return;
+      }
       const payload = pathname === '/admin/players'
         ? { players:[{
           id: 'synthetic-player-1', public_id:'YR-1111-2222',
@@ -23,7 +31,7 @@ for (const width of [320, 390, 1280]) {
       await route.fulfill({
         status: pathname === '/admin/players' || pathname === '/admin/provider-control' ? 200 : 404,
         contentType:'application/json',
-        headers:{'access-control-allow-origin':'*'},
+        headers:{'access-control-allow-origin':'*', 'access-control-allow-headers':'authorization,content-type'},
         body: JSON.stringify(payload)
       });
     });
@@ -87,8 +95,9 @@ for (const width of [320, 390, 1280]) {
     await expect(page.locator('#player-card')).toBeVisible();
     await expect(page.locator('#p-user')).toHaveText('harbor-demo');
     await expect(page.locator('#player-message')).toContainText('已選取');
-    expect(calls.every(call => call.method === 'GET')).toBe(true);
-    expect(calls.map(call=>call.pathname)).toEqual(['/admin/players','/admin/provider-control']);
+    const actualCalls = calls.filter(call => call.method !== 'OPTIONS');
+    expect(actualCalls.every(call => call.method === 'GET')).toBe(true);
+    expect(actualCalls.map(call=>call.pathname)).toEqual(['/admin/players','/admin/provider-control']);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+1);
     await page.screenshot({ path:`test-results/admin-workbench-${width}.png`, animations:'disabled' });
   });
