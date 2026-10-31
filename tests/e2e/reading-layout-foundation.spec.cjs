@@ -157,3 +157,89 @@ test('Play respects light/dusk composer surfaces instead of forcing night colors
     expect(measurements.statusVisible).toBe(true);
   }
 });
+
+
+test.describe('touch-capable Story / Stage breakpoint polish', () => {
+  test.use({ hasTouch:true });
+
+  test('touch-capable Story keeps Stage and message actions discoverable across breakpoints', async ({ page }) => {
+    await openDemoStory(page, 821);
+    await expect(page.locator('link[href="css/player-shell-v2.css?v=9"]')).toHaveCount(1);
+    await page.waitForFunction(() => Boolean(
+      document.querySelector('link[href="css/player-shell-v2.css?v=9"]')?.sheet
+    ));
+    // A first-party toolbar styling probe rather than a fabricated working
+    // command. Actual Stage handlers have their own stage-capability E2E suite.
+    await page.evaluate(() => {
+      const message = document.querySelector('#chat-stream .message.assistant');
+      if (!message) throw Error('reader message missing');
+      const bar = document.createElement('div');
+      bar.className = 'story-message-tools';
+      bar.dataset.touchReaderProbe = 'true';
+      const action = document.createElement('button');
+      action.type = 'button';
+      action.textContent = '操作';
+      bar.append(action);
+      message.append(bar);
+    });
+
+    const probes = [820,821,1080,1081,1279,1280,1429,1430];
+    const fs = require('node:fs');
+    fs.mkdirSync('test-results/touch-stage-reading', { recursive:true });
+    for(const width of probes) {
+      await page.setViewportSize({ width, height:900 });
+      const compact = width <= 1080;
+      await expect.poll(() => page.locator('#chat-view').getAttribute('data-bao-stage-presentation'))
+        .toBe(compact ? 'panel' : 'sheet');
+      await expect(page.locator('#user-input')).toBeVisible();
+      const measure = await page.evaluate(() => {
+        const rect = node => {
+          const b = node.getBoundingClientRect();
+          return {x:b.x,y:b.y,width:b.width,height:b.height,right:b.right,bottom:b.bottom};
+        };
+        const activeControls = [...document.querySelectorAll(
+          '#chat-view #bao-surface-controls button[data-bao-surface-role]'
+        )].filter(node => node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden');
+        const toolbar = document.querySelector('[data-touch-reader-probe]');
+        const stream = document.getElementById('chat-stream');
+        return {
+          coarse: matchMedia('(pointer:coarse)').matches,
+          noHover: matchMedia('(hover:none)').matches,
+          buttons:activeControls.map(rect),
+          messageOpacity:parseFloat(getComputedStyle(toolbar).opacity),
+          action:rect(toolbar.querySelector('button')),
+          stream:rect(stream),
+          scrollWidth:document.documentElement.scrollWidth,
+          width:innerWidth
+        };
+      });
+      expect(measure.scrollWidth, `horizontal overflow at ${width}px`)
+        .toBeLessThanOrEqual(width + 1);
+      expect(measure.stream.height, `reading stream at ${width}px`).toBeGreaterThan(180);
+      expect(measure.coarse).toBe(true);
+      expect(measure.noHover).toBe(true);
+      if(width >= 821) {
+        expect(measure.buttons.length).toBeGreaterThanOrEqual(1);
+        for(const button of measure.buttons) {
+          expect(button.height, `Stage control at ${width}px`).toBeGreaterThanOrEqual(44);
+          expect(button.right).toBeLessThanOrEqual(width + 1);
+        }
+        expect(measure.messageOpacity, `tool visibility at ${width}px`).toBe(1);
+        expect(measure.action.height, `message action at ${width}px`).toBeGreaterThanOrEqual(44);
+      } else {
+        // The existing mobile shell owns <=820; this PR must not force its
+        // desktop controls or reply-tool presentation onto phones.
+        await expect(page.locator('.topbar')).toBeHidden();
+        await expect(page.locator('#bao-mobile-composer-tools')).toBeVisible();
+      }
+      if([820,821,1080,1081].includes(width)) {
+        await page.screenshot({
+          path:`test-results/touch-stage-reading/story-${width}.png`,
+          animations:'disabled'
+        });
+      }
+    }
+    // Existing story draft and data stay intact after Stage responsive changes.
+    await expect(page.locator('#user-input')).toBeVisible();
+  });
+});
