@@ -8,8 +8,9 @@ const siteLoader = fs.readFileSync(path.join(__dirname, '../js/site-ui.js'), 'ut
 const siteHtml = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8');
 assert.match(siteLoader, /loadBAOScript\("js\/credits-pilot\.js\?v=1"\)/,
   "Hosted credits must actually load before relying on its production error handler");
-assert.match(siteHtml, /js\/site-ui\.js\?v=166/,
-  "the page must load the updated lazy loader after release");
+const lazyLoaderVersion = siteHtml.match(/js\/site-ui\.js\?v=(\d+)/);
+assert(lazyLoaderVersion && Number(lazyLoaderVersion[1]) >= 166,
+  "the page must load a recent lazy loader after release");
 const registry = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/presets/models.json'), 'utf8'));
 function build(response={ok:true,status:200,body:{content:'測試成功',usage:{input_tokens:10,output_tokens:6,charged_credits:1}}}) {
   const calls=[]; const options=[];
