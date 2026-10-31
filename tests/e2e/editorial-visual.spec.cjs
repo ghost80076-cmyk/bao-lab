@@ -30,7 +30,7 @@ for (const width of [390, 1280]) {
     await expect(page.locator('#bao-mascot-launch')).toBeVisible();
     await expect(page.locator('#bao-mascot-launch .bao-mascot-launch-label')).toBeHidden();
     await expect(page.locator('link[href="css/bao-editorial-polish.css?v=3"]')).toHaveCount(1);
-    await expect(page.locator('link[href="css/bao-editorial-cinema.css?v=15"]')).toHaveCount(1);
+    await expect(page.locator('link[href="css/bao-editorial-cinema.css?v=16"]')).toHaveCount(1);
     await expect.poll(() => page.locator('#home-view .brand-hero h1').evaluate(node => getComputedStyle(node).whiteSpace)).toBe('normal');
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     const featureImage = await page.locator('#home-feature-stage > img').boundingBox();
@@ -201,3 +201,71 @@ test('nightly recommendation stays stable for the same local day', async ({ page
   expect(featuredId).toBeTruthy();
   expect(ids).not.toContain(featuredId);
 });
+
+for (const viewport of [
+  { width:320, height:568 },
+  { width:390, height:844 },
+  { width:1280, height:900 }
+]) {
+  test(`home resume and detail first-action hierarchy at ${viewport.width}px`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.goto('/');
+    await page.waitForFunction(() => Boolean(window.App?.characters?.length && window.BAOGalleryFocus));
+    await page.waitForFunction(() => [...document.styleSheets].some(sheet =>
+      sheet.href?.includes('bao-editorial-cinema.css?v=16')));
+    const home = page.locator('#home-view .brand-cinematic-hero');
+    const explore = home.locator('.brand-actions > .primary');
+    const resume = home.locator('#home-continue');
+    await expect(explore).toBeVisible();
+    await expect(resume).toBeHidden();
+    // Simulate the display state only. The real resume click handler and
+    // persisted story bookkeeping remain untouched by these CSS changes.
+    await resume.evaluate(node => node.classList.remove('hidden'));
+    await expect(resume).toBeVisible();
+    expect(await resume.evaluate(node => getComputedStyle(node).order)).toBe('-1');
+    const activeBackground = await resume.evaluate(node => getComputedStyle(node).backgroundImage);
+    expect(activeBackground).toContain('gradient');
+    const resumeRect = await resume.boundingBox();
+    const exploreRect = await explore.boundingBox();
+    if (viewport.width <= 700) {
+      expect(resumeRect.y).toBeLessThan(exploreRect.y);
+      expect(resumeRect.height).toBeGreaterThanOrEqual(44);
+    } else {
+      expect(resumeRect.y).toBeLessThanOrEqual(exploreRect.y + 1);
+    }
+    await resume.evaluate(node => node.classList.add('hidden'));
+    await explore.click();
+    await expect(page.locator('#explore-view')).toHaveClass(/active/);
+    const work = await page.evaluate(() =>
+      App.characters.find(character => character.id === 'linchenfeng') || App.characters[0]);
+    await page.evaluate(id => App.openCharacter(id), work.id);
+    await expect(page.locator('#detail-view')).toHaveClass(/active/);
+    const cover = page.locator('#detail-view .detail-visual');
+    const title = page.locator('#detail-view .detail-copy h1');
+    const start = page.locator('#detail-start');
+    const description = page.locator('#detail-view .detail-description');
+    await expect(cover).toBeVisible();
+    await expect(title).toBeVisible();
+    await expect(start).toBeVisible();
+    const coverRect = await cover.boundingBox();
+    const titleRect = await title.boundingBox();
+    const startRect = await start.boundingBox();
+    const descriptionRect = await description.boundingBox();
+    if (viewport.width <= 700) {
+      expect(coverRect.height).toBeLessThanOrEqual(261);
+      expect(titleRect.y).toBeGreaterThanOrEqual(coverRect.y + coverRect.height - 1);
+      expect(startRect.y).toBeGreaterThanOrEqual(titleRect.y + titleRect.height - 1);
+      expect(startRect.y + startRect.height).toBeLessThan(descriptionRect.y + 1);
+      if (viewport.width === 390) expect(startRect.y).toBeLessThan(viewport.height - 48);
+      const back = await page.locator('#detail-back').boundingBox();
+      expect(back.height).toBeGreaterThanOrEqual(44);
+    } else {
+      expect(await start.evaluate(node => getComputedStyle(node).order)).toBe('0');
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth))
+      .toBeLessThanOrEqual(viewport.width + 1);
+    await capture(page, `home-detail-entry-${viewport.width}`, false);
+    await start.click();
+    await expect(page.locator('#builder-view')).toHaveClass(/active/);
+  });
+}
