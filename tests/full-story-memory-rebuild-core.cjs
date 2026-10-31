@@ -90,6 +90,7 @@ const service=global.BAOFullStoryMemoryRebuild;
   assert.equal(GameState.current.canon.notebooks[0],'keep');
   assert.equal(GameState.current.memorySlots[0].text,'玩家手動筆記');
   await service.rollback();
+  Chat.messages=make(100); // remove the appended story used to test frozen-source commits
   assert.equal(Chat.summary,'OLD_OFFICIAL');
   assert.equal(Chat.summarizedUntil,40);
   assert.equal(GameState.current.fullMemoryRebuildBackup,null);
