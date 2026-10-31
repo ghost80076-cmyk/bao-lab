@@ -70,7 +70,7 @@
     } catch (error) { return { job, valid: false, error: error.message }; }
   }
   async function persist(owner, last, next) {
-    if (story() !== owner || owner.fullMemoryRebuild !== last) throw new Error('故事或整理版本已切換，未寫入結果。');
+    if (story() !== owner || (owner.fullMemoryRebuild || null) !== (last || null)) throw new Error('故事或整理版本已切換，未寫入結果。');
     owner.fullMemoryRebuild = next;
     try { await saveVerified(); }
     catch (error) {
