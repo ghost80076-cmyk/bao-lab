@@ -1496,6 +1496,12 @@ const WorkerProviderTransport = (() => {
           ?.message
           ?.content;
 
+      // OpenRouter may reject completion content on a successful HTTP 200
+      // response. Preserve its exact finish_reason for blocked-output
+      // diagnostics and the frontend policy circuit; no billing change here.
+      const finishReason = String(data.choices?.[0]?.finish_reason || "")
+        .replace(/[^a-zA-Z_]/g, "").slice(0, 32).toUpperCase();
+
       const usage =
         data.usage ||
         {};
@@ -1612,6 +1618,10 @@ const WorkerProviderTransport = (() => {
 
         category:
           "provider_empty_text",
+        finishReason: finishReason || null,
+        candidateFinishReason: finishReason || null,
+        blockedStage: ["SAFETY", "BLOCKLIST", "PROHIBITED_CONTENT", "SPII", "CONTENT_FILTER"].includes(finishReason)
+          ? "output" : null,
       };
     }
 
