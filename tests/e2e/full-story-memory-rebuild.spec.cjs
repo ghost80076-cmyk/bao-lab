@@ -95,8 +95,19 @@ test('independent rescue continuation retains original story and reuses verified
   await expect(area.locator('[data-full-continue]')).toBeDisabled();
   page.on('dialog', dialog => dialog.accept());
   for (let attempt=0; attempt<6; attempt++) {
+    // The click starts a paid-model-style async job. Wait for its UI rerender
+    // before clicking again; the previous loop raced a deliberately disabled
+    // button while checkpoint writes were still in progress.
+    await expect.poll(async () =>
+      (await area.locator('[data-full-continue]').isEnabled()) ||
+      (await area.locator('[data-full-run]').isEnabled()),
+      { timeout: 20000, message: '重建未完成或未重新啟用操作按鈕' }
+    ).toBe(true);
     if (await area.locator('[data-full-continue]').isEnabled()) break;
     await area.locator('[data-full-run]').click();
+    await expect.poll(() => page.evaluate(() => !BAOStoryMaintenanceLock.has(GameState.current)), {
+      timeout: 20000, message: '重建要求尚未結束'
+    }).toBe(true);
   }
   await expect(area.locator('[data-full-continue]')).toBeEnabled();
   await area.locator('[data-full-continue]').click();
