@@ -23,6 +23,8 @@ const loadBAOScript = src => {
 };
 
 const STORY_LIBRARY_SRC = "js/story-library.js?v=12";
+// The policy guard must be active even when the optional cost UI chain fails.
+const providerPolicyReady = loadBAOScript("js/provider-policy-guard.js?v=1");
 window.BAOEnsureStoryLibrary = () => {
   if (window.BAOStoryLibrary) return Promise.resolve(window.BAOStoryLibrary);
   return loadBAOScript(STORY_LIBRARY_SRC).then(() => {
@@ -198,7 +200,7 @@ window.addEventListener("DOMContentLoaded", () => {
   loadBAOScript("js/cost-control.js?v=7")
     .then(() => loadBAOScript("js/provider-browser-compat.js"))
     .then(() => loadBAOScript("js/model-routing.js?v=11"))
-    .then(() => loadBAOScript("js/provider-policy-guard.js?v=1"))
+    .then(() => providerPolicyReady)
     .then(() => loadBAOScript("js/provider-diagnostics.js"))
     .then(() => loadBAOScript("js/credits-pilot.js?v=1"))
     .catch(err => console.warn("BAO/LAB cost, provider compatibility, model routing or Hosted credits controls failed to load:", err));
@@ -263,6 +265,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/story-control-center-core.js?v=2"))
     .then(() => loadBAOScript("js/story-control-center.js?v=13"))
     .then(() => loadBAOScript("js/request-ledger.js?v=2"))
+    .then(() => providerPolicyReady)
     .then(() => { baoExtensionHealth.story = "ready"; })
     .catch(reportStoryFailure);
   loadBAOScript("js/work-package-core.js?v=2")
