@@ -81,7 +81,8 @@
     let saved;
     try { saved = JSON.parse(oldValue); } catch (_) { return false; }
     const rule = saved?.rules?.[0];
-    if (saved.source !== 'official-sidecar' || saved.sourcePath !== path
+    if (!saved || !Array.isArray(saved.rules)
+      || saved.source !== 'official-sidecar' || saved.sourcePath !== path
       || saved.rules.length !== 1 || !rule
       || typeof rule.replacement !== 'string'
       || rule.replacement.length !== legacyChicofyReplacementLength
