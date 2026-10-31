@@ -183,6 +183,9 @@
     if (!owner || !job || job.stage !== 'ready' || !job.candidate) throw new Error('尚未完成全部歷史重建。');
     if (busy.has(owner) || Chat.summarizing || App.__requestPending)
       throw new Error('故事／摘要工作正在執行，暫不可套用。');
+    const guard = window.BAOStoryMaintenanceLock;
+    if (guard && !guard.start(owner)) throw new Error('另一項記憶或狀態重建正在執行。');
+    try {
     const endIndex = source(job).endIndex, latest = core.summary(job.candidate);
     if (!latest) throw new Error('新摘要沒有可確認內容，不允許覆寫既有記憶。');
     if (Chat.messages[endIndex]?.id !== job.plan.endId || Chat.messages[endIndex]?.role !== 'assistant')
@@ -208,10 +211,14 @@
       throw new Error('正式記憶未能安全保存，已恢復原記憶；請先備份故事。' + String(error.message || ''));
     }
     return { covered: job.plan.eligible, summary: latest };
+    } finally { guard?.end(owner); }
   }
   async function reset() {
     const owner = story();
     if (!owner || busy.has(owner)) throw new Error('目前無法重設正在執行的故事重建。');
+    const guard = window.BAOStoryMaintenanceLock;
+    if (guard && !guard.start(owner)) throw new Error('另一項記憶或狀態重建正在執行。');
+    try {
     const previous = owner.fullMemoryRebuild, previousBackup = owner.fullMemoryRebuildBackup;
     delete owner.fullMemoryRebuild;
     // Applied jobs are not drafts. Explicit reset discards their rollback point
@@ -223,6 +230,7 @@
       owner.fullMemoryRebuildBackup = previousBackup;
       throw new Error('重設未成功保存，原進度仍保留。');
     }
+    } finally { guard?.end(owner); }
   }
   async function rollback() {
     const owner = story(), saved = owner?.fullMemoryRebuildBackup;
@@ -230,6 +238,9 @@
       throw new Error('沒有可還原的前一版正式記憶，或另有任務正在執行。');
     if (owner.fullMemoryRebuild?.appliedSummaryFingerprint !== core.fingerprint([Chat.summary, Chat.summarizedUntil]))
       throw new Error('套用後正式記憶已被後續摘要修改，為避免覆蓋新進度，不能直接回滾。');
+    const guard = window.BAOStoryMaintenanceLock;
+    if (guard && !guard.start(owner)) throw new Error('另一項記憶或狀態重建正在執行。');
+    try {
     const old = { summary: Chat.summary, summarizedUntil: Chat.summarizedUntil,
       memoryHealth: Chat.memoryHealth, memory: owner.memory, job: owner.fullMemoryRebuild, backup: saved };
     Chat.summary = saved.summary; Chat.summarizedUntil = saved.summarizedUntil;
@@ -243,6 +254,7 @@
       owner.fullMemoryRebuild = old.job; owner.fullMemoryRebuildBackup = old.backup;
       throw new Error('舊記憶未能安全寫回，操作已撤銷。');
     }
+    } finally { guard?.end(owner); }
   }
   const UI = () => {
     const status = getDisplayJob(), job = status?.job;
