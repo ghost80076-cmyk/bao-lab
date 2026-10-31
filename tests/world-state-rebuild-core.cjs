@@ -233,7 +233,7 @@ global.API = { send: async (config, messages) => { prompt = messages[1].content;
   assert.equal(GameState.current.stateRecovery.covered, 76);
   API.send = async (cfg, messages) => {
     assert.match(messages[1].content, /已逐批核對的待補歷史/);
-    assert.match(messages[1].content, /第76輪/);
+    assert.match(messages[1].content, /73～76輪/);
     return reply();
   };
   await WorldStateEngine.rebuild(App.config, 'deep');
