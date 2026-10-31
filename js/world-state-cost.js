@@ -9,8 +9,11 @@
   // override on the story provider. Explicit "same" ignores stale helper data.
   const stateApiFor = config => {
     const helper = config?.cost?.stateApi;
-    return String(config?.cost?.stateApiMode || '').trim() !== 'same'
-      && helper?.model && helper?.baseUrl ? helper : config?.api;
+    const mode = String(config?.cost?.stateApiMode || '').trim();
+    if (mode === 'same') return config?.api;
+    if (mode === 'separate' && (!helper?.model || !helper?.baseUrl))
+      throw new Error('獨立狀態模型尚未設定完整，請重新選擇模型與連線網址。');
+    return helper?.model && helper?.baseUrl ? helper : config?.api;
   };
   const prepareStateApi = config => {
     const route = stateApiFor(config);
