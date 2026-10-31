@@ -144,7 +144,19 @@ global.API = { send: async (config, messages) => { prompt = messages[1].content;
   assert.equal(GameState.current.stateRebuildBackup, undefined, 'failed save must restore old report metadata');
   assert.equal(GameState.current.stateTracker.phase, 'failed');
   delete window.Storage;
-  GameState.current = initial();
+  // A save exception (not just a failed flush/readback) must also restore all
+  // current-state fields. The paid model result is never automatically retried.
+  GameState.current = moduleState();
+  let saveAttempts = 0;
+  App.saveStory = () => { saveAttempts++; throw new Error('quota denied'); };
+  API.send = async () => moduleReply();
+  await assert.rejects(WorldStateEngine.rebuild(App.config), /儲存失敗/);
+  assert.equal(GameState.current.time, '02:16');
+  assert.equal(GameState.current.location, '公寓');
+  assert.equal(GameState.current.modules.contract.remaining, 'STALE_TIME');
+  assert.equal(GameState.current.pendingStateTurns.length, 2);
+  assert.equal(saveAttempts, 2, 'one local rollback write is allowed; do not retry AI');
+  App.saveStory = () => { saved++; return true; };
   GameState.current = moduleState();
   GameState.current.moduleDefinitions.push({ id: 'private_backstage', label: '不得曝光的秘密名稱', visibility: 'internal', kind: 'object', tracking: 'high', fields: [{ key: 'fact', type: 'text' }] });
   API.send = async () => moduleReply();
