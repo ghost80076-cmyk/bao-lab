@@ -46,8 +46,14 @@ for (const viewport of [
     // On a 390px phone, the discovery heading and filters should no longer
     // push the poster row below most of the first viewport. Keep 320px stacked.
     if (viewport.width === 390) {
-      const firstPosterY = await card.evaluate(node => node.getBoundingClientRect().top + scrollY);
-      expect(firstPosterY).toBeLessThan(600);
+      // Check the first actually visible catalog card, not the named card below.
+      // The magic-academy fixture can appear several rows down after sorting.
+      await expect(page.locator('link[href="css/bao-editorial-cinema.css?v=15"]')).toHaveCount(1);
+      const firstCard = page.locator('#character-list .character-card:visible').first();
+      await expect(firstCard).toBeVisible();
+      await expect.poll(() => firstCard.evaluate(node =>
+        node.getBoundingClientRect().top + window.scrollY
+      )).toBeLessThan(600);
       const searchRect = await searchBox.boundingBox();
       const filterRect = await page.locator('[data-explore-filter-open]').boundingBox();
       expect(Math.abs(((searchRect?.y || 0) + (searchRect?.height || 0)) - ((filterRect?.y || 0) + (filterRect?.height || 0)))).toBeLessThanOrEqual(3);
