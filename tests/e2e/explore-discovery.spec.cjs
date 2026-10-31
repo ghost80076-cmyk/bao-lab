@@ -27,6 +27,8 @@ for (const viewport of [
     await searchInput.focus();
     await expect(searchBox).toHaveCSS('outline-style', 'solid');
     await expect(searchBox).toHaveCSS('outline-width', '2px');
+    await searchInput.fill('學院');
+    await expect(page.locator('.explore-search-clear')).toBeVisible();
 
     const bounds = async selector => page.locator(selector).first().boundingBox();
     for (const selector of ['.explore-search-clear', '[data-explore-filter-open]']) {
@@ -34,6 +36,9 @@ for (const viewport of [
       expect(box?.width || 0, selector + ' hit width').toBeGreaterThanOrEqual(44);
       expect(box?.height || 0, selector + ' hit height').toBeGreaterThanOrEqual(44);
     }
+
+    await page.locator('.explore-search-clear').click();
+    await expect(page.locator('.explore-search-clear')).toBeHidden();
 
     const card = page.locator('#character-list [data-character-id="night-sky-magic-academy"]');
     await expect(card).toBeVisible();
