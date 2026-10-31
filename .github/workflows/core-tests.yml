@@ -269,6 +269,7 @@ jobs:
           node tests/author-profile-core.cjs
           node tests/author-profile-runtime.cjs
           node tests/catalog-author-linkage.cjs
+          node tests/chicofy-six-timelines.test.cjs
           node tests/catalog-version-metadata.cjs
       - name: Character JSON and PNG import integrity
         run: |
