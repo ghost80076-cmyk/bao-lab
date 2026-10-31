@@ -86,3 +86,37 @@ review priority rather than skipping automatic module checks. Player settings
 label these as automatic priority/general/secondary; `manual` remains excluded.
 The `ui_only` context description distinguishes narrative-background omission
 from opted-in state tracking, which still needs module data to validate updates.
+
+## Resumable historical pending-state recovery
+
+An accumulated pendingStateTurns queue is **not** fixed by a 12/32-message
+manual rebuild. The player can choose "分批掃描待補輪次" in Context Health:
+
+- Each explicit click makes at most four auxiliary state-model calls, covering
+  at most four chronological pending turns per call. When source text exceeds
+  16,000 characters, the batch is reduced; a single oversized turn fails
+  visibly without being skipped. The source always stays on-device except for
+  the deliberately sent paid model request.
+- Each verified response must confirm reviewed_turns and contain no more than
+  eight short evidence facts. Each successful batch saves a local stateRecovery
+  checkpoint and verifies storage flush. A failed or blocked batch never advances
+  its checkpoint. The original pending queue and current NPCs, balances, scene,
+  authored modules, player text and story history stay unchanged throughout
+  scanning.
+- The checkpoint is bound to an ordered source fingerprint; a modified or
+  removed covered turn disables resume. Reset discards **only** scanned facts
+  and progress, never pending turns or story state. Appending unrelated later
+  turns does not invalidate previously scanned source text.
+- When all pending turns have been scanned, the player must explicitly authorize
+  one further **paid deep rebuild**. Its input includes the chronological
+  evidence and current recent story; newer confirmed facts override old
+  evidence. Only full validated module, character, scene and phone coverage
+  may clear the complete backlog. Partial/blocked/truncated/invalid results
+  leave all unresolved historical work intact.
+- Provider content blocks are shown and stop the scan. No unrequested model
+  switch, safety bypass, hidden retries or automatic payments are performed.
+
+This is evidence-assisted recovery, not an independent semantic accounting
+ledger: the model can still omit or misinterpret a fact. The checkpoint records
+what was scanned and the final validation records which fields remain uncertain;
+neither constitutes proof of perfect reconstruction. Backup before remediation.

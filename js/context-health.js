@@ -182,6 +182,11 @@
           <p>重新整理使用最近 12 則訊息（最多 20,000 字元）；深度重建使用最近 32 則訊息（最多 48,000 字元），並加入較早摘要與事件記憶，並非重讀整篇故事。每次呼叫一次狀態模型並產生 API 費用；成功後會確認寫入裝置。</p>
           <button type="button" class="secondary" data-state-rebuild="recent">重新整理狀態</button>
           <button type="button" class="secondary" data-state-rebuild="deep">深度重建狀態</button>
+          <p data-state-recovery-progress role="status" aria-live="polite"></p>
+          <p>積欠較多輪次時，可以先逐批掃描歷史證據。每批通過核對後會保存進度，但不直接更改目前狀態；掃描全部完成後，才另外進行一次深度重建。內容安全阻擋不會自動重試、略過或切換供應商。</p>
+          <button type="button" class="secondary" data-state-recovery-scan>分批掃描待補輪次</button>
+          <button type="button" class="secondary" data-state-recovery-finish disabled>以待補證據深度重建</button>
+          <button type="button" class="secondary" data-state-recovery-reset>重設掃描紀錄</button>
           <p data-state-rebuild-result role="status" aria-live="polite"></p>
         </section>
 
@@ -197,11 +202,70 @@
 
     document.body.appendChild(wrap);
     const rebuildOwner = GameState.current;
+    const recoveryButtons = wrap.querySelectorAll('[data-state-rebuild], [data-state-recovery-scan], [data-state-recovery-finish], [data-state-recovery-reset]');
+    const refreshRecovery = () => {
+      const info = window.WorldStateEngine?.pendingRecoveryStatus?.() || { pending: 0, covered: 0, valid: true, ready: false };
+      const scan = wrap.querySelector('[data-state-recovery-scan]');
+      const finish = wrap.querySelector('[data-state-recovery-finish]');
+      const reset = wrap.querySelector('[data-state-recovery-reset]');
+      const message = wrap.querySelector('[data-state-recovery-progress]');
+      if (scan) {
+        scan.disabled = !info.pending || !info.valid || info.ready;
+        scan.textContent = info.covered ? '繼續掃描待補輪次' : '分批掃描待補輪次';
+      }
+      if (finish) finish.disabled = !info.ready;
+      if (reset) reset.disabled = !info.covered && info.valid;
+      if (message) message.textContent = !info.valid
+        ? '待補原文已改變，請先重設舊掃描紀錄；不會自動略過任何輪次。'
+        : info.pending
+          ? `待補 ${info.pending} 輪，已掃描 ${info.covered} 輪。${info.ready ? '可以選擇最終深度重建；此時才會嘗試更新目前狀態。' : '每次最多四批、每批最多四輪；掃描不會修改目前狀態。'}`
+          : '沒有待補輪次。';
+    };
+    const toggleRecovery = disabled => {
+      recoveryButtons.forEach(button => { button.disabled = disabled; });
+      if (!disabled) refreshRecovery();
+    };
+    refreshRecovery();
+    wrap.querySelector('[data-state-recovery-scan]')?.addEventListener('click', async () => {
+      if (GameState.current !== rebuildOwner) return;
+      if (!window.confirm('逐批掃描積欠的故事狀態？每次最多 4 次額外模型請求、產生 API 費用；只保存證據，不覆寫目前的時間／物品。')) return;
+      toggleRecovery(true);
+      const status = wrap.querySelector('[data-state-rebuild-result]');
+      status.textContent = '正在掃描待補歷史，成功一批保存一批…';
+      try {
+        await WorldStateEngine.recoverPending(App.config);
+        status.textContent = rebuildOwner.stateTracker?.message || '掃描進度已保存。';
+      } catch (error) { status.textContent = String(error?.message || '掃描失敗，已保留先前進度。'); }
+      finally { toggleRecovery(false); }
+    });
+    wrap.querySelector('[data-state-recovery-reset]')?.addEventListener('click', async () => {
+      if (GameState.current !== rebuildOwner) return;
+      if (!window.confirm('只重設待補掃描的進度與證據？不會刪除故事、待補輪次或目前狀態。')) return;
+      toggleRecovery(true);
+      const status = wrap.querySelector('[data-state-rebuild-result]');
+      try {
+        await WorldStateEngine.resetPendingRecovery();
+        status.textContent = '已重設掃描進度；原始待補輪次仍保留。';
+      } catch (error) { status.textContent = String(error?.message || '重設失敗。'); }
+      finally { toggleRecovery(false); }
+    });
+    wrap.querySelector('[data-state-recovery-finish]')?.addEventListener('click', async () => {
+      if (GameState.current !== rebuildOwner || !WorldStateEngine.pendingRecoveryStatus?.().ready) return;
+      if (!window.confirm('使用已核對的待補證據執行深度重建？額外呼叫 1 次狀態模型並產生費用；只有所有欄位核對成功才會清除待補輪次。')) return;
+      toggleRecovery(true);
+      const status = wrap.querySelector('[data-state-rebuild-result]');
+      status.textContent = '正在驗證已核對證據並重建當前狀態…';
+      try {
+        await WorldStateEngine.rebuild(App.config, 'deep');
+        status.textContent = rebuildOwner.stateTracker?.message || '狀態重新整理完成。';
+      } catch (error) { status.textContent = String(error?.message || '深度重建失敗；原始待補與掃描證據已保留。'); }
+      finally { toggleRecovery(false); }
+    });
     wrap.querySelectorAll('[data-state-rebuild]').forEach(button => button.addEventListener('click', async () => {
       if (GameState.current !== rebuildOwner) return;
       const mode = button.dataset.stateRebuild;
       if (!window.confirm(`${mode === 'deep' ? '深度重建' : '重新整理'}目前狀態？會呼叫一次狀態模型並產生 API 費用，不修改故事正文。`)) return;
-      const buttons = wrap.querySelectorAll('[data-state-rebuild]');
+      const buttons = recoveryButtons;
       const status = wrap.querySelector('[data-state-rebuild-result]');
       buttons.forEach(b => { b.disabled = true; });
       status.textContent = '正在整理，請稍候…';
@@ -210,7 +274,7 @@
         await WorldStateEngine.rebuild(App.config, mode);
         if (GameState.current === rebuildOwner) status.textContent = rebuildOwner.stateTracker?.message || '目前狀態已重新整理。';
       } catch (error) { status.textContent = String(error?.message || '重建失敗，請稍後再試。'); }
-      finally { buttons.forEach(b => { b.disabled = false; }); }
+      finally { toggleRecovery(false); }
     }));
     wrap.querySelector('[data-context-inspector-open]')?.addEventListener('click', () => { close(); window.BAOStoryControlCenter?.open?.({effects:true}); });
     wrap.querySelector("[data-context-health-close]")?.addEventListener("click", close);
