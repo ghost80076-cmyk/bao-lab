@@ -86,7 +86,7 @@
       || rule.name !== '齊格飛｜六線開場互動相容'
       || rule.description !== '僅對作者提供的六角色原始開場 HTML 轉換顯示，不改其文案及世界設定。'
       || rule.flags !== 's' || rule.enabled !== true || rule.script !== true
-      || rule.priority !== 0 || rule.scope !== 'assistant_display' || rule.reason !== ''
+      || rule.priority !== 10 || rule.scope !== 'assistant_display' || rule.reason !== ''
       || rule.pattern !== legacyChicofyPattern
       || typeof rule.replacement !== 'string'
       || rule.replacement.length !== legacyChicofyReplacementLength
