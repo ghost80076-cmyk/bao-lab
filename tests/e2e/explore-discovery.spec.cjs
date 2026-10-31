@@ -10,6 +10,93 @@ async function chooseFilter(page, name) {
 }
 
 
+for (const viewport of [
+  { width:320, height:568 },
+  { width:390, height:844 },
+  { width:1180, height:820 }
+]) {
+  test(`explore polish retains usable search, filter and favorite controls at ${viewport.width}px`, async ({ page }) => {
+    await page.addInitScript(() => localStorage.removeItem('yorubay:explore-continuity:v1'));
+    await page.setViewportSize(viewport);
+    await page.goto('./');
+    await page.waitForFunction(() => Boolean(window.BAOExploreDiscovery && App.characters?.length));
+    await page.evaluate(() => App.showView('explore'));
+
+    const searchInput = page.locator('#explore-search-input');
+    const searchBox = page.locator('.explore-search-box');
+    await searchInput.focus();
+    await expect(searchBox).toHaveCSS('outline-style', 'solid');
+    await expect(searchBox).toHaveCSS('outline-width', '2px');
+    await searchInput.fill('學院');
+    await expect(page.locator('.explore-search-clear')).toBeVisible();
+
+    const bounds = async selector => page.locator(selector).first().boundingBox();
+    for (const selector of ['.explore-search-clear', '[data-explore-filter-open]']) {
+      const box = await bounds(selector);
+      expect(box?.width || 0, selector + ' hit width').toBeGreaterThanOrEqual(44);
+      expect(box?.height || 0, selector + ' hit height').toBeGreaterThanOrEqual(44);
+    }
+
+    await page.locator('.explore-search-clear').click();
+    await expect(page.locator('.explore-search-clear')).toBeHidden();
+
+    const card = page.locator('#character-list [data-character-id="night-sky-magic-academy"]');
+    await expect(card).toBeVisible();
+    const favorite = card.locator('[data-explore-favorite]');
+    // On a 390px phone, the discovery heading and filters should no longer
+    // push the poster row below most of the first viewport. Keep 320px stacked.
+    if (viewport.width === 390) {
+      // Check the first actually visible catalog card, not the named card below.
+      // The magic-academy fixture can appear several rows down after sorting.
+      await expect(page.locator('link[href="css/bao-editorial-cinema.css?v=15"]')).toHaveCount(1);
+      const firstCard = page.locator('#character-list .character-card:visible').first();
+      await expect(firstCard).toBeVisible();
+      await expect.poll(() => firstCard.evaluate(node =>
+        node.getBoundingClientRect().top + window.scrollY
+      )).toBeLessThan(600);
+      const searchRect = await searchBox.boundingBox();
+      const filterRect = await page.locator('[data-explore-filter-open]').boundingBox();
+      expect(Math.abs(((searchRect?.y || 0) + (searchRect?.height || 0)) - ((filterRect?.y || 0) + (filterRect?.height || 0)))).toBeLessThanOrEqual(3);
+    }
+    if (viewport.width === 320) {
+      const searchRect = await searchBox.boundingBox();
+      const filterRect = await page.locator('[data-explore-filter-open]').boundingBox();
+      expect(filterRect?.y || 0).toBeGreaterThanOrEqual((searchRect?.y || 0) + (searchRect?.height || 0));
+    }
+    const favoriteBox = await favorite.boundingBox();
+    expect(favoriteBox?.width || 0).toBeGreaterThanOrEqual(44);
+    expect(favoriteBox?.height || 0).toBeGreaterThanOrEqual(44);
+    if (viewport.width <= 700) {
+      const badges = await card.evaluate(node => {
+        const row = node.querySelector('.explore-card-badge-row')?.getBoundingClientRect();
+        const action = node.querySelector('[data-explore-favorite]')?.getBoundingClientRect();
+        return { badgeRight:row?.right || 0, favoriteLeft:action?.left || 0 };
+      });
+      expect(badges.badgeRight).toBeLessThanOrEqual(badges.favoriteLeft + 1);
+    }
+
+    await favorite.click();
+    await expect(favorite).toHaveAttribute('aria-pressed', 'true');
+    await page.locator('[data-explore-filter-open]').click();
+    const sheet = page.locator('#explore-filter-sheet');
+    await expect(sheet).toBeVisible();
+    const option = sheet.getByRole('button', { name:'世界模擬', exact:true });
+    const optionBox = await option.boundingBox();
+    expect(optionBox?.height || 0, 'filter option hit height').toBeGreaterThanOrEqual(44);
+    await page.screenshot({ path:`test-results/explore-polish-filter-${viewport.width}.png`, animations:'disabled' });
+    await option.click();
+    await sheet.getByRole('button', { name:'完成', exact:true }).click();
+    const chip = page.locator('#explore-active-filters button').first();
+    await expect(chip).toBeVisible();
+    const chipBox = await chip.boundingBox();
+    expect(chipBox?.height || 0, 'active filter hit height').toBeGreaterThanOrEqual(44);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+    await page.screenshot({ path:`test-results/explore-polish-gallery-${viewport.width}.png`, animations:'disabled' });
+  });
+}
+
+
+
 test('explore page lets players search works and filter capabilities without exposing R18 by default', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./');
