@@ -339,6 +339,8 @@
   WorldStateEngine.resetPendingRecovery = async function() {
     const owner = GameState.current;
     if (!owner || activeOwners.has(owner)) throw new Error('狀態整理正在執行，無法重設掃描紀錄。');
+    const endMaintenance = beginMaintenance(owner);
+    if (!endMaintenance) throw new Error('另一項記憶或狀態重建正在執行。');
     const before = clone(owner.stateRecovery);
     owner.stateRecovery = null;
     try {
@@ -349,7 +351,7 @@
     } catch (error) {
       owner.stateRecovery = before;
       throw new Error('無法儲存重設結果；舊掃描紀錄已保留。');
-    }
+    } finally { endMaintenance(); }
     return recoveryStatus(owner);
   };
   WorldStateEngine.recoverPending = async function(config) {
