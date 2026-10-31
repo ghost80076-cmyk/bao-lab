@@ -164,9 +164,9 @@ test.describe('touch-capable Story / Stage breakpoint polish', () => {
 
   test('touch-capable Story keeps Stage and message actions discoverable across breakpoints', async ({ page }) => {
     await openDemoStory(page, 821);
-    await expect(page.locator('link[href="css/player-shell-v2.css?v=9"]')).toHaveCount(1);
+    await expect(page.locator('link[href="css/player-shell-v2.css?v=10"]')).toHaveCount(1);
     await page.waitForFunction(() => Boolean(
-      document.querySelector('link[href="css/player-shell-v2.css?v=9"]')?.sheet
+      document.querySelector('link[href="css/player-shell-v2.css?v=10"]')?.sheet
     ));
     // A first-party toolbar styling probe rather than a fabricated working
     // command. Actual Stage handlers have their own stage-capability E2E suite.
@@ -211,12 +211,18 @@ test.describe('touch-capable Story / Stage breakpoint polish', () => {
         )].filter(node => node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden');
         const toolbar = document.querySelector('[data-touch-reader-probe]');
         const stream = document.getElementById('chat-stream');
+        const header = document.querySelector('#chat-view .chat-topline');
+        const avatar = document.querySelector('#chat-view .chat-title-avatar');
+        const search = document.getElementById('bao-conversation-search-open');
         return {
           coarse: matchMedia('(pointer:coarse)').matches,
           noHover: matchMedia('(hover:none)').matches,
           buttons:activeControls.map(rect),
           messageOpacity:parseFloat(getComputedStyle(toolbar).opacity),
           action:rect(toolbar.querySelector('button')),
+          header:rect(header),
+          avatar:rect(avatar),
+          search:search ? { width:search.clientWidth, scrollWidth:search.scrollWidth, iconFont:getComputedStyle(search,'::before').fontSize } : null,
           stream:rect(stream),
           scrollWidth:document.documentElement.scrollWidth,
           width:innerWidth
@@ -227,6 +233,10 @@ test.describe('touch-capable Story / Stage breakpoint polish', () => {
       expect(measure.stream.height, `reading stream at ${width}px`).toBeGreaterThan(180);
       expect(measure.coarse).toBe(true);
       expect(measure.noHover).toBe(true);
+      if(width >= 821 && width <= 1080) {
+        expect(measure.avatar.bottom, `avatar must stay within compact header at ${width}px`)
+          .toBeLessThanOrEqual(measure.header.bottom + 2);
+      }
       if(width >= 821) {
         expect(measure.buttons.length).toBeGreaterThanOrEqual(1);
         for(const button of measure.buttons) {
@@ -240,6 +250,9 @@ test.describe('touch-capable Story / Stage breakpoint polish', () => {
         // desktop controls or reply-tool presentation onto phones.
         await expect(page.locator('.topbar')).toBeHidden();
         await expect(page.locator('#bao-mobile-composer-tools')).toBeVisible();
+        expect(measure.search?.scrollWidth, `mobile search label overflow at ${width}px`)
+          .toBeLessThanOrEqual((measure.search?.width || 0) + 1);
+        expect(parseFloat(measure.search?.iconFont || '0')).toBeGreaterThanOrEqual(20);
       }
       if([820,821,1080,1081].includes(width)) {
         await page.screenshot({
