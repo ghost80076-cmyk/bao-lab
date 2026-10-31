@@ -125,7 +125,7 @@
     const heading = title?.querySelector("h3");
     const copy = title?.querySelector("p");
     if (heading) heading.textContent = "手動整理";
-    if (copy) copy.textContent = "從對話產生草稿，再選擇寫入必記事項。這不會推進自動摘要進度；內容過大或摘要失敗時，請回「記憶狀態」重試自動整理。";
+    if (copy) copy.textContent = "從對話分批產生草稿，再選擇寫入必記事項；中斷後可繼續，不會推進自動摘要進度。";
     const pill = title?.querySelector(".memory-pill");
     if (pill) pill.textContent = "進階";
     if (title && !title.querySelector("[data-memory-back-notes]")) {

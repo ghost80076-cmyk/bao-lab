@@ -7,10 +7,18 @@ const openModelStep = async page => {
   const card = page.locator("article").filter({ hasText: "林沉風 - 見過黑暗的人" });
   await expect(card).toBeVisible();
   await card.click();
+  await page.getByRole('button', { name: '查看作品', exact: true }).click();
   await page.getByRole("button", { name: "開始故事" }).click();
   await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let step = 0; step < 3; step += 1) await page.getByRole("button", { name: "下一步" }).click();
+  await page.locator('#api-type').selectOption('gemini');
   await expect(page.locator("#test-api")).toBeVisible();
+};
+
+const openMemory = async page => {
+  await page.waitForFunction(()=>window.BAOStoryControlCenter&&window.BAOMemoryWorkbench);
+  await page.evaluate(()=>BAOStoryControlCenter.open());
+  await page.locator('[data-story-control-action="memory"]').click();
 };
 
 const openDemoCanon = async page => {
@@ -18,9 +26,7 @@ const openDemoCanon = async page => {
   await page.locator("#bao-demo-mode").check();
   await page.getByRole("button", { name: "下一步" }).click();
   await page.getByRole("button", { name: "開始故事" }).click();
-  const memoryButton = page.locator('#bao-player-settings [data-bao-open="memory"]');
-  await expect(memoryButton).toBeVisible();
-  await memoryButton.click();
+  await openMemory(page);
   await page.getByRole("button", { name: "劇情檔案" }).click();
   await expect(page.getByRole("heading", { name: "劇情檔案" })).toBeVisible();
 };
@@ -57,7 +63,7 @@ test.describe("Canon workbench responsive UI", () => {
   test("memory workbench exposes three player goals and keeps AI cleanup progressive", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await openDemoStory(page);
-    await page.locator('#bao-player-settings [data-bao-open="memory"]').click();
+    await openMemory(page);
 
     const desk = page.locator(".memory-desk");
     await expect(desk.getByRole("heading", { name: "記憶", exact: true })).toBeVisible();
@@ -86,9 +92,9 @@ test.describe("Canon workbench responsive UI", () => {
     await editingDone.click();
     await expect(desk).not.toHaveClass(/memory-editing/);
     await expect(desk.locator(".memory-desk-nav")).toBeVisible();
-    await expect(desk.getByRole("button", { name: "✨ AI 幫我整理" })).toBeVisible();
-    await desk.getByRole("button", { name: "✨ AI 幫我整理" }).click();
-    await expect(desk.getByRole("heading", { name: "AI 幫我整理" })).toBeVisible();
+    await expect(desk.locator("[data-memory-ai-helper]")).toBeVisible();
+    await desk.locator("[data-memory-ai-helper]").click();
+    await expect(desk.getByRole("heading", { name: "手動整理" })).toBeVisible();
     await expect(desk.getByRole("button", { name: "← 返回必記事項" })).toBeVisible();
     await desk.getByRole("button", { name: "← 返回必記事項" }).click();
     await expect(desk.getByRole("heading", { name: "必記事項" })).toBeVisible();
@@ -280,6 +286,7 @@ test.describe("Canon workbench responsive UI", () => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await openDemoCanon(page);
     await seedDraft(page);
+    await page.locator('.canon-book-advanced > summary').first().click();
     const layout = await page.evaluate(() => ({
       viewport: innerWidth,
       documentWidth: document.documentElement.scrollWidth,
@@ -300,6 +307,7 @@ test.describe("Canon workbench responsive UI", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await openDemoCanon(page);
     await seedDraft(page);
+    await page.locator('.canon-book-advanced > summary').first().click();
     const layout = await page.evaluate(() => {
       const desk = document.querySelector(".memory-desk").getBoundingClientRect();
       const nav = document.querySelector(".memory-desk-nav");
@@ -318,7 +326,7 @@ test.describe("Canon workbench responsive UI", () => {
     expect(layout.documentWidth).toBeLessThanOrEqual(390);
     expect(layout.deskLeft).toBe(0);
     expect(layout.deskWidth).toBe(390);
-    expect(layout.summaryColumns).toBe(1);
+    expect(layout.summaryColumns).toBe(2);
     expect(layout.controlColumns).toBe(1);
     expect(layout.actionColumns).toBe(1);
     expect(layout.navCanScroll).toBe(false);
@@ -339,7 +347,7 @@ test.describe("Canon workbench responsive UI", () => {
     });
     page.once("dialog", dialog => dialog.accept());
     await page.getByRole("button", { name: /整理最新劇情/ }).click();
-    await expect(page.locator("[data-canon-progress]")).toContainText("請先連接玩家自己的 API");
+    await expect(page.locator("[data-canon-progress]")).toContainText("請先連接整理模型的 API");
     expect(providerRequests).toEqual([]);
   });
 

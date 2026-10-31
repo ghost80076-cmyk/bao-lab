@@ -76,7 +76,7 @@ for (const width of [390, 1280]) {
     let calls = 0;
     await page.route('https://memory.test/**', async route => {
       const body = route.request().postDataJSON();
-      expect(body.max_tokens).toBe(1400);
+      expect(body.max_tokens).toBe(4096);
       calls++;
       await route.fulfill({ contentType: 'application/json', body: JSON.stringify({
         choices: [{ message: { content: JSON.stringify({ events: [calls === 1 ? '已確認的約定' : '未完成的新整理'] }) },
@@ -86,6 +86,7 @@ for (const width of [390, 1280]) {
     await page.evaluate(() => {
       App.config.api = { type:'custom', protocol:'openai', key:'mock', model:'future-model', baseUrl:'https://memory.test/chat/completions' };
       App.config.memory.summaryApiMode = 'same';
+      Chat.messages.forEach(message=>message.content=message.content.slice(0,40));
       BAOMemoryWorkbench.open();
     });
     const desk = page.locator('.memory-desk');
@@ -100,6 +101,139 @@ for (const width of [390, 1280]) {
     expect(await page.evaluate(() => Chat.summarizedUntil)).toBe(0);
     expect(await page.evaluate(() => GameState.current.memorySlots[0].text)).toBe('明天回到港口');
     expect(calls).toBe(2);
+  });
+
+  test(`all-dialogue notes resume paid batches after reload without changing auto coverage (${width}px)`, async ({ page }) => {
+    await prepare(page);
+    const chunks = [];
+    page.on('dialog', dialog => dialog.accept());
+    await page.route('https://memory.test/**', async route => {
+      const body = route.request().postDataJSON();
+      expect(body.model).toBe('future-model');
+      expect(body.max_tokens).toBe(2048);
+      chunks.push(body.messages[1].content.split('【本批來源】\n')[1]);
+      await route.fulfill({ contentType: 'application/json', body: JSON.stringify({ choices: [{
+        message: { content: JSON.stringify({ events: ['已確認的約定'] }) }, finish_reason: chunks.length === 2 ? 'length' : 'stop'
+      }] }) });
+    });
+    await page.evaluate(async () => {
+      App.config.api = { type:'custom', protocol:'openai', key:'test-only-key', model:'future-model', baseUrl:'https://memory.test/chat/completions',
+        capabilities:{ contextWindowTokens:16000, maxOutputTokens:2048 }, memory_policy:{ inputTokens:1900 } };
+      App.config.memory.summaryApiMode='same';
+      App.saveStory=()=>Storage.saveStory();
+      App.activeCharacter=await App.loadCharacter(App.activeCharacter.id);
+      Chat.reset();
+      for(let index=0;index<91;index++){
+        Chat.add('user',`原文-U${index}：${'已觀察到的劇情結果。'.repeat(8)}`);
+        Chat.add('assistant',`原文-A${index}：${'已觀察到的劇情結果。'.repeat(8)}`);
+      }
+      BAOMemoryWorkbench.open();
+    });
+    let desk=page.locator('.memory-desk');
+    await desk.locator('[data-tab="notes"]').click();
+    await desk.locator('[data-memory-ai-helper]').click();
+    await desk.locator('[data-refine-source]').selectOption('all');
+    await desk.locator('[data-run-refine]').click();
+    await expect(desk.locator('[data-refine-status]')).toContainText('截斷');
+    await expect(desk.locator('[data-write-draft]')).toBeDisabled();
+    expect(chunks.length).toBe(2);
+    expect(await page.evaluate(()=>GameState.current.memoryRefineJob.completed)).toBe(1);
+    const saved=await page.evaluate(()=>JSON.stringify(Storage.buildStoryPayload('memory resume')));
+    expect(saved).not.toContain('test-only-key');
+    expect(JSON.parse(saved).state.memoryRefineJob.completed).toBe(1);
+    await page.reload();
+    await page.waitForFunction(async()=>{await Storage.ready();return Boolean(window.BAOMemoryWorkbenchSimple&&Storage.loadStory());});
+    await page.evaluate(()=>{
+      if(!Storage.restoreStory(Storage.loadStory()))throw new Error('restore failed: '+Storage._lastRestoreError?.message);
+      App.config.api.key='test-only-key';
+      App.renderChatShell(false);App.showView('chat');
+      BAOMemoryWorkbench.open();
+    });
+    desk=page.locator('.memory-desk');
+    await desk.locator('[data-tab="notes"]').click();
+    await desk.locator('[data-memory-ai-helper]').click();
+    await expect(desk.locator('[data-refine-source]')).toHaveValue('all');
+    await expect(desk.locator('[data-refine-status]')).toContainText('已保存 1 批');
+    for(let attempt=0;attempt<8;attempt++){
+      await desk.locator('[data-run-refine]').click();
+      await expect(desk.locator('[data-run-refine]')).toBeEnabled();
+      if(await page.evaluate(()=>!GameState.current.memoryRefineJob))break;
+      await expect(desk.locator('[data-refine-status]')).toContainText('尚有來源未整理');
+      await expect(desk.locator('[data-write-draft]')).toBeDisabled();
+    }
+    await expect(desk.locator('[data-refine-status]')).toContainText('完成 · 共');
+    expect(chunks[2]).toBe(chunks[1]);
+    expect(chunks.slice(2)).not.toContain(chunks[0]);
+    await desk.locator('[data-write-draft]').click();
+    const state=await page.evaluate(()=>({cursor:Chat.summarizedUntil,messages:Chat.messages.length,text:GameState.current.memorySlots[0].text}));
+    expect(state.cursor).toBe(0);expect(state.messages).toBe(182);expect(state.text).toContain('已確認的約定');
+  });
+
+  test(`Canon uses the helper route and resumes its final merge (${width}px)`, async ({ page }) => {
+    await prepare(page);
+    let calls=0;
+    page.on('dialog', dialog=>dialog.accept());
+    await page.route('https://helper.test/**', async route=>{
+      const body=route.request().postDataJSON();
+      expect(body.model).toBe('future-helper');
+      expect(route.request().headers().authorization).toBe('Bearer helper-only-key');
+      calls++;
+      await route.fulfill({contentType:'application/json',body:JSON.stringify({choices:[{message:{content:JSON.stringify({notebooks:[{title:'北塔',content:'已抵達北塔。',category:'current',tier:'relevant'}]})},finish_reason:calls===2?'length':'stop'}]})});
+    });
+    await page.evaluate(()=>{
+      App.config.api.key='';
+      App.config.memory.summaryApiMode='separate';
+      App.config.memory.summaryApi={type:'custom',protocol:'openai',key:'helper-only-key',model:'future-helper',baseUrl:'https://helper.test/chat/completions'};
+      Chat.messages=Chat.messages.slice(0,2);
+      BAOMemoryWorkbench.open();
+    });
+    const desk=page.locator('.memory-desk');
+    await desk.locator('[data-tab="canon"]').click();
+    await desk.locator('.canon-advanced-tools > summary').click();
+    await desk.locator('[data-canon-full]').click();
+    await expect(desk.locator('[data-canon-progress]')).toContainText('截斷');
+    expect(await page.evaluate(()=>GameState.current.canonJob.nextChunk)).toBe(1);
+    await desk.locator('[data-canon-full]').click();
+    await expect(desk.locator('[data-canon-confirm]')).toBeVisible();
+    expect(calls).toBe(3);
+    expect(await page.evaluate(()=>Boolean(GameState.current.canon))).toBe(false);
+    await desk.locator('[data-canon-confirm]').click();
+    expect(await page.evaluate(()=>GameState.current.canon.notebooks[0].title)).toBe('北塔');
+  });
+
+  test(`reopening a running notes job shows its result without another paid request (${width}px)`, async ({ page }) => {
+    await prepare(page);
+    let release,calls=0;
+    await page.route('https://memory.test/**', async route=>{
+      calls++;
+      await new Promise(resolve=>release=resolve);
+      await route.fulfill({contentType:'application/json',body:JSON.stringify({choices:[{message:{content:JSON.stringify({events:['已完成的整理稿']})},finish_reason:'stop'}]})});
+    });
+    await page.evaluate(()=>{
+      App.config.api={type:'custom',protocol:'openai',key:'mock',model:'future-model',baseUrl:'https://memory.test/chat/completions'};
+      App.config.memory.summaryApiMode='same';
+      Chat.messages=Chat.messages.slice(0,2).map(message=>({...message,content:'已觀察到的結果。'}));
+      BAOMemoryWorkbench.open();
+    });
+    const openAI=async()=>{
+      const desk=page.locator('.memory-desk');
+      await desk.locator('[data-tab="notes"]').click();
+      await desk.locator('[data-memory-ai-helper]').click();
+      return desk;
+    };
+    let desk=await openAI();
+    await expect(desk.locator('[data-refine-model]')).toHaveJSProperty('readOnly',true);
+    await desk.locator('[data-run-refine]').click();
+    await expect.poll(()=>calls).toBe(1);
+    await desk.locator('.memory-desk-close').click();
+    await page.evaluate(()=>BAOMemoryWorkbench.open());
+    desk=await openAI();
+    await expect(desk.locator('[data-run-refine]')).toBeDisabled();
+    release();
+    await expect(desk.locator('[data-refine-status]')).toContainText('完成');
+    await expect(desk.locator('[data-write-draft]')).toBeEnabled();
+    await expect(desk.locator('[data-refine-draft]')).toContainText('已完成的整理稿');
+    expect(calls).toBe(1);
   });
 
   test(`memory error shortcut retries with visible batch progress and preserves paid coverage on failure (${width}px)`, async ({ page }) => {
@@ -143,7 +277,7 @@ for (const width of [390, 1280]) {
   test(`memory diagnostic separates requested, effective and thinking tokens (${width}px)`, async ({page})=>{
     await prepare(page);
     await page.evaluate(()=>{
-      App.config.api={key:'mock',protocol:'gemini',model:'gemini-3.1-pro-preview'};
+      App.config.api={key:'mock',protocol:'gemini',model:'gemini-3.1-pro-preview',memory_policy:{outputTokens:{summary:16384}}};
       API.send=async()=>({text:'partial',finishReason:'MAX_TOKENS',outputBudget:{requested:16384,effective:16384,source:'gemini-direct'},usage:{output_tokens:1796,reasoning_tokens:14588}});
       BAOMemoryWorkbench.open();
     });

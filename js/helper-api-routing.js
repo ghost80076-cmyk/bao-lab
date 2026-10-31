@@ -9,6 +9,7 @@
     config = { ...config, __helperRouteResolved: true };
     if (config?.__connectionTest) return next(config, messages, ...rest);
     let route = null;
+    if (config?.__memoryTask && config.__memoryRouteResolved) return next(config, messages, ...rest);
     if (config?.__memoryTask && String(App.config?.memory?.summaryApiMode || '').trim() !== 'same')
       route = App.config?.memory?.summaryApi || null;
     if (config?.__stateTask && String(App.config?.cost?.stateApiMode || '').trim() !== 'same')

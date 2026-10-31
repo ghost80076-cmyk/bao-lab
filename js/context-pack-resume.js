@@ -231,13 +231,12 @@
     "【待合併草稿】\n" + JSON.stringify(fragments)
   ].join("\n\n");
 
-  const requestFragment = async (config, prompt) => {
-    const result = await API.send(config, [
+  const requestMessages = prompt => [
       { role: "system", content: "只整理可驗證的劇情事實，輸出合法 JSON，不續寫故事。" },
       { role: "user", content: prompt }
-    ]);
-    const completionError = Chat.memoryCompletionError(result);
-    if (completionError) throw new Error(completionError);
+    ];
+  const requestFragment = async (config, prompt, isCurrent) => {
+    const result = await window.BAOMemoryCore.request(config, requestMessages(prompt), (...args) => API.send(...args), { isCurrent });
     return normalizeFragment(parseAIJSON(result?.text || ""));
   };
 
@@ -252,14 +251,25 @@
     saveStory();
   };
 
-  const organizeDraft = async (pack, inputMessages, onProgress = () => {}, options = {}) => {
-    const api = App.config?.api || {};
-    if (!api.key) throw new Error("尚未設定連線金鑰（API Key）；重新貼上自己的金鑰後即可從保存進度繼續。");
+  const organizeTask = async (pack, inputMessages, onProgress = () => {}, options = {}) => {
+    const core = window.BAOMemoryCore, owner = state(), storyConfig = App.config;
+    const config = core.config(storyConfig, 'context-pack', App.modelPresets || [], { __responseSchema: false });
+    window.BAOCreditsPilot?.prepareAccountConfig?.(config);
+    if (!config.key && !config.local && !window.BAOCreditsPilot?.isAccountReady?.(config)) throw new Error("尚未設定整理模型的連線金鑰；重新連接後即可從保存進度繼續。");
+    if (storyConfig?.demoMode) throw new Error('本機預覽不會呼叫整理模型。');
     const messages = normalizeMessages(inputMessages);
-    const plan = window.BAOStoryTools.organizationPlan(messages, options.maxTokens ? { maxTokens: options.maxTokens } : {});
+    let budget = core.sourceBudget(config, requestMessages(fragmentPrompt([], 9999, 9999)));
+    if (Number(options.maxTokens) > 0) budget = Math.min(budget, Number(options.maxTokens));
+    let plan;
+    do {
+      plan = window.BAOStoryTools.organizationPlan(messages, { maxTokens: budget });
+      if (plan.chunks.every((chunk, index) => core.fits(config, requestMessages(fragmentPrompt(chunk, index + 1, plan.chunkCount))))) break;
+      budget = Math.floor(budget / 2);
+      if (budget < 32) throw new Error('整理模型預算無法容納本批來源；原始資料保留。');
+    } while (true);
     if (!plan.chunkCount) throw new Error("目前沒有可整理的對話。");
 
-    let session = getSession();
+    let session = clone(getSession());
     if (!session) {
       session = {
         version: VERSION,
@@ -273,7 +283,7 @@
     let work = session.work;
     if (!work || work.planFingerprint !== fingerprint || Number(work.chunkCount) !== plan.chunkCount) {
       work = {
-        version: 1,
+        version: 2,
         planFingerprint: fingerprint,
         chunkCount: plan.chunkCount,
         mergeCalls: plan.mergeCalls,
@@ -290,6 +300,15 @@
       session.work = work;
       setSession(session);
     }
+    if (!Array.isArray(work.fragments) || work.fragments.length !== work.nextChunk || work.nextChunk > plan.chunkCount)
+      throw new Error('摘要包整理進度與來源不一致；請保留草稿，重新建立整理來源。');
+    if (work.version !== 2) {
+      // Older versions could advance mergeIndex before a failed request. Keep
+      // paid extraction evidence, but rebuild unverifiable merge coverage.
+      Object.assign(work, { version: 2, mergeInput: null, mergeNext: [], mergeIndex: 0, mergeLevel: 0, mergeCompleted: 0 });
+      session.work = work;
+      setSession(session);
+    }
 
     const completedCalls = Math.max(0, Number(work.nextChunk || 0)) + Math.max(0, Number(work.mergeCompleted || 0));
     const remainingCalls = Math.max(0, plan.totalCalls - completedCalls);
@@ -300,14 +319,16 @@
       if (!confirm(message)) return null;
     }
 
-    const config = Object.assign({}, api, { __memoryTask: true, __responseSchema: false, maxOutputTokens: 2200 });
-    if (App.config?.memory?.summaryModel) config.model = App.config.memory.summaryModel;
+    const sourceKey = JSON.stringify(session.source);
+    let expectedDraft = owner?.contextPackDraft;
+    const isCurrent = () => state() === owner && App.config === storyConfig && owner?.contextPackDraft === expectedDraft
+      && JSON.stringify(getSession()?.source) === sourceKey && Boolean(resolveSource(session.source));
     onProgress({ phase: "plan", chunkCount: plan.chunkCount, mergeCalls: plan.mergeCalls, totalCalls: plan.totalCalls, completedCalls, remainingCalls });
 
     while (work.nextChunk < plan.chunks.length) {
       const index = work.nextChunk;
       onProgress({ phase: "chunk", current: index + 1, total: plan.chunkCount, totalCalls: plan.totalCalls });
-      const fragment = await requestFragment(config, fragmentPrompt(plan.chunks[index], index + 1, plan.chunkCount));
+      const fragment = await requestFragment(config, fragmentPrompt(plan.chunks[index], index + 1, plan.chunkCount), isCurrent);
       work.fragments.push(fragment);
       work.nextChunk += 1;
       session.work = work;
@@ -318,6 +339,7 @@
         mergeCompleted: work.mergeCompleted || 0,
         totalCalls: plan.totalCalls
       });
+      expectedDraft = owner.contextPackDraft;
     }
 
     if (!work.mergeInput) {
@@ -331,9 +353,9 @@
 
     while (work.mergeInput.length > 1) {
       while (work.mergeIndex < work.mergeInput.length) {
-        const batch = work.mergeInput.slice(work.mergeIndex, work.mergeIndex + 6);
-        work.mergeIndex += batch.length;
+        const batch = core.mergeBatch(config, work.mergeInput.slice(work.mergeIndex), items => requestMessages(mergePrompt(items)));
         if (batch.length === 1) {
+          work.mergeIndex += 1;
           work.mergeNext.push(batch[0]);
           session.work = work;
           setSession(session);
@@ -341,7 +363,8 @@
         }
         const callNumber = work.mergeCompleted + 1;
         onProgress({ phase: "merge", current: callNumber, total: plan.mergeCalls, level: work.mergeLevel, totalCalls: plan.totalCalls });
-        const merged = await requestFragment(config, mergePrompt(batch));
+        const merged = await requestFragment(config, mergePrompt(batch), isCurrent);
+        work.mergeIndex += batch.length;
         work.mergeNext.push(merged);
         work.mergeCompleted += 1;
         session.work = work;
@@ -354,6 +377,7 @@
           chunkCompleted: work.nextChunk,
           totalCalls: plan.totalCalls
         });
+        expectedDraft = owner.contextPackDraft;
       }
       work.mergeInput = clone(work.mergeNext);
       work.mergeNext = [];
@@ -387,6 +411,16 @@
     current[SESSION_KEY] = Object.assign({}, session, { updatedAt: now() });
     delete current.contextPackDraftProgress;
     saveStory();
+  };
+
+  const active = new WeakSet();
+  const organizeDraft = async (...args) => {
+    const owner = state();
+    if (!owner) throw new Error('目前沒有故事可保存整理進度。');
+    if (active.has(owner)) throw new Error('本故事的摘要包仍在整理中。');
+    active.add(owner);
+    try { return await organizeTask(...args); }
+    finally { active.delete(owner); }
   };
 
   const enhanceEditor = () => {

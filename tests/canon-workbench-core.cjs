@@ -36,6 +36,7 @@ global.API = {
 
 const run = file => vm.runInThisContext(fs.readFileSync(path.join(__dirname, "..", file), "utf8"), { filename: file });
 global.addEventListener = () => {};
+vm.runInThisContext(fs.readFileSync(require('node:path').join(__dirname, '..', 'js/memory-core.js'), 'utf8'));
 vm.runInThisContext(fs.readFileSync(path.join(__dirname, '..', 'js/chat.js'), 'utf8') + '\nObject.assign(Chat, globalThis.Chat); globalThis.Chat = Chat;');
 run("js/episodic-memory-core.js");
 run("js/canon-workbench.js");
@@ -106,10 +107,11 @@ assert.equal(oversizedChunks.every(chunk => chunk.includes("msg-oversized")), tr
   API.calls = [];
   GameState.current = {};
   Chat.messages = Array.from({ length: 5 }, (_, index) => ({ role: index % 2 ? "assistant" : "user", content: `${index}-${"長篇證據".repeat(5000)}` }));
-  assert.equal(BAOCanonWorkbench.estimate("full").chunks, 5);
-  assert.equal(BAOCanonWorkbench.estimate("full").calls, 7, "five extracts, one intermediate merge and one final merge expected");
+  const plan = BAOCanonWorkbench.estimate("full");
+  assert.ok(plan.chunks > 5, "long CJK evidence must be split to the shared token budget");
+  assert.equal(plan.calls, plan.chunks + BAOCanonWorkbench.mergeCallCount(plan.chunks));
   await BAOCanonWorkbench.run("full");
-  assert.equal(API.calls.length, 7);
+  assert.equal(API.calls.length, plan.calls);
   assert.ok(API.calls.some(call => call.messages[1].content.includes("階層式合併的中間層")));
   assert.match(API.calls[0].messages[1].content, /msg-test-/);
   const priorDraft = GameState.current.canonDraft;
@@ -119,6 +121,31 @@ assert.equal(oversizedChunks.every(chunk => chunk.includes("msg-oversized")), tr
     await assert.rejects(BAOCanonWorkbench.run('full'), /截斷|阻擋/);
     assert.equal(GameState.current.canonDraft, priorDraft, 'even valid JSON with an incomplete finish must not replace the existing draft');
   }
+  // Persist successful extraction, then fail the final merge and resume only it.
+  Chat.messages = [{ id: 'u-resume', role: 'user', content: '我前往北塔。' }, { id: 'a-resume', role: 'assistant', content: '已抵達北塔。' }];
+  API.calls = [];
+  API.send = async (...args) => {
+    const result = await send.apply(API, args);
+    if (API.calls.length === 2) throw new Error('merge interrupted');
+    return result;
+  };
+  await assert.rejects(BAOCanonWorkbench.run('full'), /merge interrupted/);
+  assert.equal(GameState.current.canonJob.nextChunk, 1);
+  assert.equal(GameState.current.canonDraft, priorDraft);
+  assert.ok(!JSON.stringify(GameState.current.canonJob).includes('test-key'));
+  GameState.current = structuredClone(GameState.current);
+  API.send = send;
+  const before = API.calls.length;
+  await BAOCanonWorkbench.run('full');
+  assert.equal(API.calls.length - before, 1, 'resume from persisted extraction without repeating its API request');
+  assert.equal(GameState.current.canonJob, undefined);
+  assert.equal(GameState.current.canon, undefined, 'a completed resumed job is still only a draft');
+
+  const old = GameState.current;
+  API.send = async (...args) => { const result = await send.apply(API, args); GameState.current = {}; return result; };
+  await assert.rejects(BAOCanonWorkbench.run('full'), /故事或整理來源已變更/);
+  assert.equal(GameState.current.canonDraft, undefined);
+  assert.ok(old.canonDraft);
   console.log("canon workbench core test passed");
 })().catch(error => {
   console.error(error);

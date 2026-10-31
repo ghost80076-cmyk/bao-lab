@@ -12,7 +12,7 @@ vm.createContext(ctx);
 const load=file=>vm.runInContext(fs.readFileSync(file,'utf8'),ctx,{filename:file});
 load('js/api.js');vm.runInContext('window.API=API',ctx);
 let calls=0;ctx.API.send=async()=>{calls++;return{text:'reply'};};
-load('js/episodic-memory-core.js');load('js/lorebook.js');load('js/canon-workbench.js');load('js/context-inspector.js');
+load('js/memory-core.js');load('js/episodic-memory-core.js');load('js/lorebook.js');load('js/canon-workbench.js');load('js/context-inspector.js');
 const book=(id,extra={})=>({id,title:id,category:'world',tier:'relevant',content:'正文-'+id,...extra});
 ctx.GameState.current.canon={notebooks:[
   book('核心',{tier:'core'}),book('停用',{enabled:false}),book('只看',{tier:'ui'}),

@@ -192,6 +192,7 @@ jobs:
           tests/e2e/story-tool-navigation-intent.spec.cjs
           tests/e2e/memory-workbench-theme.spec.cjs
           tests/e2e/memory-recovery.spec.cjs
+          tests/e2e/memory-preferences.spec.cjs
           tests/e2e/story-tools-mobile-density.spec.cjs
           tests/e2e/context-pack-resume.spec.cjs
           tests/e2e/story-import-routing.spec.cjs

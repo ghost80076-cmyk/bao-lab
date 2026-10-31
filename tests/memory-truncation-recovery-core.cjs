@@ -23,6 +23,7 @@ function setup() {
     API: { async send(_config, messages) { sent.push(messages); return { text: 'GOOD' }; } }
   });
   ctx.window = ctx;
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'js/memory-core.js'), 'utf8'), ctx);
   const source = fs.readFileSync(path.join(__dirname, '..', 'js/chat.js'), 'utf8');
   vm.runInContext(source + '\nwindow.Chat = Chat;', ctx, { filename: 'js/chat.js' });
   const chat = ctx.Chat;
@@ -83,7 +84,7 @@ function setup() {
   await s.chat.maybeSummarize(s.config, true);
   assert.equal(blocked, 1, 'blocked content must not be retried');
   s.seed(12);
-  s.config.api={key:'mock',protocol:'gemini',model:'gemini-3.1-pro-preview'};
+  s.config.api={key:'mock',protocol:'gemini',model:'gemini-3.1-pro-preview',memory_policy:{outputTokens:{summary:16384}}};
   s.ctx.API.send=async config=>{
     assert.equal(config.maxOutputTokens,16384);
     return {text:'partial',finishReason:'MAX_TOKENS',outputBudget:{requested:16384,effective:16384,source:'gemini-direct'},usage:{output_tokens:1796,reasoning_tokens:14588}};

@@ -139,6 +139,7 @@ const Chat = {
   },
 
   memoryCompletionError(result) {
+    if (window.BAOMemoryCore) return window.BAOMemoryCore.completionError(result);
     const finish = String(result?.finishReason || '').toUpperCase();
     if (result?.blockReason || /^(SAFETY|PROHIBITED_CONTENT|BLOCKLIST|SPII|CONTENT_FILTER|IMAGE_SAFETY)$/.test(finish))
       return '供應商回報記憶輸出遭阻擋；保留原摘要與原始對話。';
@@ -147,7 +148,7 @@ const Chat = {
     return '';
   },
 
-  async normalizeMemoryResult(summaryConfig, raw) {
+  async normalizeMemoryResult(summaryConfig, raw, isCurrent = null) {
     const first = window.BAOHelperData.memoryText(raw || "");
     if (first) return { summary: first, repaired: false, error: "" };
     const source = String(raw || "").trim();
@@ -155,13 +156,14 @@ const Chat = {
       return { summary: "", repaired: false, error: "模型沒有回傳可用的記憶內容。" };
     }
     try {
-      const repair = await API.send(
-        { ...summaryConfig, __memoryTask: true, __memoryRepairTask: true, cacheEnabled: false, maxOutputTokens: Math.min(1400, Number(summaryConfig?.maxOutputTokens || 1400)) },
-        [
+      const repairConfig = { ...summaryConfig, __memoryTask: true, __memoryTaskKind: 'repair', __memoryRepairTask: true, cacheEnabled: false, maxOutputTokens: Math.min(1400, Number(summaryConfig?.maxOutputTokens || 1400)) };
+      const repairMessages = [
           { role: "system", content: "你是 JSON 修復器。只修正格式，不新增、不推測任何故事事實。" },
           { role: "user", content: `請把以下內容轉成指定 JSON；只輸出 JSON。\n\n${window.BAOHelperData.memoryRules}\n\n【待修復輸出】\n${source.slice(0, 12000)}` }
-        ]
-      );
+        ];
+      const repair = window.BAOMemoryCore
+        ? await window.BAOMemoryCore.request(repairConfig, repairMessages, (...args) => API.send(...args), { isCurrent })
+        : await API.send(repairConfig, repairMessages);
       const completionError = this.memoryCompletionError(repair);
       if (completionError) return { summary: '', repaired: true, error: completionError };
       const repaired = window.BAOHelperData.memoryText(repair?.text || "");
@@ -185,7 +187,12 @@ const Chat = {
     // In "same" mode it must never overwrite the active provider's model ID.
     const separateMemory = config?.memory?.summaryApiMode !== "same" &&
       Boolean(config?.memory?.summaryApi?.model && config?.memory?.summaryApi?.baseUrl);
-    const memoryApi = separateMemory ? config.memory.summaryApi : config?.api;
+    let memoryApi;
+    try { memoryApi = window.BAOMemoryCore ? window.BAOMemoryCore.resolve(config) : separateMemory ? config.memory.summaryApi : config?.api; }
+    catch (error) {
+      this.memoryHealth = { ...(this.memoryHealth || {}), phase: 'failed', message: error.message, lastFailureAt: new Date().toISOString() };
+      return;
+    }
     window.BAOCreditsPilot?.prepareAccountConfig?.(memoryApi);
     if (!memoryApi?.key && !window.BAOCreditsPilot?.isAccountReady?.(memoryApi)) {
       API.noteRequest?.('memory','not-connected');
@@ -266,11 +273,21 @@ const Chat = {
           `【待整理舊對話】\n${transcript}`,
           force ? "目前 Context 使用率偏高，請進一步壓縮，輸出新的完整摘要，盡量控制在 600～1200 字。" : "請輸出新的完整長期記憶摘要，建議 800～1600 字以內。"
         ].filter(Boolean).join("\n\n");
-        const geminiSummary = /^gemini-3(?:[.-])/.test(memoryApi.model || '') &&
-          (memoryApi.protocol === 'gemini' || memoryApi.type === 'gemini' || window.BAOCreditsPilot?.isAccountConnection?.(memoryApi));
-        summaryConfig = { ...memoryApi, __memoryTask: true, cacheEnabled: false, maxOutputTokens: geminiSummary ? 16384 : 8192,
+        summaryConfig = { ...(window.BAOMemoryCore ? window.BAOMemoryCore.config(config, 'summary', App.modelPresets || []) : { ...memoryApi, __memoryTask: true, cacheEnabled: false, maxOutputTokens: 8192 }),
           ...(config?.memory?.episodicRecall !== false && window.BAOEpisodicMemory ? { __responseSchema: window.BAOEpisodicMemory.schema } : {}) };
-        result = await API.send(summaryConfig, [{ role: "system", content: "你是 Observer，不是作者。只輸出記憶規格 JSON，不要續寫故事或模仿正文文風。" }, { role: "user", content: prompt }]);
+        window.BAOCreditsPilot?.prepareAccountConfig?.(summaryConfig);
+        const requestMessages = [{ role: "system", content: "你是 Observer，不是作者。只輸出記憶規格 JSON，不要續寫故事或模仿正文文風。" }, { role: "user", content: prompt }];
+        if (window.BAOMemoryCore && !window.BAOMemoryCore.fits(summaryConfig, requestMessages)) {
+          const completed = chunk.map((m, i) => m.role === 'assistant' ? i + 1 : 0).filter(n => n > 0 && n < chunk.length);
+          const smaller = completed.filter(n => n <= Math.ceil(chunk.length / 2)).pop();
+          if (!smaller) throw new Error('本輪完整對話與既有摘要超出整理模型預算；原文與進度保留。');
+          end = start + smaller; chunk = this.messages.slice(start, end);
+          sourceSignature = JSON.stringify(chunk.map(m => [m.id, m.content, m.context_content || ""]));
+          attempt--; continue;
+        }
+        result = window.BAOMemoryCore
+          ? await window.BAOMemoryCore.request(summaryConfig, requestMessages, (...args) => API.send(...args), { allowIncomplete: true, isCurrent })
+          : await API.send(summaryConfig, requestMessages);
         if (!isCurrent()) return;
         this.memoryHealth = {
           ...this.memoryHealth,
@@ -298,7 +315,7 @@ const Chat = {
         sourceSignature = JSON.stringify(chunk.map(m => [m.id, m.content, m.context_content || ""]));
         this.memoryHealth = { ...this.memoryHealth, message: `摘要輸出截斷，正在縮小範圍重試（${attempt + 1}/2）。` };
       }
-      const normalized = await this.normalizeMemoryResult(summaryConfig, result?.text || "");
+      const normalized = await this.normalizeMemoryResult(summaryConfig, result?.text || "", isCurrent);
       if (!isCurrent()) return;
       const summary = normalized.summary;
       if (!summary) {

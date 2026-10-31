@@ -481,6 +481,8 @@ jobs:
         run: node tests/request-ledger-core.cjs
       - name: API send wrapper foundation
         run: |
+          node --check js/memory-core.js
+          node tests/memory-orchestration-core.cjs
           node --check js/api.js
           node --check js/cost-control.js
           node tests/api-send-wrapper-core.cjs

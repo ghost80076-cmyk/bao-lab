@@ -6,6 +6,17 @@
   const protocolName = value => ['openai', 'anthropic', 'gemini'].includes(value) ? value : 'openai';
   const sameConnection = (left, right) => normalizeUrl(left?.baseUrl) === normalizeUrl(right?.baseUrl)
     && protocolName(left?.protocol) === protocolName(right?.protocol);
+  const knownCapabilities = new Map();
+  const capabilityKey = config => `${protocolName(config?.protocol)}|${normalizeUrl(config?.baseUrl)}|${config?.model || ''}`;
+  const capabilitiesFor = config => ({ ...(knownCapabilities.get(capabilityKey(config)) || {}) });
+  const modelCapabilities = item => {
+    const result = {};
+    const set = (name, value) => { if (Number.isFinite(Number(value)) && Number(value) > 0) result[name] = Math.floor(Number(value)); };
+    set('contextWindowTokens', item.top_provider?.context_length ?? item.context_length);
+    set('maxInputTokens', item.inputTokenLimit);
+    set('maxOutputTokens', item.top_provider?.max_completion_tokens ?? item.outputTokenLimit);
+    return result;
+  };
 
   function modelsEndpoint(config) {
     const input = normalizeUrl(config?.baseUrl);
@@ -49,7 +60,9 @@
       const id = protocol === 'gemini' ? String(rawId || '').replace(/^models\//, '') : String(rawId || '');
       if (!usableId(id)) return;
       const name = String(item.displayName || item.display_name || item.name || id).trim();
-      models.set(id, { id, label: name && name !== id && name.length <= 100 ? `${name} (${id})` : id });
+      const capabilities = modelCapabilities(item);
+      models.set(id, { id, label: name && name !== id && name.length <= 100 ? `${name} (${id})` : id,
+        ...(Object.keys(capabilities).length ? { capabilities } : {}) });
     });
     return [...models.values()].sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
   }
@@ -74,6 +87,7 @@
     }
     const models = normalizeModels(data, protocol);
     if (!models.length) throw new Error('AI 服務商沒有回傳可辨識的聊天模型；請手動填寫模型代號（Model ID）。');
+    models.forEach(model => knownCapabilities.set(capabilityKey({ ...config, model: model.id }), model.capabilities || {}));
     return models;
   }
 
@@ -170,6 +184,10 @@
     App.collectConfig = function(...args) {
       const config = originalCollect(...args);
       if (config?.api) config.api.protocol = protocol.value;
+      if (config?.api && Object.keys(capabilitiesFor(config.api)).length) {
+        config.api.capabilities = capabilitiesFor(config.api);
+        config.api.capabilitiesSource = { model: config.api.model, baseUrl: config.api.baseUrl, protocol: config.api.protocol };
+      }
       return config;
     };
     picker = attachPicker({
@@ -255,6 +273,6 @@
   const watcher = new MutationObserver(() => mount());
   watcher.observe(document.body, { childList: true, subtree: true });
   mount();
-  window.BAOModelDiscovery = { modelsEndpoint, normalizeModels, fetchModels, sameConnection, mount,
+  window.BAOModelDiscovery = { modelsEndpoint, normalizeModels, fetchModels, sameConnection, mount, capabilitiesFor, modelCapabilities,
     syncBuilderControls: () => window.BAOModelDiscoverySyncBuilder?.() };
 })();
