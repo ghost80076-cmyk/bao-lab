@@ -18,7 +18,16 @@ for(const name of ['author','creator'])assert.equal(card.meta[name],author);
 for(const name of ['author_id','creator_id'])assert.equal(card.meta[name],authorId);
 assert.equal(card.meta.rating,'adult');
 assert.equal(card.meta.category,'male');
-assert.equal(card.meta.avatar,'https://i.meee.com.tw/BORVsUi.png');
+assert.equal(card.meta.avatar,'assets/characters/chicofy-six-timelines/cover.webp');
+assert.equal(assets.cover_reference,'https://i.meee.com.tw/BORVsUi.png');
+assert.equal(assets.cover_local_file_committed,true);
+for(const file of [assets.cover_original_png, assets.cover_optimized_webp]) {
+  assert.ok(fs.existsSync(path.join(root,file)),'local cover must exist: '+file);
+}
+assert.equal(fs.readFileSync(path.join(root,assets.cover_original_png)).subarray(0,8).toString('hex'),'89504e470d0a1a0a');
+const coverWebp=fs.readFileSync(path.join(root,assets.cover_optimized_webp));
+assert.equal(coverWebp.toString('ascii',0,4),'RIFF');
+assert.equal(coverWebp.toString('ascii',8,12),'WEBP');
 assert.equal(card.content.greeting,original,'must use original author 3D welcome markup');
 assert.equal(sha(card.content.system_prompt),'5e1454c1b7124cb44673761507949562b696b2dda52725c549fbc24c665e6e3d','original system_prompt may not be rewritten');
 assert.equal(sha(card.content.author_instructions),'333bf9833e08bfbe304c17dd2c643458bbc8532ca5aff7f9ffdf07498978b037','original roleplay example may not be rewritten');
