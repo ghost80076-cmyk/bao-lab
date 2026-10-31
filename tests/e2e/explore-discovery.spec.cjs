@@ -50,7 +50,7 @@ for (const viewport of [
       expect(firstPosterY).toBeLessThan(600);
       const searchRect = await searchBox.boundingBox();
       const filterRect = await page.locator('[data-explore-filter-open]').boundingBox();
-      expect(Math.abs((searchRect?.bottom || 0) - ((filterRect?.y || 0) + (filterRect?.height || 0)))).toBeLessThanOrEqual(3);
+      expect(Math.abs(((searchRect?.y || 0) + (searchRect?.height || 0)) - ((filterRect?.y || 0) + (filterRect?.height || 0)))).toBeLessThanOrEqual(3);
     }
     if (viewport.width === 320) {
       const searchRect = await searchBox.boundingBox();
