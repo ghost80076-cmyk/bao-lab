@@ -38,3 +38,7 @@ Main baseline: `361a6b9a4eb156a6d0ffd2da2e3a63cec797efb9` (含 #904)。本項工
 2. 821–1080px 的 Play Story header 顯示 68px 頭像，但標題列實際較短，使圖像伸入故事正文頂端。僅將 compact Play 頭像收為 44px，避免增高整個閱讀 chrome；手機版原本已是 40px，1081px+ 桌機仍保留 68px。
 
 本次從原本只有平板觸控可發現性擴展到上述兩個具體畫面問題，相關 CSS 使用各自現有責任檔。新增 browser geometry 斷言：820px Search 內容不得超出自身 hit box；821–1080px 頭像不得越過 header 底緣。手機與 Player CSS cache 版本同步更新。既有 Story/Stage/Phone 行為保持不變。
+
+## 821px avatar/header geometry — follow-up after CI
+
+Latest Story Experience on commit `8cbc5ef...` found the 44px avatar still protruded by about 9px below the compact header: avatar.bottom=213.34px vs header.bottom=204.19px. This is the fixed-height header's content/padding interaction, not a Stage state error. The follow-up ensures compact Play's **header box itself** is tall enough for the 44px portrait, 44px Stage navigation and vertical padding (`min-height:84px`) while leaving mobile <=820px and desktop >=1081px unchanged. The geometry assertion remains in place; latest-head CI must prove it, not bypass it.
