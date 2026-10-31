@@ -241,9 +241,12 @@
       '已核對 ' + job.cursor + '／' + job.plan.eligible + ' 輪（' + (job.stage === 'merge' ? '階層合併中' : '分批提取中') + '）';
     const facts = job.parts.flatMap(p => (p.output.stateEvidence || []).map(e =>
       '第 ' + p.start + '～' + p.end + ' 輪：' + e.kind + ' · ' + e.detail + ' [' + e.messageIds.join(', ') + ']'));
+    const proofs = job.parts.flatMap(p => (p.output.evidence || []).map(e =>
+      '第 ' + p.start + '～' + p.end + ' 輪：' + e.text + ' [' + e.messageIds.join(', ') + ']'));
     return '<p class="note" data-full-memory-progress-text>' + escape(state) + '</p>' +
       (job.candidate ? '<details open><summary>查看新摘要與來源證據</summary><pre>' +
-        escape(core.summary(job.candidate)) + '</pre><p class="note">以下世界狀態僅供人工核對；沒有覆寫人物、金錢、物品或任何作品分頁。</p>' +
+        escape(core.summary(job.candidate)) + '</pre><details><summary>檢視逐批來源證據（' + proofs.length + ' 條）</summary><pre>' +
+        escape(proofs.join('\n') || '無可確認事件') + '</pre></details><p class="note">以下世界狀態僅供人工核對；沒有覆寫人物、金錢、物品或任何作品分頁。</p>' +
         '<pre>' + escape(facts.slice(-60).join('\n') || '沒有可確定的狀態變化') + '</pre></details>' : '');
   };
   function mount(root) {
