@@ -313,7 +313,10 @@
       finally { const message = msg.textContent; rerender(); const out = root.querySelector('[data-full-message]'); if (out) out.textContent = message; }
     });
     area.querySelector('[data-full-apply]')?.addEventListener('click', async () => {
-      if (!confirm('已閱讀新舊摘要差異？確定套用新的正式長期摘要與覆蓋游標？世界狀態和作品資料不會被自動改寫。')) return;
+      const modeWarning = App.config?.memory?.mode !== 'smart'
+        ? '\\n目前不是智慧整理模式，套用後摘要仍不會自動進入故事模型上下文。'
+        : '';
+      if (!confirm('已閱讀新舊摘要差異？確定套用新的正式長期摘要與覆蓋游標？世界狀態和作品資料不會被自動改寫。' + modeWarning)) return;
       lock(true);
       try { await apply(); rerender(); }
       catch (e) { lock(false); msg.textContent = String(e.message || e); }
