@@ -342,7 +342,7 @@
           { role: 'user', content: [
             '依序核對每輪已發生的明確狀態變化，包括時間地點、人物、關係、契約、金錢、物品、任務與交付；不得填補未證實之事。',
             '這不是目前狀態，禁止從舊故事推算現在的位置或金額。只記錄有證據的變化，沒變化可回空陣列。',
-            `只輸出 {"reviewed_turns":${batch.length},"facts":["簡短且有原文依據的變化"]}。facts 最多 8 條、每條最多 120 字。',
+            `只輸出 {"reviewed_turns":${batch.length},"facts":["簡短且有原文依據的變化"]}。facts 最多 8 條、每條最多 120 字。`,
             batch.map((turn, i) => `第 ${start + i + 1} 輪\n玩家：${turn.player}\n故事：${turn.assistant}`).join('\n\n')
           ].join('\n\n') }
         ]);
