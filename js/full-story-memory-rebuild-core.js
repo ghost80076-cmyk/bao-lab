@@ -107,6 +107,7 @@
           certainty: evidence.certainty === 'uncertain' ? 'uncertain' : 'confirmed',
           knownBy: Array.isArray(evidence.knownBy) ? evidence.knownBy.filter(x => typeof x === 'string' && x.length <= 80).slice(0, 8) : [] });
       }
+      if (KEYS.some(key => result[key].length) && !result.evidence.length) throw new Error('新摘要有事實卻沒有原始訊息來源證據，未保存。');
       if (!Array.isArray(raw.stateEvidence) || raw.stateEvidence.length > 20) throw new Error('缺少狀態證據清單。');
       result.stateEvidence = raw.stateEvidence.map(item => {
         if (!item || !KINDS.includes(item.kind) || typeof item.detail !== 'string' ||
