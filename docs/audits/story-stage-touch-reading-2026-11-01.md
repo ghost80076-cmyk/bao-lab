@@ -28,3 +28,13 @@ Main baseline: `361a6b9a4eb156a6d0ffd2da2e3a63cec797efb9` (含 #904)。本項工
 ## 第一次 CI 問題與修正
 
 首輪 Fast Browser E2E Story Experience（run `41227029199`）除新增測試外，其餘 37 項通過。新增測試錯把實際「林沉風」故事當成沒有 Gameplay UI 的 Reader，硬性要求 1081px+ 必為 `sheet`；但 Stage Capability 的 `presentationFor()` 明定 `gameplay` 為 `panel`，屬正常支援的作品型態。已更新新增測試，於每個分界把現行 DOM 的 `shell`／`renderer`／`presentation` 對齊 `BAOStageCapabilities.resolve()` 的權威決策，並獨立確認 mobile/compact/desktop 分類。原有 `stage-capability.spec.cjs` 仍檢查 Reader、Scene RPG、RPG dashboard、Terminal 的精確門檻。沒有修改 Stage 路由或作品行為。
+
+
+## 截圖覆核追加：820／821px 首屏
+
+第一次 Story Experience CI run `41227029199` 的 `test-results/touch-stage-reading/story-820.png`、`story-821.png` 與 `story-1080.png` 已檢視，另外發現二處有畫面證據的原有閱讀缺口：
+
+1. 820px 仍使用手機版 44px Search 點擊區，但原按鈕內文字 `⌕ 搜尋對話` 會溢出至舞臺控制與鄰近入口。對 `<=820px` 的既有 Search 控制只顯示原有 `⌕` 符號，保留完整 DOM 文字、title、可操作性與原 onclick；從 `css/mobile-reading-layout.css` 收斂而非增加另一個入口。
+2. 821–1080px 的 Play Story header 顯示 68px 頭像，但標題列實際較短，使圖像伸入故事正文頂端。僅將 compact Play 頭像收為 44px，避免增高整個閱讀 chrome；手機版原本已是 40px，1081px+ 桌機仍保留 68px。
+
+本次從原本只有平板觸控可發現性擴展到上述兩個具體畫面問題，相關 CSS 使用各自現有責任檔。新增 browser geometry 斷言：820px Search 內容不得超出自身 hit box；821–1080px 頭像不得越過 header 底緣。手機與 Player CSS cache 版本同步更新。既有 Story/Stage/Phone 行為保持不變。
