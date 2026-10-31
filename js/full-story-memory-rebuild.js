@@ -256,6 +256,96 @@
     }
     } finally { guard?.end(owner); }
   }
+
+  // Rescue is a new independent story. No AI request and no mutation of the
+  // source story summary/state is needed after the verified draft is ready.
+  async function createContinuation() {
+    const owner = story(), job = current(), library = window.BAOStoryLibrary;
+    if (!owner || !job || job.stage !== 'ready' || !job.candidate || !library)
+      throw new Error('請先完成故事重建並檢查候選摘要。');
+    if (busy.has(owner) || Chat.summarizing || App.__requestPending)
+      throw new Error('其他故事或記憶請求執行中，不能建立續玩副本。');
+    const guard = window.BAOStoryMaintenanceLock;
+    if (guard && !guard.start(owner)) throw new Error('另一項故事維護正在執行。');
+    busy.add(owner);
+    const sourceConfig = App.config;
+    const previousRefs = library.refs();
+    const previousKey = String(sourceConfig?.api?.key || '');
+    let newStoryId = '', switched = false, original = null;
+    try {
+      // Recheck the evidence fingerprints before cloning; a stale draft is unsafe.
+      const checked = source(job);
+      if (!previousRefs.storyId || !previousRefs.chapterId)
+        throw new Error('原故事尚未完成本地保存，無法建立救援副本。');
+      if (!await library.open()) throw new Error('本機故事庫目前不可用，請先備份原故事。');
+      await saveVerified();
+      if (!await library.flush(previousRefs.storyId))
+        throw new Error('原故事尚未完全保存，不能建立救援副本。');
+      if (story() !== owner || App.config !== sourceConfig)
+        throw new Error('故事已切換，沒有建立副本。');
+      original = Storage.buildStoryPayload('原故事');
+      if (!original || original._library?.storyId !== previousRefs.storyId)
+        throw new Error('原故事備份來源不一致，沒有建立副本。');
+      const summary = core.summary(job.candidate);
+      const endIndex = checked.endIndex;
+      if (original.chat?.messages?.[endIndex]?.id !== job.plan.endId)
+        throw new Error('存檔原文與核對過的摘要游標不一致。');
+      const detached = core.continuationPayload(original, {
+        summary, endIndex, keepRounds: job.plan.keepRounds, model: job.model
+      });
+      const refs = library.beginStory('救援續玩');
+      newStoryId = refs.storyId;
+      detached._library = { ...refs, parentChapterId: '', branchPointMessageId: '',
+        branchPointSeq: -1, branchPointPreview: '' };
+      if (!await library.persist(detached))
+        throw new Error('救援副本寫入失敗，原故事未更動。');
+      const saved = await library.reconstruct(refs.storyId, refs.chapterId);
+      if (!saved || saved.chat?.messages?.length !== detached.chat.messages.length ||
+        saved.chat?.summarizedUntil !== endIndex + 1 ||
+        saved.chat?.messages?.[endIndex]?.id !== job.plan.endId)
+        throw new Error('救援副本持久化核對失敗，原故事未更動。');
+      if (!Storage.restoreStory(saved))
+        throw new Error('救援副本無法恢復，原故事未更動。');
+      switched = true;
+      App.config.api.key = previousKey;
+      if (GameState.current) GameState.current.config = App.config;
+      if (await App.saveStory?.(false) === false)
+        throw new Error('救援副本的自動存檔失敗。');
+      await Storage.flush();
+      if (!await library.flush(refs.storyId))
+        throw new Error('救援副本尚未完成故事庫保存。');
+      App.renderChatShell(false);
+      App.showView('chat');
+      window.BAORefreshSaveUI?.();
+      return { storyId: refs.storyId, chapterId: refs.chapterId };
+    } catch (error) {
+      // Roll back the currently selected story even if a partial new record exists.
+      try {
+        library.adoptRefs({ _library: previousRefs });
+        if (switched && original) {
+          if (!Storage.restoreStory(original)) throw new Error('原故事未能恢復；請保留分頁，不要清理本地資料。');
+          App.config.api.key = previousKey;
+          if (GameState.current) GameState.current.config = App.config;
+          App.saveStory?.(false);
+          await Storage.flush();
+          App.renderChatShell(false);
+          App.showView('chat');
+        }
+      } catch (rollbackError) {
+        throw new Error('救援副本失敗，且切回原故事未完成：' + String(rollbackError.message || rollbackError));
+      }
+      if (newStoryId) {
+        try { await library.deleteStory(newStoryId); } catch {
+          // An orphan is safer than deleting any source data after an IO failure.
+        }
+      }
+      throw error;
+    } finally {
+      busy.delete(owner);
+      guard?.end(owner);
+    }
+  }
+
   const UI = () => {
     const status = getDisplayJob(), job = status?.job;
     if (!job) return '<p class="note">從第一輪原始故事重新整理，不使用既有摘要作為事實來源。掃描時不修改目前記憶或世界狀態。</p>';
@@ -288,11 +378,15 @@
       (status && !status.valid || job?.stage === 'applied' || job?.stage === 'ready' ? 'disabled' : '') +
       '>' + (job ? '繼續重建' : '從第 1 輪重建') + '</button>' +
       '<button type="button" class="secondary" data-full-reset ' + (!job ? 'disabled' : '') + '>' + (job?.stage === 'applied' ? '結束重建並清除回滾備份' : '捨棄重建草稿') + '</button>' +
+      '<button type="button" class="secondary" data-full-continue ' + (job?.stage === 'ready' && status?.valid ? '' : 'disabled') +
+      '>建立獨立救援續玩副本</button>' +
       '<button type="button" class="secondary" data-full-apply ' + (job?.stage === 'ready' && status?.valid ? '' : 'disabled') +
       '>確認套用新摘要</button>' +
       '<button type="button" class="secondary" data-full-rollback ' + (!story()?.fullMemoryRebuildBackup ? 'disabled' : '') +
       '>還原套用前摘要</button></div>' +
       '<details><summary>比較目前正式摘要</summary><pre>' + escape(Chat.summary || '尚無摘要') + '</pre></details>' +
+      '<p class="note">故事救援：先使用「完整故事備份」匯出 JSON（也可下載本章 TXT），另選可正常整理的 AI 模型分批核對歷史。完成後按「建立獨立救援續玩副本」，原故事不改動；副本保留全部本地原文，只將已核對的舊輪次改用摘要送給模型。若模型仍阻擋內容，請勿反覆重試。</p>' +
+      '<div class="memory-draft-actions"><button type="button" class="secondary" data-full-backup>先下載完整 JSON 備份</button><button type="button" class="secondary" data-full-txt>下載本章 TXT</button></div>' +
       '<p class="note">分段來源會保留訊息 ID 和人物／世界狀態證據；正式套用僅更新長期摘要及覆蓋游標，事件索引、Canon、必記事項和世界狀態保持原樣。</p>' +
       '<p data-full-message role="status" aria-live="polite"></p>';
     const msg = area.querySelector('[data-full-message]'),
@@ -311,6 +405,22 @@
       }); msg.textContent = '本次呼叫 ' + value.calls + ' 次；已保存 ' + value.cursor + '／' + value.eligible + ' 輪。';
       } catch (e) { msg.textContent = String(e.message || e); }
       finally { const message = msg.textContent; rerender(); const out = root.querySelector('[data-full-message]'); if (out) out.textContent = message; }
+    });
+    area.querySelector('[data-full-backup]')?.addEventListener('click', async () => {
+      try { if (!window.BAOStoryBackup?.exportCurrentStory) throw new Error('完整故事備份功能尚未載入。'); await window.BAOStoryBackup.exportCurrentStory(); }
+      catch (error) { msg.textContent = String(error.message || error); }
+    });
+    area.querySelector('[data-full-txt]')?.addEventListener('click', () => {
+      try { if (!window.BAOStoryBackup?.downloadTranscript) throw new Error('TXT 匯出功能尚未載入。'); window.BAOStoryBackup.downloadTranscript(); }
+      catch (error) { msg.textContent = String(error.message || error); }
+    });
+    area.querySelector('[data-full-continue]')?.addEventListener('click', async () => {
+      if (!confirm('以已完成核對的 AI 故事摘要建立一份獨立續玩副本？原故事、完整對話與世界狀態保留；副本改用智慧記憶，最近的原文會繼續送給模型。請先下載完整 JSON 備份。')) return;
+      lock(true);
+      try {
+        await createContinuation();
+        alert('已建立並切換至救援續玩副本。原故事完整保留於故事庫；如仍被上游阻擋，請停止重試。');
+      } catch (error) { lock(false); msg.textContent = String(error.message || error); }
     });
     area.querySelector('[data-full-apply]')?.addEventListener('click', async () => {
       const modeWarning = App.config?.memory?.mode !== 'smart'
@@ -336,5 +446,5 @@
       catch (e) { lock(false); msg.textContent = String(e.message || e); }
     });
   }
-  window.BAOFullStoryMemoryRebuild = Object.freeze({ run, apply, reset, rollback, mount, getDisplayJob });
+  window.BAOFullStoryMemoryRebuild = Object.freeze({ run, apply, reset, rollback, createContinuation, mount, getDisplayJob });
 })();
