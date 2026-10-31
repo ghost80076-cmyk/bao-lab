@@ -19,3 +19,9 @@ Previous Journey visual evidence for `390-01-home` shows the new-player Explore 
 - Require full PR CI (particularly BAO editorial review, Fast Browser E2E and Journey visual audit) and inspect changed-surface screenshots before merge.
 - Browser viewport simulations do not prove iOS/Android soft-keyboard performance. Multiple first-party appearance themes should be confirmed in screenshot/visual QA, and existing specialized character detail variants may keep their own presentation.
 - Do not automatically merge or deploy as part of this polish PR.
+
+
+## First PR capture review and correction
+
+The first `Journey visual audit` artifact for #904 (run `41224849971`) showed the work Start button at **y=711px** on 390×900, already visible before the bottom tab bar, with the 44px back hit target at y=95px. It also exposed a second hierarchy bug: later first-party catalog enhancements insert author metadata, capability cards and a connection notice before `h1`. Although the simple template had been reordered, those additional nodes retained default flex order 0 and still pushed the title and start action down. A follow-up scoped adjustment assigns **negative** orders to category, title, actions, description and quote; other existing metadata flows below the narrative entry without dropping data. The first-run link takes its own row to avoid the floating mascot on the right.
+This is screenshot-informed correction, not a claim that the initial layout was fully accepted. Repeat the CI and visual capture at the latest PR HEAD before merge.
