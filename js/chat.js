@@ -274,6 +274,7 @@ const Chat = {
           force ? "目前 Context 使用率偏高，請進一步壓縮，輸出新的完整摘要，盡量控制在 600～1200 字。" : "請輸出新的完整長期記憶摘要，建議 800～1600 字以內。"
         ].filter(Boolean).join("\n\n");
         summaryConfig = { ...(window.BAOMemoryCore ? window.BAOMemoryCore.config(config, 'summary', App.modelPresets || []) : { ...memoryApi, __memoryTask: true, cacheEnabled: false, maxOutputTokens: 8192 }),
+          __automaticPolicyTask: true,
           ...(config?.memory?.episodicRecall !== false && window.BAOEpisodicMemory ? { __responseSchema: window.BAOEpisodicMemory.schema } : {}) };
         window.BAOCreditsPilot?.prepareAccountConfig?.(summaryConfig);
         const requestMessages = [{ role: "system", content: "你是 Observer，不是作者。只輸出記憶規格 JSON，不要續寫故事或模仿正文文風。" }, { role: "user", content: prompt }];
