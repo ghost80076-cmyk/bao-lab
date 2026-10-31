@@ -1,0 +1,56 @@
+{
+  "owner_id": "chicofy",
+  "author": "齊格飛",
+  "status": "external_urls_preserved_not_mirrored",
+  "cover_reference": "https://i.meee.com.tw/BORVsUi.png",
+  "portraits": [
+    {
+      "id": "mizuki",
+      "name": "篠原美月",
+      "alt": "美月",
+      "source_url": "https://objects.lunatalk.ai/asset/0543a8ff-1c0e-4661-859f-64f3d315fbdb.png",
+      "planned_local_path": "assets/characters/chicofy-six-timelines/mizuki.png",
+      "local_file_committed": false
+    },
+    {
+      "id": "runa",
+      "name": "桐谷琉奈",
+      "alt": "琉奈",
+      "source_url": "https://objects.lunatalk.ai/asset/8302ed4f-ce41-4857-b731-92ccbab2e796.png",
+      "planned_local_path": "assets/characters/chicofy-six-timelines/runa.png",
+      "local_file_committed": false
+    },
+    {
+      "id": "sumie",
+      "name": "水野澄江",
+      "alt": "澄江",
+      "source_url": "https://objects.lunatalk.ai/asset/52972d89-9e25-4d6d-8721-2718863d6613.png",
+      "planned_local_path": "assets/characters/chicofy-six-timelines/sumie.png",
+      "local_file_committed": false
+    },
+    {
+      "id": "maho",
+      "name": "朝倉真帆",
+      "alt": "真帆",
+      "source_url": "https://objects.lunatalk.ai/asset/0c5f2e43-5d6c-4003-b7b2-5fcbc501397b.png",
+      "planned_local_path": "assets/characters/chicofy-six-timelines/maho.png",
+      "local_file_committed": false
+    },
+    {
+      "id": "kanon",
+      "name": "白石花音",
+      "alt": "花音",
+      "source_url": "https://objects.lunatalk.ai/asset/bbfa2b0d-fcc7-4b37-9981-32db428e91b0.png",
+      "planned_local_path": "assets/characters/chicofy-six-timelines/kanon.png",
+      "local_file_committed": false
+    },
+    {
+      "id": "shiori",
+      "name": "小早川詩織",
+      "alt": "詩織",
+      "source_url": "https://objects.lunatalk.ai/asset/1d8409d2-04d8-45d0-9c94-dc6c46c4aeae.png",
+      "planned_local_path": "assets/characters/chicofy-six-timelines/shiori.png",
+      "local_file_committed": false
+    }
+  ]
+}
