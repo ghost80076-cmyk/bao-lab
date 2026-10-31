@@ -168,5 +168,99 @@ global.API = { send: async (config, messages) => { prompt = messages[1].content;
   await WorldStateEngine.rebuild(App.config);
   assert(prompt.length < 24000);
   assert(prompt.includes('49'));
+  // A 76-turn backlog must be scanned in old-to-new order without touching
+  // live game state. Each click permits no more than four paid, bounded batches.
+  const pending76 = Array.from({ length: 76 }, (_, i) => ({
+    player: `待補玩家第${i + 1}輪`, assistant: `第${i + 1}輪的世界變化`
+  }));
+  GameState.current = { ...initial(), pendingStateTurns: pending76 };
+  Chat.messages = [{ role: 'user', content: '現在要前往醫院' }, { role: 'assistant', content: '抵達醫院' }];
+  App.saveStory = () => { saved++; return true; };
+  let requests = 0;
+  let scanStarts = [];
+  API.send = async (cfg, messages) => {
+    assert.equal(cfg.__stateTask, true);
+    assert.equal(cfg.__auxiliaryTask, true);
+    assert.equal(cfg.__stateRebuild, true);
+    const content = messages[1].content;
+    const match = content.match(/第 (\d+) 輪\n玩家/);
+    assert(match, 'scan must include a numbered source turn');
+    scanStarts.push(Number(match[1]));
+    requests++;
+    return { text: JSON.stringify({ reviewed_turns: 4, facts: [`已核對第${match[1]}輪`] }) };
+  };
+  let stage = await WorldStateEngine.recoverPending(App.config);
+  assert.deepEqual({ ...stage }, { pending: 76, covered: 16, valid: true, ready: false });
+  assert.equal(requests, 4, 'one click has a hard four-request ceiling');
+  assert.deepEqual(scanStarts, [1, 5, 9, 13], 'scan must be chronological');
+  assert.equal(GameState.current.location, '公寓', 'scanning must never rewind the current scene');
+  assert.equal(GameState.current.pendingStateTurns.length, 76);
+  assert.equal(GameState.current.stateRecovery.covered, 16);
+
+  // A provider block stops immediately; neither the blocked source range nor
+  // earlier successful checkpoints are discarded or retried automatically.
+  let scanTry = 0;
+  API.send = async (cfg, messages) => {
+    scanTry++;
+    if (scanTry === 2) return { ...reply(), finishReason: 'PROHIBITED_CONTENT' };
+    return { text: JSON.stringify({ reviewed_turns: 4, facts: ['有據可查的變化'] }) };
+  };
+  await assert.rejects(WorldStateEngine.recoverPending(App.config), /內容阻擋/);
+  assert.equal(scanTry, 2);
+  assert.equal(GameState.current.stateRecovery.covered, 20, 'the first successful batch is durable');
+  assert.equal(GameState.current.pendingStateTurns.length, 76);
+  assert.equal(GameState.current.location, '公寓');
+  const resumed = JSON.parse(JSON.stringify(GameState.current));
+  GameState.current = resumed; // simulate reloading the persisted game state
+  requests = 0;
+  API.send = async (cfg, messages) => {
+    requests++;
+    const match = messages[1].content.match(/第 (\d+) 輪\n玩家/);
+    return { text: JSON.stringify({ reviewed_turns: 4, facts: [`依原文核對第${match[1]}輪`] }) };
+  };
+  for (let pass = 0; pass < 5 && !WorldStateEngine.pendingRecoveryStatus().ready; pass++)
+    await WorldStateEngine.recoverPending(App.config);
+  assert.equal(GameState.current.stateRecovery.covered, 76);
+  assert.equal(GameState.current.pendingStateTurns.length, 76);
+  assert.equal(GameState.current.time, '02:16');
+  assert.equal(requests, 14, 'resume must not rerun the 20 scanned turns');
+  assert.equal(WorldStateEngine.pendingRecoveryStatus().ready, true);
+
+  // Reject a blocked final rebuild and preserve both queue and staged evidence.
+  API.send = async () => ({ ...reply(), finishReason: 'SAFETY' });
+  await assert.rejects(WorldStateEngine.rebuild(App.config, 'deep'), /阻擋/);
+  assert.equal(GameState.current.pendingStateTurns.length, 76);
+  assert.equal(GameState.current.stateRecovery.covered, 76);
+  API.send = async (cfg, messages) => {
+    assert.match(messages[1].content, /已逐批核對的待補歷史/);
+    assert.match(messages[1].content, /73～76輪/);
+    return reply();
+  };
+  await WorldStateEngine.rebuild(App.config, 'deep');
+  assert.equal(GameState.current.location, '醫院');
+  assert.equal(GameState.current.pendingStateTurns.length, 0);
+  assert.equal(GameState.current.stateRecovery, null);
+  assert.equal(GameState.current.stateRebuildReport.recoveryCompleted, true);
+
+  // Changed source invalidates an old checkpoint; reset only clears the scan.
+  GameState.current = { ...initial(), pendingStateTurns: pending76.slice(0, 8) };
+  API.send = async () => ({ text: JSON.stringify({ reviewed_turns: 4, facts: [] }) });
+  await WorldStateEngine.recoverPending(App.config);
+  GameState.current.pendingStateTurns[0] = { player: '已被編輯', assistant: '玩家修改了原文' };
+  assert.equal(WorldStateEngine.pendingRecoveryStatus().valid, false);
+  await assert.rejects(WorldStateEngine.recoverPending(App.config), /重設掃描/);
+  await WorldStateEngine.resetPendingRecovery();
+  assert.equal(GameState.current.stateRecovery, null);
+  assert.equal(GameState.current.pendingStateTurns.length, 8);
+
+  // Persistence failures must roll back only checkpoint progress, not the story.
+  App.saveStory = () => false;
+  API.send = async () => ({ text: JSON.stringify({ reviewed_turns: 4, facts: [] }) });
+  await assert.rejects(WorldStateEngine.recoverPending(App.config), /儲存未確認/);
+  assert.equal(GameState.current.stateRecovery, null);
+  assert.equal(GameState.current.pendingStateTurns.length, 8);
+  assert.equal(GameState.current.location, '公寓');
+  App.saveStory = () => true;
+
   console.log('world state rebuild core tests passed');
 })().catch(e => { console.error(e); process.exitCode = 1; });

@@ -115,3 +115,46 @@ for (const width of [390, 1440]) {
     await expect(page.locator('#game-ui .ui-tabs > [data-panel="module:contract"]')).toHaveCount(0);
   });
 }
+
+test('mobile pending state scan requires a separate confirmed final rebuild', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('./');
+  await page.waitForFunction(() => window.BAOContextHealth && window.WorldStateEngine?.recoverPending && App.characters?.length);
+  await page.evaluate(() => {
+    App.activeCharacter = { ...App.characters[0], name: '待補驗收', world_modules: [], greeting: '從公寓出發。' };
+    App.config = { persona: { name: '旅人' }, narrativeMode: 'world', displayMode: 'ui', stateTracking: true,
+      api: { model: 'mock', baseUrl: 'https://example.invalid', key: 'mock' },
+      memory: { mode: 'rounds', maxRounds: 20, maxContext: 64000 }, cost: { stateApiMode: 'same' } };
+    Chat.reset(); GameState.create(App.activeCharacter, App.config);
+    Chat.add('user', '前往醫院'); Chat.add('assistant', '五點抵達醫院');
+    GameState.current.time = '02:16';
+    GameState.current.location = '公寓';
+    GameState.current.pendingStateTurns = Array.from({ length: 8 }, (_, i) => ({ player: `玩家第${i + 1}輪`, assistant: `已發生第${i + 1}輪` }));
+    window.__stateScanCalls = 0;
+    window.__stateRebuildCalls = 0;
+    API.send = async (_, messages) => {
+      if (messages[1].content.includes('reviewed_turns')) {
+        window.__stateScanCalls++;
+        return { text: JSON.stringify({ reviewed_turns: 4, facts: ['已核對原文的狀態變化'] }) };
+      }
+      window.__stateRebuildCalls++;
+      return { text: JSON.stringify({ time: '05:00', location: '醫院', npcs: [], character_statuses: {}, modules: {} }) };
+    };
+    App.renderChatShell(false); App.showView('chat'); BAOContextHealth.open();
+  });
+  const dialog = page.getByRole('dialog', { name: '上下文狀態' });
+  const scan = dialog.locator('[data-state-recovery-scan]');
+  const finish = dialog.locator('[data-state-recovery-finish]');
+  await expect(scan).toBeEnabled();
+  await expect(finish).toBeDisabled();
+  page.once('dialog', d => d.accept());
+  await scan.click();
+  await expect(dialog.locator('[data-state-recovery-progress]')).toContainText('已掃描 8 輪');
+  expect(await page.evaluate(() => window.__stateScanCalls)).toBe(2);
+  expect(await page.evaluate(() => [GameState.current.location, GameState.current.pendingStateTurns.length])).toEqual(['公寓', 8]);
+  await expect(finish).toBeEnabled();
+  page.once('dialog', d => d.accept());
+  await finish.click();
+  await expect(dialog.locator('[data-state-recovery-progress]')).toContainText('沒有待補輪次');
+  expect(await page.evaluate(() => [window.__stateRebuildCalls, GameState.current.location, GameState.current.pendingStateTurns.length])).toEqual([1, '醫院', 0]);
+});
