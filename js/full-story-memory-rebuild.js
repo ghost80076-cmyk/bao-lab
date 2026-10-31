@@ -74,7 +74,8 @@
     owner.fullMemoryRebuild = next;
     try { await saveVerified(); }
     catch (error) {
-      owner.fullMemoryRebuild = last;
+      if (last == null) delete owner.fullMemoryRebuild;
+      else owner.fullMemoryRebuild = last;
       throw new Error('批次結果沒有安全保存，進度未前移。' + String(error.message || ''));
     }
   }
