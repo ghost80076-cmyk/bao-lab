@@ -29,6 +29,7 @@
       if (!entry.id) throw new Error('部分原始對話沒有穩定訊息 ID；請重新載入存檔後再試。');
       if (m.role === 'user') {
         if (pending?.items.some(x => x.role === 'assistant')) groups.push(pending);
+        else if (pending) throw new Error('歷史中間出現沒有角色回覆的玩家輪次；不能跳過未完成的原文。');
         pending = { items: before.concat(entry), start: before[0]?.index ?? i };
         before = [];
       } else if (pending) {
