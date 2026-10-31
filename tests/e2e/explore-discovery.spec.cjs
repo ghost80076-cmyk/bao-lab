@@ -10,6 +10,68 @@ async function chooseFilter(page, name) {
 }
 
 
+for (const viewport of [
+  { width:320, height:568 },
+  { width:390, height:844 },
+  { width:1180, height:820 }
+]) {
+  test(`explore polish retains usable search, filter and favorite controls at ${viewport.width}px`, async ({ page }) => {
+    await page.addInitScript(() => localStorage.removeItem('yorubay:explore-continuity:v1'));
+    await page.setViewportSize(viewport);
+    await page.goto('./');
+    await page.waitForFunction(() => Boolean(window.BAOExploreDiscovery && App.characters?.length));
+    await page.evaluate(() => App.showView('explore'));
+
+    const searchInput = page.locator('#explore-search-input');
+    const searchBox = page.locator('.explore-search-box');
+    await searchInput.focus();
+    await expect(searchBox).toHaveCSS('outline-style', 'solid');
+    await expect(searchBox).toHaveCSS('outline-width', '2px');
+
+    const bounds = async selector => page.locator(selector).first().boundingBox();
+    for (const selector of ['.explore-search-clear', '[data-explore-filter-open]']) {
+      const box = await bounds(selector);
+      expect(box?.width || 0, selector + ' hit width').toBeGreaterThanOrEqual(44);
+      expect(box?.height || 0, selector + ' hit height').toBeGreaterThanOrEqual(44);
+    }
+
+    const card = page.locator('#character-list [data-character-id="night-sky-magic-academy"]');
+    await expect(card).toBeVisible();
+    const favorite = card.locator('[data-explore-favorite]');
+    const favoriteBox = await favorite.boundingBox();
+    expect(favoriteBox?.width || 0).toBeGreaterThanOrEqual(44);
+    expect(favoriteBox?.height || 0).toBeGreaterThanOrEqual(44);
+    if (viewport.width <= 700) {
+      const badges = await card.evaluate(node => {
+        const row = node.querySelector('.explore-card-badge-row')?.getBoundingClientRect();
+        const action = node.querySelector('[data-explore-favorite]')?.getBoundingClientRect();
+        return { badgeRight:row?.right || 0, favoriteLeft:action?.left || 0 };
+      });
+      expect(badges.badgeRight).toBeLessThanOrEqual(badges.favoriteLeft + 1);
+    }
+
+    await favorite.click();
+    await expect(favorite).toHaveAttribute('aria-pressed', 'true');
+    await page.locator('[data-explore-filter-open]').click();
+    const sheet = page.locator('#explore-filter-sheet');
+    await expect(sheet).toBeVisible();
+    const option = sheet.getByRole('button', { name:'世界模擬', exact:true });
+    const optionBox = await option.boundingBox();
+    expect(optionBox?.height || 0, 'filter option hit height').toBeGreaterThanOrEqual(44);
+    await page.screenshot({ path:`test-results/explore-polish-filter-${viewport.width}.png`, animations:'disabled' });
+    await option.click();
+    await sheet.getByRole('button', { name:'完成', exact:true }).click();
+    const chip = page.locator('#explore-active-filters button').first();
+    await expect(chip).toBeVisible();
+    const chipBox = await chip.boundingBox();
+    expect(chipBox?.height || 0, 'active filter hit height').toBeGreaterThanOrEqual(44);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+    await page.screenshot({ path:`test-results/explore-polish-gallery-${viewport.width}.png`, animations:'disabled' });
+  });
+}
+
+
+
 test('explore page lets players search works and filter capabilities without exposing R18 by default', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./');
