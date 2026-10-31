@@ -30,7 +30,7 @@ for (const width of [390, 1280]) {
     await expect(page.locator('#bao-mascot-launch')).toBeVisible();
     await expect(page.locator('#bao-mascot-launch .bao-mascot-launch-label')).toBeHidden();
     await expect(page.locator('link[href="css/bao-editorial-polish.css?v=3"]')).toHaveCount(1);
-    await expect(page.locator('link[href="css/bao-editorial-cinema.css?v=16"]')).toHaveCount(1);
+    await expect(page.locator('link[href="css/bao-editorial-cinema.css?v=17"]')).toHaveCount(1);
     await expect.poll(() => page.locator('#home-view .brand-hero h1').evaluate(node => getComputedStyle(node).whiteSpace)).toBe('normal');
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     const featureImage = await page.locator('#home-feature-stage > img').boundingBox();
@@ -212,7 +212,7 @@ for (const viewport of [
     await page.goto('/');
     await page.waitForFunction(() => Boolean(window.App?.characters?.length && window.BAOGalleryFocus));
     await page.waitForFunction(() => [...document.styleSheets].some(sheet =>
-      sheet.href?.includes('bao-editorial-cinema.css?v=16')));
+      sheet.href?.includes('bao-editorial-cinema.css?v=17')));
     const home = page.locator('#home-view .brand-cinematic-hero');
     const explore = home.locator('.brand-actions > .primary');
     const resume = home.locator('#home-continue');
