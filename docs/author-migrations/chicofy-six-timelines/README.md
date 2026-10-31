@@ -1,32 +1,29 @@
-# 齊格飛《借來的人生｜公園外的六條救贖路》｜夜灣正式角色卡接入
+# 齊格飛《借來的人生｜公園外的六條救贖路》｜六線轉盤與圖片修復
 
 **正式作品 ID：** `jielai-rensheng`  
-**原作者：** 齊格飛（作者 ID：`chicofy`；不是 GitHub 提交者）  
-**原作分級：** 成人向／男性向（`rating: adult`、`category: male`）
+**原作者：** 齊格飛（`chicofy`）  
+**內容分級：** 成人向／男性向，遵守既有成人內容探索過濾。
 
-這次已把原作者提供的完整角色 JSON 接入夜灣的正式角色檔與公開 catalog，發佈效果仍以 PR 合併及 Pages 部署結果為準。
+## 問題與修正
 
-## 原作保全
+初版角色卡已正確上架，卻把作者六線選擇轉盤的左右箭頭與觸控滑動綁在需要額外允許的 iframe JavaScript；首次進入的玩家只看到固定畫面。初版人物圖片又使用第三方 `objects.lunatalk.ai` 連結，但 iframe 的 CSP 在玩家未授權外部資源時會直接阻擋，導致破圖。
 
-- `data/characters/general/jielai-rensheng.json`：保留上傳原卡的 `system_prompt`、`author_instructions`、場景規則、主線與副線、共用時鐘／資金、初始狀態，以及世界書 `救贖之路` **13 條完整條目與全部關鍵字**。除了補齊正確作者欄位、封面與恢復原始 HTML greeting，其餘來源核心規則不改寫。原檔 `creator_notes` 附接入註記以澄清先前的 Markdown 草稿說明。
-- `roleWelcome_original.html`：作者原版 HTML，逐字保留六人 3D 選角及 12 個原始 `send`。
-- `roleWelcome_yorubay.html`：保留轉盤與文案，僅將外平台 `hc-btn`、`hc-collapse` 換為夜灣相容的 `button` 與 `details`。
-- `data/characters/general/jielai-rensheng.regex.json`：使用正式作品 ID `jielai-rensheng`；從前述原始 HTML 轉成相容畫面，並利用主站的官方 sidecar 載入流程自動關聯。
-- `data/characters.json`：公開作品條目以 `author: 齊格飛`、`author_id: chicofy` 登記；不另建作者、不用管理員「班長」署名。原作《時空之門》保持不變。
-- `attribution.json`：記錄正式 ID、作者歸屬及完整原卡已取得。
+本次修正讓正式開場不需要擅自提高腳本或圖片權限即可顯示本地作品素材，並提供可操作的六線轉盤。
 
-## 圖片與操作限制
+- `roleWelcome_original.html`：**作者原始 HTML 完全不變**，保留全部文案、原本圖片來源網址與 12 條角色 `send`。
+- `roleWelcome_yorubay.html` 和正式 `jielai-rensheng.regex.json`：沿用作者 `perspective`、`rotateY` 六面環及卡片文字，增加 CSS `:has(input:checked)` 和原生 radio／label。左右箭頭及六個路線切換即使在 `sandbox=""` / `script-src 'none'` 仍能操作；腳本獲授權後額外支援水平滑動。十二個原文字 `send` 不改，只轉成夜灣 `BAOAuthor.draft()`。
+- `assets.json` 保留六張圖片的原始 URL、原樣 PNG 快照與 WebP 最佳化路徑。此次在 GitHub Actions 從原始網址取回 **六張 PNG 原圖**，檢查 PNG header 與像素尺寸後存入 `assets/characters/chicofy-six-timelines/*.png`，另生成約 49–97 KB 的 `*.webp` 專供開場使用。外部原圖不再被玩家端熱連結。
+- `js/author-regex-inline.js` 僅為正式卡 `jielai-rensheng` 的隔離 iframe 放行 **當前網站的圖片 origin**；既有其他作者作品的外部來源、腳本、狀態讀取及 iframe 跨域隔離權限皆不變。
+- 首次進入轉盤與角色圖不需任何額外授權，但 **「確認選角」要填入玩家輸入框仍須明確同意作者互動腳本**。新增開場旁「啟用選角確認」入口，確認後只允許在 opaque iframe 內執行腳本；不會自動送出訊息、不讀取狀態、不授權第三方外部資源。
+- 無須修改卡片內容：`data/characters/general/jielai-rensheng.json` 的 `system_prompt`、13 條世界書、時間線、資金及作者署名 `齊格飛/chicofy` 原封不動。
 
-- 正式封面選用作者後補的參考 URL：`https://i.meee.com.tw/BORVsUi.png`。這是**遠端連結**，不是已提交 Git 的圖片。
-- 六張主角立繪使用 `assets.json` 保留的原圖 URL；世界書中其他 Cloudinary 圖庫連結也僅是原作者資料，**均未鏡像進倉庫**。不能宣稱所有圖片來源都已可用。
-- 正則會跟著作品自動綁定，但**作者互動腳本預設不獲授權**。玩家須在「作者正則介面」自行開啟互動腳本；遠端圖片另需授權外部圖片。未同意時不執行作者 JS，玩家仍可用文字輸入角色名選主線。
-- 選角按鈕的 `BAOAuthor.draft()` 只填入原作者的選角訊息，**玩家自行按送出**；不新增 API 呼叫。
-- 本作品沒有 `story_startup.opening.posts`，所以原始 greeting 可以由既有 `author-regex-inline.js` 接管；不需要改全站渲染器或跳過玩家安全隔離。
+## 圖像範圍與限制
 
-## 回歸檢查
+六張選角立繪已鏡像並加入手機尺寸的 WebP；封面仍使用原作者提供的 `https://i.meee.com.tw/BORVsUi.png`，世界書中的 Cloudinary 圖像網址也仍是第三方來源，**本次未整批鏡像世界書 72 個參照網址**。若後續玩家在**劇情內插圖**遇到圖片不可用，不應與本次已修復的六張**選角圖**混為一談。
 
-- `tests/chicofy-six-timelines.test.cjs`：驗證原作者身分、catalog 與卡片一致、原版 HTML、6 圖、12 按鈕、Regex 與腳本權限，以及 system_prompt、作者示例、13 條世界書與來源檔雜湊不變；此測試已列入 Core tests。
-- `tests/e2e/chicofy-six-timelines.spec.cjs`：390／1280px 正式卡載入、正則自動綁定、沙盒靜態預覽、明確授權後按鈕填入草稿，故事與 token 使用量不變；加入 Fast Browser E2E。
-- 角色卡匯入規格驗證與上述 CI 不等於外部圖片主機長期可用，也不等於有現實 API 的完整劇情連續遊玩驗收。
+## 驗收
 
-**原作資料語意優先**：六人各自獨立起點，一局一條主線，主線完成後最多接受一次引薦副線；世界日期、角色線日、¥100,000,000 初始資金及不以金錢交換同意等規則完全由作者原卡決定。
+- `tests/chicofy-six-timelines.test.cjs`：保留原作 `system_prompt`／`author_instructions` SHA256、13 條世界書、六張 PNG/WebP 二進位格式、原始文案、12 份選角 `send`、六路線切換與 Regex 正規化。
+- `tests/e2e/chicofy-six-timelines.spec.cjs`：390px／1280px 無腳本時轉盤箭頭及路線切換能改變 CSS rotation、六張同站 WebP 實際完成圖片載入，正式站的 sidecar 自動關聯、玩家明確授權後按鈕填入草稿，以及故事與 token 使用量不變。
+
+靜態與 CI 測試不能替代正式站真實玩家長篇劇情驗收；網站部署後仍需確認登入狀態及跨裝置快取差異。
