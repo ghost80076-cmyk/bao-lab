@@ -484,3 +484,41 @@
   #me-view .bao-player-secondary-grid {grid-template-columns:1fr;padding:0 10px 10px}
   #me-view .bao-player-secondary-grid > .bao-player-panel {padding:17px}
 }
+
+/* Touch-first Story / Stage boundary (821px+).
+   The desktop pointer UI deliberately quiets message tools to 22% until
+   hover/focus; touch devices have no reliable hover, so expose real actions.
+   Keep the mobile <=820px shell and Stage renderers untouched. */
+@media (min-width:821px) and (hover:none) and (pointer:coarse) {
+  #chat-view.bao-player-reading-v2[data-bao-surface="play"] #bao-surface-controls button[data-bao-surface-role] {
+    box-sizing:border-box;
+    min-height:44px;
+    padding-block:10px;
+  }
+  #chat-view.bao-player-reading-v2[data-bao-surface="play"] .story-message-tools {
+    opacity:1;
+  }
+  #chat-view.bao-player-reading-v2[data-bao-surface="play"] .story-message-tools :is(button,summary) {
+    box-sizing:border-box;
+    min-height:44px;
+  }
+}
+
+
+/* Compact Story (821–1080px): the inherited 68px portrait can overhang
+   its short header and cover the first story line. Size it to the header
+   instead of increasing chrome height at the reading breakpoint. */
+@media (min-width:821px) and (max-width:1080px) {
+  /* The title, controls and image must share one actual header box; a
+     44px portrait alone cannot fix the short 62px header with its padding. */
+  #chat-view.bao-player-reading-v2[data-bao-surface="play"] .chat-topline {
+    box-sizing:border-box;
+    min-height:84px;
+  }
+  #chat-view.bao-player-reading-v2[data-bao-surface="play"] .chat-title-avatar {
+    box-sizing:border-box;
+    width:44px;
+    height:44px;
+    flex:0 0 44px;
+  }
+}

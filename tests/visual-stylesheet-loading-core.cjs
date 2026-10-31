@@ -53,10 +53,13 @@ test('start and resume first paint has stable reading styles before any deferred
   const html = fs.readFileSync('index.html', 'utf8');
   const head = html.split('</head>')[0];
   const hrefs = [...head.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m => m[1]);
+  const mobileHref = hrefs.find(link => pathOf(link) === 'css/mobile-reading-layout.css');
+  assert.match(mobileHref || '', /^css\/mobile-reading-layout\.css\?v=\d+$/,
+    'mobile reading CSS preload needs a numeric cache version');
   const critical = [
     'css/story-reader.css?v=3',
     'css/chat-tool-navigation.css?v=9',
-    'css/mobile-reading-layout.css?v=25'
+    mobileHref
   ];
   for (const href of critical) {
     const path = pathOf(href);
@@ -64,10 +67,13 @@ test('start and resume first paint has stable reading styles before any deferred
     assert.ok(hrefs.includes(href), 'match the lazy fallback version for ' + path);
   }
   assert.ok(hrefs.indexOf('css/story-reader.css?v=3') < hrefs.indexOf('css/chat-tool-navigation.css?v=9'));
-  assert.ok(hrefs.indexOf('css/chat-tool-navigation.css?v=9') < hrefs.indexOf('css/mobile-reading-layout.css?v=25'));
-  assert.ok(hrefs.indexOf('css/mobile-reading-layout.css?v=25') > hrefs.indexOf('css/phone-ui.css?v=2'));
+  assert.ok(hrefs.indexOf('css/chat-tool-navigation.css?v=9') < hrefs.indexOf(mobileHref));
+  const phoneHref = hrefs.find(link => pathOf(link) === 'css/phone-ui.css');
+  assert.ok(phoneHref, 'phone UI stylesheet must be preloaded');
+  assert.ok(hrefs.indexOf(mobileHref) > hrefs.indexOf(phoneHref),
+    'mobile reading CSS must follow phone UI in the first paint');
   const script = fs.readFileSync('js/mobile-reading-layout.js', 'utf8');
-  assert.match(script, /style\.href = 'css\/mobile-reading-layout\.css\?v=25'/,
+  assert.ok(script.includes("style.href = '" + mobileHref + "'"),
     'lazy mobile CSS fallback must use the same cache version as index.html');
   assert.match(script, /let style = document\.querySelector\('link\[href\^="css\/mobile-reading-layout\.css"\]'\)/,
     'late mobile JS must reuse its preloaded stylesheet');

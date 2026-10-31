@@ -691,3 +691,23 @@
     padding:0!important;
   }
 }
+
+
+/* The 44px mobile Search hit box must not spill "搜尋對話" over the
+   neighboring Stage and Phone controls. Keep the original button, text,
+   title, accessibility name and click handler; draw its existing icon only. */
+@media (max-width:820px) {
+  #chat-view #bao-conversation-search-open {
+    font-size:0!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-align:center;
+  }
+  #chat-view #bao-conversation-search-open::before {
+    content:"⌕";
+    display:inline-block;
+    font-size:22px;
+    line-height:1;
+    color:var(--yoru-story-text,var(--story-text,#eeeae4));
+  }
+}
