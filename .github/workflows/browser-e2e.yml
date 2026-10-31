@@ -80,6 +80,7 @@ jobs:
               tests/e2e/character-studio-actions.spec.cjs
               tests/e2e/character-studio-flow.spec.cjs
               tests/e2e/character-studio-lifecycle.spec.cjs
+              tests/e2e/admin-workbench-navigation.spec.cjs
               tests/e2e/explore-discovery.spec.cjs
               tests/e2e/adult-content-visibility.spec.cjs
               tests/e2e/portable-story-actors.spec.cjs
