@@ -48,7 +48,10 @@ for (const viewport of [
     if (viewport.width === 390) {
       // Check the first actually visible catalog card, not the named card below.
       // The magic-academy fixture can appear several rows down after sorting.
-      await expect(page.locator('link[href="css/bao-editorial-cinema.css?v=15"]')).toHaveCount(1);
+      // Wait for the actual stylesheet, independent of its cache version.
+      // The Explore fold contract should not break when Home/Detail CSS revs.
+      await page.waitForFunction(() => [...document.styleSheets].some(sheet =>
+        sheet.href && new URL(sheet.href).pathname.endsWith('/css/bao-editorial-cinema.css')));
       const firstCard = page.locator('#character-list .character-card:visible').first();
       await expect(firstCard).toBeVisible();
       await expect.poll(() => firstCard.evaluate(node =>

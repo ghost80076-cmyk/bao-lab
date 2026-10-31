@@ -179,3 +179,27 @@
 #home-view .brand-night-choices dd{margin:6px 0 0;color:var(--yoru-muted,var(--muted));font-size:13px;line-height:1.8}
 #home-view .brand-night-note{margin:0;color:var(--yoru-muted,var(--muted));font-size:12px;line-height:1.8}
 @media(max-width:650px){#home-view .brand-night-choices{grid-template-columns:1fr;gap:18px}}
+
+
+/* Home entry polish: once a local story is resumable, give its existing action
+   the lamp-lit position. New visitors still see Explore first; no handlers move. */
+#home-view .brand-cinematic-hero .brand-actions:has(#home-continue:not(.hidden)) > #home-continue{
+  order:-1;min-height:49px;padding-inline:24px;
+  border:1px solid rgba(255,225,176,.48);border-radius:12px;
+  background:linear-gradient(135deg,#e0b775,#bd8e53);color:#19130c;
+  box-shadow:0 13px 34px rgba(119,79,35,.18);font-weight:700;
+}
+#home-view .brand-cinematic-hero .brand-actions:has(#home-continue:not(.hidden)) > #home-continue:hover{
+  background:linear-gradient(135deg,#ecc889,#c99a5b);border-color:rgba(255,235,203,.64);
+}
+#home-view .brand-cinematic-hero .brand-actions:has(#home-continue:not(.hidden)) > .primary{
+  background:rgba(18,18,29,.60);border-color:rgba(220,212,255,.19);
+  color:#ebe7f3;box-shadow:none;
+}
+#home-view .brand-cinematic-hero .brand-actions:has(#home-continue:not(.hidden)) > .primary:hover{
+  background:rgba(38,32,47,.84);border-color:rgba(220,212,255,.35);
+}
+@media(max-width:700px){
+  #home-view .brand-cinematic-hero .brand-actions:has(#home-continue:not(.hidden)) > #home-continue{flex:1 0 100%}
+  #home-view .brand-cinematic-hero .brand-actions:has(#home-continue:not(.hidden)) > .primary{flex:1 1 150px}
+}
