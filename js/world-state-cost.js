@@ -491,6 +491,12 @@
     };
     const combinedPlayer = batch.map((turn, index) => `第 ${index + 1} 輪：${turn.player}`).join("\n\n");
     const combinedAssistant = batch.map((turn, index) => `第 ${index + 1} 輪：${turn.assistant}`).join("\n\n");
+    const endMaintenance = beginMaintenance(owner);
+    if (!endMaintenance) {
+      noteRequest("busy");
+      report(owner, "waiting", "另一項記憶或狀態重建正在執行，本輪已保存待補佇列。");
+      return scenePatch;
+    }
     report(owner, "updating", `正在整理 ${batch.length} 輪${pending.length > batch.length ? `（其餘 ${pending.length - batch.length} 輪排隊）` : ""}，完成後會自動套用最新狀態。`);
     const dispatchedSceneRevision = explicitSceneVersions.get(owner)?.revision || 0;
     activeOwners.add(owner);
@@ -545,6 +551,7 @@
       return scenePatch;
     } finally {
       activeOwners.delete(owner);
+      endMaintenance();
     }
   };
 
