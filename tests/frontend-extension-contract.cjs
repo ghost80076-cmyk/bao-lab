@@ -42,7 +42,7 @@ increasing(index, [
   'src="js/episodic-memory-core.js?v=6"',
   'src="js/memory-core.js',
   'src="js/chat.js',
-  'src="js/character.js?v=10"',
+  'src="js/character.js?v=11"',
   'src="js/app.js',
   'src="js/chat-markup.js?v=6"',
   'src="js/site-ui.js'
