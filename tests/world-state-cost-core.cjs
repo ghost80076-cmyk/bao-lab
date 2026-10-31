@@ -34,7 +34,7 @@ vm.runInThisContext(source, { filename: "js/world-state-cost.js" });
   const config = { narrativeMode: "world", api: { model: "main", key: "mock-only" }, cost: {
     stateInterval: 3,
     stateModel: "tracker",
-    stateApi: { model: "tracker", baseUrl: "https://state.example/v1", key: "state-key" }
+    stateApi: { model: "tracker", baseUrl: "https://state.example/v1", key: "state-key", type: "anthropic", protocol: "anthropic", route: "official" }
   } };
   assert.equal(await WorldStateEngine.update(config, "玩家一", "角色一"), null);
   assert.equal(GameState.current.stateTracker.phase, "waiting");
@@ -54,6 +54,11 @@ vm.runInThisContext(source, { filename: "js/world-state-cost.js" });
   assert.match(attempts[0].playerText, /玩家三/);
   assert.match(attempts[0].assistantText, /角色一/);
   assert.equal(attempts[0].config.api.model, "tracker");
+  assert.equal(attempts[0].config.api.key, "state-key", "state helper must not use the main API key");
+  assert.equal(attempts[0].config.api.baseUrl, "https://state.example/v1");
+  assert.equal(attempts[0].config.api.protocol, "anthropic");
+  assert.equal(attempts[0].config.api.type, "anthropic");
+  assert.equal(attempts[0].config.api.route, "official");
   assert.equal(GameState.current.pendingStateTurns.length, 3, "failed tracker updates must retain every unprocessed turn");
 
   const result = await WorldStateEngine.update(config, "玩家四", "角色四");
@@ -106,6 +111,20 @@ vm.runInThisContext(source, { filename: "js/world-state-cost.js" });
   await WorldStateEngine.update(contradictorySameConfig, "同模型玩家", "同模型故事");
   assert.equal(attempts.at(-1).config.api.model, "main",
     "explicit same mode must ignore a populated legacy stateApi route");
+
+  // Missing helper credentials must fail without falling back to the main key.
+  GameState.current = {};
+  const beforeMissingKey = attempts.length;
+  const missingKey = {
+    narrativeMode: "world",
+    api: { model: "main", key: "main-key" },
+    cost: { stateInterval: 1, stateApiMode: "separate",
+      stateApi: { model: "helper", baseUrl: "https://helper.invalid", key: "" } }
+  };
+  await WorldStateEngine.update(missingKey, "玩家需補金鑰", "故事正文仍在");
+  assert.equal(attempts.length, beforeMissingKey);
+  assert.equal(GameState.current.pendingStateTurns.length, 1);
+  assert.match(GameState.current.stateTracker.message, /獨立狀態模型/);
 
   // A delayed separate-model PATCH must not move the story back after a newer
   // completed turn states an explicit scene.
