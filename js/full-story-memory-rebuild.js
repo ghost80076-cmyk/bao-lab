@@ -110,14 +110,16 @@
     if (saved && saved.routeId !== routeId(cfg)) throw new Error('整理模型已變更；為避免不同模型的中間稿混用，請先重設草稿。');
     if (saved && saved.plan.keepRounds !== Number(keepRounds)) throw new Error('近期保留輪數已改變，請先重設重建草稿。');
     const job = saved || makeJob(Number(keepRounds), cfg);
-    if (fresh) await persist(owner, saved, job);
-    const planned = source(job);
-    const isCurrent = () => story() === owner && App.config === config &&
-      owner.fullMemoryRebuild === job && !Chat.summarizing &&
-      (() => { try { source(job); return true; } catch { return false; } })();
+    const guard = window.BAOStoryMaintenanceLock;
+    if (guard && !guard.start(owner)) throw new Error('另一項記憶或狀態重建正在執行。');
     busy.add(owner);
     let active = job, calls = 0;
     try {
+      if (fresh) await persist(owner, saved, job);
+      const planned = source(job);
+      const isCurrent = () => story() === owner && App.config === config &&
+        owner.fullMemoryRebuild === job && !Chat.summarizing &&
+        (() => { try { source(job); return true; } catch { return false; } })();
       while (calls < 4 && active.stage !== 'ready') {
         if (!isCurrent() && owner.fullMemoryRebuild !== active) throw new Error('重建作業被更換，停止使用舊回覆。');
         const stable = () => story() === owner && App.config === config && owner.fullMemoryRebuild === active &&
@@ -171,7 +173,10 @@
       onProgress(active.stage === 'ready' ? '草稿完成，請預覽並確認套用' :
         '已保存進度；下次可繼續', active.cursor, planned.units.length);
       return { stage: active.stage, cursor: active.cursor, eligible: planned.units.length, calls };
-    } finally { busy.delete(owner); }
+    } finally {
+      busy.delete(owner);
+      guard?.end(owner);
+    }
   }
   async function apply() {
     const owner = story(), job = current();
