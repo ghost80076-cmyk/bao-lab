@@ -509,6 +509,12 @@
    its short header and cover the first story line. Size it to the header
    instead of increasing chrome height at the reading breakpoint. */
 @media (min-width:821px) and (max-width:1080px) {
+  /* The title, controls and image must share one actual header box; a
+     44px portrait alone cannot fix the short 62px header with its padding. */
+  #chat-view.bao-player-reading-v2[data-bao-surface="play"] .chat-topline {
+    box-sizing:border-box;
+    min-height:84px;
+  }
   #chat-view.bao-player-reading-v2[data-bao-surface="play"] .chat-title-avatar {
     box-sizing:border-box;
     width:44px;
