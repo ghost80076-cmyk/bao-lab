@@ -188,9 +188,18 @@ test.describe('touch-capable Story / Stage breakpoint polish', () => {
     fs.mkdirSync('test-results/touch-stage-reading', { recursive:true });
     for(const width of probes) {
       await page.setViewportSize({ width, height:900 });
-      const compact = width <= 1080;
-      await expect.poll(() => page.locator('#chat-view').getAttribute('data-bao-stage-presentation'))
-        .toBe(compact ? 'panel' : 'sheet');
+      const viewportKind = width <= 820 ? 'mobile' : width <= 1080 ? 'compact' : 'desktop';
+      // This is the real Linchenfeng work, not the bare Reader fixture.
+      // A work with gameplay_ui can intentionally remain a panel at 1081+.
+      // Check that the actual DOM stays aligned with Stage Capability's
+      // canonical resolver instead of hard-coding the Reader-only "sheet".
+      await expect.poll(() => page.evaluate(() => {
+        const root = document.querySelector('#chat-view');
+        const resolved = BAOStageCapabilities.resolve();
+        return root.dataset.baoStagePresentation === resolved.presentation &&
+          root.dataset.baoStageShell === resolved.shell &&
+          root.dataset.baoStageRenderer === resolved.renderer ? resolved.viewport : 'out-of-sync';
+      })).toBe(viewportKind);
       await expect(page.locator('#user-input')).toBeVisible();
       const measure = await page.evaluate(() => {
         const rect = node => {
