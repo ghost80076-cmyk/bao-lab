@@ -203,6 +203,8 @@
       recoveredFacts ? `【已逐批核對的待補歷史：按輪次排序，不能壓過較新的原文】\n${recoveredFacts}` : '',
       `【近期原始故事：優先依據】\n${recent}`
     ].filter(Boolean).join('\n\n');
+    const endMaintenance = beginMaintenance(owner);
+    if (!endMaintenance) throw new Error('另一項記憶或狀態重建正在執行。');
     activeOwners.add(owner);
     report(owner, 'updating', mode === 'deep' ? '正在深度重建目前狀態…' : '正在從近期故事重新整理狀態…');
     try {
@@ -307,7 +309,10 @@
     } catch (error) {
       if (GameState.current === owner) report(owner, 'failed', String(error?.message || '狀態重建失敗，已保留原資料。'));
       throw error;
-    } finally { activeOwners.delete(owner); }
+    } finally {
+      activeOwners.delete(owner);
+      endMaintenance();
+    }
   };
 
   // Scan old pending turns into a private checkpoint without touching current
