@@ -236,6 +236,8 @@
       { role: "system", content: "只整理可驗證的劇情事實，輸出合法 JSON，不續寫故事。" },
       { role: "user", content: prompt }
     ]);
+    const completionError = Chat.memoryCompletionError(result);
+    if (completionError) throw new Error(completionError);
     return normalizeFragment(parseAIJSON(result?.text || ""));
   };
 

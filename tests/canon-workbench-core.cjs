@@ -35,6 +35,8 @@ global.API = {
 };
 
 const run = file => vm.runInThisContext(fs.readFileSync(path.join(__dirname, "..", file), "utf8"), { filename: file });
+global.addEventListener = () => {};
+vm.runInThisContext(fs.readFileSync(path.join(__dirname, '..', 'js/chat.js'), 'utf8') + '\nObject.assign(Chat, globalThis.Chat); globalThis.Chat = Chat;');
 run("js/episodic-memory-core.js");
 run("js/canon-workbench.js");
 
@@ -110,6 +112,13 @@ assert.equal(oversizedChunks.every(chunk => chunk.includes("msg-oversized")), tr
   assert.equal(API.calls.length, 7);
   assert.ok(API.calls.some(call => call.messages[1].content.includes("階層式合併的中間層")));
   assert.match(API.calls[0].messages[1].content, /msg-test-/);
+  const priorDraft = GameState.current.canonDraft;
+  const send = API.send;
+  for (const finishReason of ['MAX_TOKENS', 'length', 'content_filter']) {
+    API.send = async (...args) => ({ ...await send.apply(API, args), finishReason });
+    await assert.rejects(BAOCanonWorkbench.run('full'), /截斷|阻擋/);
+    assert.equal(GameState.current.canonDraft, priorDraft, 'even valid JSON with an incomplete finish must not replace the existing draft');
+  }
   console.log("canon workbench core test passed");
 })().catch(error => {
   console.error(error);

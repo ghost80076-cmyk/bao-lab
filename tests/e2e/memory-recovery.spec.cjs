@@ -71,6 +71,37 @@ for (const width of [390, 1280]) {
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
   });
 
+  test(`AI notes reject truncated valid JSON through the real request pipeline (${width}px)`, async ({ page }) => {
+    await prepare(page);
+    let calls = 0;
+    await page.route('https://memory.test/**', async route => {
+      const body = route.request().postDataJSON();
+      expect(body.max_tokens).toBe(1400);
+      calls++;
+      await route.fulfill({ contentType: 'application/json', body: JSON.stringify({
+        choices: [{ message: { content: JSON.stringify({ events: [calls === 1 ? '已確認的約定' : '未完成的新整理'] }) },
+          finish_reason: calls === 1 ? 'stop' : 'length' }]
+      }) });
+    });
+    await page.evaluate(() => {
+      App.config.api = { type:'custom', protocol:'openai', key:'mock', model:'future-model', baseUrl:'https://memory.test/chat/completions' };
+      App.config.memory.summaryApiMode = 'same';
+      BAOMemoryWorkbench.open();
+    });
+    const desk = page.locator('.memory-desk');
+    await desk.locator('[data-tab="notes"]').click();
+    await desk.locator('[data-memory-ai-helper]').click();
+    await desk.locator('[data-run-refine]').click();
+    await expect(desk.locator('[data-refine-status]')).toContainText('完成');
+    const draft = await desk.locator('[data-refine-draft]').textContent();
+    await desk.locator('[data-run-refine]').click();
+    await expect(desk.locator('[data-refine-status]')).toContainText('截斷');
+    await expect(desk.locator('[data-refine-draft]')).toHaveText(draft);
+    expect(await page.evaluate(() => Chat.summarizedUntil)).toBe(0);
+    expect(await page.evaluate(() => GameState.current.memorySlots[0].text)).toBe('明天回到港口');
+    expect(calls).toBe(2);
+  });
+
   test(`memory error shortcut retries with visible batch progress and preserves paid coverage on failure (${width}px)`, async ({ page }) => {
     await prepare(page);
     await page.evaluate(()=>{

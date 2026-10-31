@@ -89,7 +89,7 @@ async function run() {
     assert.equal(routed.c.Chat.usageLedger[0].model, 'memory-cloud');
     assert.equal(memory.requests[0].body.model, 'memory-local');
     assert.equal(memory.requests[0].init.signal, signal, 'helper config must not replace the request cancellation signal');
-    assert.equal(memory.requests[0].body.max_tokens, 1800, label + ': cap before local transport');
+    assert.equal(memory.requests[0].body.max_tokens, 9000, label + ': memory budget survives local transport');
     assert.equal(memory.requests[0].body.messages[0].content, 'memory\ntext');
     assert.equal(memory.c.Chat.usageLedger.length, 1);
     assert.equal(memory.c.Chat.usageLedger[0].model, 'memory-local');
@@ -102,7 +102,7 @@ async function run() {
     assert.equal(hostedMain.c.Chat.usageLedger.length, 1, label + ': hosted result must not double count');
     assert.equal(hostedMain.c.Chat.usageLedger[0].actualUsd, 0.001);
     assert.equal(hostedHelper.requests[0].url, hosted().baseUrl);
-    assert.equal(hostedHelper.requests[0].body.max_output_tokens, 1800);
+    assert.equal(hostedHelper.requests[0].body.max_output_tokens, 9000);
     assert.equal(hostedHelper.c.Chat.usageLedger.length, 1);
     assert.equal(hostedHelper.c.Chat.usageLedger[0].kind, 'memory');
     assert.equal(hostedToCloud.requests[0].url, cloud().baseUrl);
@@ -166,6 +166,69 @@ async function streamingContracts() {
   }
   console.log('Ordered stream/state integration: cloud, local and hosted use one request, hide state deltas and account usage once');
 }
+async function memoryOutputBudgets() {
+  const gemini = { ...cloud('gemini-3.1-pro-preview'), type: 'gemini', protocol: 'gemini' };
+  const anthropic = { ...cloud('future-model'), type: 'anthropic', protocol: 'anthropic' };
+  // Exercise the real request wrappers AND serializer, stubbing only network I/O.
+  // Values cover notes, Context Pack, Canon extraction/merges and auto summaries.
+  for (const order of orders) for (const main of [cloud(), gemini, anthropic, local(), hosted()]) {
+    for (const budget of [1400, 2200, 2600, 3200, 8192, 16384]) {
+      const { c, requests } = harness(order);
+      c.App.config.api = main;
+      c.App.config.memory = { summaryApiMode: 'same', summaryApi: local('stale-helper') };
+      await c.API.send({ ...main, __memoryTask: true, __auxiliaryTask: true, maxOutputTokens: budget }, [{ role: 'user', content: 'summarize' }]);
+      const body = requests[0].body;
+      assert.equal(body.generationConfig?.maxOutputTokens ?? body.max_output_tokens ?? body.max_tokens ?? body.max_completion_tokens,
+        budget, `${main.protocol}/${main.type}: memory task budget ${budget} must reach serialization`);
+      assert.equal(requests.length, 1);
+    }
+    const { c, requests } = harness(order);
+    c.App.config.api = main;
+    c.App.config.cost.budgetTwd = 1;
+    c.Chat.usageLedger.push({ actualUsd: 1 });
+    await assert.rejects(c.API.send({ ...main, __memoryTask: true, maxOutputTokens: 8192 }, [{ role: 'user', content: 'summary' }]), /預算/);
+    assert.equal(requests.length, 0, 'memory requests still obey the total story budget');
+  }
+  console.log('Memory budgets: six task budgets across five transports and four installation orders; story cost ceiling retained');
+}
+async function automaticMemoryRecovery() {
+  for (const protocol of ['openai', 'gemini', 'anthropic']) for (const separate of [false, true]) {
+    const { c, requests } = harness(orders[0]);
+    vm.runInContext(read('helper-data.js'), c);
+    const memory = { ...cloud('future-model'), protocol, type: protocol, key: 'memory-key' };
+    c.App.config.api = separate ? cloud() : memory;
+    c.App.config.memory = { mode: 'smart', maxRounds: 4, maxContext: 16000,
+      summaryInterval: 2, episodicRecall: false, summaryApiMode: separate ? 'separate' : 'same', summaryApi: memory };
+    c.Chat.messages = Array.from({ length: 40 }, (_, index) => ({ id: 'm' + index,
+      role: index % 2 ? 'assistant' : 'user', content: '已觀察的劇情結果' }));
+    c.fetch = async (url, init) => {
+      const body = JSON.parse(init.body);
+      requests.push({ url, body });
+      assert.equal(body.generationConfig?.maxOutputTokens ?? body.max_tokens, 8192);
+      assert.equal(c.Chat.summarizedUntil, 0, 'coverage must not advance during a rejected or pending request');
+      const text = JSON.stringify({ events: ['已確認的劇情結果'], knownFacts: [], relationships: [], openThreads: [] });
+      const truncated = requests.length === 1;
+      return new Response(JSON.stringify({
+        choices: [{ message: { content: text }, finish_reason: truncated ? 'length' : 'stop' }],
+        candidates: [{ content: { parts: [{ text }] }, finishReason: truncated ? 'MAX_TOKENS' : 'STOP' }],
+        content: [{ type: 'text', text }], stop_reason: truncated ? 'max_tokens' : 'end_turn'
+      }));
+    };
+    await c.Chat.maybeSummarize(c.App.config, true);
+    assert.equal(requests.length, 2, `${protocol}/${separate}: truncated valid JSON must trigger a smaller retry`);
+    assert.ok(c.Chat.summarizedUntil > 0);
+    assert.equal(c.Chat.memoryHealth.phase, 'success');
+    assert.equal(c.Chat.messages.length, 40);
+    const priorSummary = c.Chat.summary, priorCursor = c.Chat.summarizedUntil;
+    c.fetch = async () => new Response(JSON.stringify({ choices: [{ message: { content: '{}' }, finish_reason: 'content_filter' }],
+      candidates: [{ finishReason: 'SAFETY' }], stop_reason: 'content_filter' }));
+    await c.Chat.maybeSummarize(c.App.config, true);
+    assert.equal(c.Chat.summarizedUntil, priorCursor);
+    assert.equal(c.Chat.summary, priorSummary);
+    assert.equal(c.Chat.memoryHealth.phase, 'failed');
+  }
+  console.log('Automatic memory: real trigger, routing, budgets, serializers, completion validation and cursor recovery across three protocols and both route modes');
+}
 async function lateHostedUsage() {
   for (const order of orders) {
     const { c } = harness(order);
@@ -217,4 +280,4 @@ async function abortContracts() {
     assert.equal(c.Chat.usageLedger.length, 0);
   }
 }
-run().then(streamingContracts).then(abortContracts).then(capturedSnapshotContract).then(lateHostedUsage).catch(error => { console.error(error); process.exitCode = 1; });
+run().then(memoryOutputBudgets).then(automaticMemoryRecovery).then(streamingContracts).then(abortContracts).then(capturedSnapshotContract).then(lateHostedUsage).catch(error => { console.error(error); process.exitCode = 1; });
