@@ -419,6 +419,7 @@
       lock(true);
       try {
         await createContinuation();
+        root.querySelector('.memory-desk-close')?.click();
         alert('已建立並切換至救援續玩副本。原故事完整保留於故事庫；如仍被上游阻擋，請停止重試。');
       } catch (error) { lock(false); msg.textContent = String(error.message || error); }
     });
