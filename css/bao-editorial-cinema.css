@@ -252,7 +252,9 @@ body:has(#detail-view.active) .bao-mascot-avatar{width:44px;height:44px}
   }
   #home-view #bao-home-portrait{border-radius:20px!important}
   #home-view #bao-home-portrait img{aspect-ratio:4/5;object-position:center 16%}
-  #explore-view .section-head h2{font-size:clamp(34px,10vw,46px)}
+  /* Let the first poster arrive sooner on phones; keep the same editorial face. */
+  #explore-view .section-head{margin-bottom:14px}
+  #explore-view .section-head h2{font-size:clamp(30px,8vw,38px);line-height:1.18}
   #explore-view .category-portals{margin-bottom:17px}
   #explore-view .character-content{padding:20px 10px 10px}
   #explore-view .character-content h3{font-size:14px;line-height:1.32}
