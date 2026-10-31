@@ -197,10 +197,10 @@
       style.textContent = '.bao-author-inline iframe[hidden]{display:none!important}';
       document.head.appendChild(style);
       const cardBind = document.createElement('script');
-      cardBind.src = 'js/author-regex-card-bind.js?v=4';
+      cardBind.src = 'js/author-regex-card-bind.js?v=5';
       cardBind.onload = () => {
         const inline = document.createElement('script');
-        inline.src = 'js/author-regex-inline.js?v=5';
+        inline.src = 'js/author-regex-inline.js?v=6';
         inline.onload = () => {
           const dock = document.createElement('script');
           dock.src = 'js/author-regex-dock.js?v=6';

@@ -125,13 +125,38 @@
       toggle.textContent = active.rawOpen ? '顯示作者介面' : '查看原文';
       frame.hidden = active.rawOpen;
     });
+    // The published Chicofy adapter has a CSS-only rotating selector and
+    // first-party portraits. Author JavaScript still requires a deliberate opt-in
+    // only for drafting the selected route into the player's composer.
+    if (owner === 'jielai-rensheng' && config(owner)?.allowScripts !== true) {
+      const enable = document.createElement('button');
+      enable.type = 'button';
+      enable.textContent = '啟用選角確認';
+      enable.title = '左右轉盤不需要腳本；確認選角需授權隔離介面的互動腳本';
+      enable.style.cssText = 'padding:6px 10px;max-width:100%;width:auto;background:#3e2d35;border:1px solid #a97d57;color:#f5cf93;border-radius:8px';
+      enable.addEventListener('click', () => {
+        if (cardId() !== owner || !root.isConnected) return;
+        if (!confirm('轉盤已可直接切換。要允許齊格飛這張作品的互動腳本在隔離視窗中執行，將選角內容填入輸入框嗎？不會自動送出，也不會啟用讀取故事狀態或第三方圖片。')) return;
+        try {
+          const current = config(owner);
+          if (!current?.enabled || !Array.isArray(current.rules)) return;
+          localStorage.setItem(PREFIX + encodeURIComponent(owner), JSON.stringify({ ...current, allowScripts: true }));
+          schedule();
+        } catch (error) { console.warn('Chicofy author interaction opt-in failed', error); }
+      });
+      bar.append(enable);
+    }
     bar.append(title, toggle);
     frame.title = '聊天內作者隔離介面'; frame.referrerPolicy = 'no-referrer';
     frame.setAttribute('sandbox', result.script ? 'allow-scripts' : ''); // Never grant allow-same-origin.
     frame.style.cssText = 'display:block;width:100%;height:clamp(320px,68vh,720px);border:0;background:#fff';
     const bootstrap = `<script>(function(){'use strict';const token=${JSON.stringify(token)};let state={};window.BAOAuthor=Object.freeze({draft:function(value){if(typeof value==='string'&&value.length<=500)parent.postMessage({baoAuthor:'v1',token:token,type:'draft',value:value},'*');},getState:function(){return JSON.parse(JSON.stringify(state));}});window.addEventListener('message',function(e){if(e.source!==parent||e.data?.baoAuthor!=='v1'||e.data.token!==token||e.data.type!=='state')return;state=e.data.value||{};window.dispatchEvent(new CustomEvent('bao:statechange',{detail:window.BAOAuthor.getState()}));});parent.postMessage({baoAuthor:'v1',token:token,type:'ready'},'*');})();</script>`;
-    const assets = allowExternalAssets ? 'https: data:' : 'data:';
-    const csp = `default-src 'none'; script-src ${result.script ? "'unsafe-inline'" : "'none'"}; style-src 'unsafe-inline'; img-src ${assets}; font-src ${assets}; media-src ${allowExternalAssets ? 'https: data:' : 'data:'}; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'`;
+    // This one official card has six verified local WebP portraits. Allow only
+    // its current site origin even when third-party asset permission is off.
+    // Keep the generic sandbox's external media policy unchanged for all cards.
+    const firstPartyPortraits = owner === 'jielai-rensheng' ? ' ' + location.origin : '';
+    const assets = allowExternalAssets ? 'https: data:' : 'data:' + firstPartyPortraits;
+    const csp = `default-src 'none'; script-src ${result.script ? "'unsafe-inline'" : "'none'"}; style-src 'unsafe-inline'; img-src ${assets}; font-src ${allowExternalAssets ? 'https: data:' : 'data:'}; media-src ${allowExternalAssets ? 'https: data:' : 'data:'}; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'`;
     const htmlDocument = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="' + csp + '"><style>html,body{margin:0;min-height:100%;overflow-wrap:anywhere}*,*:before,*:after{box-sizing:border-box}</style>' + (result.script ? bootstrap : '') + '</head><body>' + result.html + '</body></html>';
     if(window.BAOWorkPackage)window.BAOWorkPackage.setFrameHTML(frame,htmlDocument,App.activeCharacter);else frame.srcdoc=htmlDocument;
     frame.addEventListener('load', () => {

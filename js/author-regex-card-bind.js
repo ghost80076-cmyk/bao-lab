@@ -61,6 +61,55 @@
     return file.replace(/\.json$/, '.regex.json');
   }
 
+  // One-time upgrade for the unmodified first-release official Chicofy sidecar.
+  // Preserve local author permissions and all user-edited or imported regex rules.
+  const legacyChicofyReplacementLength = 9182;
+  const legacyChicofyHash = 3265911382;
+  const legacyChicofyPattern = "^<style>[\\s\\S]*?選擇故事起點｜六條個別時間線[\\s\\S]*?<\\/hc-collapse><\\/div>\\s*$";
+  const ruleHash = value => {
+    let hash = 2166136261 >>> 0;
+    for (let i = 0; i < value.length; i++) hash = Math.imul(hash ^ value.charCodeAt(i), 16777619) >>> 0;
+    return hash;
+  };
+  async function upgradeOfficialChicofy(character) {
+    const id = String(character?.id || '');
+    if (id !== 'jielai-rensheng') return false;
+    const path = sidecarPath(character), key = keyFor(id);
+    const oldValue = localStorage.getItem(key);
+    if (!path || !oldValue || attemptedSidecars.has('upgrade:' + path)) return false;
+    let saved;
+    try { saved = JSON.parse(oldValue); } catch (_) { return false; }
+    const rule = saved?.rules?.[0];
+    if (!saved || !Array.isArray(saved.rules)
+      || saved.source !== 'official-sidecar' || saved.sourcePath !== path
+      || saved.rules.length !== 1 || !rule
+      || rule.name !== '齊格飛｜六線開場互動相容'
+      || rule.description !== '僅對作者提供的六角色原始開場 HTML 轉換顯示，不改其文案及世界設定。'
+      || rule.flags !== 's' || rule.enabled !== true || rule.script !== true
+      || rule.priority !== 10 || rule.scope !== 'assistant_display' || rule.reason !== ''
+      || rule.pattern !== legacyChicofyPattern
+      || typeof rule.replacement !== 'string'
+      || rule.replacement.length !== legacyChicofyReplacementLength
+      || ruleHash(rule.replacement) !== legacyChicofyHash) return false;
+    attemptedSidecars.add('upgrade:' + path);
+    try {
+      const response = await fetch(path, { cache: 'no-store' });
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const raw = await response.json();
+      if (raw.characterId !== id) throw new Error('characterId mismatch');
+      const rules = Core.normalize(raw);
+      if (rules.length !== 1 || rules[0].reason || !rules[0].replacement.includes('yb-static-rotor')) return false;
+      if (app.activeCharacter?.id !== id || localStorage.getItem(key) !== oldValue) return false;
+      localStorage.setItem(key, JSON.stringify({ ...saved, rules, sourceRevision: 2 }));
+      notifyChanged();
+      console.info('BAO/LAB: untouched Chicofy official opening upgraded; user consent preserved.');
+      return true;
+    } catch (error) {
+      console.warn('BAO/LAB: unable to upgrade Chicofy official opening; stored settings retained.', error?.message);
+      return false;
+    }
+  }
+
   async function bindOfficialSidecar(character) {
     const id = String(character?.id || '').slice(0, 80);
     const path = sidecarPath(character);
@@ -96,7 +145,7 @@
   async function sync() {
     const character = app.activeCharacter;
     if (!character?.id) return false;
-    if (localStorage.getItem(keyFor(character.id)) !== null) return false;
+    if (localStorage.getItem(keyFor(character.id)) !== null) return upgradeOfficialChicofy(character);
     if (await bindOfficialSidecar(character)) return true;
     return bindImported(character);
   }
