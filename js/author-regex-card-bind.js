@@ -61,6 +61,51 @@
     return file.replace(/\.json$/, '.regex.json');
   }
 
+  // Upgrade only the untouched official Chicofy sidecar from the first release.
+  // Browsers that already cached the old replacement would otherwise never
+  // pick up the repaired CSS wheel or local images. Never overwrite imports,
+  // manually edited rules, disabled settings or user permission preferences.
+  const legacyChicofyReplacementLength = 9182;
+  const legacyChicofyHash = 3265911382; // UTF-16 FNV-1a of archived official replacement.
+  const ruleHash = value => {
+    let hash = 2166136261 >>> 0;
+    for (let i = 0; i < value.length; i++) hash = Math.imul(hash ^ value.charCodeAt(i), 16777619) >>> 0;
+    return hash;
+  };
+  async function upgradeOfficialChicofy(character) {
+    const id = String(character?.id || '');
+    if (id !== 'jielai-rensheng') return false;
+    const path = sidecarPath(character);
+    const key = keyFor(id), oldValue = localStorage.getItem(key);
+    if (!path || !oldValue || attemptedSidecars.has('upgrade:' + path)) return false;
+    let saved;
+    try { saved = JSON.parse(oldValue); } catch (_) { return false; }
+    const rule = saved?.rules?.[0];
+    if (saved.source !== 'official-sidecar' || saved.sourcePath !== path
+      || saved.rules.length !== 1 || !rule
+      || typeof rule.replacement !== 'string'
+      || rule.replacement.length !== legacyChicofyReplacementLength
+      || ruleHash(rule.replacement) !== legacyChicofyHash) return false;
+    attemptedSidecars.add('upgrade:' + path);
+    try {
+      const response = await fetch(path, { cache: 'no-store' });
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const raw = await response.json();
+      if (raw.characterId !== id) throw new Error('characterId mismatch');
+      const rules = Core.normalize(raw);
+      if (rules.length !== 1 || rules[0].reason || !rules[0].replacement.includes('yb-static-rotor')) return false;
+      // A player could edit consent/settings or navigate away while we fetch.
+      if (app.activeCharacter?.id !== id || localStorage.getItem(key) !== oldValue) return false;
+      localStorage.setItem(key, JSON.stringify({ ...saved, rules, sourceRevision: 2 }));
+      notifyChanged();
+      console.info('BAO/LAB: untouched Chicofy official opening upgraded; user consents preserved.');
+      return true;
+    } catch (error) {
+      console.warn('BAO/LAB: unable to upgrade Chicofy original official opening; stored settings retained.', error?.message);
+      return false;
+    }
+  }
+
   async function bindOfficialSidecar(character) {
     const id = String(character?.id || '').slice(0, 80);
     const path = sidecarPath(character);
@@ -96,7 +141,7 @@
   async function sync() {
     const character = app.activeCharacter;
     if (!character?.id) return false;
-    if (localStorage.getItem(keyFor(character.id)) !== null) return false;
+    if (localStorage.getItem(keyFor(character.id)) !== null) return upgradeOfficialChicofy(character);
     if (await bindOfficialSidecar(character)) return true;
     return bindImported(character);
   }
