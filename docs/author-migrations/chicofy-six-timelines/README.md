@@ -12,14 +12,14 @@
 
 - `roleWelcome_original.html`：**作者原始 HTML 完全不變**，保留全部文案、原本圖片來源網址與 12 條角色 `send`。
 - `roleWelcome_yorubay.html` 和正式 `jielai-rensheng.regex.json`：沿用作者 `perspective`、`rotateY` 六面環及卡片文字，增加 CSS `:has(input:checked)` 和原生 radio／label。左右箭頭及六個路線切換即使在 `sandbox=""` / `script-src 'none'` 仍能操作；腳本獲授權後額外支援水平滑動。十二個原文字 `send` 不改，只轉成夜灣 `BAOAuthor.draft()`。
-- `assets.json` 保留六張圖片的原始 URL、原樣 PNG 快照與 WebP 最佳化路徑。此次在 GitHub Actions 從原始網址取回 **六張 PNG 原圖**，檢查 PNG header 與像素尺寸後存入 `assets/characters/chicofy-six-timelines/*.png`，另生成約 49–97 KB 的 `*.webp` 專供開場使用。外部原圖不再被玩家端熱連結。
+- `assets.json` 保留六張圖片的原始 URL、原樣 PNG 快照與 WebP 最佳化路徑。此次在 GitHub Actions 從原始網址取回 **六張 PNG 原圖**，檢查 PNG header 與像素尺寸後存入 `assets/characters/chicofy-six-timelines/*.png`，另生成約 49–97 KB 的 `*.webp` 專供開場使用。也保留 `cover.png` 與約 140 KB 的 `cover.webp` 作為第一方作品封面。外部人物圖及封面不再被玩家端熱連結。
 - `js/author-regex-inline.js` 僅為正式卡 `jielai-rensheng` 的隔離 iframe 放行 **當前網站的圖片 origin**；既有其他作者作品的外部來源、腳本、狀態讀取及 iframe 跨域隔離權限皆不變。
 - 首次進入轉盤與角色圖不需任何額外授權，但 **「確認選角」要填入玩家輸入框仍須明確同意作者互動腳本**。新增開場旁「啟用選角確認」入口，確認後只允許在 opaque iframe 內執行腳本；不會自動送出訊息、不讀取狀態、不授權第三方外部資源。
 - 無須修改卡片內容：`data/characters/general/jielai-rensheng.json` 的 `system_prompt`、13 條世界書、時間線、資金及作者署名 `齊格飛/chicofy` 原封不動。
 
 ## 圖像範圍與限制
 
-六張選角立繪已鏡像並加入手機尺寸的 WebP；封面仍使用原作者提供的 `https://i.meee.com.tw/BORVsUi.png`，世界書中的 Cloudinary 圖像網址也仍是第三方來源，**本次未整批鏡像世界書 72 個參照網址**。若後續玩家在**劇情內插圖**遇到圖片不可用，不應與本次已修復的六張**選角圖**混為一談。
+六張選角立繪及作者提供的封面 `https://i.meee.com.tw/BORVsUi.png` **均已鏡像保存 PNG 原檔及本地 WebP**。正式作品目錄和角色卡封面改用 `assets/characters/chicofy-six-timelines/cover.webp`；世界書中的 Cloudinary 圖像網址仍是第三方來源，**本次未整批鏡像世界書 72 個參照網址**。若後續玩家在**劇情內插圖**遇到圖片不可用，不應與本次已修復的六張**選角圖**混為一談。
 
 ## 驗收
 
