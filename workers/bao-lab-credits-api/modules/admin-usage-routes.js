@@ -103,7 +103,13 @@ async function adminUsageRoute(
             d.retry_after_seconds,
             d.request_bytes,
             d.elapsed_ms,
-            d.timeout_ms
+            d.timeout_ms,
+            d.finish_reason,
+            d.prompt_block_reason,
+            d.response_shape,
+            d.candidate_count,
+            d.observed_input_tokens,
+            d.observed_output_tokens
 
           FROM api_usage AS u
 

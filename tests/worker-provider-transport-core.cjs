@@ -127,6 +127,28 @@ const jsonResponse = (body, status = 200) =>
       }
 
       if (String(url) === "https://relay.example/v1/chat") {
+        if (body?.model === "gemini-http500") {
+          return jsonResponse({error: "gateway error"}, 500);
+        }
+        if (body?.model === "gemini-no-candidates") {
+          return jsonResponse({responseId: "gemini-empty-1", usageMetadata: {promptTokenCount: 100, totalTokenCount: 100}});
+        }
+        if (body?.model === "gemini-thought-only") {
+          return jsonResponse({
+            responseId: "gemini-thinking-1",
+            candidates: [{content: {parts: [{thought: true, text: "private reasoning"}]}, finishReason: "MAX_TOKENS"}],
+            usageMetadata: {promptTokenCount: 115, totalTokenCount: 125, thoughtsTokenCount: 10}
+          });
+        }
+        if (body?.model === "gemini-blocked") {
+          return jsonResponse({responseId: "gemini-block-1", promptFeedback: {blockReason: "SAFETY"}});
+        }
+        if (body?.model === "gemini-mixed") {
+          return jsonResponse({
+            candidates: [{content: {parts: [{thought: true, text: "private reasoning"}, {text: "Visible output"}]}, finishReason: "STOP"}],
+            usageMetadata: {promptTokenCount: 115, totalTokenCount: 120}
+          });
+        }
         if (
           body?.provider === "openrouter" &&
           body?.model === "anthropic/claude-sonnet-4.5"
@@ -502,6 +524,57 @@ const jsonResponse = (body, status = 200) =>
       'gemini','gemini-3.1-pro-preview',messages,16384,null,'','summary');
     assert.equal(requests.at(-1).body.payload.generationConfig.maxOutputTokens,16384,'16K summary budget reaches the AWS relay unchanged');
     assert.equal(requests.at(-1).body.payload.generationConfig.thinkingConfig.thinkingLevel,'low');
+
+    // The 2026-10-31 production incident mixes ~65s HTTP 500 and
+    // ~1s Gemini empty responses: preserve their separate diagnostic causes.
+    const geminiEnv = { AWS_RELAY_URL: "https://relay.example", BAO_INTERNAL_TOKEN: "relay-secret" };
+    const relayHttp500 = await providerCall(geminiEnv, "gemini", "gemini-http500", messages, 8192);
+    assert.equal(relayHttp500.category, "provider_http_error");
+    assert.equal(relayHttp500.upstreamStatus, 500);
+    assert.equal(relayHttp500.transportTimeoutMs, 170000);
+    assert.ok(relayHttp500.requestBytes > 0);
+    const http500Body = await providerFailureResponse(relayHttp500, "request-500").json();
+    assert.equal(http500Body.upstream_http_status, 500);
+    assert.equal(http500Body.timeout_ms, 170000);
+    assert.equal(http500Body.request_bytes, relayHttp500.requestBytes);
+    assert.ok(Number.isInteger(http500Body.elapsed_ms));
+    assert.equal(http500Body.error, "provider_http_error");
+
+    const noCandidates = await providerCall(geminiEnv, "gemini", "gemini-no-candidates", messages, 8192);
+    assert.equal(noCandidates.ok, false);
+    assert.equal(noCandidates.responseShape, "no_candidates");
+    assert.equal(noCandidates.candidateCount, 0);
+    assert.equal(noCandidates.input, 100);
+    assert.equal(noCandidates.output, 0);
+    assert.equal(noCandidates.generationId, "gemini-empty-1");
+    const noCandidatesBody = await providerFailureResponse(noCandidates, "request-empty").json();
+    assert.equal(noCandidatesBody.response_shape, "no_candidates");
+    assert.equal(noCandidatesBody.candidate_count, 0);
+    assert.equal(noCandidatesBody.observed_input_tokens, 100);
+    assert.equal(noCandidatesBody.observed_output_tokens, 0);
+
+    const thoughtOnly = await providerCall(geminiEnv, "gemini", "gemini-thought-only", messages, 8192, null, "", "summary");
+    assert.equal(thoughtOnly.ok, false);
+    assert.equal(thoughtOnly.responseShape, "thought_only");
+    assert.equal(thoughtOnly.finishReason, "MAX_TOKENS");
+    assert.equal(thoughtOnly.output, 10);
+    assert.equal(thoughtOnly.text, "");
+    const thoughtOnlyBody = await providerFailureResponse(thoughtOnly, "request-thought").json();
+    assert.equal(thoughtOnlyBody.finish_reason, "MAX_TOKENS");
+    assert.equal(thoughtOnlyBody.response_shape, "thought_only");
+    assert.equal(JSON.stringify(thoughtOnlyBody).includes("private reasoning"), false);
+
+    const blocked = await providerCall(geminiEnv, "gemini", "gemini-blocked", messages, 8192);
+    assert.equal(blocked.ok, false);
+    assert.equal(blocked.promptBlockReason, "SAFETY");
+    assert.equal(blocked.blockedStage, "input");
+    const blockedBody = await providerFailureResponse(blocked, "request-block").json();
+    assert.equal(blockedBody.prompt_block_reason, "SAFETY");
+    assert.equal(blockedBody.blocked_stage, "input");
+
+    const mixed = await providerCall(geminiEnv, "gemini", "gemini-mixed", messages, 8192);
+    assert.equal(mixed.ok, true);
+    assert.equal(mixed.text, "Visible output", "reasoning parts must never become visible story text");
 
     const anthropic = await providerCall(
       {

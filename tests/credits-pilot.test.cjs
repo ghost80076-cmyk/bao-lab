@@ -237,9 +237,13 @@ test('propagates quota and provider-specific upstream errors without exposing pl
    assert.match(error.message,/診斷編號/);
    return true;
  });
- const upstream500=build({ok:false,status:502,body:{error:'provider_http_error',upstream_http_status:500,request_id:'610dc846-559c-4273-9ac2-e251a7db0971'}});
+ const upstream500=build({ok:false,status:502,body:{error:'provider_http_error',upstream_http_status:500,request_id:'610dc846-559c-4273-9ac2-e251a7db0971',route:'aws_relay',request_bytes:111469,elapsed_ms:65944,timeout_ms:170000}});
  await assert.rejects(()=>upstream500.api.send(cfg,msgs),error=>{
    assert.match(error.message,/夜灣連線鏈路暫時異常（HTTP 500）/);
+   assert.match(error.message,/夜灣 AWS 中繼/);
+   assert.match(error.message,/108\.9 KB/);
+   assert.match(error.message,/65\.9 秒後收到 HTTP 錯誤/);
+   assert.match(error.message,/Worker 逾時設定：170 秒/);
    assert.doesNotMatch(error.message,/Google Gemini 拒絕本次請求/);
    assert.match(error.message,/診斷編號/);
    return true;
@@ -250,6 +254,15 @@ test('propagates quota and provider-specific upstream errors without exposing pl
  await assert.rejects(()=>empty.api.send(cfg,msgs),error=>{
    assert.match(error.message,/MAX_TOKENS/);
    assert.match(error.message,/提高「回覆輸出上限」/);
+   return true;
+ });
+ const noCandidates=build({ok:false,status:502,body:{error:'provider_empty_text',response_shape:'no_candidates'}});
+ await assert.rejects(()=>noCandidates.api.send(cfg,msgs),/沒有候選文字/);
+ const thinkingOnly=build({ok:false,status:502,body:{error:'provider_empty_text',response_shape:'thought_only',finish_reason:'MAX_TOKENS'}});
+ await assert.rejects(()=>thinkingOnly.api.send(cfg,msgs),error=>{
+   assert.match(error.message,/僅回傳思考內容/);
+   assert.match(error.message,/MAX_TOKENS/);
+   assert.doesNotMatch(error.message,/提高「回覆輸出上限」/);
    return true;
  });
  const safety=build({ok:false,status:502,body:{error:'provider_empty_text',finish_reason:'SAFETY'}});

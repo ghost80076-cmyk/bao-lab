@@ -120,6 +120,12 @@ assert.doesNotMatch(
       if (/CREATE TABLE IF NOT EXISTS (api_usage_diagnostics|api_request_traces)/.test(query)) {
         return {run: async () => ({meta: {changes: 0}})};
       }
+      if (/PRAGMA table_info\(api_usage_diagnostics\)/.test(query)) {
+        return {all: async () => ({results: [
+          "finish_reason", "prompt_block_reason", "response_shape", "candidate_count",
+          "observed_input_tokens", "observed_output_tokens",
+        ].map(name => ({name}))})};
+      }
       return {
         bind(...values) {
           bindings = values;
@@ -134,8 +140,11 @@ assert.doesNotMatch(
   const body = await response.json();
   assert.deepEqual(bindings, ["503f62e8-3777-43c9-b7ef-a7934aa45ed4", 200]);
   assert.match(sql[0], /CREATE TABLE IF NOT EXISTS api_usage_diagnostics/);
-  assert.match(sql[2], /LEFT JOIN api_usage_diagnostics AS d/);
-  assert.match(sql[2], /ORDER BY\s+u\.created_at DESC,\s+u\.request_id DESC/);
+  const usageSql = sql.find(query => /LEFT JOIN api_usage_diagnostics AS d/.test(query));
+  assert.ok(usageSql);
+  assert.match(usageSql, /ORDER BY\s+u\.created_at DESC,\s+u\.request_id DESC/);
+  assert.match(usageSql, /d\.response_shape/);
+  assert.match(usageSql, /d\.observed_input_tokens/);
   assert.equal(body.usage.length, 100);
   assert.equal(body.has_more, true);
   assert.equal(body.next_page, 3);
