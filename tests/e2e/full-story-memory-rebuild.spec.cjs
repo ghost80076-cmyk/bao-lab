@@ -26,8 +26,10 @@ test('mobile complete-history memory rescue remains a preview until explicit app
       const text=messages[1].content;
       if (text.includes('【原始對話】')) {
         const n=Number(text.match(/必須完整檢查 (\d+) 輪/)[1]);
+        const id=text.match(/\[(msg-[^\]]+)\]/)?.[1];
+        if (!id) throw new Error('Source message ID missing in simulated extraction');
         return { text:JSON.stringify({reviewedRounds:n,events:['經核對的歷史事件'],knownFacts:[],
-          relationships:[],openThreads:[],evidence:[],stateEvidence:[]}),finishReason:'STOP' };
+          relationships:[],openThreads:[],evidence:[{text:'已發生的故事',messageIds:[id],certainty:'confirmed',knownBy:[]}],stateEvidence:[]}),finishReason:'STOP' };
       }
       return {text:JSON.stringify({events:['重建後的正式事件'],knownFacts:[],relationships:[],openThreads:[]}),finishReason:'STOP'};
     };
