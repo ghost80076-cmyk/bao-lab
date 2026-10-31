@@ -44,7 +44,11 @@ assert.equal(attr.requires_full_original_card,false);
 assert.equal(attr.publication_status,'catalog_registered');
 assert.equal(attr.author_id,authorId);
 assert.equal(regex.characterId,id);
-assert.deepEqual(regex.rules,previousRegex.rules,'preserve author adapter 1:1');
+assert.equal(regex.rules.length,previousRegex.rules.length);
+for(const field of ['name','description','pattern','flags'])assert.equal(regex.rules[0][field],previousRegex.rules[0][field],
+  'keep author rule identity and original HTML matching contract');
+assert.notEqual(regex.rules[0].replacement,previousRegex.rules[0].replacement,
+  'current UI adapter must fix static carousel and broken external image references');
 const rules=Core.normalize(regex);assert.equal(rules.length,1);assert.equal(rules[0].reason,'');
 const render=Core.render(original,rules,true);
 assert.equal(render.matched,true);assert.equal(render.script,true);
@@ -57,7 +61,29 @@ const sends=s=>[...s.matchAll(/<hc-btn send="([^"]+)"/g)].map(m=>m[1]);
 const drafts=s=>[...s.matchAll(/<button type="button" class="yb-author-send" data-send="([^"]+)"/g)].map(m=>m[1]);
 assert.equal(sends(original).length,12);assert.deepEqual(drafts(adapted),sends(original));
 const imgs=s=>[...s.matchAll(/<img src="([^"]+)" alt="([^"]+)"/g)].map(m=>({url:m[1],alt:m[2]}));
-assert.equal(imgs(original).length,6);assert.deepEqual(imgs(adapted),imgs(original));
+assert.equal(imgs(original).length,6);
 assert.deepEqual(imgs(original),assets.portraits.map(x=>({url:x.source_url,alt:x.alt})));
-assert.ok(assets.portraits.every(x=>x.local_file_committed===false));
+assert.equal(assets.portraits.length,6);
+assert.deepEqual(imgs(adapted),assets.portraits.map(x=>({url:x.optimized_webp_path,alt:x.alt})));
+assert.ok(assets.portraits.every(x=>x.local_file_committed===true));
+for(const asset of assets.portraits){
+  assert.equal(asset.local_path,'assets/characters/chicofy-six-timelines/'+asset.id+'.png');
+  assert.equal(asset.optimized_webp_path,'assets/characters/chicofy-six-timelines/'+asset.id+'.webp');
+  const png=fs.readFileSync(path.join(root,asset.local_path));
+  const webp=fs.readFileSync(path.join(root,asset.optimized_webp_path));
+  assert.equal(png.subarray(0,8).toString('hex'),'89504e470d0a1a0a','original image snapshot must really be PNG');
+  assert.equal(webp.toString('ascii',0,4),'RIFF','optimized image must be WebP');
+  assert.equal(webp.toString('ascii',8,12),'WEBP','optimized image must be WebP');
+  assert.ok(webp.length>1000 && webp.length<250000,'light mobile WebP must be valid and efficient');
+}
+assert.equal((adapted.match(/class="yb-route-radio"/g)||[]).length,6);
+assert.equal((adapted.match(/class="yb-route-tab"/g)||[]).length,6);
+assert.equal((adapted.match(/class="pv yb-rotor-prev/g)||[]).length,6);
+assert.equal((adapted.match(/class="nx yb-rotor-next/g)||[]).length,6);
+assert.match(adapted,/:has\(#yb-route-5:checked\)/,'CSS-only selectors must work without JavaScript');
+assert.doesNotMatch(adapted, /onpointerup="/,'legacy JavaScript-only carousel must not be the only navigation');
+assert.doesNotMatch(adapted, /https:\/\/objects\.lunatalk\.ai\/asset\//,
+  'iframe must not hotlink six portraits once mirrored into first-party files');
+assert.match(fs.readFileSync(path.join(root,'js/author-regex-inline.js'),'utf8'), /owner === 'jielai-rensheng' \? ' ' \+ location.origin/,
+  'sandbox must permit first-party portrait host without granting global external image permission');
 console.log('Chicofy jielai-rensheng full card, worldbook, author, source HTML and catalog verified');
