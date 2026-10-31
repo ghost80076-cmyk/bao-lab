@@ -56,6 +56,7 @@ function setup() {
   await s.chat.maybeSummarize(s.config, true);
   assert.equal(calls.length, 3);
   assert.ok(calls.every(c => c.config.maxOutputTokens === 8192));
+  assert.ok(calls.every(c => c.config.__automaticPolicyTask === true), "automatic summaries and repair calls must be recognized by the policy circuit");
   assert.match(calls[0].text, /本次完整 JSON 輸出預算/);
   assert.match(calls[0].text, /episodes 與 knowledgeUpdates 各最多 4 筆/);
   assert.match(calls[1].text, /episodes 與 knowledgeUpdates 各最多 2 筆/);
