@@ -37,7 +37,9 @@ for(const width of [390,1280]){
       const key='bao-lab:author-regex:v1:jielai-rensheng';
       const cfg=JSON.parse(localStorage.getItem(key));
       cfg.allowScripts=true;localStorage.setItem(key,JSON.stringify(cfg));
-      dispatchEvent(new CustomEvent('bao:author-regex-changed'));
+      // This test sets the opt-in config directly; the real settings UI fires a change event.
+      // Request the same inline renderer refresh explicitly after updating this mocked consent.
+      window.BAOAuthorInline.refresh();
     });
     await expect(page.locator('iframe[title="聊天內作者隔離介面"]')).toHaveAttribute('sandbox','allow-scripts');
     await frame.locator('.yb-author-send').first().click();
