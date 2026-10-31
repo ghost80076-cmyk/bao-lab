@@ -11,7 +11,7 @@ assert(start >= 0 && end > start, "inspiration source block must remain availabl
 assert(reader.includes("hiddenInspirations.add(message)"), "closing should hide, not discard valid cached suggestions");
 assert(reader.includes("entry.signature !== inspirationContext(index).signature"), "stale cached options must not render");
 assert(chat.includes('if (config?.__inspirationTask) return "action-inspiration"'), "local ledger must distinguish action inspiration");
-assert(api.includes("(config.__stateTask || config.__inspirationTask || config.__memoryTask)"), "Gemini action helper should use low thinking effort");
+assert(api.includes("(config.__stateTask || config.__inspirationTask)"), "Gemini action helper should use low thinking effort");
 
 const story = {};
 const messages = [

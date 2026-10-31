@@ -31,7 +31,9 @@
           route: PROVIDER,
           use_case: hosted.use_case || model.use_case || upstreamRoute.use_case || "",
           registry_id: model.id || "",
-          upstream_route_id: upstreamRoute.id || ""
+          upstream_route_id: upstreamRoute.id || "",
+          capabilities: upstreamRoute.capabilities || model.capabilities || null,
+          memory_policy: upstreamRoute.memory_policy || model.memory_policy || null
         }
       };
     })

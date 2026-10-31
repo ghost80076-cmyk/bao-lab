@@ -34,10 +34,10 @@
   const confirmed = () => normalizeCanon(currentState()?.canon || {});
   const draft = () => currentState()?.canonDraft ? normalizeCanon(currentState().canonDraft) : null;
   const saveDraft = value => { if (currentState()) { currentState().canonDraft = normalizeCanon(value); App.saveStory?.(false); } };
-  const estimateTokens = text => window.BAOStoryTools?.tokenEstimate?.(text) || Math.ceil(String(text || "").length / 3);
+  const estimateTokens = text => window.BAOMemoryCore.tokens(text);
   const ensureMessages = () => Chat.ensureMessageIds ? Chat.ensureMessageIds() : (Chat.messages || []);
   const messageText = (message,index) => `[訊息 ${index + 1} · ${message.id || "legacy"}] ${message.role === "user" ? "玩家" : "AI角色"}：${String(message.content || "")}`;
-  const splitText=(text,maxTokens)=>{const parts=[];let remaining=String(text||"");while(remaining){let low=1,high=remaining.length,best=1;while(low<=high){const middle=Math.floor((low+high)/2);if(estimateTokens(remaining.slice(0,middle))<=maxTokens){best=middle;low=middle+1;}else high=middle-1;}let cut=best;if(best<remaining.length){const sample=remaining.slice(0,best),floor=Math.floor(best*.6),boundary=Math.max(sample.lastIndexOf("\n\n"),sample.lastIndexOf("\n"),sample.lastIndexOf("。"),sample.lastIndexOf("！"),sample.lastIndexOf("？"),sample.lastIndexOf(". "));if(boundary>=floor)cut=boundary+1;}parts.push(remaining.slice(0,cut).trim());remaining=remaining.slice(cut).trim();}return parts.filter(Boolean);};
+  const splitText=(text,maxTokens)=>{const parts=[];let remaining=String(text||"");while(remaining){const part=window.BAOMemoryCore.prefix(remaining,maxTokens);parts.push(part);remaining=remaining.slice(part.length);}return parts;};
   const messageLines=(message,index,maxTokens)=>{const whole=messageText(message,index);if(estimateTokens(whole)+8<=maxTokens)return[whole];const prefix=`[訊息 ${index+1} · ${message.id||"legacy"}] ${message.role==="user"?"玩家":"AI角色"}`,budget=Math.max(32,maxTokens-estimateTokens(prefix)-24),parts=splitText(message.content,budget);return parts.map((part,partIndex)=>`${prefix} · 片段 ${partIndex+1}/${parts.length}：${part}`);};
   const chunkMessages = (messages,startIndex,maxTokens=9000) => {
     const chunks=[]; let lines=[],tokens=0;
@@ -85,25 +85,86 @@
     `本次模式：${mode==="full"?"完整重建":mode==="incremental"?"增量更新":"階層式中間合併"}；合併層級 ${level}；處理後訊息數為 ${totalMessages}。`,`只輸出合法 JSON，格式：${schema}`,
     final&&prior.notebooks.length?`【既有 Canon（僅供比對）】\n${JSON.stringify(prior.notebooks)}`:"",`【分段提取結果】\n${JSON.stringify(fragments)}`
   ].filter(Boolean).join("\n\n");
-  const request=async(prompt,maxOutputTokens=2200)=>{
-    const result=await API.send({...App.config.api,__memoryTask:true,__responseSchema:canonResponseSchema,maxOutputTokens},[{role:"system",content:"只進行劇情 Canon 整理與校驗，只輸出合法 JSON。"},{role:"user",content:prompt}]);
-    const completionError=Chat.memoryCompletionError(result);
-    if(completionError)throw new Error(completionError);
-    return result;
+  const requestMessages=prompt=>[{role:"system",content:"只進行劇情 Canon 整理與校驗，只輸出合法 JSON。"},{role:"user",content:prompt}];
+  const requestConfig=(task={},kind='canon-extract')=>window.BAOMemoryCore.config(task.story||App.config,kind,App.modelPresets||[],{__responseSchema:canonResponseSchema});
+  const request=async(prompt,kind='canon-extract',task={})=>{
+    const config=requestConfig(task,kind);
+    window.BAOCreditsPilot?.prepareAccountConfig?.(config);
+    return window.BAOMemoryCore.request(config,requestMessages(prompt),(...args)=>API.send(...args),{isCurrent:task.isCurrent});
   };
   const MERGE_BATCH_SIZE=4;
   const mergeCallCount=count=>{let size=Math.max(1,Number(count||0)),calls=1;while(size>MERGE_BATCH_SIZE){const full=Math.floor(size/MERGE_BATCH_SIZE),remainder=size%MERGE_BATCH_SIZE;calls+=full+(remainder>1?1:0);size=full+(remainder?1:0);}return calls;};
   const processedStart=(prior,messages)=>{if(prior.lastProcessedMessageId){const index=messages.findIndex(message=>message.id===prior.lastProcessedMessageId);if(index>=0)return index+1;}return Math.min(prior.lastProcessedMessageCount,messages.length);};
-  const mergeFragments=async(fragments,prior,mode,totalMessages,onProgress,totalCalls,completed)=>{let level=fragments.slice(),depth=0,done=completed;while(level.length>MERGE_BATCH_SIZE){depth+=1;const next=[];for(let index=0;index<level.length;index+=MERGE_BATCH_SIZE){const batch=level.slice(index,index+MERGE_BATCH_SIZE);if(batch.length===1){next.push(batch[0]);continue;}onProgress(`階層合併 L${depth}`,done,totalCalls);const result=await request(mergePrompt(batch,normalizeCanon({}),"hierarchical",totalMessages,depth,false),2600);next.push(parseJSON(result?.text||""));done+=1;}level=next;}onProgress("最終合併與一致性校驗",done,totalCalls);const result=await request(mergePrompt(level,prior,mode,totalMessages,depth+1,true),3200);return{merged:parseJSON(result?.text||""),completed:done+1};};
+  const mergeFragments=async(fragments,prior,mode,totalMessages,onProgress,totalCalls,completed,task)=>{
+    const core=window.BAOMemoryCore,job=task.job;
+    const work=job.merge||{level:fragments.slice(),depth:0,done:completed,index:0,next:[],processing:false};
+    job.merge=work;
+    while(work.processing||(work.level.length>1&&(work.level.length>MERGE_BATCH_SIZE||!core.fits(requestConfig(task,'canon-final'),requestMessages(mergePrompt(work.level,prior,mode,totalMessages,work.depth+1,true)))))){
+      if(!work.processing){work.depth++;work.processing=true;work.index=0;work.next=[];task.save();}
+      while(work.index<work.level.length){
+        const batch=core.mergeBatch(requestConfig(task,'canon-merge'),work.level.slice(work.index),items=>requestMessages(mergePrompt(items,normalizeCanon({}),"hierarchical",totalMessages,work.depth,false)),MERGE_BATCH_SIZE);
+        if(batch.length===1){work.next.push(batch[0]);work.index++;task.save();continue;}
+        onProgress(`階層合併 L${work.depth}`,work.done,Math.max(totalCalls,work.done+1));
+        const result=await request(mergePrompt(batch,normalizeCanon({}),"hierarchical",totalMessages,work.depth,false),'canon-merge',task);
+        work.next.push(parseJSON(result?.text||""));work.done++;work.index+=batch.length;task.save();
+      }
+      work.level=work.next;work.next=[];work.index=0;work.processing=false;task.save();
+    }
+    onProgress("最終合併與一致性校驗",work.done,Math.max(totalCalls,work.done+1));
+    const result=await request(mergePrompt(work.level,prior,mode,totalMessages,work.depth+1,true),'canon-final',task);
+    return{merged:parseJSON(result?.text||""),completed:work.done+1};
+  };
+  const planChunks=(selected,start,task)=>{
+    const core=window.BAOMemoryCore,config=requestConfig(task);
+    let budget=Math.min(9000,core.sourceBudget(config,requestMessages(extractPrompt('',9999,9999))));
+    while(budget>=32){
+      const chunks=chunkMessages(selected,start,budget);
+      if(chunks.every((chunk,index)=>core.fits(config,requestMessages(extractPrompt(chunk,index+1,chunks.length)))))return chunks;
+      budget=Math.floor(budget/2);
+    }
+    throw new Error('整理模型預算不足以容納來源與證據欄位；原資料保留。');
+  };
+  const active=new WeakSet();
   const run=async(mode,onProgress=()=>{})=>{
-    if(App.config?.demoMode||!App.config?.api?.key)throw new Error("請先連接玩家自己的 API；本機預覽不會偽裝成 AI Canon 整理。");
+    const owner=currentState(),storyConfig=App.config,core=window.BAOMemoryCore;
+    if(!owner)throw new Error('目前沒有故事可整理。');
+    if(active.has(owner))throw new Error('本故事的劇情檔案正在整理中。');
+    const route=core.resolve(storyConfig);
+    window.BAOCreditsPilot?.prepareAccountConfig?.(route);
+    if(storyConfig?.demoMode||(!route.key&&!route.local&&!window.BAOCreditsPilot?.isAccountReady?.(route)))throw new Error("請先連接整理模型的 API；本機預覽不會偽裝成 AI Canon 整理。");
     const all=ensureMessages(),prior=confirmed(),start=mode==="full"?0:processedStart(prior,all),selected=all.slice(start);
     if(!selected.length)throw new Error(mode==="full"?"目前沒有可整理的對話。":"上次確認後沒有新增對話。");
-    const chunks=chunkMessages(selected,start),fragments=[],totalCalls=chunks.length+mergeCallCount(chunks.length);
-    for(let index=0;index<chunks.length;index+=1){onProgress(`提取證據 ${index+1}/${chunks.length}`,index,totalCalls);const result=await request(extractPrompt(chunks[index],index+1,chunks.length));fragments.push(parseJSON(result?.text||""));}
-    const mergedResult=await mergeFragments(fragments,prior,mode,all.length,onProgress,totalCalls,chunks.length),next=normalizeCanon({notebooks:mergedResult.merged.notebooks,lastProcessedMessageCount:all.length,lastProcessedMessageId:all.at(-1)?.id||""});saveDraft(next);onProgress("草稿完成，等待玩家確認",mergedResult.completed,totalCalls);return next;
+    const signature=()=>core.fingerprint(JSON.stringify(Chat.messages));
+    const expected=signature(),previousDraft=owner.canonDraft,previousCanon=owner.canon;
+    const task={story:{api:route,memory:{summaryApiMode:'same'}},isCurrent:()=>currentState()===owner&&App.config===storyConfig&&signature()===expected&&owner.canonDraft===previousDraft&&owner.canon===previousCanon};
+    active.add(owner);
+    try{
+      const chunks=planChunks(selected,start,task),totalCalls=chunks.length+mergeCallCount(chunks.length);
+      const planning=requestConfig(task);
+      const jobId=core.fingerprint(JSON.stringify([1,mode,expected,prior,route.model,route.baseUrl,route.protocol,planning.maxOutputTokens,planning.__memoryContextTokens,planning.__memoryInputTokens,chunks]));
+      // Persist only evidence/progress, never the request config or credentials.
+      const saved=owner.canonJob?.id===jobId?owner.canonJob:null;
+      const job=saved?JSON.parse(JSON.stringify(saved)):{version:1,id:jobId,fragments:[],nextChunk:0,merge:null};
+      if(job.nextChunk>chunks.length||job.fragments.length!==job.nextChunk)throw new Error('劇情檔案整理進度與來源不一致。');
+      task.job=job;
+      task.save=()=>{if(!task.isCurrent())throw new Error('故事已變更，已停止保存整理進度。');owner.canonJob=JSON.parse(JSON.stringify(job));App.saveStory?.(false);};
+      const fragments=job.fragments;
+      for(let index=job.nextChunk;index<chunks.length;index++){
+        onProgress(`提取證據 ${index+1}/${chunks.length}`,index,totalCalls);
+        const result=await request(extractPrompt(chunks[index],index+1,chunks.length),'canon-extract',task);
+        fragments.push(parseJSON(result?.text||""));job.nextChunk=index+1;task.save();
+      }
+      const result=await mergeFragments(fragments,prior,mode,all.length,onProgress,totalCalls,chunks.length,task);
+      if(!task.isCurrent())throw new Error('故事已變更，已停止寫入劇情檔案。');
+      const next=normalizeCanon({notebooks:result.merged.notebooks,lastProcessedMessageCount:all.length,lastProcessedMessageId:all.at(-1)?.id||""});
+      delete owner.canonJob;saveDraft(next);onProgress("草稿完成，等待玩家確認",result.completed,Math.max(totalCalls,result.completed));return next;
+    }finally{active.delete(owner);}
   };
-  const estimate=mode=>{const prior=confirmed(),all=ensureMessages(),start=mode==="full"?0:processedStart(prior,all),chunks=chunkMessages(all.slice(start),start);return{messages:all.length-start,chunks:chunks.length,calls:chunks.length?chunks.length+mergeCallCount(chunks.length):0,tokens:chunks.reduce((sum,item)=>sum+estimateTokens(item),0)};};
+  const estimate=mode=>{
+    const prior=confirmed(),all=ensureMessages(),start=mode==="full"?0:processedStart(prior,all);
+    try{const chunks=planChunks(all.slice(start),start,{});return{messages:all.length-start,chunks:chunks.length,calls:chunks.length?chunks.length+mergeCallCount(chunks.length):0,tokens:chunks.reduce((sum,item)=>sum+estimateTokens(item),0)};}
+    catch(error){return{messages:all.length-start,chunks:0,calls:0,tokens:0,error:String(error.message||error)};}
+  };
   const listValue = value => normalizeList(value).join("、");
   const bookHTML=(book,editable)=>`<article class="canon-book" data-canon-book="${attr(book.id)}"><div class="canon-book-head"><input type="checkbox" data-canon-enabled ${book.enabled?"checked":""} ${editable?"":"disabled"}><input type="text" data-canon-title value="${attr(book.title)}" maxlength="80" ${editable?"":"readonly"}><button type="button" data-canon-delete ${editable?"":"hidden"}>刪除</button></div><div class="canon-book-controls"><label>分類<select data-canon-category ${editable?"":"disabled"}>${Object.entries(categories).map(([key,label])=>`<option value="${key}" ${book.category===key?"selected":""}>${label}</option>`).join("")}</select></label><label>載入層級<select data-canon-tier ${editable?"":"disabled"}>${Object.entries(tierLabels).map(([key,label])=>`<option value="${key}" ${book.tier===key?"selected":""}>${label}</option>`).join("")}</select></label><label>可信度<select data-canon-certainty ${editable?"":"disabled"}><option value="confirmed" ${book.certainty==="confirmed"?"selected":""}>確定</option><option value="mixed" ${book.certainty==="mixed"?"selected":""}>混合</option><option value="uncertain" ${book.certainty==="uncertain"?"selected":""}>存疑</option></select></label></div><textarea data-canon-content maxlength="30000" ${editable?"":"readonly"}>${esc(book.content)}</textarea><details><summary>檢索標籤與知情權限</summary><label>知情範圍<select data-canon-knowledge-scope ${editable?"":"disabled"}><option value="shared" ${book.knowledge_scope!=="actors"?"selected":""}>共用（既有預設）</option><option value="actors" ${book.knowledge_scope==="actors"?"selected":""}>只供已知角色</option></select></label><label>已知角色（正式名稱或已登錄別名，逗號分隔）<input type="text" data-canon-known-by value="${attr(listValue(book.known_by))}" ${editable?"":"readonly"} placeholder="例：艾琳、守衛"></label><label>人物<input type="text" data-canon-characters value="${attr(listValue(book.characters))}" ${editable?"":"readonly"}></label><label>地點<input type="text" data-canon-locations value="${attr(listValue(book.locations))}" ${editable?"":"readonly"}></label><label>勢力／組織<input type="text" data-canon-factions value="${attr(listValue(book.factions))}" ${editable?"":"readonly"}></label><label>伏筆／線索<input type="text" data-canon-threads value="${attr(listValue(book.relatedThreads))}" ${editable?"":"readonly"}></label><label>其他實體<input type="text" data-canon-entities value="${attr(listValue(book.entities))}" ${editable?"":"readonly"}></label></details><details><summary>證據與來源</summary><textarea data-canon-evidence maxlength="10000" ${editable?"":"readonly"}>${esc(book.evidence)}</textarea></details></article>`;
   const readEditor=area=>{const source=draft()||confirmed();return normalizeCanon({notebooks:[...area.querySelectorAll("[data-canon-book]")].map((node,index)=>normalizeNotebook({
@@ -141,8 +202,8 @@
       <p class="note">僅顯示具有有效原文證據的事件和角色認知。未列出的角色沒有已確認的知情證據；傳聞及推測不代表客觀事實。本表供玩家檢視，不會整份送給模型。</p>
       ${items || '<p class="note">尚未有經智慧摘要提取的事件知情紀錄。</p>'}</details>`;
   };
-  const html=()=>{const activeDraft=draft(),canon=confirmed(),shown=activeDraft||canon,editable=Boolean(activeDraft),recent=estimate("incremental"),full=estimate("full");return`<div class="canon-summary"><div><span>正式 Canon</span><b>${canon.notebooks.length} 冊</b><small>${canon.confirmedAt?`確認於 ${new Date(canon.confirmedAt).toLocaleString("zh-TW")}`:"尚未建立"}</small></div><div><span>待整理</span><b>${recent.messages} 則</b><small>從上次玩家確認後計算</small></div><div><span>目前畫面</span><b>${editable?"草稿":"正式版"}</b><small>${editable?"尚未送入聊天":"已確認內容可供檢索"}</small></div></div><div class="canon-actions"><button class="secondary" type="button" data-canon-incremental>更新近期 Canon<small>${recent.calls} 次呼叫 · 原始對話約 ${recent.tokens.toLocaleString()} tok</small></button><button class="secondary" type="button" data-canon-full>完整重建 Canon<small>${full.calls} 次呼叫 · 原始對話約 ${full.tokens.toLocaleString()} tok</small></button>${editable?'<button class="secondary" type="button" data-canon-discard>放棄草稿</button><button class="primary" type="button" data-canon-confirm>確認並套用</button>':""}</div><div class="canon-progress" data-canon-progress></div><div class="canon-notice">AI 只產生草稿。玩家確認前不會寫入正式 Canon；原始聊天紀錄不會被修改。</div>${knowledgeHTML()}<div class="canon-books">${shown.notebooks.length?shown.notebooks.map(book=>bookHTML(book,editable)).join(""):'<div class="memory-empty">尚未建立 Canon。可先使用「更新近期」或「完整重建」。</div>'}</div>`;};
-  const mount=root=>{const area=root.querySelector("#canon-workbench-area");if(!area)return;area.innerHTML=html();let running=false;const progress=area.querySelector("[data-canon-progress]");const execute=async mode=>{if(running)return;const info=estimate(mode);if(!info.messages){progress.textContent=mode==="full"?"目前沒有可整理的對話。":"上次確認後沒有新增對話。";return;}const label=mode==="full"?"完整重建":"更新近期";if(!confirm(`${label}會處理 ${info.messages} 則訊息，預計 ${info.calls} 次 API 呼叫。實際費用由你的服務商計算。要繼續嗎？`))return;running=true;area.querySelectorAll("button").forEach(button=>button.disabled=true);try{await run(mode,(label,done,total)=>{progress.textContent=`${label} · ${done}/${total}`;});window.BAOMemoryWorkbench.refresh(root,"canon");}catch(error){progress.textContent=`Canon 整理失敗：${String(error.message||error).split("\n")[0]}`;area.querySelectorAll("button").forEach(button=>button.disabled=false);}finally{running=false;}};area.querySelector("[data-canon-incremental]")?.addEventListener("click",()=>execute("incremental"));area.querySelector("[data-canon-full]")?.addEventListener("click",()=>execute("full"));area.querySelector("[data-canon-discard]")?.addEventListener("click",()=>{if(currentState())delete currentState().canonDraft;App.saveStory?.(false);window.BAOMemoryWorkbench.refresh(root,"canon");});area.querySelector("[data-canon-confirm]")?.addEventListener("click",()=>{if(!currentState())return;const next=readEditor(area);next.confirmedAt=new Date().toISOString();currentState().canon=next;delete currentState().canonDraft;App.saveStory?.(false);window.BAOMemoryWorkbench.refresh(root,"canon");});area.querySelectorAll("[data-canon-delete]").forEach(button=>button.addEventListener("click",()=>{button.closest("[data-canon-book]")?.remove();saveDraft(readEditor(area));}));area.querySelectorAll("[data-canon-book] input,[data-canon-book] select,[data-canon-book] textarea").forEach(field=>field.addEventListener("change",()=>saveDraft(readEditor(area))));};
+  const html=()=>{const activeDraft=draft(),canon=confirmed(),shown=activeDraft||canon,editable=Boolean(activeDraft),recent=estimate("incremental"),full=estimate("full");return`<div class="canon-summary"><div><span>正式 Canon</span><b>${canon.notebooks.length} 冊</b><small>${canon.confirmedAt?`確認於 ${new Date(canon.confirmedAt).toLocaleString("zh-TW")}`:"尚未建立"}</small></div><div><span>待整理</span><b>${recent.messages} 則</b><small>從上次玩家確認後計算</small></div><div><span>目前畫面</span><b>${editable?"草稿":"正式版"}</b><small>${editable?"尚未送入聊天":"已確認內容可供檢索"}</small></div></div><div class="canon-actions"><button class="secondary" type="button" data-canon-incremental>更新近期 Canon<small>${recent.calls} 次呼叫 · 原始對話約 ${recent.tokens.toLocaleString()} tok</small></button><button class="secondary" type="button" data-canon-full>完整重建 Canon<small>${full.calls} 次呼叫 · 原始對話約 ${full.tokens.toLocaleString()} tok</small></button>${editable?'<button class="secondary" type="button" data-canon-discard>放棄草稿</button><button class="primary" type="button" data-canon-confirm>確認並套用</button>':""}</div><div class="canon-progress" data-canon-progress></div><div class="canon-notice">${currentState()?.canonJob?"先前完成的批次已保存；再次選擇相同整理方式即可繼續。 ":""}AI 只產生草稿。玩家確認前不會寫入正式 Canon；原始聊天紀錄不會被修改。</div>${knowledgeHTML()}<div class="canon-books">${shown.notebooks.length?shown.notebooks.map(book=>bookHTML(book,editable)).join(""):'<div class="memory-empty">尚未建立 Canon。可先使用「更新近期」或「完整重建」。</div>'}</div>`;};
+  const mount=root=>{const area=root.querySelector("#canon-workbench-area");if(!area)return;area.innerHTML=html();let running=false;const progress=area.querySelector("[data-canon-progress]");const execute=async mode=>{if(running)return;const info=estimate(mode);if(info.error){progress.textContent=info.error;return;}if(!info.messages){progress.textContent=mode==="full"?"目前沒有可整理的對話。":"上次確認後沒有新增對話。";return;}const label=mode==="full"?"完整重建":"更新近期";if(!confirm(`${label}會處理 ${info.messages} 則訊息，預計 ${info.calls} 次 API 呼叫。實際費用由你的服務商計算。要繼續嗎？`))return;running=true;area.querySelectorAll("button").forEach(button=>button.disabled=true);try{await run(mode,(label,done,total)=>{progress.textContent=`${label} · ${done}/${total}`;});window.BAOMemoryWorkbench.refresh(root,"canon");}catch(error){progress.textContent=`Canon 整理失敗：${String(error.message||error).split("\n")[0]}`;area.querySelectorAll("button").forEach(button=>button.disabled=false);}finally{running=false;}};area.querySelector("[data-canon-incremental]")?.addEventListener("click",()=>execute("incremental"));area.querySelector("[data-canon-full]")?.addEventListener("click",()=>execute("full"));area.querySelector("[data-canon-discard]")?.addEventListener("click",()=>{if(currentState())delete currentState().canonDraft;App.saveStory?.(false);window.BAOMemoryWorkbench.refresh(root,"canon");});area.querySelector("[data-canon-confirm]")?.addEventListener("click",()=>{if(!currentState())return;const next=readEditor(area);next.confirmedAt=new Date().toISOString();currentState().canon=next;delete currentState().canonDraft;App.saveStory?.(false);window.BAOMemoryWorkbench.refresh(root,"canon");});area.querySelectorAll("[data-canon-delete]").forEach(button=>button.addEventListener("click",()=>{button.closest("[data-canon-book]")?.remove();saveDraft(readEditor(area));}));area.querySelectorAll("[data-canon-book] input,[data-canon-book] select,[data-canon-book] textarea").forEach(field=>field.addEventListener("change",()=>saveDraft(readEditor(area))));};
   const searchTerms=input=>{
     const text=String(input||"").toLowerCase(),terms=text.match(/[a-z0-9_]{2,}/g)||[];
     for(const run of text.match(/[\u3400-\u9fff]{2,}/g)||[]){

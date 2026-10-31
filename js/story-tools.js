@@ -456,6 +456,7 @@
   };
 
   const tokenEstimate = value => {
+    if (window.BAOMemoryCore) return window.BAOMemoryCore.tokens(value);
     const text = String(value || "");
     const cjk = (text.match(/[\u3400-\u9fff\uf900-\ufaff]/g) || []).length;
     return Math.max(1, Math.ceil(cjk + (text.length - cjk) / 4));
@@ -473,6 +474,12 @@
   };
 
   const splitMessageText = (value, maxTokens) => {
+    if (window.BAOMemoryCore) {
+      const parts=[];
+      let remaining=String(value||'');
+      while(remaining){const part=window.BAOMemoryCore.prefix(remaining,maxTokens);parts.push(part);remaining=remaining.slice(part.length);}
+      return parts;
+    }
     let remaining = String(value || "").trim();
     if (!remaining) return [];
     const parts = [];
@@ -582,145 +589,9 @@
     };
   };
 
-  const normalizeFragment = input => {
-    const raw = input && typeof input === "object" ? input : {};
-    return {
-      summary: String(raw.summary || ""),
-      importantEvents: Array.isArray(raw.importantEvents) ? raw.importantEvents.map(String).filter(Boolean) : [],
-      relationships: Array.isArray(raw.relationships) ? raw.relationships.map(String).filter(Boolean) : [],
-      characterStatuses: raw.characterStatuses && typeof raw.characterStatuses === "object" && !Array.isArray(raw.characterStatuses) ? clone(raw.characterStatuses) : {},
-      worldState: raw.worldState && typeof raw.worldState === "object" && !Array.isArray(raw.worldState) ? clone(raw.worldState) : {},
-      modules: raw.modules && typeof raw.modules === "object" && !Array.isArray(raw.modules) ? clone(raw.modules) : {},
-      openThreads: Array.isArray(raw.openThreads) ? raw.openThreads.map(String).filter(Boolean) : []
-    };
-  };
-
-  const combineFragmentsLocally = fragments => normalizeFragment({
-    summary: fragments.map(item => item.summary).filter(Boolean).join("\n\n").slice(-50000),
-    importantEvents: uniqueLines(fragments.flatMap(item => item.importantEvents || [])),
-    relationships: uniqueLines(fragments.flatMap(item => item.relationships || [])),
-    characterStatuses: Object.assign({}, ...fragments.map(item => item.characterStatuses || {})),
-    worldState: Object.assign({}, ...fragments.map(item => item.worldState || {})),
-    modules: Object.assign({}, ...fragments.map(item => item.modules || {})),
-    openThreads: uniqueLines(fragments.flatMap(item => item.openThreads || []))
-  });
-
-  const packFromFragment = (inputPack, fragment, messages) => {
-    const pack = normalizePack(inputPack);
-    const data = normalizeFragment(fragment);
-    const external = pack.source?.type === "external";
-    return normalizePack(Object.assign({}, pack, {
-      summary: data.summary || pack.summary,
-      importantEvents: uniqueLines([...(pack.importantEvents || []), ...data.importantEvents]),
-      relationships: uniqueLines([...(pack.relationships || []), ...data.relationships]),
-      characterStatuses: external
-        ? Object.assign({}, pack.characterStatuses || {}, data.characterStatuses)
-        : Object.assign({}, data.characterStatuses, pack.characterStatuses || {}),
-      worldState: external
-        ? Object.assign({}, pack.worldState || {}, data.worldState)
-        : Object.assign({}, data.worldState, pack.worldState || {}),
-      modules: external
-        ? Object.assign({}, pack.modules || {}, data.modules)
-        : Object.assign({}, data.modules, pack.modules || {}),
-      openThreads: uniqueLines([...(pack.openThreads || []), ...data.openThreads]),
-      recentDialogue: (messages || []).slice(-12),
-      playerConfirmed: false
-    }));
-  };
-
-  const saveDraftCheckpoint = (pack, fragment, messages, progress) => {
-    if (!GameState.current) return;
-    GameState.current.contextPackDraft = packFromFragment(pack, fragment, messages);
-    GameState.current.contextPackDraftProgress = Object.assign({
-      updatedAt: new Date().toISOString()
-    }, progress || {});
-    App.saveStory(false);
-  };
-
-  const fragmentPrompt = (chunk, index, total) => [
-    "把這一段角色扮演紀錄整理成 Context Pack 的局部草稿。這是第 " + index + "／" + total + " 段，必須只提取原文明確存在的事實。",
-    "不得推斷玩家心理、喜惡、人格、意圖或未說出口的決定。不確定、互相矛盾或尚未證實的內容放入 openThreads，不可擅自裁決。",
-    "事件保留時間順序；人物狀態、世界狀態、背包、技能與任務只記錄此段明確出現的變化。",
-    "只輸出合法 JSON，欄位必須是：summary 字串、importantEvents 字串陣列、relationships 字串陣列、characterStatuses 物件、worldState 物件、modules 物件、openThreads 字串陣列。",
-    "【本段紀錄】\n" + chunk.map(item => (item.role === "user" ? "玩家" : "AI 角色") + "：" + item.content).join("\n\n")
-  ].join("\n\n");
-
-  const mergePrompt = fragments => [
-    "將以下依時間排序的 Context Pack 局部草稿合併成一份較精簡的草稿。",
-    "去除重複事件但保留因果與時間順序；狀態衝突時只在原文能判斷先後的情況下採用較新的明確狀態，否則寫入 openThreads。",
-    "不得新增原文沒有的事實，不得推斷玩家心理、喜惡、人格、意圖或未說出口的決定。",
-    "只輸出合法 JSON，欄位必須是：summary 字串、importantEvents 字串陣列、relationships 字串陣列、characterStatuses 物件、worldState 物件、modules 物件、openThreads 字串陣列。",
-    "【待合併草稿】\n" + JSON.stringify(fragments)
-  ].join("\n\n");
-
-  const requestFragment = async (config, prompt) => {
-    const result = await API.send(config, [
-      { role: "system", content: "只整理可驗證的劇情事實，輸出合法 JSON，不續寫故事。" },
-      { role: "user", content: prompt }
-    ]);
-    return normalizeFragment(parseAIJSON(result?.text || ""));
-  };
-
   const organize = async (pack, messages, onProgress = () => {}) => {
-    const api = App.config?.api || {};
-    if (!api.key) throw new Error("尚未設定連線金鑰（API Key）；你仍可手動編輯並確認。");
-    const plan = organizationPlan(messages);
-    if (!plan.chunkCount) throw new Error("目前沒有可整理的對話。");
-    const accepted = confirm(
-      "將 " + messages.length + " 則訊息分成 " + plan.chunkCount + " 段整理，" +
-      (plan.mergeCalls ? "再進行 " + plan.mergeCalls + " 次分層合併，" : "") +
-      "預計呼叫記憶模型 " + plan.totalCalls + " 次。這會產生字詞用量（Token），要繼續嗎？"
-    );
-    if (!accepted) return null;
-
-    const config = Object.assign({}, api, { __memoryTask: true, __responseSchema: false, maxOutputTokens: 2200 });
-    if (App.config?.memory?.summaryModel) config.model = App.config.memory.summaryModel;
-    onProgress({ phase: "plan", chunkCount: plan.chunkCount, mergeCalls: plan.mergeCalls, totalCalls: plan.totalCalls });
-
-    const fragments = [];
-    for (let index = 0; index < plan.chunks.length; index += 1) {
-      onProgress({ phase: "chunk", current: index + 1, total: plan.chunkCount, totalCalls: plan.totalCalls });
-      fragments.push(await requestFragment(config, fragmentPrompt(plan.chunks[index], index + 1, plan.chunkCount)));
-      saveDraftCheckpoint(pack, combineFragmentsLocally(fragments), messages, {
-        phase: "chunk",
-        completed: index + 1,
-        total: plan.chunkCount
-      });
-    }
-
-    let level = fragments;
-    let mergeCompleted = 0;
-    let mergeLevel = 0;
-    while (level.length > 1) {
-      mergeLevel += 1;
-      const next = [];
-      for (let index = 0; index < level.length; index += 6) {
-        const batch = level.slice(index, index + 6);
-        if (batch.length === 1) {
-          next.push(batch[0]);
-          continue;
-        }
-        mergeCompleted += 1;
-        onProgress({ phase: "merge", current: mergeCompleted, total: plan.mergeCalls, level: mergeLevel, totalCalls: plan.totalCalls });
-        next.push(await requestFragment(config, mergePrompt(batch)));
-        saveDraftCheckpoint(pack, combineFragmentsLocally(next.concat(level.slice(index + batch.length))), messages, {
-          phase: "merge",
-          completed: mergeCompleted,
-          total: plan.mergeCalls,
-          level: mergeLevel
-        });
-      }
-      level = next;
-    }
-
-    const finalPack = packFromFragment(pack, level[0] || combineFragmentsLocally(fragments), messages);
-    if (GameState.current) {
-      GameState.current.contextPackDraft = clone(finalPack);
-      delete GameState.current.contextPackDraftProgress;
-      App.saveStory(false);
-    }
-    onProgress({ phase: "done", chunkCount: plan.chunkCount, mergeCalls: plan.mergeCalls, totalCalls: plan.totalCalls });
-    return finalPack;
+    if (!window.BAOContextPackResume) throw new Error('摘要包整理器尚未載入完成，請重新載入頁面；原始資料仍保留。');
+    return window.BAOContextPackResume.organizeDraft(pack, messages, onProgress);
   };
 
   const startSequel = input => {

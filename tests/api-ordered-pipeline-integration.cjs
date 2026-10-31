@@ -37,6 +37,7 @@ function harness(order) {
   c.window = c;
   vm.createContext(c);
   vm.runInContext(read('api.js') + '\nwindow.API = API;', c);
+  vm.runInContext(read('memory-core.js'), c);
   vm.runInContext(read('chat.js') + '\nwindow.Chat = Chat;', c);
   const usage = ready.pop();
   vm.runInContext(read('lm-studio-core.js'), c);
@@ -229,6 +230,22 @@ async function automaticMemoryRecovery() {
   }
   console.log('Automatic memory: real trigger, routing, budgets, serializers, completion validation and cursor recovery across three protocols and both route modes');
 }
+async function memoryCapabilitiesAndFrozenRoute() {
+  for (const protocol of ['openai', 'gemini', 'anthropic']) {
+    const { c, requests } = harness(orders[0]);
+    c.App.config.api = { ...cloud('not-yet-released-model'), type: protocol, protocol,
+      capabilities: { contextWindowTokens: 16000, maxOutputTokens: 3072 },
+      memory_policy: { thinking: { thinkingLevel: 'low' } } };
+    c.App.config.memory = { summaryApiMode: 'same' };
+    const cfg = c.BAOMemoryCore.config(c.App.config, 'summary');
+    c.App.config.memory = { summaryApiMode: 'separate', summaryApi: { ...cloud('new-helper'), baseUrl: 'https://new-helper.test', key: 'different-helper-key' } };
+    await c.BAOMemoryCore.request(cfg, [{ role:'user', content:'整理已觀察到的來源' }], (...args)=>c.API.send(...args));
+    const body=requests[0].body;
+    assert.equal(body.generationConfig?.maxOutputTokens ?? body.max_tokens, 3072);
+    assert.ok(requests[0].url.startsWith(cloud().baseUrl), 'an in-flight task retains its originally validated connection');
+    if (protocol === 'gemini') assert.equal(body.generationConfig.thinkingConfig.thinkingLevel, 'low', 'explicit capabilities work on an unknown future model name');
+  }
+}
 async function lateHostedUsage() {
   for (const order of orders) {
     const { c } = harness(order);
@@ -280,4 +297,4 @@ async function abortContracts() {
     assert.equal(c.Chat.usageLedger.length, 0);
   }
 }
-run().then(memoryOutputBudgets).then(automaticMemoryRecovery).then(streamingContracts).then(abortContracts).then(capturedSnapshotContract).then(lateHostedUsage).catch(error => { console.error(error); process.exitCode = 1; });
+run().then(memoryOutputBudgets).then(automaticMemoryRecovery).then(memoryCapabilitiesAndFrozenRoute).then(streamingContracts).then(abortContracts).then(capturedSnapshotContract).then(lateHostedUsage).catch(error => { console.error(error); process.exitCode = 1; });

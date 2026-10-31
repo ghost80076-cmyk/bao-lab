@@ -37,9 +37,10 @@ increasing(index, [
   'src="js/storage.js?v=9"',
   'src="js/story-history-core.js?v=2"',
   'src="js/state.js?v=3"',
-  'src="js/api.js?v=10"',
+  'src="js/api.js',
   'src="js/helper-data.js?v=5"',
   'src="js/episodic-memory-core.js?v=6"',
+  'src="js/memory-core.js',
   'src="js/chat.js',
   'src="js/character.js?v=10"',
   'src="js/app.js',
@@ -49,7 +50,7 @@ increasing(index, [
 
 // World-state chain: the bridge must install its guards before world modules.
 increasing(siteUI, [
-  'loadBAOScript("js/global-bridge.js?v=7")',
+  'loadBAOScript("js/global-bridge.js?v=8")',
   'loadBAOScript("js/world-state.js?v=4")',
   'loadBAOScript("js/character-status.js?v=5")',
   'loadBAOScript("js/three-realms-cultivation-core.js?v=1")',
@@ -62,7 +63,7 @@ increasing(siteUI, [
 // Story chain: story-tools is installed before prompt/cache orchestration and request lifecycle.
 increasing(siteUI, [
   'loadBAOScript("js/storage-write-guard.js?v=3")',
-  'loadBAOScript("js/story-tools.js?v=11")',
+  'loadBAOScript("js/story-tools.js?v=12")',
   'window.BAOEnsureStoryLibrary()',
   'loadBAOScript("js/context-pack-resume.js',
   'loadBAOScript("js/prompt-cache.js',
@@ -106,7 +107,7 @@ assert.equal(
   "world-modules must be loaded exactly once by site-ui"
 );
 assert.equal(
-  siteUI.split('loadBAOScript("js/story-tools.js?v=11")').length - 1,
+  siteUI.split('loadBAOScript("js/story-tools.js?v=12")').length - 1,
   1,
   "story-tools must be loaded exactly once by site-ui"
 );

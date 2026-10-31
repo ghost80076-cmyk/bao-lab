@@ -108,6 +108,15 @@
         "label": "【高品質】Gemini 3.1 Pro",
         "use_case": "玩家指定高階模型；複雜世界觀、推理與重要劇情，走 Google 官方 Gemini",
         "order": 60
+      },
+      "memory_policy": {
+        "outputTokens": {
+          "summary": 16384,
+          "notes": 8192
+        },
+        "thinking": {
+          "thinkingLevel": "low"
+        }
       }
     },
     {
@@ -182,6 +191,15 @@
         "label": "【日常主力】Gemini 3 Flash",
         "use_case": "玩家指定主力；日常長篇、速度與品質兼顧，走 Google 官方 Gemini",
         "order": 40
+      },
+      "memory_policy": {
+        "outputTokens": {
+          "summary": 16384,
+          "notes": 8192
+        },
+        "thinking": {
+          "thinkingLevel": "low"
+        }
       }
     },
     {
@@ -257,6 +275,15 @@
         "label": "【新主力】Gemini 3.8 Flash",
         "use_case": "玩家指定日常主力；長篇、世界模擬與速度兼顧，預設走 Google 官方 Gemini，可由管理端切 OpenRouter 備援",
         "order": 45
+      },
+      "memory_policy": {
+        "outputTokens": {
+          "summary": 16384,
+          "notes": 8192
+        },
+        "thinking": {
+          "thinkingLevel": "low"
+        }
       }
     },
     {

@@ -89,6 +89,7 @@ global.API = {
 };
 
 global.addEventListener = () => {};
+vm.runInThisContext(fs.readFileSync(require('node:path').join(__dirname, '..', 'js/memory-core.js'), 'utf8'));
 vm.runInThisContext(fs.readFileSync(require('node:path').join(__dirname, '..', 'js/chat.js'), 'utf8') + '\nObject.assign(Chat, globalThis.Chat); globalThis.Chat = Chat;');
 const source = fs.readFileSync(require("node:path").join(__dirname, "..", "js/context-pack-resume.js"), "utf8");
 vm.runInThisContext(source, { filename: "context-pack-resume.js" });
@@ -126,6 +127,7 @@ assert.equal(JSON.stringify(GameState.current.contextPackDraftResume).includes("
   assert.match(calls[0].prompt, /第 1／3 段/);
   assert.match(calls[1].prompt, /第 2／3 段/);
   assert.equal(calls[0].config.__responseSchema, false, "Context Pack must request flexible JSON instead of the fixed memory schema");
+  assert.equal(calls[0].config.model, 'main-model', 'legacy summaryModel must not override the selected main route');
   assert.equal(calls[1].config.__responseSchema, false);
 
   const persisted = structuredClone(GameState.current);
@@ -157,6 +159,33 @@ assert.equal(JSON.stringify(GameState.current.contextPackDraftResume).includes("
     assert.equal(GameState.current.contextPackDraftResume.work.nextChunk, 0);
     assert.equal(JSON.stringify(GameState.current.contextPackDraft), savedDraft, 'incomplete JSON response must not change the draft/checkpoint');
   }
+  API.send = send;
+  const mergePack = BAOContextPackResume.beginDraft(sourceMessages, { type: 'current-story' });
+  failOnCall = calls.length + 4;
+  await assert.rejects(BAOContextPackResume.organizeDraft(mergePack, sourceMessages, () => {}, { skipConfirm: true }), /network loss/);
+  assert.equal(GameState.current.contextPackDraftResume.work.nextChunk, 3);
+  assert.equal(GameState.current.contextPackDraftResume.work.mergeIndex, 0, 'a failed paid merge must not skip its input on resume');
+  const beforeMergeRetry = calls.length;
+  GameState.current.contextPackDraftResume.work.version = 1;
+  GameState.current.contextPackDraftResume.work.mergeIndex = 3; // Legacy failure could persist this premature cursor.
+  failOnCall = -1;
+  await BAOContextPackResume.organizeDraft(GameState.current.contextPackDraft, sourceMessages, () => {}, { skipConfirm: true });
+  assert.equal(calls.length - beforeMergeRetry, 1, 'resume only the failed merge, keeping all successful chunks');
+  assert.equal(GameState.current.contextPackDraftResume.work, null);
+
+  App.config.api.key = '';
+  App.config.memory = { summaryApiMode: 'separate', summaryApi: { type: 'custom', protocol: 'openai', model: 'helper-model', baseUrl: 'https://helper.test', key: 'helper-only-key' } };
+  const helperPack = BAOContextPackResume.beginDraft(sourceMessages, { type: 'current-story' });
+  await BAOContextPackResume.organizeDraft(helperPack, sourceMessages, () => {}, { skipConfirm: true });
+  assert.equal(calls.at(-1).config.model, 'helper-model', 'a connected helper works even when the main model key is absent');
+  assert.equal(calls.at(-1).config.key, 'helper-only-key');
+
+  const oldStory = GameState.current;
+  const stalePack = BAOContextPackResume.beginDraft(sourceMessages, { type: 'current-story' });
+  API.send = async (...args) => { const result = await send.apply(API, args); GameState.current = {}; return result; };
+  await assert.rejects(BAOContextPackResume.organizeDraft(stalePack, sourceMessages, () => {}, { skipConfirm: true }), /故事或整理來源已變更/);
+  assert.equal(GameState.current.contextPackDraft, undefined, 'late results cannot write into a different story');
+  assert.equal(oldStory.contextPackDraftResume.work.nextChunk, 0);
   console.log("Context Pack resumable organization core checks passed.");
 })().catch(error => {
   console.error(error);

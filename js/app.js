@@ -108,6 +108,8 @@ const App = {
       explicit_cache:route.explicit_cache??model.explicit_cache,
       pricing:route.pricing??model.pricing??null,
       docs_url:route.docs_url||model.docs_url||null,
+      capabilities:route.capabilities??model.capabilities??null,
+      memory_policy:route.memory_policy??model.memory_policy??null,
       registry_id:model.id||"",
       registry_route_id:route.id||route.provider||""
     })));
