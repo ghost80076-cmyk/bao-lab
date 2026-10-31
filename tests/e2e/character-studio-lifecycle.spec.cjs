@@ -110,3 +110,71 @@ test('draft archive is reversible and does not delete the draft immediately', as
   await expect(page.locator('#studio-toggle-archived')).toHaveText('查看封存 (0)');
   await expect(page.locator('#studio-drafts .studio-draft')).toContainText('封存測試作品');
 });
+
+
+for (const width of [320, 390]) {
+  test(`creator mobile review and draft actions remain usable at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height:width === 320 ? 568 : 844 });
+    await page.goto('./character-studio.html');
+    await page.waitForFunction(() => Boolean(
+      window.BAOCharacterStudioLifecycle && window.BAOCharacterStudioFlow && window.BAOCharacterStudio
+    ));
+    await expect(page.locator('link[href="css/character-studio.css?v=4"]')).toHaveCount(1);
+    await expect(page.locator('link[href="css/character-studio-lifecycle.css?v=2"]')).toHaveCount(1);
+    await page.getByRole('button', { name:'全部欄位' }).click();
+    const lifecycle = page.locator('#studio-lifecycle');
+    await expect(lifecycle).toBeVisible();
+    await expect(lifecycle.locator('.studio-lifecycle-stages article')).toHaveCount(4);
+
+    const layout = await lifecycle.evaluate(node => {
+      const stages = node.querySelector('.studio-lifecycle-stages');
+      const boxes = [...stages.querySelectorAll('article')].map(item => {
+        const rect = item.getBoundingClientRect();
+        return { x:rect.x, y:rect.y, right:rect.right, width:rect.width };
+      });
+      const summaries = [...node.querySelectorAll('details > summary')].map(item => ({
+        height:item.getBoundingClientRect().height,
+        display:getComputedStyle(item).display
+      }));
+      return { columns:getComputedStyle(stages).gridTemplateColumns.split(' ').length, boxes, summaries };
+    });
+    expect(layout.columns).toBe(2);
+    expect(layout.boxes[0].y).toBeCloseTo(layout.boxes[1].y, 0);
+    expect(layout.boxes[2].y).toBeGreaterThan(layout.boxes[0].y);
+    expect(layout.boxes.every(box => box.width > 100 && box.right <= width + 1)).toBe(true);
+    expect(layout.summaries.every(item => item.height >= 44 && item.display === 'list-item')).toBe(true);
+
+    await page.locator('#studio-publication-guide > summary').click();
+    await expect(page.locator('#studio-publication-guide')).toHaveAttribute('open', '');
+    await page.locator('#studio-publication-guide > summary').click();
+
+    await page.locator('[name="name"]').fill('手機草稿操作驗收');
+    await page.locator('[name="id"]').fill('creator-mobile-review-' + width);
+    await page.locator('[name="system_prompt"]').fill('角色依自己的資訊和目標行動，不代演玩家。');
+    await page.locator('[name="greeting"]').fill('清晨的碼頭還亮著一盞燈。');
+    const next = lifecycle.locator('[data-lifecycle-next-action]');
+    await expect(next).toBeVisible();
+    expect((await next.boundingBox()).height).toBeGreaterThanOrEqual(44);
+    await page.locator('#studio-save-draft').click();
+    await expect(page.locator('#studio-status')).toContainText('草稿已儲存');
+    const archive = page.getByRole('button', { name:'封存草稿 手機草稿操作驗收' });
+    await expect(archive).toBeVisible();
+    expect((await archive.boundingBox()).height).toBeGreaterThanOrEqual(44);
+    expect(await archive.evaluate(node => parseFloat(getComputedStyle(node).fontSize))).toBeGreaterThanOrEqual(12);
+    page.once('dialog', dialog => dialog.accept());
+    await archive.click();
+    await expect(page.locator('#studio-status')).toContainText('草稿已封存');
+    const archivedToggle = page.locator('#studio-toggle-archived');
+    expect((await archivedToggle.boundingBox()).height).toBeGreaterThanOrEqual(44);
+    await archivedToggle.click();
+    const restore = page.getByRole('button', { name:'還原草稿 手機草稿操作驗收' });
+    const permanent = page.getByRole('button', { name:'永久刪除 手機草稿操作驗收' });
+    await expect(restore).toBeVisible();
+    expect((await restore.boundingBox()).height).toBeGreaterThanOrEqual(44);
+    expect((await permanent.boundingBox()).height).toBeGreaterThanOrEqual(44);
+    await restore.click();
+    await expect(page.locator('#studio-status')).toContainText('草稿已還原');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+    await page.screenshot({ path:`test-results/creator-mobile-review-${width}.png`, animations:'disabled' });
+  });
+}
