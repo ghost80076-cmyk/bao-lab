@@ -66,6 +66,7 @@
     if (busy || !Number.isInteger(index) || index < 0) return false;
     const message = Chat.messages?.[Number(index)];
     if (!message?.id || message.role !== "assistant") return false;
+    const readingPosition = window.BAOStoryBranches.captureReadingPosition?.();
     busy = true;
     let original = null;
     let originalRefs = null;
@@ -118,6 +119,7 @@
       await Storage.flush();
       if (!await Library.flush()) fail("回溯分支無法寫入故事庫。");
       window.BAORefreshSaveUI?.();
+      await window.BAOStoryBranches.positionReader?.();
       if (!save.config?.demoMode && !safeKey) window.BAOChatAPISettings?.open?.();
       const round = save.chat.messages.filter(item => item.role === "assistant").length;
       window.alert(`已回溯至第 ${round} 輪，並還原歷史世界、人物與記憶；無須為回溯再次呼叫 AI 重建。\n原故事線完整保留，可從「故事分支」切換回去。\n${formatReport({ ...restoredReport, warnings: [...new Set([...report.warnings, ...restoredReport.warnings])] })}`);
@@ -137,6 +139,7 @@
           App.renderChatShell(false);
           App.showView("chat");
           window.BAORefreshSaveUI?.();
+          await window.BAOStoryBranches.positionReader?.(readingPosition);
         } catch (restoreError) { console.error("BAO/LAB rollback recovery failed:", restoreError); }
       }
       window.alert(error?.message || "回溯失敗，原故事沒有被刪除。");

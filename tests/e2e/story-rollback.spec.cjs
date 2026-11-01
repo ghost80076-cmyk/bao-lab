@@ -154,3 +154,109 @@ test('rejects an out-of-range historical summary without changing the original s
   expect(alerts.join('')).toContain('摘要游標超出回溯範圍');
   expect(await page.evaluate(() => Chat.messages.length)).toBe(4);
 });
+
+for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
+  for (const action of ['branch', 'rewind']) {
+    test(`${action} in a long story lands at the selected reply (${viewport.width}px)`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await openDemoStory(page);
+      const original = await page.evaluate(async () => {
+        Chat.messages = [];
+        Chat.summary = '';
+        Chat.summarizedUntil = 0;
+        for (let round = 1; round <= 20; round++) {
+          Chat.add('user', `選擇 ${round}`);
+          Chat.add('assistant', `歷史回覆 ${round}。${'這是一段用來驗證長篇故事閱讀位置的文字。'.repeat(18)}`);
+        }
+        App.renderChatShell(false);
+        App.saveStory(false);
+        await Storage.flush(); await BAOStoryLibrary.flush();
+        const refs = BAOStoryLibrary.refs();
+        for (let round = 21; round <= 30; round++) {
+          Chat.add('user', `選擇 ${round}`);
+          Chat.add('assistant', `未來回覆 ${round}。${'原路線的後續故事。'.repeat(18)}`);
+        }
+        App.renderChatShell(false);
+        App.saveStory(false);
+        await Storage.flush(); await BAOStoryLibrary.flush();
+        return refs;
+      });
+      const dialogs = [];
+      page.on('dialog', async dialog => {
+        dialogs.push(dialog.message());
+        await dialog.accept(dialog.type() === 'prompt' ? '長篇定位測試' : undefined);
+      });
+      // Click the actual message action, including its mobile overflow menu.
+      const selector = action === 'branch' ? '[data-create-branch="39"]'
+        : await page.evaluate(() => `[data-story-rollback="${Chat.messages[39].id}"]`);
+      await expect(async () => {
+        await page.evaluate(() => BAOMobileReadingLayout.syncMessageActions());
+        const button = page.locator(selector);
+        if (!await button.isVisible()) {
+          const more = page.locator(`details.bao-message-more:has(${selector})`);
+          if (await more.getAttribute('open') === null) await more.locator(':scope > summary').click();
+        }
+        await expect(button).toBeVisible({ timeout: 1000 });
+      }).toPass();
+      await page.locator(selector).click();
+      await expect.poll(() => dialogs.some(text => text.includes(action === 'branch' ? '已建立並切換至「長篇定位測試」' : '已回溯至第 20 輪'))).toBe(true);
+      await expect.poll(() => page.evaluate(() => {
+        const stream = document.getElementById('chat-stream');
+        const target = stream.querySelector('.message.assistant:last-child');
+        const box = target?.getBoundingClientRect();
+        const reader = stream.getBoundingClientRect();
+        return !!box && box.bottom > Math.max(reader.top, 0)
+          && box.bottom <= Math.min(reader.bottom, innerHeight) + 2
+          && stream.scrollTop > 500 && document.activeElement === target;
+      })).toBe(true);
+      const saved = await page.evaluate(async refs => {
+        await Storage.flush(); await BAOStoryLibrary.flush();
+        return { count: Chat.messages.length, refs: BAOStoryLibrary.refs(),
+          originalCount: (await BAOStoryLibrary.reconstruct(refs.storyId, refs.chapterId)).chat.messages.length };
+      }, original);
+      expect(saved.count).toBe(40);
+      expect(saved.originalCount).toBe(60);
+      expect(saved.refs.parentChapterId).toBe(original.chapterId);
+
+      // Switching back also returns to the current endpoint, not the opening.
+      await page.evaluate(refs => BAOStoryBranches.restore(refs.storyId, refs.chapterId), original);
+      await expect.poll(() => page.evaluate(() => Chat.messages.length)).toBe(60);
+      await expect.poll(() => page.evaluate(() => {
+        const stream = document.getElementById('chat-stream');
+        const box = stream.querySelector('.message.assistant:last-child').getBoundingClientRect();
+        const reader = stream.getBoundingClientRect();
+        return box.bottom > Math.max(reader.top, 0)
+          && box.bottom <= Math.min(reader.bottom, innerHeight) + 2;
+      })).toBe(true);
+      if (action === 'branch') {
+        // Refusing a branch must leave both the story and reading position alone.
+        await page.evaluate(() => { document.getElementById('chat-stream').scrollTop = 600; });
+        const before = await page.evaluate(() => ({ refs: BAOStoryLibrary.refs(),
+          count: Chat.messages.length, top: document.getElementById('chat-stream').scrollTop }));
+        await page.evaluate(async () => {
+          const create = BAOStoryLibrary.createBranch;
+          BAOStoryLibrary.createBranch = async () => { throw new Error('測試：缺少歷史檢查點'); };
+          try { await BAOStoryBranches.createFrom(39); }
+          finally { BAOStoryLibrary.createBranch = create; }
+        });
+        expect(dialogs.at(-1)).toContain('缺少歷史檢查點');
+        expect(await page.evaluate(() => ({ refs: BAOStoryLibrary.refs(),
+          count: Chat.messages.length, top: document.getElementById('chat-stream').scrollTop }))).toEqual(before);
+        // A late rollback write failure rerenders the original story; it must
+        // restore the reader position after the shell's queued bottom scroll.
+        const result = await page.evaluate(async originalChapter => {
+          const flush = BAOStoryLibrary.flush;
+          BAOStoryLibrary.flush = function(...args) {
+            return this.refs().chapterId === originalChapter ? flush.apply(this, args) : Promise.resolve(false);
+          };
+          try { return await BAOStoryRollback.rewind(39); }
+          finally { BAOStoryLibrary.flush = flush; }
+        }, original.chapterId);
+        expect(result).toBe(false);
+        expect(dialogs.at(-1)).toContain('回溯分支無法寫入故事庫');
+        expect(await page.evaluate(() => ({ refs: BAOStoryLibrary.refs(),
+          count: Chat.messages.length, top: document.getElementById('chat-stream').scrollTop }))).toEqual(before);
+      }
+    });
+  }
+}
