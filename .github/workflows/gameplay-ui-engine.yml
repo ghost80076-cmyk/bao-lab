@@ -29,6 +29,8 @@ on:
       - 'css/gameplay-ui.css'
       - 'tests/gameplay-ui-engine-core.cjs'
       - 'tests/gameplay-ui-composer-core.cjs'
+      - 'tests/gameplay-ui-composer-handoff-core.cjs'
+      - 'tests/e2e/gameplay-ui-composer-advanced.spec.cjs'
       - 'tests/e2e/gameplay-ui-preview.spec.cjs'
       - 'tests/fixtures/gameplay-ui-preview-harness.html'
       - 'tests/stage-capability-core.cjs'
@@ -77,6 +79,7 @@ jobs:
       - run: node tests/stage-capability-core.cjs
       - run: node tests/gameplay-ui-engine-core.cjs
       - run: node tests/gameplay-ui-composer-core.cjs
+      - run: node tests/gameplay-ui-composer-handoff-core.cjs
       - run: node tests/gameplay-ui-composer-edit-core.cjs
       - run: node --check js/character-studio-gameplay-composer.js
       - run: node --test tests/gameplay-ui-preview-cache.test.mjs tests/pwa-install-contract.test.mjs tests/pwa-cache-safety.test.mjs
@@ -106,6 +109,7 @@ jobs:
           tests/e2e/stage-capability.spec.cjs
           tests/e2e/gameplay-ui-preview.spec.cjs
           tests/e2e/gameplay-ui-composer.spec.cjs
+          tests/e2e/gameplay-ui-composer-advanced.spec.cjs
           tests/e2e/character-studio.spec.cjs
           tests/e2e/character-studio-actions.spec.cjs
           tests/e2e/character-studio-flow.spec.cjs
@@ -134,7 +138,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx playwright test tests/e2e/gameplay-ui-preview.spec.cjs tests/e2e/gameplay-ui-composer.spec.cjs --project=${{ matrix.browser }}
+      - run: npx playwright test tests/e2e/gameplay-ui-preview.spec.cjs tests/e2e/gameplay-ui-composer.spec.cjs tests/e2e/gameplay-ui-composer-advanced.spec.cjs --project=${{ matrix.browser }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

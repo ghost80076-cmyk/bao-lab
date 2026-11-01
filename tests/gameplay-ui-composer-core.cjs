@@ -68,7 +68,7 @@ assert.equal(statusOf(['panels', 0]), 'ok');
 assert.equal(statusOf(['panels', 0, 'sections', 0]), 'trimmed', 'invalid item path is reported, not deleted');
 assert.equal(statusOf(['panels', 0, 'sections', 1]), 'incomplete');
 assert.equal(statusOf(['panels', 1]), 'incomplete');
-assert.equal(report.summary.incomplete, 2);
+assert.equal(report.summary.incomplete, 3, 'includes the invalid item as well as its section/panel');
 assert.ok(report.schema && report.schema.panels.length === 1, 'preview schema comes from normalize, separately from the draft');
 
 // over-limit panels are flagged, not removed

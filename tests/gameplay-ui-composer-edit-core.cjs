@@ -27,7 +27,7 @@ assert.deepEqual(result.ui.future,ui.future);
 result=apply('set',['panels',1,'sections',0,'items',0],{key:'label',value:'購買'});
 assert.deepEqual(result.ui.panels[1].sections[0].items[0].effect,ui.panels[1].sections[0].items[0].effect);
 assert.equal(result.ui.panels[1].sections[0].items[0].future,2);
-for(const type of Edit.TYPES){
+for(const type of Edit.TYPES.filter(t=>t!=='tabs')){
  result=apply('add-section',['panels',0],{sectionType:type});
  assert.ok(Core.normalizeSection(result.ui.panels[0].sections[1],1));
 }
@@ -44,3 +44,19 @@ assert.deepEqual(panel.selection,['panels',0]);
 console.log('Gameplay UI edit core PASS: immutable edits, limits, reference cleanup, unknown fields, effects and draft-only enablement');
 
 assert.equal(Edit.apply({...before,enabled:false},{type:'enable'},Core).ui.enabled,true);
+// Tabs retain references and unknown child data through editing, copying and removal.
+{
+ let source={version:1,panels:[{id:'p',sections:[{type:'tabs',default_tab:'one',future:1,tabs:[{id:'one',label:'一',future:2,sections:[{type:'timeline',mode:'round_diff',items:[],future:3}]}]}]}]};
+ const tp=['panels',0,'sections',0,'tabs',0],cp=tp.concat('sections',0);
+ const run=(command)=>Edit.apply(source,command,Core);
+ const renamed=run({type:'set',path:tp,key:'id',value:'renamed'});
+ assert.equal(renamed.ui.panels[0].sections[0].default_tab,'renamed');assert.equal(source.panels[0].sections[0].default_tab,'one');
+ assert.throws(()=>run({type:'add-section',path:tp,sectionType:'tabs'}),/不能/);
+ let next=run({type:'add-item',path:cp});assert.equal(next.ui.panels[0].sections[0].tabs[0].sections[0].items.length,1);assert.equal(next.ui.panels[0].sections[0].tabs[0].sections[0].future,3);
+ next=run({type:'copy',path:tp});assert.equal(next.ui.panels[0].sections[0].tabs.length,2);assert.notEqual(next.ui.panels[0].sections[0].tabs[1].id,'one');assert.equal(next.ui.panels[0].sections[0].tabs[1].future,2);
+ next=run({type:'remove',path:tp});assert.equal(next.ui.panels[0].sections[0].default_tab,undefined);
+ assert.throws(()=>run({type:'set',path:cp,key:'mode',value:'unknown'}),/支援/);
+ source.panels[0].sections[0].tabs=Array.from({length:Core.MAX_TABS},(_,i)=>({id:'t'+i,sections:[]}));
+ assert.throws(()=>run({type:'add-tab',path:['panels',0,'sections',0]}),/上限/);
+ assert.throws(()=>run({type:'copy',path:tp}),/上限/);
+}

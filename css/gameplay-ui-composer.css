@@ -1,5 +1,6 @@
 /* Extends the existing author workbench; no author CSS is evaluated here. */
-html.studio-document{scroll-behavior:auto}
+html.studio-document{scroll-behavior:auto;scroll-padding-top:240px}
+@media(max-width:800px){html.studio-document{scroll-padding-top:180px}}
 #studio-gameplay-composer{margin:22px 0;min-width:0;color:var(--yoru-text,#f1eee8)}
 #studio-gameplay-composer h3{margin:0 0 8px;font-size:21px;line-height:1.4}
 #studio-gameplay-composer h4{margin:0 0 14px;font-size:17px;line-height:1.5}
@@ -36,3 +37,10 @@ html.studio-document{scroll-behavior:auto}
 @media(prefers-reduced-motion:reduce){#studio-gameplay-composer *{scroll-behavior:auto!important}}
 
 .composer-tree-heading .composer-drag-handle{flex:0 0 44px;cursor:grab;user-select:none;font-size:12px;color:var(--yoru-text-secondary,#c8c2cc);padding:4px}
+.composer-layout{margin:8px 0 20px;padding-bottom:14px;border-bottom:1px solid var(--yoru-card-border,#44404a)}
+.composer-layout>div{margin-top:14px}
+.composer-tree-row[data-node-path*="tabs"]{margin-left:24px}
+.composer-effect{margin-top:14px;border-top:1px solid var(--yoru-card-border,#44404a);padding-top:12px}
+.composer-effect-entry{border:0;border-left:2px solid var(--yoru-card-border,#44404a);padding:0 0 0 12px;margin:16px 0;min-width:0}
+.composer-diagnostics li{margin-bottom:12px}.composer-diagnostics li button{margin-left:10px;padding:6px 12px}
+#studio-gameplay-composer [data-preview-values]{margin-top:16px}
