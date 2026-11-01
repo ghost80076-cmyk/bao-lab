@@ -11,7 +11,7 @@
  * runtime normalizer; diagnosis never changes the editable draft.
  */
 (function(root, factory) {
-  const api = factory(root && root.BAOGameplayUICore);
+  const api = factory(root && root.BAOGameplayUICore || (typeof module === 'object' && module.exports ? require('./gameplay-ui-core.js') : null));
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.BAOGameplayUIComposerCore = api;
 })(typeof self !== 'undefined' ? self : null, function(defaultCore) {
@@ -43,6 +43,90 @@
 
   const node = (path, kind, status, reason = '') => ({ path, kind, status, reason });
 
+  const ITEM_SECTIONS = ['meters', 'stats', 'actions'];
+  /** Sections whose `items` the composer inspects: meters, stats, actions, and timelines in round_diff mode. */
+  const hasItems = section => isObject(section) && (ITEM_SECTIONS.includes(section.type) || (section.type === 'timeline' && section.mode === 'round_diff'));
+  const text = value => String(value ?? '').trim();
+
+  /**
+   * Item-level diagnosis for `meters`, `stats` and `actions` sections: which raw items the core would drop and why.
+   * Validity is asked of the core itself (a one-item probe), so the rules are never copied here;
+   * only the *reason* is derived. Order mirrors the core: map → filter → cap.
+   */
+  function analyzeItems(core, section, sectionPath, nodes) {
+    const type = section.type;
+    // round_diff timelines read their items exactly like `stats` items, so ask the core about them as stats.
+    const probeType = type === 'timeline' ? 'stats' : type;
+    const rawItems = Array.isArray(section.items) ? section.items : [];
+    let valid = 0;
+    const seenPaths = new Set();
+    rawItems.forEach((item, itemIndex) => {
+      const path = sectionPath.concat('items', itemIndex);
+      const probe = core.normalizeSection({ type: probeType, items: [item] }, 0);
+      if (!probe) {
+        nodes.push(node(path, 'item', STATUS.INCOMPLETE, itemReason(core, probeType, item)));
+        if (type === 'actions' && isObject(item) && isObject(item.effect)) analyzeEffect(core, item.effect, path.concat('effect'), nodes);
+        return;
+      }
+      const overLimit = valid >= core.MAX_ITEMS;
+      valid += 1;
+      if (overLimit) { nodes.push(node(path, 'item', STATUS.OVER_LIMIT, 'item_over_limit')); return; }
+      if (type === 'timeline') { // the core drops a repeated path after the cap
+        const p = text(item.path);
+        if (seenPaths.has(p)) { nodes.push(node(path, 'item', STATUS.DUPLICATE, 'timeline_item_duplicate_path')); return; }
+        seenPaths.add(p);
+      }
+      const ignoresFixedMax = type === 'meters' && isObject(item) && text(item.max_path) && item.max !== undefined && item.max !== '';
+      nodes.push(node(path, 'item', ignoresFixedMax ? STATUS.TRIMMED : STATUS.OK, ignoresFixedMax ? 'meter_fixed_max_ignored' : ''));
+      if (type === 'actions' && isObject(item) && isObject(item.effect)) analyzeEffect(core, item.effect, path.concat('effect'), nodes);
+    });
+  }
+
+  function itemReason(core, type, item) {
+    if (!isObject(item)) return 'item_not_object';
+    if (type === 'meters') {
+      const valuePath = text(item.value_path || item.path);
+      const maxPath = text(item.max_path);
+      if (!valuePath) return 'meter_value_path_missing';
+      if (!core.isDisplayPath(valuePath)) return 'meter_value_path_invalid';
+      if (maxPath && !core.isDisplayPath(maxPath)) return 'meter_max_path_invalid';
+      return 'meter_item_invalid';
+    }
+    if (type === 'stats') {
+      const p = text(item.path);
+      return !p ? 'stat_path_missing' : !core.isDisplayPath(p) ? 'stat_path_invalid' : 'stat_item_invalid';
+    }
+    // actions fail closed: a bad effect is never silently turned into a text-only action
+    if (item.effect !== undefined) return 'action_effect_invalid';
+    return 'action_needs_draft_or_effect';
+  }
+
+  /** Pin down which part of an invalid effect the core rejects, by probing each entry on its own. */
+  function analyzeEffect(core, effect, effectPath, nodes) {
+    const valid = entry => Boolean(core.normalizeSection({ type: 'actions', items: [{ label: 'probe', effect: entry }] }, 0));
+    const changes = Array.isArray(effect.changes) ? effect.changes : [];
+    const items = Array.isArray(effect.items) ? effect.items : [];
+    if (!changes.length && !items.length) { nodes.push(node(effectPath, 'effect', STATUS.INVALID, 'effect_empty')); return; }
+    if (changes.length > core.MAX_EFFECT_ENTRIES || items.length > core.MAX_EFFECT_ENTRIES) nodes.push(node(effectPath, 'effect', STATUS.INVALID, 'effect_too_many_entries'));
+    const seen = new Set();
+    changes.forEach((change, i) => {
+      const where = effectPath.concat('changes', i);
+      const p = isObject(change) ? text(change.path) : '';
+      if (!valid({ changes: [change] })) nodes.push(node(where, 'effect_change', STATUS.INVALID, 'effect_change_invalid'));
+      else if (seen.has(p)) nodes.push(node(where, 'effect_change', STATUS.DUPLICATE, 'effect_change_duplicate_path'));
+      else seen.add(p); // only a valid entry claims its path
+    });
+    const seenItems = new Set();
+    items.forEach((it, i) => {
+      const where = effectPath.concat('items', i);
+      const key = isObject(it) ? `${text(it.path)}:${text(it.id)}` : '';
+      if (!valid({ items: [it] })) nodes.push(node(where, 'effect_item', STATUS.INVALID, 'effect_item_invalid'));
+      else if (seenItems.has(key)) nodes.push(node(where, 'effect_item', STATUS.DUPLICATE, 'effect_item_duplicate'));
+      else if (changes.some(c => isObject(c) && isObject(it) && text(c.path).startsWith(text(it.path) + '.'))) nodes.push(node(where, 'effect_item', STATUS.INVALID, 'effect_item_conflicts_with_change'));
+      else seenItems.add(key);
+    });
+  }
+
   /** Section list (panel sections, or the sections of one tab). `depth` is 0 for panels, 1 inside tabs. */
   function analyzeSections(core, rawSections, basePath, depth, nodes) {
     let valid = 0;
@@ -51,7 +135,13 @@
       const normalized = core.normalizeSection(section, index, depth);
       if (!normalized) {
         const nested = depth >= 1 && isObject(section) && section.type === 'tabs';
-        nodes.push(node(path, 'section', STATUS.INCOMPLETE, nested ? 'nested_tabs_not_allowed' : 'section_invalid_or_empty'));
+        let why = nested ? 'nested_tabs_not_allowed' : 'section_invalid_or_empty';
+        if (isObject(section) && (section.type === 'list' || section.type === 'cards' || (section.type === 'timeline' && section.mode !== 'round_diff'))) {
+          const p = text(section.path);
+          why = !p ? 'section_path_missing' : 'section_path_invalid';
+        }
+        nodes.push(node(path, 'section', STATUS.INCOMPLETE, why));
+        if (hasItems(section)) analyzeItems(core, section, path, nodes);
         if (depth === 0 && section?.type === 'tabs') analyzeTabs(core, section, path, nodes);
         return;
       }
@@ -62,10 +152,40 @@
         return;
       }
       const rawItems = isObject(section) ? section.items : null;
-      const trimmed = Array.isArray(rawItems) && Array.isArray(normalized.items) && normalized.items.length < rawItems.length;
-      nodes.push(node(path, 'section', trimmed ? STATUS.TRIMMED : STATUS.OK, trimmed ? 'items_dropped_or_over_limit' : ''));
+      const wasTrimmed = Array.isArray(rawItems) && Array.isArray(normalized.items) && normalized.items.length < rawItems.length;
+      nodes.push(node(path, 'section', wasTrimmed ? STATUS.TRIMMED : STATUS.OK, wasTrimmed ? 'items_dropped_or_over_limit' : ''));
       if (normalized.type === 'tabs') analyzeTabs(core, section, path, nodes);
+      if (hasItems(section)) analyzeItems(core, section, path, nodes);
+      analyzeFields(core, section, normalized, path, nodes);
     });
+  }
+
+  /** Enum fields the core silently replaces with a default, per section type. */
+  const enumChecks = core => ({
+    cards: { variant: core.CARD_VARIANTS },
+    timeline: { mode: core.TIMELINE_MODES },
+    location_archive: { scene_source: core.SCENE_SOURCES, scene_fit: core.SCENE_FITS }
+  });
+  const ARCHIVE_PATH_FIELDS = [['time_path', 'archive_time_path_reset'], ['location_path', 'archive_location_path_reset'], ['area_path', 'archive_path_cleared'], ['status_path', 'archive_path_cleared'], ['destinations_path', 'archive_path_cleared']];
+
+  /** Field-level problems of a kept section: unknown enum values, paths the core resets, a missing default tab. */
+  function analyzeFields(core, section, normalized, sectionPath, nodes) {
+    if (!isObject(section)) return;
+    const checks = (enumChecks(core)[section.type]) || {};
+    Object.entries(checks).forEach(([field, allowed]) => {
+      const v = text(section[field]);
+      if (v && !allowed.includes(v)) nodes.push(node(sectionPath.concat(field), 'field', STATUS.INVALID, 'enum_value_unknown'));
+    });
+    if (section.type === 'location_archive') {
+      ARCHIVE_PATH_FIELDS.forEach(([field, reason]) => {
+        const v = text(section[field]);
+        if (v && !core.isDisplayPath(v)) nodes.push(node(sectionPath.concat(field), 'field', STATUS.UNRESOLVED, reason));
+      });
+    }
+    if (section.type === 'tabs' && normalized && Array.isArray(normalized.tabs)) {
+      const wanted = text(section.default_tab);
+      if (wanted && !normalized.tabs.some(t => t.id === wanted)) nodes.push(node(sectionPath.concat('default_tab'), 'field', STATUS.UNRESOLVED, 'tabs_default_not_found'));
+    }
   }
 
   function analyzeTabs(core, section, sectionPath, nodes) {
@@ -107,6 +227,7 @@
       nodes.push(node(['layout', 'preset'], 'layout', STATUS.INVALID, 'layout_preset_unknown'));
       return;
     }
+    [['scene_source',core.SCENE_SOURCES],['scene_fit',core.SCENE_FITS]].forEach(([field,allowed])=>{const v=text(rawLayout[field]);if(v&&!allowed.includes(v))nodes.push(node(['layout',field],'layout',STATUS.INVALID,'enum_value_unknown'));});
     const preset = schema.layout.preset;
     if (preset === 'standard') return;
     // [schema field, raw aliases the core reads, presets that use it]
@@ -249,7 +370,8 @@
       const normalized = core.normalizePanel(panel, panelIndex);
       const rawSections = isObject(panel) && Array.isArray(panel.sections) ? panel.sections : [];
       if (!normalized) {
-        nodes.push(node(path, 'panel', STATUS.INCOMPLETE, rawSections.length ? 'panel_has_no_valid_section' : 'panel_empty'));
+        const idRejected = isObject(panel) && panel.id !== undefined && panel.id !== '' && !core.normalizePanel({id:panel.id,sections:[{type:'stats',items:[{path:'time'}]}]},panelIndex);
+        nodes.push(node(path, 'panel', STATUS.INCOMPLETE, idRejected ? 'panel_id_invalid' : rawSections.length ? 'panel_has_no_valid_section' : 'panel_empty'));
       } else {
         // Same order as the core: drop invalid panels, keep the first MAX_PANELS, then de-duplicate ids.
         const overLimit = valid >= core.MAX_PANELS;
@@ -281,5 +403,521 @@
     };
   }
 
-  return Object.freeze({ STATUS, cloneDraft, analyzeDraft });
+  const done = (draft, extra = {}) => ({ ok: true, draft, ...extra });
+  const refuse = reason => ({ ok: false, reason });
+  const inRange = (list, index) => Array.isArray(list) && Number.isInteger(index) && index >= 0 && index < list.length;
+
+  function working(raw) {
+    return isObject(raw) ? cloneDraft(raw) : { version: 1, panels: [] };
+  }
+  function panelsOf(draft) {
+    if (!Array.isArray(draft.panels)) draft.panels = [];
+    return draft.panels;
+  }
+  /**
+   * A section is addressed by `ref`: a number (index in the panel) or [sectionIndex, tabIndex, childIndex]
+   * for a section inside a tabs section. Targets use { panel, section, tab?, child?, item? }.
+   */
+  function sectionAt(draft, panelIndex, ref) {
+    const panel = panelsOf(draft)[panelIndex];
+    if (!isObject(panel) || !Array.isArray(panel.sections)) return null;
+    const path = Array.isArray(ref) ? ref : [ref];
+    let section = panel.sections[path[0]];
+    if (!isObject(section)) return null;
+    if (path.length === 1) return section;
+    if (section.type !== 'tabs' || !Array.isArray(section.tabs)) return null;
+    const tab = section.tabs[path[1]];
+    if (!isObject(tab) || !Array.isArray(tab.sections)) return null;
+    section = tab.sections[path[2]];
+    return isObject(section) ? section : null;
+  }
+  const refOf = t => (t && t.tab === undefined ? t && t.section : [t.section, t.tab, t.child]);
+  function itemSectionAt(draft, panelIndex, ref) {
+    const section = sectionAt(draft, panelIndex, ref);
+    return hasItems(section) ? section : null;
+  }
+  function relocate(list, from, to) {
+    if (!inRange(list, from) || !Number.isInteger(to) || to < 0 || to >= list.length) return false;
+    const [moved] = list.splice(from, 1);
+    list.splice(to, 0, moved);
+    return true;
+  }
+  function freshId(prefix, taken) {
+    let n = 1;
+    while (taken.has(`${prefix}_${n}`)) n += 1;
+    return `${prefix}_${n}`;
+  }
+
+  const LAYOUT_PANEL_KEYS = ['left_panel', 'left', 'right_panel', 'right', 'primary_panel', 'panel'];
+  function rewriteLayoutRefs(draft, oldId, newId) {
+    const changed = [];
+    if (!isObject(draft.layout) || !oldId) return changed;
+    for (const k of LAYOUT_PANEL_KEYS) {
+      if (typeof draft.layout[k] === 'string' && draft.layout[k].trim() === oldId) {
+        if (newId) draft.layout[k] = newId; else delete draft.layout[k];
+        changed.push(k);
+      }
+    }
+    return changed;
+  }
+
+  /** A small valid draft: one panel with one meter. Used when the author turns the composer on. */
+  function createStarterDraft() {
+    return {
+      version: 1,
+      panels: [{
+        id: 'status',
+        label: '狀態',
+        sections: [{ type: 'meters', title: '狀態條', items: [
+          { label: 'HP', value_path: 'modules.player.hp', max_path: 'modules.player.max_hp' }
+        ] }]
+      }]
+    };
+  }
+
+  function addPanel(raw, core = defaultCore) {
+    const draft = working(raw);
+    const panels = panelsOf(draft);
+    if (panels.length >= core.MAX_PANELS) return refuse('panel_limit');
+    const taken = new Set(panels.map(panel => isObject(panel) ? String(panel.id || '').trim() : ''));
+    const id = freshId('panel', taken);
+    panels.push({ id, label: `面板 ${panels.length + 1}`, sections: [] });
+    return done(draft, { index: panels.length - 1, id });
+  }
+  function removePanel(raw, panelIndex) {
+    const draft = working(raw);
+    const panels = panelsOf(draft);
+    if (!inRange(panels, panelIndex)) return refuse('out_of_range');
+    const [removed] = panels.splice(panelIndex, 1);
+    const removedId = isObject(removed) ? String(removed.id || '').trim() : '';
+    // Another panel may still use this id (a duplicate); only clear references when none is left.
+    const stillUsed = panels.some(panel => isObject(panel) && String(panel.id || '').trim() === removedId);
+    const clearedLayout = stillUsed ? [] : rewriteLayoutRefs(draft, removedId, '');
+    return done(draft, { clearedLayout });
+  }
+  function movePanel(raw, from, to) {
+    const draft = working(raw);
+    return relocate(panelsOf(draft), from, to) ? done(draft) : refuse('out_of_range');
+  }
+
+  /** Section types the composer can create and edit. Others are preserved but not editable yet. */
+  const EDITABLE_SECTIONS = Object.freeze(['meters', 'stats', 'list', 'actions', 'cards', 'timeline', 'location_archive', 'tabs']);
+  /** Section types allowed inside a tab (the core does not allow tabs inside tabs). */
+  const CHILD_SECTIONS = Object.freeze(EDITABLE_SECTIONS.filter(t => t !== 'tabs'));
+  const newSection = type => ({
+    meters: () => ({ type: 'meters', title: '', items: [{ label: '數值 1', value_path: '', max_path: '' }] }),
+    stats: () => ({ type: 'stats', title: '', items: [{ label: '項目 1', path: '' }] }),
+    list: () => ({ type: 'list', title: '', path: '' }),
+    actions: () => ({ type: 'actions', title: '', items: [{ label: '行動 1', draft: '', hint: '' }] }),
+    cards: () => ({ type: 'cards', title: '', path: '', variant: 'codex' }),
+    timeline: () => ({ type: 'timeline', mode: 'history', title: '', path: '' }),
+    location_archive: () => ({ type: 'location_archive', title: '' }),
+    tabs: () => ({ type: 'tabs', title: '', tabs: [{ id: 'tab_1', label: '分頁 1', sections: [] }] })
+  }[type]());
+  const newItem = (type, n) => ({
+    meters: () => ({ label: `數值 ${n}`, value_path: '', max_path: '' }),
+    stats: () => ({ label: `項目 ${n}`, path: '' }),
+    actions: () => ({ label: `行動 ${n}`, draft: '', hint: '' }),
+    timeline: () => ({ label: `項目 ${n}`, path: '' })
+  }[type]());
+
+  function addSection(raw, panelIndex, type, core = defaultCore) {
+    if (!EDITABLE_SECTIONS.includes(type)) return refuse('section_type_not_supported');
+    const draft = working(raw);
+    const panel = panelsOf(draft)[panelIndex];
+    if (!isObject(panel)) return refuse('out_of_range');
+    if (!Array.isArray(panel.sections)) panel.sections = [];
+    if (panel.sections.length >= core.MAX_SECTIONS) return refuse('section_limit');
+    panel.sections.push(newSection(type));
+    return done(draft, { index: panel.sections.length - 1 });
+  }
+  const addMeterSection = (raw, panelIndex, core = defaultCore) => addSection(raw, panelIndex, 'meters', core);
+  function removeSection(raw, panelIndex, sectionIndex) {
+    const draft = working(raw);
+    const panel = panelsOf(draft)[panelIndex];
+    if (!isObject(panel) || !inRange(panel.sections, sectionIndex)) return refuse('out_of_range');
+    panel.sections.splice(sectionIndex, 1);
+    return done(draft);
+  }
+  function moveSection(raw, panelIndex, from, to) {
+    const draft = working(raw);
+    const panel = panelsOf(draft)[panelIndex];
+    if (!isObject(panel) || !relocate(panel.sections, from, to)) return refuse('out_of_range');
+    return done(draft);
+  }
+
+  function addItem(raw, panelIndex, sectionIndex, core = defaultCore) {
+    const draft = working(raw);
+    const section = itemSectionAt(draft, panelIndex, sectionIndex);
+    if (!section) return refuse('section_has_no_items');
+    if (!Array.isArray(section.items)) section.items = [];
+    if (section.items.length >= core.MAX_ITEMS) return refuse('item_limit');
+    section.items.push(newItem(section.type, section.items.length + 1));
+    return done(draft, { index: section.items.length - 1 });
+  }
+  const addMeterItem = addItem;
+  function removeItem(raw, panelIndex, sectionIndex, itemIndex) {
+    const draft = working(raw);
+    const section = itemSectionAt(draft, panelIndex, sectionIndex);
+    if (!section || !inRange(section.items, itemIndex)) return refuse('out_of_range');
+    section.items.splice(itemIndex, 1);
+    return done(draft);
+  }
+  function moveItem(raw, panelIndex, sectionIndex, from, to) {
+    const draft = working(raw);
+    const section = itemSectionAt(draft, panelIndex, sectionIndex);
+    if (!section || !relocate(section.items, from, to)) return refuse('out_of_range');
+    return done(draft);
+  }
+
+  // Editable fields. Text keeps exactly what was typed (the core trims on read); numbers are stored as numbers,
+  // or the key is removed when emptied.
+  const FIELDS = {
+    panel: { text: ['id', 'label'], number: [] },
+    section: { text: ['title'], number: [] },
+    'section:list': { text: ['title', 'path', 'empty'], number: ['limit'] },
+    'section:cards': { text: ['title', 'path', 'empty', 'variant'], number: ['limit'] },
+    'section:timeline': { text: ['title', 'path', 'empty', 'mode'], number: ['limit'] },
+    'section:location_archive': { text: ['title', 'time_path', 'location_path', 'area_path', 'status_path', 'destinations_path', 'empty', 'scene_source', 'scene_fit'], number: ['limit'] },
+    'section:tabs': { text: ['title', 'id', 'default_tab'], number: [] },
+    'item:timeline': { text: ['label', 'path', 'suffix'], number: [] },
+    'item:meters': { text: ['label', 'value_path', 'max_path', 'suffix'], number: ['min', 'max'] },
+    'item:stats': { text: ['label', 'path', 'suffix'], number: [] },
+    'item:actions': { text: ['label', 'draft', 'hint'], number: [] }
+  };
+
+  /**
+   * Set one editable field. `target` = { panel, section?, item? } (indexes).
+   * Renaming a panel id also rewrites layout references to it.
+   */
+  /** Values the core accepts for an enum field; others silently fall back to a default, so refuse them here. */
+  function allowedValues(nodeType, fieldName) {
+    const c = defaultCore || {};
+    return ({ 'cards.variant': c.CARD_VARIANTS, 'timeline.mode': c.TIMELINE_MODES, 'location_archive.scene_source': c.SCENE_SOURCES, 'location_archive.scene_fit': c.SCENE_FITS, 'layout.preset': c.LAYOUT_PRESETS })[`${nodeType}.${fieldName}`] || null;
+  }
+
+  function setField(raw, target, fieldName, value) {
+    const draft = working(raw);
+    const panel = panelsOf(draft)[target && target.panel];
+    if (!isObject(panel)) return refuse('out_of_range');
+    let node; let rule;
+    if (target.item !== undefined) {
+      const section = itemSectionAt(draft, target.panel, refOf(target));
+      node = section && Array.isArray(section.items) ? section.items[target.item] : null;
+      rule = section && FIELDS[`item:${section.type}`];
+    } else if (target.section !== undefined) {
+      node = sectionAt(draft, target.panel, refOf(target));
+      rule = node && (FIELDS[`section:${node.type}`] || FIELDS.section);
+    } else { node = panel; rule = FIELDS.panel; }
+    if (!isObject(node) || !rule) return refuse('out_of_range');
+    if (rule.text.includes(fieldName)) {
+      const next = String(value ?? '');
+      const allowed = target.item === undefined && target.section !== undefined ? allowedValues(node.type, fieldName) : null;
+      if (allowed) {
+        if (next.trim() === '') { delete node[fieldName]; return done(draft); }
+        if (!allowed.includes(next.trim())) return refuse('value_not_allowed');
+      }
+      const before = typeof node[fieldName] === 'string' ? node[fieldName].trim() : '';
+      node[fieldName] = next;
+      const rewritten = target.section === undefined && fieldName === 'id' && before && next.trim() !== before ? rewriteLayoutRefs(draft, before, next.trim()) : [];
+      return done(draft, { rewrittenLayout: rewritten });
+    }
+    if (rule.number.includes(fieldName)) {
+      const text = String(value ?? '').trim();
+      if (text === '') delete node[fieldName];
+      else if (Number.isFinite(Number(text))) node[fieldName] = Number(text);
+      else return refuse('not_a_number');
+      return done(draft);
+    }
+    return refuse('field_not_editable');
+  }
+
+  // ---- tabs and the sections inside them ------------------------------------------------------------
+  function tabsAt(draft, panelIndex, sectionIndex) {
+    const section = sectionAt(draft, panelIndex, sectionIndex);
+    return section && section.type === 'tabs' ? section : null;
+  }
+  function addTab(raw, panelIndex, sectionIndex, core = defaultCore) {
+    const draft = working(raw);
+    const section = tabsAt(draft, panelIndex, sectionIndex);
+    if (!section) return refuse('not_a_tabs_section');
+    if (!Array.isArray(section.tabs)) section.tabs = [];
+    if (section.tabs.length >= core.MAX_TABS) return refuse('tab_limit');
+    const taken = new Set(section.tabs.map(t => (isObject(t) ? text(t.id) : '')));
+    const id = freshId('tab', taken);
+    section.tabs.push({ id, label: `分頁 ${section.tabs.length + 1}`, sections: [] });
+    return done(draft, { index: section.tabs.length - 1, id });
+  }
+  function removeTab(raw, panelIndex, sectionIndex, tabIndex) {
+    const draft = working(raw);
+    const section = tabsAt(draft, panelIndex, sectionIndex);
+    if (!section || !inRange(section.tabs, tabIndex)) return refuse('out_of_range');
+    const [gone] = section.tabs.splice(tabIndex, 1);
+    const goneId = isObject(gone) ? text(gone.id) : '';
+    // the core falls back to the first tab, but a stale name is confusing: drop it with the tab it named
+    if (goneId && text(section.default_tab) === goneId && !section.tabs.some(t => isObject(t) && text(t.id) === goneId)) delete section.default_tab;
+    return done(draft);
+  }
+  function moveTab(raw, panelIndex, sectionIndex, from, to) {
+    const draft = working(raw);
+    const section = tabsAt(draft, panelIndex, sectionIndex);
+    return section && relocate(section.tabs, from, to) ? done(draft) : refuse('out_of_range');
+  }
+  /** Edit a tab's `id` or `label`. Renaming the id keeps `default_tab` pointing at the same tab. */
+  function setTabField(raw, panelIndex, sectionIndex, tabIndex, fieldName, value) {
+    if (!['id', 'label'].includes(fieldName)) return refuse('field_not_editable');
+    const draft = working(raw);
+    const section = tabsAt(draft, panelIndex, sectionIndex);
+    const tab = section && Array.isArray(section.tabs) ? section.tabs[tabIndex] : null;
+    if (!isObject(tab)) return refuse('out_of_range');
+    const before = text(tab.id);
+    tab[fieldName] = String(value ?? '');
+    if (fieldName === 'id' && before && text(section.default_tab) === before && text(value) !== before) section.default_tab = text(value);
+    return done(draft);
+  }
+  function addChildSection(raw, panelIndex, sectionIndex, tabIndex, type, core = defaultCore) {
+    if (!CHILD_SECTIONS.includes(type)) return refuse('section_type_not_supported');
+    const draft = working(raw);
+    const section = tabsAt(draft, panelIndex, sectionIndex);
+    const tab = section && Array.isArray(section.tabs) ? section.tabs[tabIndex] : null;
+    if (!isObject(tab)) return refuse('out_of_range');
+    if (!Array.isArray(tab.sections)) tab.sections = [];
+    if (tab.sections.length >= core.MAX_SECTIONS) return refuse('section_limit');
+    tab.sections.push(newSection(type));
+    return done(draft, { index: tab.sections.length - 1 });
+  }
+  function childSections(draft, panelIndex, sectionIndex, tabIndex) {
+    const section = tabsAt(draft, panelIndex, sectionIndex);
+    const tab = section && Array.isArray(section.tabs) ? section.tabs[tabIndex] : null;
+    return isObject(tab) && Array.isArray(tab.sections) ? tab.sections : null;
+  }
+  function removeChildSection(raw, panelIndex, sectionIndex, tabIndex, childIndex) {
+    const draft = working(raw);
+    const list = childSections(draft, panelIndex, sectionIndex, tabIndex);
+    if (!list || !inRange(list, childIndex)) return refuse('out_of_range');
+    list.splice(childIndex, 1);
+    return done(draft);
+  }
+  function moveChildSection(raw, panelIndex, sectionIndex, tabIndex, from, to) {
+    const draft = working(raw);
+    const list = childSections(draft, panelIndex, sectionIndex, tabIndex);
+    return list && relocate(list, from, to) ? done(draft) : refuse('out_of_range');
+  }
+
+  // ---- layout --------------------------------------------------------------------------------------
+  const LAYOUT_FIELDS = ['preset', 'left_panel', 'right_panel', 'primary_panel', 'scene_source', 'scene_fit'];
+  // Aliases the core also reads; setting the canonical field removes the alias so the new value is not shadowed.
+  const LAYOUT_ALIASES = { left_panel: ['left'], right_panel: ['right'], primary_panel: ['panel'] };
+  /**
+   * Set one layout field (preset, left_panel, right_panel, primary_panel, scene_source, scene_fit).
+   * An empty value removes the key. Unknown layout keys are kept. Enum fields refuse unknown values.
+   */
+  function setLayoutField(raw, fieldName, value) {
+    if (!LAYOUT_FIELDS.includes(fieldName)) return refuse('field_not_editable');
+    const draft = working(raw);
+    const next = String(value ?? '').trim();
+    const c = defaultCore || {};
+    const allowed = ({ preset: c.LAYOUT_PRESETS, scene_source: c.SCENE_SOURCES, scene_fit: c.SCENE_FITS })[fieldName];
+    if (next && allowed && !allowed.includes(next)) return refuse('value_not_allowed');
+    if (draft.layout !== undefined && !isObject(draft.layout)) return refuse('layout_not_object');
+    if (!draft.layout) draft.layout = {};
+    if (next) draft.layout[fieldName] = next; else delete draft.layout[fieldName];
+    (LAYOUT_ALIASES[fieldName] || []).forEach(alias => { delete draft.layout[alias]; });
+    if (!Object.keys(draft.layout).length) delete draft.layout;
+    return done(draft);
+  }
+
+  // ---- action effects ----------------------------------------------------------------------------
+  const EFFECT_PARTS = { changes: { text: ['path'], number: ['delta'] }, items: { text: ['path', 'id', 'name'], number: ['delta'] } };
+  function actionItemAt(draft, t) {
+    const section = sectionAt(draft, t && t.panel, refOf(t || {}));
+    const item = section && section.type === 'actions' && Array.isArray(section.items) ? section.items[t.item] : null;
+    return isObject(item) ? item : null;
+  }
+  function effectOp(raw, target, run) {
+    const draft = working(raw);
+    const item = actionItemAt(draft, target);
+    if (!item) return refuse('out_of_range');
+    return run(draft, item);
+  }
+  /** Add an empty entry to effect.changes (numeric resource) or effect.items (collection item), creating the effect if needed. */
+  function addEffectEntry(raw, target, part) {
+    if (!EFFECT_PARTS[part]) return refuse('field_not_editable');
+    return effectOp(raw, target, (draft, item) => {
+      if (item.effect !== undefined && !isObject(item.effect)) return refuse('effect_not_object');
+      if (!item.effect) item.effect = {};
+      const list = Array.isArray(item.effect[part]) ? item.effect[part] : (item.effect[part] = []);
+      if (list.length >= defaultCore.MAX_EFFECT_ENTRIES) return refuse('effect_limit');
+      list.push(part === 'changes' ? { path: '', delta: -1 } : { path: 'modules.inventory', id: '', name: '', delta: 1 });
+      return done(draft, { index: list.length - 1 });
+    });
+  }
+  /** Remove one entry; when the effect is left with no entries at all, the effect itself is removed. */
+  function removeEffectEntry(raw, target, part, index) {
+    if (!EFFECT_PARTS[part]) return refuse('field_not_editable');
+    return effectOp(raw, target, (draft, item) => {
+      const list = isObject(item.effect) ? item.effect[part] : null;
+      if (!inRange(list, index)) return refuse('out_of_range');
+      list.splice(index, 1);
+      if (!list.length) delete item.effect[part];
+      const other = part === 'changes' ? 'items' : 'changes';
+      const empty = !(Array.isArray(item.effect.changes) && item.effect.changes.length) && !(Array.isArray(item.effect.items) && item.effect.items.length);
+      if (empty) delete item.effect; // the event text alone is not an effect
+      return done(draft, { effectRemoved: empty, other });
+    });
+  }
+  function setEffectEntryField(raw, target, part, index, fieldName, value) {
+    const rule = EFFECT_PARTS[part];
+    if (!rule) return refuse('field_not_editable');
+    return effectOp(raw, target, (draft, item) => {
+      const entry = isObject(item.effect) && Array.isArray(item.effect[part]) ? item.effect[part][index] : null;
+      if (!isObject(entry)) return refuse('out_of_range');
+      if (rule.text.includes(fieldName)) { entry[fieldName] = String(value ?? ''); return done(draft); }
+      if (rule.number.includes(fieldName)) {
+        const text = String(value ?? '').trim();
+        if (text === '' || !Number.isFinite(Number(text))) return refuse('not_a_number');
+        entry[fieldName] = Number(text);
+        return done(draft);
+      }
+      return refuse('field_not_editable');
+    });
+  }
+  function setEffectEvent(raw, target, value) {
+    return effectOp(raw, target, (draft, item) => {
+      if (!isObject(item.effect)) return refuse('no_effect');
+      item.effect.event = String(value ?? '');
+      return done(draft);
+    });
+  }
+  /** Remove the whole effect from an action. The action is then a plain "send this text" button. */
+  function removeEffect(raw, target) {
+    return effectOp(raw, target, (draft, item) => { delete item.effect; return done(draft); });
+  }
+
+  // ---- preview test state ------------------------------------------------------------------------
+  const TEXT_SAMPLE = '範例';
+  const LIST_SAMPLE = ['範例 1', '範例 2', '範例 3'];
+  const EFFECT_START = 20;
+  const cardSample = (prefix, key = 'name') => [1, 2, 3].map(n => ({ [key]: `${prefix} ${n}`, summary: '範例說明' }));
+
+  /**
+   * Preview test state for every path the draft reads or writes.
+   *  - meters: value at 60% of its maximum; stats: sample text; list: sample rows
+   *  - action effects: numeric resources start at 20; item collections start empty;
+   *    `moduleDefinitions` is filled in so the production effect executor works on the test state
+   * `overrides` ({ path: number|string }) wins, so the author can try the extremes.
+   * Returns { state, entries } where entries lists the adjustable test values.
+   */
+  function buildTestState(raw, overrides = {}, core = defaultCore) {
+    const state = { modules: {}, moduleDefinitions: [] };
+    const entries = [];
+    const seen = new Set();
+    const pick = (path, fallback) => (Object.prototype.hasOwnProperty.call(overrides, path) && overrides[path] !== '' && overrides[path] !== undefined ? overrides[path] : fallback);
+    const writePath = (path, value) => {
+      if (core.isTargetPath(path)) return core.setPath(state, path, value);
+      if (['time', 'location', 'events', 'npcs'].includes(path)) { state[path] = value; return true; }
+      return false;
+    };
+    const put = (path, value, label, role) => {
+      if (!core.isDisplayPath(path) || seen.has(path)) return;
+      const chosen = pick(path, value);
+      if (!writePath(path, chosen)) return;
+      seen.add(path);
+      entries.push({ path, label, role, value: chosen });
+    };
+    const define = (id, kind) => { if (id && !state.moduleDefinitions.some(d => d.id === id)) state.moduleDefinitions.push({ id, kind }); };
+    const sections = [];
+    const collect = list => (Array.isArray(list) ? list : []).forEach(section => {
+      if (!isObject(section)) return;
+      sections.push(section);
+      if (section.type === 'tabs') (Array.isArray(section.tabs) ? section.tabs : []).forEach(tab => { if (isObject(tab)) collect(tab.sections); });
+    });
+    (isObject(raw) && Array.isArray(raw.panels) ? raw.panels : []).forEach(panel => { if (isObject(panel)) collect(panel.sections); });
+    const itemsOf = section => (Array.isArray(section.items) ? section.items.filter(isObject) : []);
+    const num = v => (v !== undefined && v !== null && v !== '' && Number.isFinite(Number(v)) ? Number(v) : null);
+
+    sections.filter(s => s.type === 'meters').forEach(section => itemsOf(section).forEach(item => {
+      const valuePath = text(item.value_path || item.path);
+      const maxPath = text(item.max_path);
+      const label = String(item.label || valuePath).slice(0, 60);
+      if (maxPath) put(maxPath, 100, `${label}（最大值）`, 'max');
+      const maxEntry = maxPath ? entries.find(e => e.path === maxPath) : null;
+      const maxForValue = maxEntry ? Number(maxEntry.value) : (num(item.max) ?? 100);
+      put(valuePath, Math.round((Number.isFinite(maxForValue) ? maxForValue : 100) * 0.6), label, 'value');
+    }));
+    sections.filter(s => s.type === 'actions').forEach(section => itemsOf(section).forEach(item => {
+      const effect = isObject(item.effect) ? item.effect : null;
+      if (!effect) return;
+      const label = String(item.label || '行動').slice(0, 40);
+      (Array.isArray(effect.changes) ? effect.changes : []).filter(isObject).forEach(change => {
+        const path = text(change.path);
+        if (!core.isTargetPath(path) || path.split('.').length < 3) return;
+        define(path.split('.')[1], 'object');
+        put(path, EFFECT_START, `${label}：${path}`, 'effect');
+      });
+      (Array.isArray(effect.items) ? effect.items : []).filter(isObject).forEach(entry => {
+        const path = text(entry.path);
+        const parts = path.split('.');
+        if (!core.isTargetPath(path) || parts.length !== 2) return;
+        define(parts[1], 'collection');
+        if (!seen.has(path)) { seen.add(path); core.setPath(state, path, []); }
+      });
+    }));
+    sections.filter(s => s.type === 'stats' || (s.type === 'timeline' && s.mode === 'round_diff')).forEach(section => itemsOf(section).forEach(item => {
+      const path = text(item.path);
+      put(path, TEXT_SAMPLE, String(item.label || path).slice(0, 60), 'text');
+    }));
+    const putList = (path, rows) => { if (core.isDisplayPath(path) && !seen.has(path) && writePath(path, rows)) seen.add(path); };
+    sections.filter(s => s.type === 'list').forEach(section => putList(text(section.path), LIST_SAMPLE.slice()));
+    sections.filter(s => s.type === 'cards').forEach(section => putList(text(section.path), cardSample('範例')));
+    sections.filter(s => s.type === 'timeline' && s.mode !== 'round_diff').forEach(section => putList(text(section.path), cardSample('範例事件', 'title')));
+    sections.filter(s => s.type === 'location_archive').forEach(section => {
+      put(text(section.time_path) || 'time', TEXT_SAMPLE, '時間', 'text');
+      put(text(section.location_path) || 'location', TEXT_SAMPLE, '地點', 'text');
+      ['area_path', 'status_path'].forEach(field => put(text(section[field]), TEXT_SAMPLE, field === 'area_path' ? '區域' : '狀態', 'text'));
+      putList(text(section.destinations_path), cardSample('範例地點'));
+    });
+    // an object module defined only for effects must exist as an object even if no value was written
+    state.moduleDefinitions.filter(d => d.kind === 'object').forEach(d => { if (!isObject(state.modules[d.id])) state.modules[d.id] = {}; });
+    return { state, entries };
+  }
+  const buildMeterTestState = buildTestState;
+
+  /**
+   * Try one action's effect on a COPY of the test state, with the production executor.
+   * Nothing is written anywhere; returns { ok, reason, changes:[{path,from,to}], items:[{path,id,from,to}] }.
+   * `scenario: 'empty'` sets every resource the action spends to 0, to show the failure case.
+   */
+  function trialAction(raw, target, overrides = {}, core = defaultCore, scenario = 'current') {
+    const draft = isObject(raw) ? raw : {};
+    const section = sectionAt(draft, target.panel, refOf(target));
+    const item = isObject(section) && section.type === 'actions' && Array.isArray(section.items) ? section.items[target.item] : null;
+    if (!isObject(item) || !isObject(item.effect)) return { ok: false, reason: '這個行動沒有自動結算（effect），按下後只會送出文字。', changes: [], items: [] };
+    const { state } = buildTestState(draft, overrides, core);
+    const work = cloneDraft(state);
+    const changes = (Array.isArray(item.effect.changes) ? item.effect.changes : []).filter(isObject);
+    if (scenario === 'empty') changes.forEach(c => { const p = text(c.path); if (core.isTargetPath(p) && Number(c.delta) < 0) core.setPath(work, p, 0); });
+    const before = cloneDraft(work);
+    const result = core.executeActionEffect(work, item.effect);
+    if (!result.ok) return { ok: false, reason: result.reason || '無法執行。', changes: [], items: [] };
+    return {
+      ok: true,
+      reason: '',
+      changes: changes.map(c => { const p = text(c.path); return { path: p, from: core.getPath(before, p), to: core.getPath(work, p) }; }),
+      items: (Array.isArray(item.effect.items) ? item.effect.items : []).filter(isObject).map(it => {
+        const rows = core.getPath(work, text(it.path)) || [];
+        const prev = (core.getPath(before, text(it.path)) || []).find(r => r.id === text(it.id));
+        const next = rows.find(r => r.id === text(it.id));
+        return { path: text(it.path), id: text(it.id), from: prev ? prev.quantity : 0, to: next ? next.quantity : 0 };
+      })
+    };
+  }
+
+  return Object.freeze({
+    STATUS, EDITABLE_SECTIONS, CHILD_SECTIONS, cloneDraft, analyzeDraft, createStarterDraft, buildTestState, buildMeterTestState, trialAction,
+    addPanel, removePanel, movePanel, addSection, addMeterSection, removeSection, moveSection,
+    addItem, addMeterItem, removeItem, moveItem, setField,
+    addTab, removeTab, moveTab, setTabField, addChildSection, removeChildSection, moveChildSection, setLayoutField,
+    addEffectEntry, removeEffectEntry, setEffectEntryField, setEffectEvent, removeEffect
+  });
 });

@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+test.use({ reducedMotion: 'reduce' });
 
 test('character studio defaults to a focused creation flow and keeps the full workbench available', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -166,3 +167,20 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     await page.screenshot({ path: `test-results/studio-journey-${viewport.width}.png`, fullPage: false });
   });
 }
+
+
+test('deferred step focus cannot override a later manual edit', async ({page}) => {
+  await page.setViewportSize({width:1280,height:900});
+  await page.goto('/character-studio.html');
+  await page.waitForFunction(()=>window.BAOCharacterStudioFlow);
+  const result=await page.evaluate(async()=>{
+    const flow=BAOCharacterStudioFlow;
+    flow.go('finish',true);
+    flow.setShowAll(true);
+    const input=document.querySelector('[name="name"]');input.focus();
+    await new Promise(resolve=>setTimeout(resolve,300));
+    flow.setShowAll(false);
+    return {focus:document.activeElement===input,step:document.querySelector('[aria-current="step"]').dataset.flowStep,reviewHidden:document.querySelector('[data-studio-flow-panel="finish"]').hidden};
+  });
+  expect(result).toEqual({focus:true,step:'basic',reviewHidden:true});
+});

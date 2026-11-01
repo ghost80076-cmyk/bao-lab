@@ -108,7 +108,9 @@ test('local action trial maintains an isolated sequence and resets',async({page}
  await page.getByRole('button',{name:'試算 食用罐頭',exact:true}).click();
  await expect(output).toContainText('罐頭：1');
  expect(await page.evaluate(()=>JSON.stringify(BAOCharacterStudio.readCard()))).toBe(before);
- await page.locator('#studio-reset-action-preview').click();
+ // Verify keyboard activation too; transaction buttons above use the pointer.
+ await page.locator('#studio-reset-action-preview').focus();
+ await page.locator('#studio-reset-action-preview').press('Enter');
  await expect(output).toContainText('試算已重設');
  await page.getByRole('button',{name:'試算 食用罐頭',exact:true}).click();
  await expect(output).toContainText('試算未完成');

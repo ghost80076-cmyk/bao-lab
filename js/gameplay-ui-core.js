@@ -14,6 +14,7 @@
   const MAX_OPTIONS = 40;
   const MAX_CHOICE_GROUPS = 6;
   const MAX_TABS = 8;
+  const MAX_EFFECT_ENTRIES = 8;
   const THEME_PRESETS = Object.freeze(['default', 'arcane-night', 'stage-neon', 'parchment', 'noir']);
   const THEME_DENSITIES = Object.freeze(['comfortable', 'compact']);
   const THEME_RADII = Object.freeze(['round', 'soft', 'sharp']);
@@ -179,7 +180,7 @@
     if (!isObject(raw)) return null;
     const rawChanges = raw.changes === undefined ? [] : raw.changes;
     const rawItems = raw.items === undefined ? [] : raw.items;
-    if (!Array.isArray(rawChanges) || !Array.isArray(rawItems) || rawChanges.length > 8 || rawItems.length > 8 || !rawChanges.length && !rawItems.length) return null;
+    if (!Array.isArray(rawChanges) || !Array.isArray(rawItems) || rawChanges.length > MAX_EFFECT_ENTRIES || rawItems.length > MAX_EFFECT_ENTRIES || !rawChanges.length && !rawItems.length) return null;
     const changes = [];
     const seen = new Set();
     for (const change of rawChanges) {
@@ -710,7 +711,7 @@
   }
 
   return Object.freeze({
-    MAX_PANELS, MAX_SECTIONS, MAX_ITEMS, MAX_ATTRIBUTES, MAX_FIELDS, MAX_OPTIONS, MAX_CHOICE_GROUPS, MAX_TABS,
+    MAX_PANELS, MAX_SECTIONS, MAX_ITEMS, MAX_ATTRIBUTES, MAX_FIELDS, MAX_OPTIONS, MAX_CHOICE_GROUPS, MAX_TABS, MAX_EFFECT_ENTRIES,
     THEME_PRESETS, THEME_DENSITIES, THEME_RADII, THEME_METERS, LAYOUT_PRESETS, SCENE_SOURCES, SCENE_FITS, CARD_VARIANTS, TIMELINE_MODES,
     normalize, normalizeSection, normalizePanel, normalizeTheme, normalizeLayout, builderDefaults, attributeCost, remainingPoints, normalizeBuilderValues, validateBuilderValues, randomizeBuilderValues,
     modulePanelCoverage, captureActionVersions, reconcileActionUpdate, applyBuilderValues, normalizeActionEffect, executeActionEffect, getPath, setPath, isTargetPath, isDisplayPath

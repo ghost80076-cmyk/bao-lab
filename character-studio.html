@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="zh-Hant" class="studio-document">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -8,11 +8,12 @@
 <title>角色卡創作室｜夜灣 YoruBay</title>
 <link rel="icon" type="image/svg+xml" href="assets/bao-mark.svg">
 <link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/character-studio.css?v=4">
+<link rel="stylesheet" href="css/character-studio.css?v=5">
 <link rel="stylesheet" href="css/character-studio-lifecycle.css?v=2">
 <link rel="stylesheet" href="css/bao-brand-v2.css">
 <link rel="stylesheet" href="css/avatar-chat.css?v=1">
 <link rel="stylesheet" href="css/npc-personality-helper.css?v=1">
+<link rel="stylesheet" href="css/gameplay-ui-composer.css?v=2">
 </head>
 <body>
 <div class="app-shell"><header class="topbar"><a class="brand" href="./" aria-label="回夜灣首頁"><img src="assets/bao-mark.svg" alt="" width="32" height="32"><span>夜灣 YoruBay</span></a><nav><a href="./">返回首頁</a></nav></header>
@@ -205,6 +206,7 @@
 <p id="studio-action-preview-status" class="note" role="status" aria-live="polite"></p>
 
 </details>
+<section id="studio-gameplay-composer" aria-label="互動 UI 編排器"></section>
 <p class="note">單一 JSON 只保存角色卡內的資料；若作品另有獨立 Regex 規則、外部 HTML／JS 或本機圖片，應使用完整作品 ZIP 一起交付，否則可能遺失互動或圖片。作者署名是來源資料，不等於夜灣已完成發布授權驗證。</p>
 <div class="studio-button-row"><button type="button" class="secondary" id="studio-preview-button">預覽</button><button type="button" class="secondary" id="studio-doctor">BAO Doctor</button><button type="button" class="secondary" id="studio-save-draft">儲存草稿</button><button type="button" class="secondary" id="studio-export">匯出夜灣 JSON</button><button type="button" class="primary" id="studio-install">加入我的角色</button></div><p class="note">BAO Doctor v1 只分析目前角色卡結構與長篇準備度，不會呼叫 AI，也不會假裝判斷尚未實測的記憶／Context／模型問題。</p>
 </form><section id="studio-preview" class="studio-preview hidden" aria-label="角色卡預覽"><h3>本機預覽（不會呼叫 AI）</h3><img id="studio-preview-image" alt="角色圖片預覽" src="assets/bao-bun.svg"><h4 id="studio-preview-name"></h4><p id="studio-preview-description"></p><div class="studio-preview-label">初始訊息</div><p id="studio-preview-greeting"></p><div class="studio-preview-label">核心設定摘要</div><p id="studio-preview-prompt"></p></section>
@@ -221,13 +223,18 @@
 <script src="js/character-library.js?v=2"></script>
 <script src="js/character-library-repair.js"></script>
 <script src="js/character-import-upgrade.js"></script>
-<script src="js/gameplay-ui-core.js?v=2"></script>
+<script src="js/gameplay-ui-core.js?v=14"></script>
 <script src="js/character-studio-flow-core.js"></script>
 <script src="js/character-studio-lifecycle-core.js"></script>
 <script src="js/character-studio-actions-core.js"></script>
-<script src="js/character-studio.js?v=9"></script>
+<script src="js/character-studio.js?v=10"></script>
+<script src="js/gameplay-ui-composer-core.js?v=3"></script>
+<script src="js/gameplay-ui-composer-edit-core.js?v=2"></script>
+<script src="js/gameplay-ui-preview-protocol-core.js?v=2"></script>
+<script src="js/gameplay-ui-preview-client.js?v=2"></script>
+<script src="js/character-studio-gameplay-composer.js?v=2"></script>
 <script src="js/character-studio-phone-builder.js?v=2"></script>
-<script src="js/character-studio-flow.js?v=6"></script>
+<script src="js/character-studio-flow.js?v=8"></script>
 <script src="js/npc-personality-helper-core.js?v=1"></script>
 <script src="js/npc-personality-helper.js?v=1"></script>
 <script src="js/bao-doctor.js"></script>

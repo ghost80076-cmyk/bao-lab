@@ -119,7 +119,7 @@ for (const width of [320, 390]) {
     await page.waitForFunction(() => Boolean(
       window.BAOCharacterStudioLifecycle && window.BAOCharacterStudioFlow && window.BAOCharacterStudio
     ));
-    await expect(page.locator('link[href="css/character-studio.css?v=4"]')).toHaveCount(1);
+    await expect(page.locator('link[href^="css/character-studio.css?"]')).toHaveCount(1);
     await expect(page.locator('link[href="css/character-studio-lifecycle.css?v=2"]')).toHaveCount(1);
     await page.getByRole('button', { name:'全部欄位' }).click();
     const lifecycle = page.locator('#studio-lifecycle');
