@@ -421,7 +421,7 @@
         provider_request_failed: `${name} 暫時無法回覆；請管理員檢查上游服務及配額。`,
         google_bad_request_region: "Google Gemini 回報目前請求來源區域不受支援。",
         google_bad_request_billing: "Google Gemini 回報此專案的付費／Billing 條件尚未滿足。",
-        google_bad_request_model_not_allowed: "AWS Gemini 中繼尚未允許這個模型，請管理員更新 Relay 模型清單。",
+        google_bad_request_model_not_allowed: "Gemini 模型請求遭拒：可能是中繼模型允許清單或上游模型支援限制，請向管理員回報診斷編號以確認。",
         google_bad_request_model_unavailable: "Google Gemini 回報此模型不存在、不可用或已停用。",
         google_bad_request_permission: "Google Gemini 回報目前 API 專案沒有使用此模型的權限。",
         google_bad_request_api_key: "Google Gemini 回報 API Key 或驗證設定有問題。",
