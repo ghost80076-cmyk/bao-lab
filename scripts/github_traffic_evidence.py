@@ -159,6 +159,10 @@ def main() -> None:
         raise RuntimeError("Missing GH_TRAFFIC_TOKEN; configure the TRAFFIC_READ_TOKEN Actions secret")
     if not actions_token:
         raise RuntimeError("Missing GITHUB_TOKEN (Actions read permission required)")
+    archive_repo = os.environ.get("GH_ARCHIVE_REPO", "").strip()
+    archive_token = os.environ.get("GH_ARCHIVE_TOKEN", "").strip()
+    if not archive_repo or not archive_token:
+        raise RuntimeError("Private archive REQUIRED: configure TRAFFIC_ARCHIVE_REPO and TRAFFIC_ARCHIVE_TOKEN")
 
     clones = normalize_traffic(
         request_json(f"/repos/{repository}/traffic/clones?per=day", traffic_token), "clones"
@@ -197,21 +201,18 @@ def main() -> None:
     content = (json.dumps(snapshot, ensure_ascii=False, sort_keys=True, indent=2) + "\n").encode("utf-8")
     (out / filename).write_bytes(content)
 
-    archive_repo = os.environ.get("GH_ARCHIVE_REPO", "").strip()
-    archive_token = os.environ.get("GH_ARCHIVE_TOKEN", "").strip()
-    status = "Actions Artifact（依保留期限到期；非永久保存）"
-    if archive_repo:
-        if not archive_token:
-            raise RuntimeError("TRAFFIC_ARCHIVE_REPO configured without TRAFFIC_ARCHIVE_TOKEN secret")
-        location = f"traffic-snapshots/{day}/{filename}"
-        status = upload_private_archive(archive_repo, archive_token, location, content)
+    location = f"traffic-snapshots/{day}/{filename}"
+    status = upload_private_archive(archive_repo, archive_token, location, content)
     summary = make_summary(snapshot, status)
-    (out / "summary.md").write_text(summary, encoding="utf-8")
-    print(summary)
+    upload_private_archive(archive_repo, archive_token, location[:-5] + ".md", summary.encode("utf-8"))
+    # Public repository artifacts, logs and summaries can be read by others.
+    # Never emit the protected traffic values to these surfaces.
+    print("Traffic evidence stored in configured PRIVATE repository.")
     summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
     if summary_path:
         with open(summary_path, "a", encoding="utf-8") as f:
-            f.write(summary + "\n")
+            f.write("### GitHub Traffic Evidence\n\nPrivate snapshot stored successfully. "
+                    "Open the configured private archive repository to inspect statistics.\n")
 
 
 if __name__ == "__main__":
