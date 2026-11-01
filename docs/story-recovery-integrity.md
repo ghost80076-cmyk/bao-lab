@@ -6,7 +6,7 @@ Rollback creates a separate chapter from a saved historical checkpoint. It does 
 
 Only a save whose last message is an assistant reply may update that reply's checkpoint. A save ending with a pending player message still updates the current chapter snapshot and message records, but cannot attach its newer state or summary to the preceding assistant checkpoint.
 
-New checkpoints include a versioned message-count and history fingerprint. This is a local consistency marker, not a security signature or evidence that a provider accepts the content. Legacy checkpoints remain usable when their structure is consistent, with an explicit warning that provenance cannot be fully verified.
+New checkpoints include a versioned message-count and history fingerprint. This is a local consistency marker, not a security signature or evidence that a provider accepts the content. Full JSON bundle export/import preserves this marker and rejects malformed explicit markers. Legacy checkpoints remain usable when their structure is consistent, with an explicit warning that provenance cannot be fully verified.
 
 ## Recovery validation
 

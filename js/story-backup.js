@@ -28,7 +28,16 @@
     payload.state.config = payload.config;
     payload.chat = payload.chat && typeof payload.chat === 'object' ? payload.chat : {};
     delete payload.chat.messages;
-    return { messageId, seq, updatedAt: String(checkpoint.updatedAt || new Date().toISOString()), payload };
+    const marker = checkpoint.boundary;
+    let boundary;
+    if (marker != null) {
+      if (marker.version !== 1 || !Number.isInteger(seq) || marker.messageCount !== seq + 1
+        || typeof marker.signature !== 'string' || !/^\d+:[0-9a-f]{1,8}$/.test(marker.signature))
+        throw new Error('完整故事備份的檢查點來源標記無效，尚未匯入。');
+      boundary = { version: 1, messageCount: marker.messageCount, signature: marker.signature };
+    }
+    return { messageId, seq, updatedAt: String(checkpoint.updatedAt || new Date().toISOString()), payload,
+      ...(boundary ? { boundary } : {}) };
   };
 
   const sanitizeBundle = input => {
@@ -152,6 +161,7 @@
           return {
             id: 'checkpoint:' + storyId + ':' + chapterId + ':' + checkpoint.messageId,
             kind: 'checkpoint', storyId, chapterId, messageId: checkpoint.messageId,
+            ...(checkpoint.boundary ? { boundary: clone(checkpoint.boundary) } : {}),
             seq: checkpoint.seq, updatedAt: checkpoint.updatedAt || payload.savedAt, payload: checkpointPayload
           };
         });
@@ -246,3 +256,4 @@
   window.BAOStoryBackup = { transcriptText, downloadTranscript, schema: SCHEMA, version: VERSION, isBundle, sanitizeBundle, buildBundle, importBundle, downloadBundle, exportCurrentStory };
   installExportButton();
 })();
+

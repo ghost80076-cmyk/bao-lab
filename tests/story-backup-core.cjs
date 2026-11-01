@@ -59,7 +59,7 @@ let records = [
   { id: 'story:story-old', kind: 'story', storyId: 'story-old', characterId: 'hero', characterName: '林沉風', title: '舊城之夜', createdAt: '2026-09-15T00:00:00.000Z', updatedAt: '2026-09-16T00:00:00.000Z', activeChapterId: 'branch' },
   { id: 'chapter:story-old:root', kind: 'chapter', storyId: 'story-old', chapterId: 'root', label: '主線', createdAt: '2026-09-15T01:00:00.000Z', updatedAt: '2026-09-16T00:00:00.000Z', parentChapterId: '', branchPointSeq: -1 },
   { id: 'chapter:story-old:branch', kind: 'chapter', storyId: 'story-old', chapterId: 'branch', label: '碼頭線', createdAt: '2026-09-15T02:00:00.000Z', updatedAt: '2026-09-16T00:00:00.000Z', parentChapterId: 'root', branchPointMessageId: 'root-a', branchPointSeq: 1, branchPointPreview: '分岔點' },
-  { id: 'checkpoint:story-old:root:root-a', kind: 'checkpoint', storyId: 'story-old', chapterId: 'root', messageId: 'root-a', seq: 1, updatedAt: '2026-09-15T01:00:00.000Z', payload: { ...rootPayload, chat: { ...rootPayload.chat, messages: undefined } } }
+  { id: 'checkpoint:story-old:root:root-a', kind: 'checkpoint', storyId: 'story-old', chapterId: 'root', messageId: 'root-a', seq: 1, boundary: { version: 1, messageCount: 2, signature: '42:abcdef' }, updatedAt: '2026-09-15T01:00:00.000Z', payload: { ...rootPayload, chat: { ...rootPayload.chat, messages: undefined } } }
 ];
 const payloads = new Map([['story-old:root', rootPayload], ['story-old:branch', branchPayload]]);
 
@@ -120,6 +120,11 @@ assert.match(storyToolsSource, /details\.bao-gallery-more/);
   assert.equal(bundle.chapters.find(item => item.chapterId === 'branch').payload.contextPack.summary, '碼頭線 Context Pack');
   assert.equal(bundle.chapters.find(item => item.chapterId === 'root').payload.state.location, '城門');
 
+  const marker = bundle.chapters.find(item => item.chapterId === 'root').checkpoints[0].boundary;
+  assert.deepEqual(marker, { version: 1, messageCount: 2, signature: '42:abcdef' });
+  const broken = structuredClone(bundle);
+  broken.chapters.find(item => item.chapterId === 'root').checkpoints[0].boundary.messageCount = 99;
+  await assert.rejects(BAOStoryBackup.importBundle(broken), /來源標記無效/);
   const beforeRefs = BAOStoryLibrary.refs();
   const imported = await BAOStoryBackup.importBundle(bundle);
   assert.notEqual(imported.storyId, 'story-old');
@@ -142,6 +147,7 @@ assert.match(storyToolsSource, /details\.bao-gallery-more/);
   assert.equal(importedStory.title, '舊城之夜');
   assert.equal(importedStory.activeChapterId, importedBranch.chapterId);
   assert.ok(records.some(item => item.kind === 'checkpoint' && item.storyId === imported.storyId && item.messageId === 'root-a'));
+  assert.deepEqual(records.find(item => item.kind === 'checkpoint' && item.storyId === imported.storyId && item.messageId === 'root-a').boundary, marker);
   assert.equal(JSON.stringify(records.filter(item => item.storyId === imported.storyId)).includes('SECRET'), false);
 
   console.log('story backup core test passed');
@@ -150,3 +156,4 @@ assert.match(storyToolsSource, /details\.bao-gallery-more/);
 const transcript=BAOStoryBackup.transcriptText({characterName:'故事',config:{api:{key:'secret'},persona:{name:'旅人'}},chat:{messages:[{role:'system',content:'private'},{role:'user',content:'你好'},{role:'assistant',content:'歡迎',context_content:'hidden'}]}});
 assert.ok(transcript.includes('旅人')&&transcript.includes('你好')&&transcript.includes('歡迎'));
 assert.ok(!transcript.includes('secret')&&!transcript.includes('private')&&!transcript.includes('hidden'));
+
