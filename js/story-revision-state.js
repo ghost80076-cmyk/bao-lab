@@ -29,7 +29,8 @@
     const restored = clone(snapshot.state);
     // Player controls stay current across every internal rewind/reconcile,
     // including cached variants. Only generated world facts travel in time.
-    for (const key of ["actorMode", "worldbookLibrary", "phoneSurface", "worldModuleCustomization", "characterStatusCustomization"]) {
+    // Player-authored AI actors/NPCs (storyActors) must survive rewinds.
+    for (const key of ["actorMode", "worldbookLibrary", "phoneSurface", "worldModuleCustomization", "characterStatusCustomization", "storyActors"]) {
       if (Object.hasOwn(controls, key)) restored[key] = clone(controls[key]);
       else delete restored[key];
     }
@@ -167,7 +168,7 @@
     const current = () => sameStory() && App.config === appConfig && JSON.stringify(App.config) === settings
       && sourceSignature() === source && signatureOf(latestAssistant().message) === signature;
     const actions = () => window.BAOGameplayUICore?.captureActionVersions(GameState.current) || {};
-    const controlSignature = () => JSON.stringify(['actorMode', 'worldbookLibrary', 'phoneSurface', 'worldModuleCustomization', 'characterStatusCustomization'].map(key => GameState.current?.[key]));
+    const controlSignature = () => JSON.stringify(['actorMode', 'worldbookLibrary', 'phoneSurface', 'worldModuleCustomization', 'characterStatusCustomization', 'storyActors'].map(key => GameState.current?.[key]));
     const receive = async (prepared, baseline) => {
       const controls = controlSignature();
       const result = await next(config, prepared);
