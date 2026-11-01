@@ -4,24 +4,17 @@
 
 ## 啟用步驟
 
-1. 在來源 Repository 的 **Settings → Secrets and variables → Actions → Secrets**，建立 `TRAFFIC_READ_TOKEN`。建議建立 **Fine-grained personal access token**，Repository access 只選 `ghost80076-cmyk/bao-lab`，Repository permissions 設定 **Administration: Read-only**，其餘維持預設最低權限。不要把 token 寫進程式或討論串。
-2. 合併 PR 後，在 **Actions → GitHub Traffic Evidence → Run workflow** 手動執行一次驗證。
-3. 設定完成後，每天 **UTC 09:17（台灣時間 17:17）** 排程執行。排程可能延遲，並非保證準時。
-4. 在該 Actions run 的 Summary 查看對照表，在 Artifacts 下載完整 JSON。**Artifact 預設保留 90 天（仍受 Repository 設定限制），不是永久存證。**
+1. 在來源 Repo 的 **Settings → Secrets and variables → Actions → Secrets**，新增 `TRAFFIC_READ_TOKEN`：Fine-grained PAT，僅選 `ghost80076-cmyk/bao-lab`，設定 **Administration: Read-only**，其他權限保持最低。
+2. **必須**建立另一個 **Private Repository**（如 `ghost80076-cmyk/yorubay-traffic-evidence`）。請勿把存證資料放在 Public Repo。
+3. 在來源 Repo Actions 新增 **Variable** `TRAFFIC_ARCHIVE_REPO` = `owner/private-repo`；新增 **Secret** `TRAFFIC_ARCHIVE_TOKEN`（Fine-grained PAT，僅給該私人 Repo 的 **Contents: Read and write**）。
+4. 合併 PR 後，在 **Actions → GitHub Traffic Evidence → Run workflow** 手動執行。此後每天 **UTC 09:17（台灣時間 17:17）** 排程擷取；排程可能延遲。
+5. 在私人目的地 Repo 的 `traffic-snapshots/YYYY-MM-DD/` 查看原始 JSON 與 Markdown 摘要。每次 Run/Attempt 各有獨立快照；相同檔名不會覆寫。
 
-如果沒有 `TRAFFIC_READ_TOKEN`，擷取步驟會明確失敗，不會記錄「0 clones」冒充正常數據。
+缺少任何一個憑證或私人 Repo 設定都會**明確失敗**。程式會先確認目的地為 Private，否則拒絕上傳。不會寫入假的零值。
 
-## 可選：永久存入私人 Repository
+**安全設計：** Public Repository 的 Actions Logs、Summary、Artifacts 也可能被外界讀取，因此本流程**不會在其中輸出 Clone 數字、逐日數據或 JSON**。GitHub Actions Summary 僅提供泛用成功訊息；完整內容只在你指定的私人 Repo。
 
-建議新建一個 **Private** Repository（例如 `ghost80076-cmyk/yorubay-traffic-evidence`），然後在夜灣來源 Repo 的 **Settings → Secrets and variables → Actions**：
-
-- **Variable** `TRAFFIC_ARCHIVE_REPO`：填入 `owner/private-repo`
-- **Secret** `TRAFFIC_ARCHIVE_TOKEN`：選取該私人 Repo 的 Fine-grained PAT，至少具有 **Contents: Read and write**；不需管理其他 Repo 的權限。
-
-每次執行會將 JSON 作為 **獨立快照** 寫入 `traffic-snapshots/YYYY-MM-DD/`。不覆寫既有同名快照；Git 歷史保留後續比對依據。程式會檢查目的地是否真正為私人 Repository，**若是 Public 會拒絕上傳**。
-
-與 Traffic 讀取權杖分開設定，避免一支 PAT 同時取得來源專案管理權限與私人資料庫寫入權限。**請勿把私人 Repo 設為 Public。**
-
+來源 Repo 的 Traffic 讀取權杖與私人目的地寫入權杖分開，避免權限交叉。前者不需要寫入程式碼；後者不需要來源 Repo 的 Administration 權限。
 ## 資料定義與判讀限制
 
 - Traffic 的 `count`、`uniques` 以及逐日數列均由 GitHub 官方 REST API 取得。每日日期為 **UTC**，有效視窗只有最近 **14 天**；過期日期無法補抓。
@@ -37,4 +30,4 @@
 python3 -m unittest discover -s tests -p 'test_github_traffic_evidence.py' -v
 ```
 
-此流程只讀來源 Repo 的 Traffic/Actions，不會修改夜灣程式、玩家記憶、資料庫或部署環境。
+此流程只讀來源 Repo 的 Traffic/Actions，不會修改夜灣程式、玩家記憶、資料庫或部署環境；僅向你設定的私人 Repository 寫入快照。
