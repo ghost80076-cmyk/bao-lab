@@ -94,6 +94,12 @@ const jsonResponse = (body, status = 200) =>
       }
 
       if (String(url) === "https://openrouter.ai/api/v1/chat/completions") {
+        if (body?.model === "openai/content-filter") {
+          return jsonResponse({
+            choices: [{ message: { content: null }, finish_reason: "content_filter" }],
+            usage: { prompt_tokens: 80, completion_tokens: 0, cost: 0 },
+          });
+        }
         if (body?.model === "openai/usage-recovery") {
           return jsonResponse({
             id: "gen-recovery123",
@@ -230,6 +236,19 @@ const jsonResponse = (body, status = 200) =>
     assert.equal(openRouter.cacheWrite, 5);
     assert.equal(openRouter.reasoning, 4);
     assert.equal(openRouter.providerCost, 0.000123);
+
+    // HTTP 200 can still represent content filtering with no delivered text.
+    const filtered = await providerCall({
+      OPENROUTER_API_KEY: "or-secret",
+      MODELS_JSON: JSON.stringify([{ provider: "openrouter", model: "openai/content-filter",
+        input_microusd_per_million: 100000, output_microusd_per_million: 200000 }])
+    }, "openrouter", "openai/content-filter", messages, 512);
+    assert.equal(filtered.ok, false);
+    assert.equal(filtered.finishReason, "CONTENT_FILTER");
+    assert.equal(filtered.blockedStage, "output");
+    const filteredBody = await providerFailureResponse(filtered, "request-or-filtered").json();
+    assert.equal(filteredBody.finish_reason, "CONTENT_FILTER");
+    assert.equal(filteredBody.blocked_stage, "output");
 
     const recoveredUsage = await providerCall(
       {

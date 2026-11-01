@@ -96,14 +96,14 @@ const read = name => fs.readFileSync(path.join(__dirname, '..', 'js', name), 'ut
   vm.createContext(context);
   vm.runInContext(read('chat-system-notices.js'), context);
   const notices = context.BAOChatSystemNotices;
-  const warning = notices.region.children[2];
+  const warning = notices.region.children[3];
   const outer = notices.beginMemoryProgress('已完成 2 批', owner);
   const inner = notices.beginMemoryProgress('正在整理本批', owner);
   assert.equal(notices.region.hidden, false);
-  assert.equal(notices.region.children[3].textContent, '已完成 2 批', 'outer backlog progress wins over a nested helper');
+  assert.equal(notices.region.children[4].textContent, '已完成 2 批', 'outer backlog progress wins over a nested helper');
   notices.endMemoryProgress(inner);
   notices.updateMemoryProgress(outer, '已完成 3 批');
-  assert.equal(notices.region.children[3].textContent, '已完成 3 批');
+  assert.equal(notices.region.children[4].textContent, '已完成 3 批');
   notices.endMemoryProgress(outer);
   assert.equal(notices.region.hidden, true, 'progress clears when the operation ends');
   notices.reportCompletion({ finishReason: 'stop' }, owner);

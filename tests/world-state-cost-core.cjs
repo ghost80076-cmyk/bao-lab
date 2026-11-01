@@ -156,6 +156,22 @@ vm.runInThisContext(source, { filename: "js/world-state-cost.js" });
   }
   assert.equal(GameState.current.pendingStateTurns.length, 16, 'separate-helper backlog must not silently discard older turns');
 
+  // Once a model has been blocked twice, no more automatic state API work
+  // is dispatched; the full source queue stays available for manual repair.
+  GameState.current = {};
+  global.BAOProviderPolicyGuard = {
+    isPaused: () => true,
+    pausedMessage: () => '自動記憶與世界狀態整理已暫停'
+  };
+  const pausedBefore = attempts.length;
+  await WorldStateEngine.update({ narrativeMode: 'world',
+    api: { model: 'gemini-3.1-pro-preview', key: 'test-only' },
+    cost: { stateInterval: 1 } }, '受阻玩家輸入', '已完成故事結果');
+  assert.equal(attempts.length, pausedBefore, 'policy-paused state tracker must not spend another API call');
+  assert.equal(GameState.current.stateTracker.phase, 'paused');
+  assert.equal(GameState.current.pendingStateTurns.length, 1);
+  delete global.BAOProviderPolicyGuard;
+
   console.log("world state cost core test passed");
 })().catch(error => {
   console.error(error);

@@ -15,6 +15,8 @@
     #bao-chat-system-notices[data-state="error"]{border-color:#9c7957;background:#322820;color:#ffddb9}
     #bao-chat-system-notices[data-state="cancelled"]{border-color:#777b86;background:#292b34;color:#eeeef3}
     #bao-chat-system-notices[data-state="truncated"]{border-color:#b78d57;background:#322b23;color:#ffe2b6}
+    #bao-chat-system-notices[data-state="policy-paused"]{border-color:#b78d57;background:#322b23;color:#ffe2b6}
+    #bao-chat-policy-pause{font-size:13px}
     #bao-chat-truncation-hint,#bao-chat-memory-progress{font-size:13px}
     #bao-chat-memory-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
     #bao-chat-memory-actions[hidden],#bao-chat-memory-progress[hidden]{display:none!important}
@@ -38,10 +40,13 @@
   heading.textContent = '系統通知';
   const status = document.createElement('div');
   status.id = 'bao-chat-request-status';
+  const policyPause = document.createElement('div');
+  policyPause.id = 'bao-chat-policy-pause';
+  policyPause.hidden = true;
   const truncation = document.createElement('div');
   truncation.id = 'bao-chat-truncation-hint';
   truncation.hidden = true;
-  region.append(heading, status, truncation);
+  region.append(heading, status, policyPause, truncation);
   composer.before(region);
 
   const memoryProgress = document.createElement('div');
@@ -103,13 +108,19 @@
     const memory = memoryTasks.values().next().value;
     memoryProgress.textContent = memory?.message || '';
     memoryProgress.hidden = !memory;
+    const pausedModels = window.BAOProviderPolicyGuard?.pausedForStory?.(window.GameState?.current) || [];
+    const policyPaused = pausedModels.length > 0;
+    policyPause.textContent = policyPaused
+      ? '供應商連續阻擋：' + pausedModels.map(item => item.model).join('、') + '。已暫停這些模型的自動記憶／世界狀態整理，不會自動重送。可修改故事、換模型；手動整理仍可能產生 API 費用。'
+      : '';
+    policyPause.hidden = !policyPaused;
     const memoryFailure = Boolean(message && /記憶|摘要|上下文|送出內容.*過大/.test(message));
-    memoryActions.hidden = pending || Boolean(memory) || !memoryFailure || !window.BAOMemoryWorkbench;
+    memoryActions.hidden = pending || Boolean(memory) || policyPaused || !memoryFailure || !window.BAOMemoryWorkbench;
     retryMemory.textContent = App.config?.memory?.mode === 'smart' ? '重試自動記憶整理' : '開啟自動記憶設定';
-    status.textContent = memory ? '正在整理記憶…' : pending ? '正在生成故事…' : cancelled ? '生成已取消' : message ? '請求未完成' : isTruncated ? '回覆可能遭到截斷' : '';
+    status.textContent = memory ? '正在整理記憶…' : pending ? '正在生成故事…' : cancelled ? '生成已取消' : message ? '請求未完成' : policyPaused ? '已暫停自動整理' : isTruncated ? '回覆可能遭到截斷' : '';
     status.hidden = !status.textContent;
-    region.dataset.state = memory || pending ? 'pending' : cancelled ? 'cancelled' : message ? 'error' : isTruncated ? 'truncated' : 'idle';
-    region.hidden = !pending && !message && !isTruncated && !memory;
+    region.dataset.state = memory || pending ? 'pending' : cancelled ? 'cancelled' : message ? 'error' : policyPaused ? 'policy-paused' : isTruncated ? 'truncated' : 'idle';
+    region.hidden = !pending && !message && !isTruncated && !memory && !policyPaused;
   };
   const clearCompletion = () => {
     truncationOwner = null;

@@ -300,6 +300,12 @@ jobs:
           node --check js/credits-pilot.js
           node --test tests/credits-pilot.test.cjs
           node --test tests/credits-pilot-413-core.cjs
+      - name: Provider policy circuit on automatic helpers
+        run: |
+          node --check js/provider-policy-guard.js
+          node tests/provider-policy-guard-core.cjs
+          node tests/world-state-cost-core.cjs
+          node tests/memory-truncation-recovery-core.cjs
       - name: YoruBay package pricing consistency
         run: node tests/yorubay-package-pricing-core.cjs
       - name: YoruBay policy center

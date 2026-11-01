@@ -470,6 +470,11 @@
       report(owner, 'failed', String(error.message || error));
       return scenePatch;
     }
+    if (window.BAOProviderPolicyGuard?.isPaused?.(owner, selectedApi)) {
+      noteRequest('provider-policy-paused');
+      report(owner, 'paused', window.BAOProviderPolicyGuard.pausedMessage(selectedApi.model));
+      return scenePatch;
+    }
     window.BAOCreditsPilot?.prepareAccountConfig?.(selectedApi);
     if (!selectedApi?.key && !window.BAOCreditsPilot?.isAccountReady?.(selectedApi)) {
       noteRequest('not-connected');
@@ -525,9 +530,11 @@
       const safeResult = result && typeof result === 'object' && !Array.isArray(result)
         ? { ...result, ...restore } : result;
       if (result === null || result === undefined) {
+        const policyPaused = window.BAOProviderPolicyGuard?.isPaused?.(owner, selectedApi);
         report(
           owner,
-          "failed",
+          policyPaused ? 'paused' : "failed",
+          policyPaused ? window.BAOProviderPolicyGuard.pausedMessage(selectedApi.model) :
           `${scenePatch ? '時間／地點已同步；' : ''}狀態更新暫時沒有完成，已保留目前資料。繼續故事即可，系統會在下一輪自動重試。`,
           "狀態模型未產生可套用的 JSON，或狀態呼叫未取得有效結果。"
         );

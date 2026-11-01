@@ -23,6 +23,8 @@ const loadBAOScript = src => {
 };
 
 const STORY_LIBRARY_SRC = "js/story-library.js?v=12";
+// The policy guard must be active even when the optional cost UI chain fails.
+const providerPolicyReady = loadBAOScript("js/provider-policy-guard.js?v=1");
 window.BAOEnsureStoryLibrary = () => {
   if (window.BAOStoryLibrary) return Promise.resolve(window.BAOStoryLibrary);
   return loadBAOScript(STORY_LIBRARY_SRC).then(() => {
@@ -186,7 +188,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/three-realms-events-core.js?v=6"))
     .then(() => loadBAOScript("js/world-modules.js?v=10"))
     .then(() => loadBAOScript("js/world-clock.js?v=1"))
-    .then(() => loadBAOScript("js/world-state-cost.js?v=11"))
+    .then(() => loadBAOScript("js/world-state-cost.js?v=12"))
     .then(() => loadBAOScript("js/same-model-state-merge.js?v=14"))
     .then(() => loadBAOScript("js/world-module-ui.js?v=11"))
     .then(() => loadBAOScript("js/world-module-manager.js?v=11"))
@@ -198,6 +200,7 @@ window.addEventListener("DOMContentLoaded", () => {
   loadBAOScript("js/cost-control.js?v=7")
     .then(() => loadBAOScript("js/provider-browser-compat.js"))
     .then(() => loadBAOScript("js/model-routing.js?v=11"))
+    .then(() => providerPolicyReady)
     .then(() => loadBAOScript("js/provider-diagnostics.js"))
     .then(() => loadBAOScript("js/credits-pilot.js?v=1"))
     .catch(err => console.warn("BAO/LAB cost, provider compatibility, model routing or Hosted credits controls failed to load:", err));
@@ -233,7 +236,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/story-history.js?v=2"))
     .then(() => loadBAOScript("js/story-branches.js?v=2"))
     .then(() => loadBAOScript("js/streaming-ui.js?v=7"))
-    .then(() => loadBAOScript("js/request-lifecycle.js?v=4"))
+    .then(() => loadBAOScript("js/request-lifecycle.js?v=5"))
     .then(() => loadBAOScript("js/chat-tool-navigation.js?v=17"))
     .then(() => loadBAOScript("js/chat-experience-repairs.js?v=6"))
     .then(() => loadBAOOptionalGroup("story-quick-commands", ["js/story-quick-commands-core.js?v=3", "js/story-quick-commands.js?v=8"]))
@@ -262,6 +265,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/story-control-center-core.js?v=2"))
     .then(() => loadBAOScript("js/story-control-center.js?v=13"))
     .then(() => loadBAOScript("js/request-ledger.js?v=2"))
+    .then(() => providerPolicyReady)
     .then(() => { baoExtensionHealth.story = "ready"; })
     .catch(reportStoryFailure);
   loadBAOScript("js/work-package-core.js?v=2")
