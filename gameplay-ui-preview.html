@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<title>Gameplay UI 預覽</title>
+<link rel="stylesheet" href="css/base.css?v=1">
+<link rel="stylesheet" href="css/gameplay-ui.css?v=1">
+<style>
+html,body{margin:0;min-height:100%;background:#0c0f15}
+.preview-empty{padding:18px;color:#8b93a3;font:14px/1.6 system-ui,sans-serif}
+#preview-fidelity{margin:0;padding:9px 14px;border-bottom:1px solid var(--yoru-border,#62606a);color:var(--yoru-text,#f1eee8);font:13px/1.55 system-ui,sans-serif}
+#preview-fidelity[hidden]{display:none}
+#ui-panel:empty::before{content:"等待編排器送出 Schema。";display:block;padding:18px;color:#8b93a3}
+</style>
+</head>
+<body>
+<!-- Preview-only page: it never starts the game. It is meant to be embedded by the composer in a same-origin iframe. -->
+<p class="preview-empty" role="note">P0 單面板預覽：使用正式組件渲染；完整舞臺布局尚未開放預覽。</p>
+<div id="game-ui" class="game-ui">
+  <p id="preview-fidelity" role="note" hidden>這裡只呈現單一 Panel。依目前寬度，正式遊戲會顯示桌機舞臺，多欄版面尚未在預覽中呈現。</p>
+  <div class="ui-toolbar" id="preview-tabs" role="tablist" aria-label="預覽面板"></div>
+  <div id="ui-panel" class="ui-panel" role="region" aria-live="polite"></div>
+</div>
+<label class="preview-empty">預覽行動草稿（不會送出）<textarea id="user-input" aria-label="預覽行動草稿"></textarea></label>
+<script src="js/gameplay-ui-core.js?v=13"></script>
+<script src="js/gameplay-ui-preview-protocol-core.js?v=1"></script>
+<script src="js/stage-capability-core.js?v=1"></script>
+<script src="js/gameplay-ui-preview-stubs.js?v=1"></script>
+<script src="js/gameplay-ui.js?v=12"></script>
+<script src="js/gameplay-ui-preview.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>Gameplay UI preview harness</title>
+<!-- Test-only parent page that stands in for the composer. -->
+<style>body{margin:0;background:#222;color:#ddd;font:14px system-ui}iframe{border:0;display:block;background:#0c0f15}</style>
+</head>
+<body>
+<iframe id="preview" src="/gameplay-ui-preview.html" style="width:1280px;height:700px" title="preview"></iframe>
+<script src="/js/gameplay-ui-preview-protocol-core.js"></script>
+<script src="/js/gameplay-ui-preview-client.js"></script>
+<script>
+  window.harness = { messages: [], notices: [], states: [] };
+  const client = BAOGameplayUIPreviewClient.createPreviewClient(document.getElementById('preview'));
+  client.on('ready', p => harness.messages.push({ type: 'ready', ...p }));
+  client.on('rendered', p => harness.messages.push({ type: 'rendered', ...p }));
+  client.on('state', p => harness.states.push(p.state));
+  client.on('notice', p => harness.notices.push(p.message));
+  window.client = client;
+</script>
+</body>
+</html>

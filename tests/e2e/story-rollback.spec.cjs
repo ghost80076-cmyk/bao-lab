@@ -251,8 +251,16 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
           finally { BAOStoryLibrary.createBranch = create; }
         });
         expect(dialogs.at(-1)).toContain('缺少歷史檢查點');
-        expect(await page.evaluate(() => ({ refs: BAOStoryLibrary.refs(),
-          count: Chat.messages.length, top: document.getElementById('chat-stream').scrollTop }))).toEqual(before);
+        {
+          const after = await page.evaluate(() => ({ refs: BAOStoryLibrary.refs(),
+            count: Chat.messages.length, top: document.getElementById('chat-stream').scrollTop }));
+          expect(after.refs).toEqual(before.refs);
+          expect(after.count).toBe(before.count);
+          // Firefox can shift the restored scroll offset by 0.2–2 CSS pixels
+          // after rerendering. Keep the same 2px geometry tolerance as above;
+          // a jump to the opening or endpoint remains a real failure.
+          expect(Math.abs(after.top - before.top)).toBeLessThanOrEqual(2);
+        }
         // A late rollback write failure rerenders the original story; it must
         // restore the reader position after the shell's queued bottom scroll.
         const result = await page.evaluate(async originalChapter => {
@@ -265,8 +273,16 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
         }, original.chapterId);
         expect(result).toBe(false);
         expect(dialogs.at(-1)).toContain('回溯分支無法寫入故事庫');
-        expect(await page.evaluate(() => ({ refs: BAOStoryLibrary.refs(),
-          count: Chat.messages.length, top: document.getElementById('chat-stream').scrollTop }))).toEqual(before);
+        {
+          const after = await page.evaluate(() => ({ refs: BAOStoryLibrary.refs(),
+            count: Chat.messages.length, top: document.getElementById('chat-stream').scrollTop }));
+          expect(after.refs).toEqual(before.refs);
+          expect(after.count).toBe(before.count);
+          // Firefox can shift the restored scroll offset by 0.2–2 CSS pixels
+          // after rerendering. Keep the same 2px geometry tolerance as above;
+          // a jump to the opening or endpoint remains a real failure.
+          expect(Math.abs(after.top - before.top)).toBeLessThanOrEqual(2);
+        }
       }
     });
   }

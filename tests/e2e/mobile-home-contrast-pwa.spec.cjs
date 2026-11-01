@@ -92,10 +92,10 @@ test('a successful controlled navigation refreshes the cached offline HTML shell
   }
 
   const cacheNames = await page.evaluate(() => caches.keys());
-  expect(cacheNames).toContain('yorubay-shell-v2');
+  expect(cacheNames).toContain('yorubay-shell-v3');
 
   await page.evaluate(async () => {
-    const cache = await caches.open('yorubay-shell-v2');
+    const cache = await caches.open('yorubay-shell-v3');
     await cache.put('/index.html', new Response(
       '<!doctype html><html><head><title>STALE_SHELL</title></head><body>STALE_OFFLINE_SHELL</body></html>',
       { headers: { 'Content-Type': 'text/html; charset=utf-8' } }

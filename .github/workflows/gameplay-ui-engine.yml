@@ -6,12 +6,22 @@ on:
     paths:
       - 'js/gameplay-ui-core.js'
       - 'js/gameplay-ui.js'
+      - 'js/gameplay-ui-composer-core.js'
+      - 'js/gameplay-ui-preview*.js'
+      - 'gameplay-ui-preview.html'
+      - 'sw.js'
+      - 'tests/gameplay-ui-preview-cache.test.mjs'
+      - 'tests/pwa-install-contract.test.mjs'
+      - 'tests/pwa-cache-safety.test.mjs'
       - 'js/stage-capability-core.js'
       - 'js/stage-capability.js'
       - 'js/bao-visual-ui.js'
       - 'js/phone-ui.js'
       - 'css/gameplay-ui.css'
       - 'tests/gameplay-ui-engine-core.cjs'
+      - 'tests/gameplay-ui-composer-core.cjs'
+      - 'tests/e2e/gameplay-ui-preview.spec.cjs'
+      - 'tests/fixtures/gameplay-ui-preview-harness.html'
       - 'tests/stage-capability-core.cjs'
       - 'tests/lastlight-survivors-card.test.cjs'
       - 'data/characters/community/ca/lastlight-survivors*'
@@ -48,10 +58,17 @@ jobs:
           node-version: 22
       - run: node --check js/gameplay-ui-core.js
       - run: node --check js/gameplay-ui.js
+      - run: node --check js/gameplay-ui-composer-core.js
+      - run: node --check js/gameplay-ui-preview-protocol-core.js
+      - run: node --check js/gameplay-ui-preview-stubs.js
+      - run: node --check js/gameplay-ui-preview.js
+      - run: node --check js/gameplay-ui-preview-client.js
       - run: node --check js/stage-capability-core.js
       - run: node --check js/stage-capability.js
       - run: node tests/stage-capability-core.cjs
       - run: node tests/gameplay-ui-engine-core.cjs
+      - run: node tests/gameplay-ui-composer-core.cjs
+      - run: node --test tests/gameplay-ui-preview-cache.test.mjs tests/pwa-install-contract.test.mjs tests/pwa-cache-safety.test.mjs
       - run: node tests/lastlight-survivors-card.test.cjs
       - run: node tests/character-studio-gameplay-ui-core.cjs
       - run: node --check js/character-studio.js
@@ -76,4 +93,24 @@ jobs:
           npx playwright test
           tests/e2e/gameplay-ui-engine.spec.cjs
           tests/e2e/stage-capability.spec.cjs
+          tests/e2e/gameplay-ui-preview.spec.cjs
           --project=chromium
+
+  browser-preview-cross-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [firefox, webkit]
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright test tests/e2e/gameplay-ui-preview.spec.cjs --project=${{ matrix.browser }}
