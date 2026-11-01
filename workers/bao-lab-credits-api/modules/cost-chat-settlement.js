@@ -145,7 +145,7 @@ async function costUsdChatRoute(
     !integer(
       requestedMaxOutput,
       1,
-      maxOutputForRequest(provider, kind)
+      maxOutputForRequest(requestedProvider, kind)
     )
   ) {
     return fail(
@@ -153,13 +153,16 @@ async function costUsdChatRoute(
     );
   }
 
+  // Validate the submitted contract, then budget the actual admin-selected transport.
+  const routedMaxOutput = Math.min(requestedMaxOutput, maxOutputForRequest(provider, kind));
+
   let walletBalance = safeMoneyInt(player.wallet_balance_microusd);
 
   let plan =
     reservePlan(
       config,
       messages,
-      requestedMaxOutput,
+      routedMaxOutput,
       walletBalance
     );
 
@@ -176,7 +179,7 @@ async function costUsdChatRoute(
     'SELECT balance_microusd FROM wallets WHERE player_id = ?'
   ).bind(player.id).first();
   walletBalance = safeMoneyInt(currentWallet?.balance_microusd);
-  plan = reservePlan(config, messages, requestedMaxOutput, walletBalance);
+  plan = reservePlan(config, messages, routedMaxOutput, walletBalance);
 
   if (!plan.ok) {
     return fail(
@@ -203,8 +206,8 @@ async function costUsdChatRoute(
   }
 
   // A shortened JSON summary can consume money without producing valid memory.
-  // Reserve its full requested output or stop before creating a paid request.
-  if (kind === 'summary' && plan.effectiveMaxOutput < requestedMaxOutput) {
+  // Reserve the full routed output or stop before creating a paid request.
+  if (kind === 'summary' && plan.effectiveMaxOutput < routedMaxOutput) {
     return fail('insufficient_wallet_balance_for_summary', 402, {
       requested_max_output_tokens: requestedMaxOutput,
       effective_max_output_tokens: plan.effectiveMaxOutput,

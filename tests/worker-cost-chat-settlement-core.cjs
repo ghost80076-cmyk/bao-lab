@@ -128,10 +128,10 @@ const errorCode = async response => (await response.json()).error;
   assert.equal(await errorCode(unpriced), "pricing_not_configured");
 
   const geminiEnv = {MODELS_JSON:JSON.stringify([{provider:'gemini',model:'gemini-3.1-pro-preview',input_microusd_per_million:100000,output_microusd_per_million:200000}])};
-  let balance=500, usageWrites=0, fetches=0;
+  let balance=500, usageWrites=0, fetches=0, overrideRoute=null;
   const budgetDb={
     prepare(sql){
-      const q={bind(){return q;},async all(){return {results:[]};},async first(){return {balance_microusd:balance};},async run(){
+      const q={bind(){return q;},async all(){return {results:[]};},async first(){return sql.includes('hosted_route_overrides') ? (overrideRoute ? {route_id:overrideRoute} : null) : {balance_microusd:balance};},async run(){
         if(sql.includes('INSERT INTO api_usage')){usageWrites++;throw new Error('REACHED_RESERVATION');}
         return {meta:{changes:0}};
       }};return q;
@@ -155,6 +155,19 @@ const errorCode = async response => (await response.json()).error;
     await assert.rejects(()=>costUsdChatRoute(request(),geminiEnv,budgetDb,enabledPlayer,{...geminiBody,request_kind:'chat',max_output_tokens:8192}),/REACHED_RESERVATION/,'ordinary chat retains its partial-affordability policy');
     balance=100000;
     await assert.rejects(()=>costUsdChatRoute(request(),geminiEnv,budgetDb,enabledPlayer,geminiBody),/REACHED_RESERVATION/,'fully funded 16K Gemini summary passes validation');
+    const routedEnv={MODELS_JSON:JSON.stringify([
+      ...JSON.parse(geminiEnv.MODELS_JSON),
+      {provider:'openrouter',model:'google/gemini-3.1-pro-preview',input_microusd_per_million:100000,output_microusd_per_million:200000}
+    ])};
+    overrideRoute='openrouter'; balance=2000;
+    // This balance covers 8K but not 16K. Reserve the actual routed ceiling,
+    // preserving the original requested budget for diagnostics.
+    await assert.rejects(()=>costUsdChatRoute(request(),routedEnv,budgetDb,enabledPlayer,geminiBody),/REACHED_RESERVATION/);
+    const invalid=await costUsdChatRoute(request(),routedEnv,budgetDb,enabledPlayer,{...geminiBody,max_output_tokens:16385});
+    assert.equal(await errorCode(invalid),'invalid_max_output_tokens');
+    overrideRoute='google-official';
+    const reverse=await costUsdChatRoute(request(),routedEnv,budgetDb,enabledPlayer,{...geminiBody,provider:'openrouter',model:'google/gemini-3.1-pro-preview',max_output_tokens:8193});
+    assert.equal(await errorCode(reverse),'invalid_max_output_tokens','routing cannot enlarge the caller contract');
   } finally {globalThis.fetch=originalFetch;}
 
   console.log("worker USD chat settlement core test passed");

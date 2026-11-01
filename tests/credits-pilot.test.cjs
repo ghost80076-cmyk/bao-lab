@@ -6,7 +6,7 @@ const path = require('node:path');
 const code = fs.readFileSync(path.join(__dirname, '../js/credits-pilot.js'), 'utf8');
 const siteLoader = fs.readFileSync(path.join(__dirname, '../js/site-ui.js'), 'utf8');
 const siteHtml = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8');
-assert.match(siteLoader, /loadBAOScript\("js\/credits-pilot\.js\?v=1"\)/,
+assert.match(siteLoader, /loadBAOScript\("js\/credits-pilot\.js\?v=2"\)/,
   "Hosted credits must actually load before relying on its production error handler");
 const lazyLoaderVersion = siteHtml.match(/js\/site-ui\.js\?v=(\d+)/);
 assert(lazyLoaderVersion && Number(lazyLoaderVersion[1]) >= 166,
@@ -222,8 +222,8 @@ test('propagates quota and provider-specific upstream errors without exposing pl
  const insufficient=build({ok:false,status:402,body:{error:'insufficient_credits'}});
  await assert.rejects(()=>insufficient.api.send(cfg,msgs),/額度不足/);
  const rateLimit=build({ok:false,status:502,body:{error:'provider_rate_limited',upstream_http_status:429}});
- await assert.rejects(()=>rateLimit.api.send(cfg,msgs),/Google Gemini 回報速率或配額限制/);
- await assert.rejects(()=>rateLimit.api.send({...cfg,model:'deepseek/deepseek-v4-flash-0731'},msgs),/OpenRouter 回報速率或配額限制/);
+ await assert.rejects(()=>rateLimit.api.send(cfg,msgs),/夜灣模型服務 回報速率或配額限制/);
+ await assert.rejects(()=>rateLimit.api.send({...cfg,model:'deepseek/deepseek-v4-flash-0731'},msgs),/夜灣模型服務 回報速率或配額限制/);
  const unverified=build({ok:false,status:502,body:{
    error:'provider_usage_unverified',
    billing_refunded:true,
@@ -256,7 +256,7 @@ test('propagates quota and provider-specific upstream errors without exposing pl
    return true;
  });
  const upstream403=build({ok:false,status:502,body:{error:'provider_http_error',upstream_http_status:403}});
- await assert.rejects(()=>upstream403.api.send(cfg,msgs),/Google Gemini 拒絕本次請求（HTTP 403）/);
+ await assert.rejects(()=>upstream403.api.send(cfg,msgs),/驗證或授權失敗（HTTP 403）/);
  const empty=build({ok:false,status:502,body:{error:'provider_empty_text',finish_reason:'MAX_TOKENS'}});
  await assert.rejects(()=>empty.api.send(cfg,msgs),error=>{
    assert.match(error.message,/MAX_TOKENS/);
@@ -559,4 +559,15 @@ test('insufficient summary reserve explains no model call and does not retry',as
  const s=build({ok:false,status:402,body:{error:'insufficient_wallet_balance_for_summary',model_called:false}});
  await assert.rejects(()=>s.api.send({...cfg,__memoryTask:true,maxOutputTokens:16384},msgs),/本次尚未呼叫模型/);
  assert.equal(s.calls.length,1);
+});
+
+for (const status of [401, 403]) test(`hosted upstream ${status} points to administrator without guessing provider or requesting player keys`, async () => {
+ const s=build({ok:false,status:502,body:{error:'provider_http_error',upstream_http_status:status,request_id:'610dc846-559c-4273-9ac2-e251a7db0971'}});
+ await assert.rejects(()=>s.api.send(cfg,msgs), error=>{
+   assert.match(error.message,/向管理員回報診斷編號/);
+   assert.match(error.message,/無須填寫自己的 API Key/);
+   assert.doesNotMatch(error.message,/OpenRouter|Google Gemini|登入已失效/);
+   return true;
+ });
+ assert.equal(s.window.BAOCreditsPilot.isAccountReady(cfg),true);
 });

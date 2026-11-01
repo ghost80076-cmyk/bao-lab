@@ -176,3 +176,49 @@ test("custom OpenAI loopback connection reuses LM Studio local transport without
   await dialog.getByRole("button", { name: "測試連線（可能計費）" }).click();
   await expect(dialog.locator(".bao-chat-api-error")).toContainText("連線測試成功");
 });
+
+for (const width of [390, 1440]) test(`Hosted model picker separates credentials and preserves story (${width}px)`, async ({ page }) => {
+  await page.setViewportSize({width, height:900});
+  await saveStoryWithoutPersistingKey(page);
+  await page.locator('#home-continue').click();
+  await page.waitForFunction(() => window.BAOCreditsPilot && App.modelPresets.some(p => p.provider === BAOCreditsPilot.provider));
+  await page.evaluate(() => {
+    const preset = App.modelPresets.find(p => p.provider === BAOCreditsPilot.provider);
+    App.config.api = {type:preset.provider,route:preset.route,protocol:preset.protocol,model:preset.model,baseUrl:preset.base_url,key:'__YORUBAY_ACCOUNT__'};
+    // Stub only account readiness: no real login, wallet, or provider request.
+    window.BAOCreditsPilot = {...BAOCreditsPilot, prepareAccountConfig(config) {
+      if (!BAOCreditsPilot.isAccountConnection(config)) return false;
+      config.key = '__YORUBAY_ACCOUNT__'; return true;
+    }};
+    BAOChatAPISettings.open();
+  });
+  const dialog = page.getByRole('dialog', {name:'目前故事的模型連線'});
+  await expect(dialog.locator('[name=connectionMode]')).toHaveValue('hosted');
+  await expect(dialog.locator('[name=key]')).toBeHidden();
+  await expect(dialog.locator('.bao-chat-api-advanced')).toBeHidden();
+  const options = await dialog.locator('[name=preset] option').allTextContents();
+  expect(options.length).toBeGreaterThan(1);
+  expect(options.join(' ')).not.toMatch(/OpenRouter|官方|自訂|Base URL/);
+  await dialog.locator('[name=preset]').selectOption({index:1});
+  await dialog.getByRole('button',{name:'套用到目前故事'}).click();
+  await expect(dialog).toHaveCount(0);
+  expect(await page.evaluate(() => ({hosted:BAOCreditsPilot.isAccountConnection(App.config.api),messages:Chat.messages.map(m=>m.content),summary:Chat.summary}))).toMatchObject({hosted:true,summary:'故事的長期記憶不應消失。',messages:expect.arrayContaining(['這是一段測試劇情，不應因為補上 API Key 而消失。'])});
+  await page.evaluate(() => BAOChatAPISettings.open());
+  await dialog.locator('[name=connectionMode]').selectOption('byok');
+  await expect(dialog.locator('[name=key]')).toBeVisible();
+  await expect(dialog.locator('[name=baseUrl]')).toHaveValue('');
+  await expect(dialog.locator('[name=key]')).toHaveValue('');
+  await expect(dialog.locator('[name=preset]')).toHaveValue('custom');
+  const byokOptions = await dialog.locator('[name=preset] option').allTextContents();
+  expect(byokOptions.join(' ')).not.toContain('夜灣燈火');
+  await dialog.locator('[name=key]').fill('BYOK_TEMP_KEY');
+  await dialog.locator('[name=connectionMode]').selectOption('hosted');
+  await expect(dialog.locator('[name=key]')).toBeHidden();
+  await expect(dialog.locator('[name=key]')).toHaveValue('');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.evaluate(() => { BAOCreditsPilot.prepareAccountConfig = () => false; });
+  await dialog.getByRole('button',{name:'套用到目前故事'}).click();
+  await expect(dialog.locator('.bao-chat-api-error')).toContainText('請先登入夜灣帳號');
+  await expect(dialog).toBeVisible();
+  await page.screenshot({path:`/tmp/hosted-mode-${width}.png`});
+});
