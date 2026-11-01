@@ -23,7 +23,7 @@
   const IMAGE_MIMES = Object.freeze(['image/jpeg', 'image/png', 'image/webp']);
   const MAX_IMAGE_CHARS = 200 * 1024;
   // preview -> parent
-  const FROM_PREVIEW = Object.freeze(['ready', 'rendered', 'state', 'notice']);
+  const FROM_PREVIEW = Object.freeze(['ready', 'rendered', 'state', 'notice', 'dismiss']);
 
   const isObject = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 

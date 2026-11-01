@@ -144,5 +144,7 @@
     resizeFrame = requestAnimationFrame(() => { if (window.App.activeCharacter) report(true); });
   });
 
+  document.addEventListener('keydown',event=>{if(event.key==='Escape')Iso.post('dismiss',{});});
+
   Iso.post('ready', { width: window.innerWidth, viewport: viewportTier() });
 })();

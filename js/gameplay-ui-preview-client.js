@@ -13,7 +13,7 @@
     if (!Protocol) throw new Error('gameplay-ui-preview-protocol-core.js must load first');
     if (!iframe || iframe.tagName !== 'IFRAME') throw new Error('an iframe element is required');
     const origin = options.origin || root.location.origin;
-    const listeners = { ready: [], rendered: [], state: [], notice: [], error: [] };
+    const listeners = { ready: [], rendered: [], state: [], notice: [], error: [], dismiss: [] };
     let isReady = false;
     let viewportFrame = 0;
     let currentImage = null; // last test image payload, re-sent with every reloaded preview document
@@ -70,7 +70,7 @@
         iframe.style.width = `${Math.max(240, Math.min(2560, Math.round(Number(width) || 0)))}px`;
         if (height) iframe.style.height = `${Math.max(240, Math.round(Number(height)))}px`;
         root.cancelAnimationFrame(viewportFrame);
-        if(isReady)viewportFrame=root.requestAnimationFrame(()=>send('refresh',{}));
+        if(isReady)viewportFrame=root.requestAnimationFrame(()=>{iframe.getBoundingClientRect();send('refresh',{});});
       },
       on(name, fn) { if (listeners[name]) listeners[name].push(fn); return () => { listeners[name] = listeners[name].filter(x => x !== fn); }; },
       destroy() { root.cancelAnimationFrame(viewportFrame); root.removeEventListener('message', onMessage); Object.keys(listeners).forEach(k => { listeners[k] = []; }); }
