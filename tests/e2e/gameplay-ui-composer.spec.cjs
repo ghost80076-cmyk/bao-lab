@@ -49,6 +49,7 @@ for(const width of [1440,390])test(`authors compose, preview, sort and save with
  await page.reload();await page.waitForFunction(()=>window.BAOCharacterStudioGameplayComposer);
  await page.getByRole('button',{name:'全部欄位',exact:true}).click();
  await page.locator('.studio-draft').filter({hasText:'編排測試'}).click();
+ await expect(root.getByRole('button',{name:'選擇面板：角色狀態',exact:true})).toBeVisible();
  expect(await page.evaluate(()=>BAOCharacterStudio.readCard().gameplay_ui.panels[0].sections[1].items[0].max)).toBe(80);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
