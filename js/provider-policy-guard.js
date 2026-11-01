@@ -107,6 +107,16 @@
     const reason = reasonFor(result);
     if (reason) {
       const paused = onBlocked(owner, config);
+      // Some providers supply a real story segment before reporting a safety
+      // finish reason. Preserve that visible narration and let the existing
+      // merged-state checker reject its incomplete appendix; do not silently
+      // discard a paid, readable turn. Synthetic empty-response fallback text
+      // must never be mistaken for a valid story.
+      const text = String(result?.text || '').trim();
+      const placeholder = /^(?:Gemini (?:未產生內容|未產生文字內容|沒有回傳文字內容)|模型沒有回傳內容)/.test(text);
+      if (!isAutomatic(config) && !config?.__memoryTask && !config?.__stateTask && text && !placeholder) {
+        return result;
+      }
       const error = new Error('供應商已拒絕此次內容（' + reason + '），本次不會當成成功的故事或整理結果。' +
         (paused ? '\n' + pausedMessage(key.model) : ''));
       error.code = 'BAO_PROVIDER_BLOCKED';
