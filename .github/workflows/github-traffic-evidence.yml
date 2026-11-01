@@ -13,7 +13,7 @@ on:
 
 # Never expose the traffic-read token to PR code.
 concurrency:
-  group: github-traffic-evidence-\${{ github.ref }}
+  group: github-traffic-evidence-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -45,16 +45,16 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_github_traffic_evidence.py' -v
       - name: Capture rolling 14-day traffic and action counts
         env:
-          GH_TRAFFIC_TOKEN: \${{ secrets.TRAFFIC_READ_TOKEN }}
-          GITHUB_TOKEN: \${{ github.token }}
-          GH_ARCHIVE_REPO: \${{ vars.TRAFFIC_ARCHIVE_REPO }}
-          GH_ARCHIVE_TOKEN: \${{ secrets.TRAFFIC_ARCHIVE_TOKEN }}
+          GH_TRAFFIC_TOKEN: ${{ secrets.TRAFFIC_READ_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
+          GH_ARCHIVE_REPO: ${{ vars.TRAFFIC_ARCHIVE_REPO }}
+          GH_ARCHIVE_TOKEN: ${{ secrets.TRAFFIC_ARCHIVE_TOKEN }}
         run: python scripts/github_traffic_evidence.py
       - name: Preserve raw snapshot as a private Actions artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: traffic-evidence-\${{ github.run_id }}-\${{ github.run_attempt }}
+          name: traffic-evidence-${{ github.run_id }}-${{ github.run_attempt }}
           path: traffic-evidence-output/
           retention-days: 90
           if-no-files-found: ignore
