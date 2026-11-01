@@ -227,7 +227,7 @@
     if(node.type==='location_archive'){
       for(const [key,label] of [['time_path','時間來源'],['location_path','地點來源'],['area_path','區域來源'],['status_path','狀態來源'],['destinations_path','目的地來源']])pathField(host,label,selected,key,true);
       enumField(host,'場景來源','scene_source',Core.SCENE_SOURCES);enumField(host,'場景縮放','scene_fit',Core.SCENE_FITS);
-      bind(host,'顯示筆數（1～30）',selected,'limit',{number:true});bind(host,'沒有資料時顯示',selected,'empty',{max:120});
+      bind(host,'顯示筆數（1～20）',selected,'limit',{number:true});bind(host,'沒有資料時顯示',selected,'empty',{max:120});
       host.append(el('p','此處不載入作品場景圖；圖片與完整舞臺請在正式遊玩確認。','note'));return true;
     }
     if(node.type==='timeline'){
