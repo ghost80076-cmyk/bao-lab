@@ -502,7 +502,8 @@
     readCard,
     getGameplayUI: () => clone(readGameplayUI()),
     getGameplayPreviewData: () => ({initial_state:clone(base.initial_state || {}),world_modules:clone(base.world_modules || [])}),
-    setGameplayUI: ui => {
+    getGameplayUIActivation: () => clone({supported_display:base.supported_display,play_info_surface:base.play_info_surface}),
+    setGameplayUI: (ui, activation = null) => {
       if (editingAction) throw new Error('請先儲存或取消正在編輯的操作按鈕，再調整面板。');
       const previouslyEnabled = Boolean(base.gameplay_ui) && base.gameplay_ui.enabled !== false;
       base = {...base,gameplay_ui:clone(ui)};
@@ -511,6 +512,7 @@
         base.supported_display = {...base.supported_display,ui:true};
         if (base.play_info_surface !== 'phone') base.play_info_surface = 'game-ui';
       }
+      if(activation&&typeof activation==='object'){for(const key of ['supported_display','play_info_surface']){if(Object.prototype.hasOwnProperty.call(activation,key))base[key]=clone(activation[key]);else delete base[key];}}
       const theme = gameplayCore.normalizeTheme(ui?.theme);
       for (const [name,key] of Object.entries({gameplay_theme:'preset',gameplay_accent:'accent',gameplay_density:'density',gameplay_radius:'radius',gameplay_meter:'meter'})) field(name).value=theme[key] || '';
       syncGameplayThemeControls(Boolean(ui));

@@ -49,5 +49,22 @@
   // The renderer reports action results through BAOFeedback; the preview forwards them to the parent.
   window.BAOFeedback = { notify: message => post('notice', { message: String(message ?? '').slice(0, 200) }) };
 
-  window.BAOPreviewIsolation = Object.freeze({ calls, post });
+  // The scene image of location_archive normally comes from the player's local story gallery. In the preview it
+  // comes only from the parent (a downsized test image); nothing is read from storage.
+  let sceneImage = null;
+  window.BAOStoryImageMoments = {
+    latestForCurrentStory: async () => (sceneImage ? { file: sceneImage, name: '預覽測試圖' } : null)
+  };
+  const setSceneImage = (mime, base64) => {
+    if (!base64) { sceneImage = null; return true; }
+    try {
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+      sceneImage = new Blob([bytes], { type: mime });
+      return true;
+    } catch (_) { return false; }
+  };
+
+  window.BAOPreviewIsolation = Object.freeze({ calls, post, setSceneImage });
 })();

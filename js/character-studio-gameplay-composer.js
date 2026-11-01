@@ -6,7 +6,7 @@
   const root=document.getElementById('studio-gameplay-composer');
   if(!Studio||!Core||!Edit||!Diagnose||!root)return;
   const names={meters:'狀態條',stats:'數值資訊',list:'清單',actions:'行動按鈕',cards:'資料卡',tabs:'分頁',location_archive:'地點檔案',timeline:'歷程'};
-  let selected=null, dragging=null, client=null, redrawTimer=0, previewTimer=0, sampleOverrides={}, previewValueKey="";
+  let selected=null, dragging=null, client=null, redrawTimer=0, previewTimer=0, sampleOverrides={}, previewValueKey="", candidate=null, undoTemplate=null, imageEpoch=0;
   const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
   const button=(text,fn,label)=>{const n=el('button',text,'secondary');n.type='button';if(label)n.setAttribute('aria-label',label);n.addEventListener('click',fn);return n;};
   const pathKey=p=>JSON.stringify(p);
@@ -15,15 +15,16 @@
   const isNarrow=()=>window.matchMedia('(max-width:1100px)').matches;
   root.innerHTML=`<header class="composer-heading"><div><h3>互動 UI 編排器</h3><p class="note">用面板與組件組合故事介面。修改後請儲存草稿。</p></div><button type="button" class="secondary" data-composer-enable>啟用互動 UI</button></header>
     <p class="note" data-composer-message role="status" aria-live="polite"></p>
+    <details class="composer-templates"><summary>從範本開始</summary><label>選擇範本<select aria-label="選擇範本" data-template-select></select></label><div class="composer-node-tools"><button type="button" data-template-preview>預覽範本</button><button type="button" data-template-apply>套用範本並啟用</button><button type="button" data-template-cancel hidden>結束範本預覽</button><button type="button" data-template-undo hidden>復原到套用範本前</button></div><p class="note" role="status" data-template-message></p></details>
     <div data-composer-workspace hidden>
       <nav class="composer-pane-nav" aria-label="編排區域"><button type="button" data-show-pane="structure">結構</button><button type="button" data-show-pane="fields">欄位</button><button type="button" data-show-pane="preview">預覽</button></nav>
       <div class="composer-grid" data-current-pane="structure">
         <section data-composer-pane="structure" aria-label="面板結構"><div class="composer-pane-heading"><h4>面板結構</h4><button type="button" class="secondary" data-add-panel>新增面板</button></div><p class="note" data-panel-count></p><details class="composer-layout"><summary>版面設定</summary><div data-composer-layout></div></details><div data-composer-tree></div></section>
         <section data-composer-pane="fields" aria-label="欄位設定"><h4 tabindex="-1" data-field-heading>欄位設定</h4><div data-composer-fields></div></section>
-        <section data-composer-pane="preview" aria-label="即時預覽"><h4>即時預覽</h4><label>預覽寬度<select data-preview-width><option value="fit" selected>適合目前預覽區</option><option value="390">手機 · 390px</option><option value="900">平板 · 900px</option><option value="1280">桌機 · 1280px</option><option value="1440">寬桌機 · 1440px</option></select></label><p class="note">使用作品初始資料；缺少的數值以範例補足。預覽不會改動作品或故事。固定寬度超出時可在預覽區左右捲動。</p><button type="button" class="secondary" data-preview-reset>重設預覽資料</button><p class="note" data-preview-stage></p><details><summary>預覽測試值</summary><div data-preview-values></div></details><div class="composer-preview-scroll"><iframe title="互動 UI 即時預覽" data-composer-preview loading="lazy"></iframe></div></section>
+        <section data-composer-pane="preview" aria-label="即時預覽"><h4>即時預覽</h4><button type="button" class="secondary" data-preview-expand>展開預覽</button><label class="composer-checkbox"><input type="checkbox" data-preview-seed checked>帶入作品初始狀態</label><label>預覽寬度<select data-preview-width><option value="fit" selected>適合目前預覽區</option><option value="390">手機 · 390px</option><option value="900">平板 · 900px</option><option value="1280">桌機 · 1280px</option><option value="1440">寬桌機 · 1440px</option></select></label><p class="note">可帶入作品初始資料；缺少的數值以最大值 60% 等範例補足。預覽不會改動作品或故事。固定寬度超出時可在預覽區左右捲動。</p><button type="button" class="secondary" data-preview-reset>重設預覽資料</button><p class="note" data-preview-stage></p><details><summary>場景測試圖</summary><label>選擇場景測試圖<input type="file" accept="image/png,image/jpeg,image/webp" data-preview-image></label><p class="note" role="status" data-preview-image-status>以本機圖片測試故事圖庫來源，不寫入作品或故事。</p><button type="button" class="secondary" data-preview-image-clear>清除測試圖</button></details><p class="note" role="status" data-theme-contrast>預覽載入後檢查實際主題色。</p><details><summary>預覽測試值</summary><div data-preview-values></div></details><div class="composer-preview-scroll"><iframe title="互動 UI 即時預覽" data-composer-preview loading="lazy"></iframe></div></section>
       </div>
       <details class="composer-diagnostics"><summary data-diagnostic-count>設定檢查</summary><ul data-composer-diagnostics></ul></details>
-      <details class="composer-help"><summary>怎麼開始？</summary><p>先新增面板，再加入狀態條、數值、清單或行動按鈕。狀態來源可選時間、地點、事件、人物，或填入世界模組欄位；例如 player.hp 會連到 modules.player.hp。</p><p>拖曳項目可排序，也可用上移／下移，或在結構按鈕上按 Alt＋方向鍵。尚未填好的區塊可以先儲存草稿；預覽會略過無效內容，設定檢查會列出原因。</p><p>八種原生組件均可編輯。分頁內不能再放分頁；版面設定使用現有面板 ID。預覽一次呈現一個面板，多欄舞臺需要另外到正式遊玩驗收，地點場景圖不在此載入。</p></details>
+      <details class="composer-help"><summary>怎麼開始？</summary><p>先新增面板，再加入狀態條、數值、清單或行動按鈕。狀態來源可選時間、地點、事件、人物，或填入世界模組欄位；例如 player.hp 會連到 modules.player.hp。</p><p>拖曳項目可排序，也可用上移／下移，或在結構按鈕上按 Alt＋方向鍵。尚未填好的區塊可以先儲存草稿；預覽會略過無效內容，設定檢查會列出原因。</p><p>八種原生組件均可編輯。分頁內不能再放分頁；版面設定使用現有面板 ID。預覽一次呈現一個面板，多欄舞臺需要另外到正式遊玩驗收，地點場景圖可用本機測試圖檢查，不讀取故事圖庫。</p></details>
     </div>`;
   const q=s=>root.querySelector(s), workspace=q('[data-composer-workspace]');
   function pane(name){q('.composer-grid').dataset.currentPane=name;root.querySelectorAll('[data-show-pane]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.showPane===name)));if(name==='preview'&&client)requestAnimationFrame(syncViewport);}
@@ -203,7 +204,7 @@
       try{Studio.setGameplayUI(result.draft);draw();}catch(e){tell(e.message);}
     };
     selectControl(host,'版面 preset',layout.preset||'standard',Core.LAYOUT_PRESETS,value=>change('preset',value));
-    const choices=[['','自動選擇'],...(ui.panels||[]).filter(p=>p&&typeof p.id==='string').map(p=>[p.id,p.label||p.id])];
+    const choices=[['','自動選擇'],...(ui?.panels||[]).filter(p=>p&&typeof p.id==='string').map(p=>[p.id,p.label||p.id])];
     if(layout.preset==='rpg-dashboard')for(const [key,label,alias] of [['left_panel','左側面板','left'],['right_panel','右側面板','right']])selectControl(host,label,layout[key]||layout[alias],choices,v=>change(key,v));
     if(layout.preset==='terminal')selectControl(host,'主要面板',layout.primary_panel||layout.panel||layout.left_panel,choices,v=>change('primary_panel',v));
     if(layout.preset==='scene-rpg'){
@@ -294,7 +295,7 @@
       const control=field(host,path,complex?JSON.stringify(value):value,text=>{
         try{
           let next=complex?JSON.parse(text):typeof value==='number'?Number(text):text;
-          if(complex&&!Array.isArray(next))throw Error('請輸入陣列，例如 []。');
+          if(complex&&(!next||typeof next!=='object'))throw Error('請輸入 JSON 物件或陣列，例如 []。');
           if(typeof next==='number'&&!Number.isFinite(next))throw Error('請輸入有效數字。');
           sampleOverrides[path]=next;control.setAttribute('aria-invalid','false');updatePreview();
         }catch(e){control.setAttribute('aria-invalid','true');tell('預覽測試值：'+e.message);}
@@ -303,6 +304,7 @@
   }
 
   const REASONS = {
+    builder_kind_unknown:'進入前設定類型不支援，遊戲會使用預設。',builder_points_path_invalid:'進入前設定的點數來源無效，請使用世界模組欄位。',
     schema_not_object: '互動 UI 設定不是物件。', schema_disabled: '互動 UI 被設為停用（enabled:false）。',
     schema_version_unsupported: '互動 UI 版本不支援，目前只支援 version 1。', schema_has_no_usable_content: '還沒有任何可顯示的內容。',
     panel_empty: '面板還沒有區塊，預覽與遊戲都不會顯示它。', panel_has_no_valid_section: '面板內沒有可用的區塊。',
@@ -334,41 +336,26 @@
 
   const reasons={duplicate:'識別碼重複，預覽將略過此項目。',incomplete:'設定尚未完成或來源無效，預覽暫時略過。',over_limit:'已超過平台上限，請刪減項目。',trimmed:'部分資料會被平台修正或裁切，請檢查。',unresolved:'版面引用的面板不存在或重複。',invalid:'設定值無效，預覽將使用平台預設。'};
   function previewState(card,schema){
-    const state={};
-    for(const key of ['time','location','events','npcs','modules'])if(card.initial_state?.[key]!==undefined)state[key]=structuredClone(card.initial_state[key]);
-    state.modules ||= {};state.events ||= [];
-    state.moduleDefinitions=(Array.isArray(card.world_modules)?card.world_modules:[])
-      .filter(def=>def&&typeof def==='object'&&typeof def.id==='string')
-      .map(({id,kind,enabled})=>({id,...(typeof kind==='string'?{kind}:{}),enabled:enabled!==false}));
-    const seed=(path,value)=>{if(!path||Core.getPath(state,path)!==undefined)return;if(path.startsWith('modules.'))Core.setPath(state,path,value);else if(['time','location','events','npcs'].includes(path))state[path]=value;};
-    const visit=sections=>(sections||[]).forEach(section=>{
-      if(section.type==='tabs'){section.tabs.forEach(tab=>visit(tab.sections));return;}
-      if(section.type==='meters')section.items.forEach(item=>{seed(item.value_path,25);if(item.max_path)seed(item.max_path,100);});
-      else if(section.type==='stats')section.items.forEach(item=>seed(item.path,'範例資料'));
-      else if(['list','cards'].includes(section.type))seed(section.path,[{id:'sample',name:'範例項目',quantity:1}]);
-    });
-    (schema?.panels||[]).forEach(panel=>visit(panel.sections));seed('time','範例夜晚');seed('location','範例地點');
-    const samples=Diagnose.buildTestState(schema,{},Core);
-    const visitValue=(value,path)=>{if(Array.isArray(value)||!value||typeof value!=='object'){seed(path,value);return;}Object.entries(value).forEach(([k,v])=>visitValue(v,path?path+'.'+k:k));};
-    visitValue(samples.state.modules,'modules');
-    for(const k of ['time','location','events','npcs'])if(samples.state[k]!==undefined)seed(k,samples.state[k]);
-    for(const def of samples.state.moduleDefinitions)if(!state.moduleDefinitions.some(d=>d.id===def.id))state.moduleDefinitions.push(def);
-    for(const [path,value] of Object.entries(sampleOverrides)){if(path.startsWith('modules.')&&Core.isTargetPath(path))Core.setPath(state,path,structuredClone(value));else if(['time','location','events','npcs'].includes(path))state[path]=structuredClone(value);}
+    const state=Diagnose.buildTestState(schema,sampleOverrides,Core,q('[data-preview-seed]').checked?card:null).state;
+    for(const [path,value] of Object.entries(sampleOverrides)){if(Core.isTargetPath(path))Core.setPath(state,path,structuredClone(value));else if(['time','location','events','npcs'].includes(path))state[path]=structuredClone(value);}
     drawPreviewValues(state,schema);return state;
   }
   function syncViewport(){
     if(!client)return;
     const value=q('[data-preview-width]').value;
-    client.setViewport(value==='fit'?Math.min(390,q('.composer-preview-scroll').clientWidth||390):Number(value),640);
+    client.setViewport(value==='fit'?Math.min(q('dialog')?.open?1440:390,q('.composer-preview-scroll').clientWidth||390):Number(value),640);
   }
   function ensurePreview(){
     if(client)return;
     const frame=q('[data-composer-preview]');
     client=window.BAOGameplayUIPreviewClient.createPreviewClient(frame);
     client.on('error',result=>tell('無法預覽：'+(result.reason==='payload_too_large'?'資料超過預覽大小上限，請縮小範例資料。':'請先修正設定格式。')));
-    frame.src='gameplay-ui-preview.html';frame.style.height='640px';
-    client.on('ready',()=>updatePreview());
-    client.on('rendered',result=>{q('[data-preview-stage]').textContent=`${result.viewport||''} · 正式舞臺：${result.resolvedPresentation||'panel'}。此處只預覽單一面板${result.layoutExact?'。':'；完整多欄排列請在正式遊玩驗收。'}`;});
+    // This runs only for an enabled UI or an explicit template preview. Load
+    // immediately so long preview controls cannot defer WebKit's iframe below the fold.
+    frame.loading='eager';frame.src='gameplay-ui-preview.html';frame.style.height='640px';
+    // The client already replays the latest render on ready; do not initialize twice.
+    client.on('dismiss',()=>{const dialog=q('dialog');if(dialog?.open)dialog.close();});
+    client.on('rendered',result=>{q('[data-preview-stage]').textContent=`${result.viewport||''} · 正式舞臺：${result.resolvedPresentation||'panel'}。此處只預覽單一面板${result.layoutExact?'。':'；完整多欄排列請在正式遊玩驗收。'}`;showContrast(result.colors);});
     q('[data-preview-width]').addEventListener('change',syncViewport);
     q('[data-preview-reset]').addEventListener('click',()=>{sampleOverrides={};previewValueKey='';client.reset();updatePreview();tell('預覽資料已重設，作品初始資料保持不變。');});
     syncViewport();
@@ -377,11 +364,11 @@
   function updatePreview(){
     clearTimeout(previewTimer);
     previewTimer=setTimeout(()=>{
-      const ui=Studio.getGameplayUI();if(!ui)return;
+      const draft=Studio.getGameplayUI(),ui=candidate?{...candidate.ui,...(draft?.theme!==undefined?{theme:draft.theme}:{})}:draft;if(!ui)return;
       const report=Diagnose.analyzeDraft(ui,Core), list=q('[data-composer-diagnostics]');list.replaceChildren();
       const problems=report.nodes.filter(n=>n.status!=='ok');
       q('[data-diagnostic-count]').textContent=problems.length?`設定檢查 · ${problems.length} 個提醒`:'設定檢查 · 可以預覽';
-      problems.forEach(problem=>{const path=problem.path.map(v=>({panels:'面板',sections:'區塊',items:'項目',builder:'初始設定',attributes:'屬性',fields:'欄位',choice_groups:'選項群組',theme:'主題',layout:'布局',tabs:'分頁'}[v]|| (typeof v==='number'?v+1:v))).join(' › ');const li=el('li',(path||'整體設定')+'：'+(REASONS[problem.reason]||reasons[problem.status]||'請檢查此設定。'));if(problem.path[0]==='panels'){li.append(button('前往',()=>{selected=[8,6,4,2].map(n=>problem.path.slice(0,n)).find(p=>p.length%2===0&&['panels','sections','tabs'].includes(p.at(-2))&&get(Studio.getGameplayUI(),p)&&typeof get(Studio.getGameplayUI(),p)==='object')||null;drawFields();drawTree();pane('fields');q('[data-field-heading]').focus();}));}list.append(li);});
+      problems.forEach(problem=>{const path=problem.path.map(v=>({panels:'面板',sections:'區塊',items:'項目',builder:'初始設定',attributes:'屬性',fields:'欄位',choice_groups:'選項群組',theme:'主題',layout:'布局',tabs:'分頁'}[v]|| (typeof v==='number'?v+1:v))).join(' › ');const li=el('li',(path||'整體設定')+'：'+(REASONS[problem.reason]||reasons[problem.status]||'請檢查此設定。'));if(!candidate&&problem.path[0]==='panels'){li.append(button('前往',()=>{selected=[8,6,4,2].map(n=>problem.path.slice(0,n)).find(p=>p.length%2===0&&['panels','sections','tabs'].includes(p.at(-2))&&get(Studio.getGameplayUI(),p)&&typeof get(Studio.getGameplayUI(),p)==='object')||null;drawFields();drawTree();pane('fields');q('[data-field-heading]').focus();}));}list.append(li);});
       if(!problems.length)list.append(el('li','目前沒有發現會被略過的設定。'));
       ensurePreview();
       let card;try{card=Studio.getGameplayPreviewData();}catch(error){tell('無法預覽：'+error.message);return;}
@@ -389,16 +376,88 @@
     },180);
   }
   function draw(){
-    const ui=Studio.getGameplayUI();const enabled=Boolean(ui)&&ui.enabled!==false;workspace.hidden=!enabled;q('[data-composer-enable]').hidden=enabled;
+    const ui=Studio.getGameplayUI();const actual=Boolean(ui)&&ui.enabled!==false,enabled=actual||Boolean(candidate);workspace.hidden=!enabled;q('[data-composer-enable]').hidden=actual;p4State();
     if(!enabled){tell('尚未啟用。一般閱讀作品不需要互動 UI。');return;}
     if(selected&&!get(ui,selected))selected=null;
-    if(!selected&&ui.panels?.length)selected=['panels',0];
+    if(!selected&&ui?.panels?.length)selected=['panels',0];
     tell('已載入互動 UI。選擇面板或區塊開始編排。');
     drawTree();drawFields();updatePreview();
   }
-  window.addEventListener('bao:studio-gameplay-loaded',()=>{selected=null;sampleOverrides={};previewValueKey='';draw();});
+  window.addEventListener('bao:studio-gameplay-loaded',()=>{if(q('dialog')?.open)q('dialog').close();selected=null;candidate=null;undoTemplate=null;imageEpoch++;q('[data-preview-image]').value='';client?.setImage('','');sampleOverrides={};previewValueKey='';draw();});
   window.addEventListener('bao:studio-gameplay-theme-changed',updatePreview);
 
+  function setupP4(){
+    const select=q('[data-template-select]');
+    Diagnose.TEMPLATES.forEach(t=>{const o=el('option',t.label);o.value=t.id;select.append(o);});
+    select.value='rpg-status';
+    q('[data-template-preview]').addEventListener('click',()=>{
+      const ui=Diagnose.templateDraft(select.value);if(!ui)return;
+      candidate={id:select.value,ui};sampleOverrides={};previewValueKey='';draw();pane('preview');
+      q('[data-template-message]').textContent='正在預覽範本，尚未修改作品。正式遊玩前請確認引用的世界模組與初始資源。';
+    });
+    q('[data-template-cancel]').addEventListener('click',()=>{candidate=null;sampleOverrides={};previewValueKey='';draw();});
+    q('[data-template-apply]').addEventListener('click',()=>{
+      const template=Diagnose.templateDraft(select.value);if(!template)return;
+      const before=Studio.getGameplayUI();
+      if(before&&!window.confirm('套用範本會取代目前的面板與版面。主題、進入前設定與其他資料會保留。確定套用？'))return;
+      const next={...(before||{}),...template,enabled:true};if(!template.layout)delete next.layout;
+      try{
+        const activation=Studio.getGameplayUIActivation();Studio.setGameplayUI(next);
+        undoTemplate={ui:before,activation,applied:structuredClone(next)};candidate=null;selected=null;sampleOverrides={};previewValueKey='';draw();
+        q('[data-template-message]').textContent='範本已套用，請儲存草稿。可復原到套用前。';
+      }catch(e){tell(e.message);}
+    });
+    q('[data-template-undo]').addEventListener('click',()=>{
+      if(!undoTemplate)return;
+      if(JSON.stringify(Studio.getGameplayUI())!==JSON.stringify(undoTemplate.applied)&&!window.confirm('復原會移除套用範本後的互動 UI 修改。確定復原？'))return;
+      try{Studio.setGameplayUI(undoTemplate.ui,undoTemplate.activation);undoTemplate=null;candidate=null;selected=null;sampleOverrides={};previewValueKey='';draw();q('[data-template-message]').textContent='已復原到套用範本前。';}catch(e){tell(e.message);}
+    });
+    q('[data-preview-seed]').addEventListener('change',()=>{sampleOverrides={};previewValueKey='';updatePreview();});
+    q('[data-preview-image]').addEventListener('change',event=>loadPreviewImage(event.target.files?.[0]));
+    q('[data-preview-image-clear]').addEventListener('click',()=>{imageEpoch++;q('[data-preview-image]').value='';client?.setImage('','');q('[data-preview-image-status]').textContent='已清除測試圖。';});
+    const dialog=el('dialog',undefined,'composer-fullscreen');dialog.setAttribute('aria-label','互動 UI 放大預覽');root.append(dialog);
+    const close=button('返回編排器',()=>dialog.close());dialog.append(close);
+    let marker=null,opener=null;
+    dialog.addEventListener('close',()=>{if(marker){marker.replaceWith(q('[data-composer-pane="preview"]'));marker=null;}syncViewport();if(opener){opener.hidden=false;opener.focus({preventScroll:true});}});
+    q('[data-preview-expand]').addEventListener('click',event=>{
+      if(dialog.open)return;
+      opener=event.currentTarget;opener.hidden=true;const preview=q('[data-composer-pane="preview"]');marker=document.createComment('preview position');preview.replaceWith(marker);dialog.append(preview);dialog.showModal();syncViewport();close.focus({preventScroll:true});
+    });
+  }
+  function p4State(){
+    q('[data-template-cancel]').hidden=!candidate;
+    q('[data-template-undo]').hidden=!undoTemplate;
+    q('[data-template-message]').textContent=candidate?'正在預覽範本，尚未修改作品。正式遊玩前請確認引用的世界模組與初始資源。':undoTemplate?'可復原到上次套用範本前。':'';
+    for(const name of ['structure','fields'])q('[data-composer-pane="'+name+'"]').inert=Boolean(candidate);
+  }
+  async function loadPreviewImage(file){
+    if(!file)return;
+    const epoch=++imageEpoch,Protocol=window.BAOGameplayUIPreviewProtocol,status=q('[data-preview-image-status]');
+    if(!Protocol.IMAGE_MIMES.includes(file.type)||file.size>8*1024*1024){status.textContent='請選擇 8 MB 以下的 PNG、JPEG 或 WebP 圖片。';return;}
+    let url;
+    try{
+      url=URL.createObjectURL(file);const img=new Image();
+      await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(Error('圖片無法解碼。'));img.src=url;});
+      if(epoch!==imageEpoch)return;
+      if(img.naturalWidth*img.naturalHeight>40000000)throw Error('圖片像素過大，請先縮小。');
+      const canvas=document.createElement('canvas'),scale=Math.min(1,960/img.naturalWidth,960/img.naturalHeight);
+      canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      let data='';for(const quality of [.8,.6,.4,.2]){data=canvas.toDataURL('image/jpeg',quality).split(',')[1];if(data.length<=Protocol.MAX_IMAGE_CHARS)break;}
+      if(data.length>Protocol.MAX_IMAGE_CHARS)throw Error('圖片壓縮後仍超過預覽大小上限。');
+      if(epoch!==imageEpoch)return;
+      ensurePreview();const result=client.setImage('image/jpeg',data);if(!result.ok)throw Error('圖片未通過預覽格式檢查。');
+      status.textContent='測試圖已載入，只用於預覽，不會存入作品。';
+    }catch(e){if(epoch===imageEpoch)status.textContent=e.message;}finally{if(url)URL.revokeObjectURL(url);}
+  }
+  function showContrast(colors){
+    const host=q('[data-theme-contrast]');host.replaceChildren();
+    const warnings=Diagnose.analyzeContrast(colors);
+    if(!colors){host.textContent='預覽載入後檢查實際主題色。';return;}
+    host.textContent=warnings.length?'主題對比提醒（不阻擋儲存）：':'主題文字與強調色的對比檢查通過。';
+    warnings.forEach(w=>host.append(el('p',({text:'文字',muted:'次要文字',accent:'強調色'}[w.path[1]])+`對背景的對比為 ${w.ratio}，建議至少 ${w.min}。`)));
+  }
+
+  setupP4();
   window.BAOCharacterStudioGameplayComposer=Object.freeze({refresh:draw});
   draw();
 })();

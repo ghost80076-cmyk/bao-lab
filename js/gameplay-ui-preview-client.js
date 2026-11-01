@@ -13,8 +13,10 @@
     if (!Protocol) throw new Error('gameplay-ui-preview-protocol-core.js must load first');
     if (!iframe || iframe.tagName !== 'IFRAME') throw new Error('an iframe element is required');
     const origin = options.origin || root.location.origin;
-    const listeners = { ready: [], rendered: [], state: [], notice: [], error: [] };
+    const listeners = { ready: [], rendered: [], state: [], notice: [], error: [], dismiss: [] };
     let isReady = false;
+    let viewportFrame = 0;
+    let currentImage = null; // last test image payload, re-sent with every reloaded preview document
     let current = null; // last render payload; re-sent whenever the preview document (re)loads
 
     const emit = (name, payload) => (listeners[name] || []).slice().forEach(fn => { try { fn(payload); } catch (_) {} });
@@ -28,7 +30,7 @@
       if (!result.ok) return;
       // "ready" is posted by every new preview document, possibly before the iframe's own load event,
       // so readiness is tracked from this message only. A reloaded preview gets the last render again.
-      if (result.type === 'ready') { isReady = true; if (current) send('render', current); }
+      if (result.type === 'ready') { isReady = true; if (current) send('render', current); if (currentImage) send('set-image', currentImage); }
       emit(result.type, result.payload);
     };
     root.addEventListener('message', onMessage);
@@ -55,13 +57,23 @@
       },
       setState(state) { return send('set-state', { state: state || {} }); },
       reset() { return send('reset', {}); },
+      /** Give location_archive a test scene image (base64, already downsized). `setImage('', '')` clears it. */
+      setImage(mime, data) {
+        const next = { mime: String(mime || ''), data: String(data || '') };
+        const checked = Protocol.validatePayload('set-image', next);
+        if (!checked.ok) { emit('error', { type: 'set-image', reason: checked.reason }); return checked; }
+        currentImage = next.data ? next : null;
+        return isReady ? send('set-image', next) : { ok: true, queued: true };
+      },
       /** Change the iframe's actual width (and optionally height) in CSS pixels. */
       setViewport(width, height) {
         iframe.style.width = `${Math.max(240, Math.min(2560, Math.round(Number(width) || 0)))}px`;
         if (height) iframe.style.height = `${Math.max(240, Math.round(Number(height)))}px`;
+        root.cancelAnimationFrame(viewportFrame);
+        if(isReady)viewportFrame=root.requestAnimationFrame(()=>{iframe.getBoundingClientRect();send('refresh',{});});
       },
       on(name, fn) { if (listeners[name]) listeners[name].push(fn); return () => { listeners[name] = listeners[name].filter(x => x !== fn); }; },
-      destroy() { root.removeEventListener('message', onMessage); Object.keys(listeners).forEach(k => { listeners[k] = []; }); }
+      destroy() { root.cancelAnimationFrame(viewportFrame); root.removeEventListener('message', onMessage); Object.keys(listeners).forEach(k => { listeners[k] = []; }); }
     };
   }
 

@@ -38,6 +38,7 @@
     OVER_LIMIT: 'over_limit',     // beyond a platform cap, dropped
     DUPLICATE: 'duplicate',       // same id as an earlier node, dropped
     UNRESOLVED: 'unresolved',     // a layout reference that normalize() clears
+    WARNING: 'warning',
     INVALID: 'invalid'            // schema-level or enum-level rejection
   });
 
@@ -257,7 +258,8 @@
         if (Object.prototype.hasOwnProperty.call(normalized, key)) analyzeChanges(raw[key], normalized[key], path.concat(key), nodes);
       });
     } else if (raw !== normalized) {
-      nodes.push(node(path, 'builder', STATUS.TRIMMED, 'builder_value_normalized'));
+      const code=path.join('.')==='builder.kind'?'builder_kind_unknown':path.join('.')==='builder.points_path'?'builder_points_path_invalid':'builder_value_normalized';
+      nodes.push(node(path,'builder',code==='builder_kind_unknown'?STATUS.INVALID:code==='builder_points_path_invalid'?STATUS.UNRESOLVED:STATUS.TRIMMED,code));
     }
   }
 
@@ -354,7 +356,38 @@
    *  - summary: counts, and schemaValid (false when normalize() rejects the whole schema)
    * A node that normalize() would drop is reported, never removed.
    */
-  function analyzeDraft(raw, core = defaultCore) {
+  function parseColor(value) {
+    const m = /^rgba?\(\s*([\d.]+)[ ,]+([\d.]+)[ ,]+([\d.]+)(?:[ ,/]+([\d.]+%?))?\s*\)$/i.exec(String(value || '').trim());
+    if (!m) return null;
+    const a = m[4] === undefined ? 1 : (m[4].endsWith('%') ? Number(m[4].slice(0, -1)) / 100 : Number(m[4]));
+    const rgb = [m[1], m[2], m[3]].map(Number);
+    return rgb.every(Number.isFinite) && Number.isFinite(a) ? { r: rgb[0], g: rgb[1], b: rgb[2], a: Math.max(0, Math.min(1, a)) } : null;
+  }
+  const over = (fg, bg) => ({ r: fg.r * fg.a + bg.r * (1 - fg.a), g: fg.g * fg.a + bg.g * (1 - fg.a), b: fg.b * fg.a + bg.b * (1 - fg.a), a: 1 });
+  const luminance = c => {
+    const ch = v => { const x = v / 255; return x <= 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); };
+    return 0.2126 * ch(c.r) + 0.7152 * ch(c.g) + 0.0722 * ch(c.b);
+  };
+  /** Contrast ratio of `fg` drawn over an opaque `bg` (a translucent fg is composited first). */
+  function contrastRatio(fg, bg) {
+    const f = parseColor(fg); const b = parseColor(bg);
+    if (!f || !b) return null;
+    const background = over(b, {r:0,g:0,b:0,a:1});
+    const l1 = luminance(over(f, background)); const l2 = luminance(background);
+    const hi = Math.max(l1, l2); const lo = Math.min(l1, l2);
+    return (hi + 0.05) / (lo + 0.05);
+  }
+  const CONTRAST_RULES = [['text', 4.5, 'theme_contrast_text'], ['muted', 4.5, 'theme_contrast_muted'], ['accent', 4.5, 'theme_contrast_accent']];
+  /** `colors` = the preview's resolved { accent, surface, text, muted }. Returns warning nodes, never problems. */
+  function analyzeContrast(colors) {
+    if (!isObject(colors)) return [];
+    return CONTRAST_RULES.flatMap(([name, min, reason]) => {
+      const ratio = contrastRatio(colors[name], colors.surface);
+      return ratio !== null && ratio < min ? [{ ...node(['theme', name], 'theme', STATUS.WARNING, reason), ratio: Math.round(ratio * 100) / 100, min }] : [];
+    });
+  }
+
+  function analyzeDraft(raw, core = defaultCore, options = {}) {
     if (!core) throw new Error('BAOGameplayUICore is required');
     const nodes = [];
     const schema = core.normalize(raw);
@@ -387,7 +420,8 @@
     analyzeBuilder(core, raw, nodes);
     analyzeTheme(core, raw, nodes);
 
-    const problems = nodes.filter(n => n.status !== STATUS.OK);
+    if(options?.colors)nodes.push(...analyzeContrast(options.colors));
+    const problems = nodes.filter(n => n.status !== STATUS.OK && n.status !== STATUS.WARNING);
     const count = status => problems.filter(n => n.status === status).length;
     return {
       schema,
@@ -395,6 +429,7 @@
       summary: {
         total: nodes.length,
         problems: problems.length,
+        warnings: nodes.filter(n=>n.status===STATUS.WARNING).length,
         incomplete: count(STATUS.INCOMPLETE),
         duplicates: count(STATUS.DUPLICATE),
         overLimit: count(STATUS.OVER_LIMIT),
@@ -462,6 +497,79 @@
   }
 
   /** A small valid draft: one panel with one meter. Used when the author turns the composer on. */
+  const meterItems = () => [
+    { label: 'HP', value_path: 'modules.player.hp', max_path: 'modules.player.max_hp' },
+    { label: 'MP', value_path: 'modules.player.mp', max_path: 'modules.player.max_mp' }
+  ];
+  const TEMPLATE_BUILDERS = {
+    blank: () => ({ version: 1, panels: [{ id: 'panel_1', label: '面板 1', sections: [] }] }),
+    'rpg-status': () => ({ version: 1, panels: [{ id: 'status', label: '狀態', sections: [
+      { type: 'meters', title: '角色狀態', items: meterItems() },
+      { type: 'stats', title: '資訊', items: [{ label: '金幣', path: 'modules.player.gold' }, { label: '地點', path: 'location' }, { label: '時間', path: 'time' }] },
+      { type: 'list', title: '近期事件', path: 'events', limit: 5 }
+    ] }] }),
+    shop: () => ({ version: 1, panels: [
+      { id: 'status', label: '狀態', sections: [
+        { type: 'meters', title: '角色狀態', items: [meterItems()[0]] },
+        { type: 'stats', title: '錢包', items: [{ label: '金幣', path: 'modules.player.gold' }] }
+      ] },
+      { id: 'shop', label: '商店', sections: [
+        { type: 'list', title: '背包', path: 'modules.inventory', limit: 8 },
+        { type: 'actions', title: '購買', items: [
+          { label: '買藥水（5 金幣）', draft: '我買了一瓶藥水。', hint: '扣 5 金幣，背包 +1 藥水', effect: {
+            changes: [{ path: 'modules.player.gold', delta: -5 }],
+            items: [{ path: 'modules.inventory', id: 'potion', name: '藥水', delta: 1 }],
+            event: '買了一瓶藥水'
+          } },
+          { label: '詢問店員', draft: '我向店員打聽最近的消息。' }
+        ] }
+      ] }
+    ] }),
+    codex: () => ({ version: 1, panels: [{ id: 'codex', label: '圖鑑', sections: [{ type: 'tabs', title: '資料庫', tabs: [
+      { id: 'entries', label: '圖鑑', sections: [{ type: 'cards', variant: 'codex', path: 'modules.codex.entries' }] },
+      { id: 'quests', label: '任務', sections: [{ type: 'cards', variant: 'quest', path: 'modules.quest.entries' }] },
+      { id: 'log', label: '紀錄', sections: [{ type: 'timeline', mode: 'history', path: 'events', limit: 10 }] }
+    ] }] }] }),
+    'rpg-dashboard': () => ({ version: 1,
+      layout: { preset: 'rpg-dashboard', left_panel: 'status', right_panel: 'world' },
+      panels: [
+        { id: 'status', label: '狀態', sections: [
+          { type: 'meters', title: '角色狀態', items: meterItems() },
+          { type: 'stats', items: [{ label: '金幣', path: 'modules.player.gold' }] }
+        ] },
+        { id: 'world', label: '世界', sections: [
+          { type: 'location_archive', title: '目前位置', area_path: 'modules.map.area', destinations_path: 'modules.map.destinations' },
+          { type: 'list', title: '近期事件', path: 'events', limit: 5 }
+        ] }
+      ] }),
+    terminal: () => ({ version: 1,
+      layout: { preset: 'terminal', primary_panel: 'console' },
+      panels: [{ id: 'console', label: '終端', sections: [
+        { type: 'stats', title: '狀態', items: [{ label: '地點', path: 'location' }, { label: '時間', path: 'time' }] },
+        { type: 'list', title: '紀錄', path: 'events', limit: 8 },
+        { type: 'actions', title: '指令', items: [{ label: '查看周圍', draft: '我仔細查看周圍。' }, { label: '整理行囊', draft: '我整理一下行囊。' }] }
+      ] }] })
+  };
+  const TEMPLATES = Object.freeze([
+    { id: 'blank', label: '空白（只有一個空面板）', description: '從零開始，自行新增區塊。' },
+    { id: 'rpg-status', label: 'RPG 狀態面板', description: 'HP／MP 狀態條、金幣與地點、近期事件。' },
+    { id: 'shop', label: '商店與背包', description: '買藥水的行動：扣金幣、背包 +1，含自動結算。' },
+    { id: 'codex', label: '圖鑑與任務（分頁）', description: '圖鑑卡片、任務卡片、事件時間軸三個分頁。' },
+    { id: 'rpg-dashboard', label: 'RPG 儀表板（左右面板）', description: '左側狀態、右側世界與地點檔案。' },
+    { id: 'terminal', label: '終端機', description: '單一終端面板：狀態、紀錄、指令按鈕。' }
+  ]);
+  /** A fresh raw draft for a template id; null for an unknown id. Every call returns a new object. */
+  function templateDraft(id) {
+    const build = Object.prototype.hasOwnProperty.call(TEMPLATE_BUILDERS, id) ? TEMPLATE_BUILDERS[id] : null;
+    return build ? build() : null;
+  }
+  /** True when a draft holds nothing worth protecting from a template (no sections anywhere). */
+  function isEmptyDraft(raw) {
+    if (!isObject(raw)) return true;
+    const panels = Array.isArray(raw.panels) ? raw.panels : [];
+    return panels.every(p => !isObject(p) || !Array.isArray(p.sections) || p.sections.length === 0) && !Object.keys(raw).some(k => !['version', 'panels', 'layout', 'theme', 'enabled'].includes(k));
+  }
+
   function createStarterDraft() {
     return {
       version: 1,
@@ -808,8 +916,22 @@
    * `overrides` ({ path: number|string }) wins, so the author can try the extremes.
    * Returns { state, entries } where entries lists the adjustable test values.
    */
-  function buildTestState(raw, overrides = {}, core = defaultCore) {
+  function seedState(seed) {
     const state = { modules: {}, moduleDefinitions: [] };
+    if (!isObject(seed)) return state;
+    const initial = isObject(seed.initial_state) ? seed.initial_state : {};
+    if (isObject(initial.modules)) state.modules = cloneDraft(initial.modules);
+    if (typeof initial.time === 'string') state.time = initial.time;
+    if (typeof initial.location === 'string') state.location = initial.location;
+    if (Array.isArray(initial.events)) state.events = cloneDraft(initial.events);
+    if (Array.isArray(initial.npcs)) state.npcs = cloneDraft(initial.npcs);
+    if (Array.isArray(seed.world_modules)) state.moduleDefinitions = seed.world_modules.filter(d=>isObject(d)&&typeof d.id==='string').map(d=>({id:d.id,...(typeof d.kind==='string'?{kind:d.kind}:{}),enabled:d.enabled!==false}));
+    return state;
+  }
+
+  function buildTestState(raw, overrides = {}, core = defaultCore, seed = null) {
+    const state = seedState(seed);
+    const existing = path => (core.isTargetPath(path) ? core.getPath(state, path) : (['time', 'location', 'events', 'npcs'].includes(path) ? state[path] : undefined));
     const entries = [];
     const seen = new Set();
     const pick = (path, fallback) => (Object.prototype.hasOwnProperty.call(overrides, path) && overrides[path] !== '' && overrides[path] !== undefined ? overrides[path] : fallback);
@@ -820,7 +942,8 @@
     };
     const put = (path, value, label, role) => {
       if (!core.isDisplayPath(path) || seen.has(path)) return;
-      const chosen = pick(path, value);
+      const have = existing(path);
+      const chosen = pick(path, have !== undefined ? have : value);
       if (!writePath(path, chosen)) return;
       seen.add(path);
       entries.push({ path, label, role, value: chosen });
@@ -860,14 +983,19 @@
         const parts = path.split('.');
         if (!core.isTargetPath(path) || parts.length !== 2) return;
         define(parts[1], 'collection');
-        if (!seen.has(path)) { seen.add(path); core.setPath(state, path, []); }
+        if (!seen.has(path)) { seen.add(path); if (existing(path) === undefined) core.setPath(state, path, []); }
       });
     }));
     sections.filter(s => s.type === 'stats' || (s.type === 'timeline' && s.mode === 'round_diff')).forEach(section => itemsOf(section).forEach(item => {
       const path = text(item.path);
       put(path, TEXT_SAMPLE, String(item.label || path).slice(0, 60), 'text');
     }));
-    const putList = (path, rows) => { if (core.isDisplayPath(path) && !seen.has(path) && writePath(path, rows)) seen.add(path); };
+    const putList = (path, rows) => {
+      if (!core.isDisplayPath(path) || seen.has(path)) return;
+      const have = existing(path);
+      if (Array.isArray(have)) { seen.add(path); return; }   // the card's own rows win over sample rows
+      if (writePath(path, rows)) seen.add(path);
+    };
     sections.filter(s => s.type === 'list').forEach(section => putList(text(section.path), LIST_SAMPLE.slice()));
     sections.filter(s => s.type === 'cards').forEach(section => putList(text(section.path), cardSample('範例')));
     sections.filter(s => s.type === 'timeline' && s.mode !== 'round_diff').forEach(section => putList(text(section.path), cardSample('範例事件', 'title')));
@@ -888,12 +1016,12 @@
    * Nothing is written anywhere; returns { ok, reason, changes:[{path,from,to}], items:[{path,id,from,to}] }.
    * `scenario: 'empty'` sets every resource the action spends to 0, to show the failure case.
    */
-  function trialAction(raw, target, overrides = {}, core = defaultCore, scenario = 'current') {
+  function trialAction(raw, target, overrides = {}, core = defaultCore, scenario = 'current', seed = null) {
     const draft = isObject(raw) ? raw : {};
     const section = sectionAt(draft, target.panel, refOf(target));
     const item = isObject(section) && section.type === 'actions' && Array.isArray(section.items) ? section.items[target.item] : null;
     if (!isObject(item) || !isObject(item.effect)) return { ok: false, reason: '這個行動沒有自動結算（effect），按下後只會送出文字。', changes: [], items: [] };
-    const { state } = buildTestState(draft, overrides, core);
+    const { state } = buildTestState(draft, overrides, core, seed);
     const work = cloneDraft(state);
     const changes = (Array.isArray(item.effect.changes) ? item.effect.changes : []).filter(isObject);
     if (scenario === 'empty') changes.forEach(c => { const p = text(c.path); if (core.isTargetPath(p) && Number(c.delta) < 0) core.setPath(work, p, 0); });
@@ -914,7 +1042,7 @@
   }
 
   return Object.freeze({
-    STATUS, EDITABLE_SECTIONS, CHILD_SECTIONS, cloneDraft, analyzeDraft, createStarterDraft, buildTestState, buildMeterTestState, trialAction,
+    STATUS, EDITABLE_SECTIONS, CHILD_SECTIONS, cloneDraft, analyzeDraft, contrastRatio, analyzeContrast, TEMPLATES, templateDraft, isEmptyDraft, createStarterDraft, buildTestState, buildMeterTestState, trialAction,
     addPanel, removePanel, movePanel, addSection, addMeterSection, removeSection, moveSection,
     addItem, addMeterItem, removeItem, moveItem, setField,
     addTab, removeTab, moveTab, setTabField, addChildSection, removeChildSection, moveChildSection, setLayoutField,

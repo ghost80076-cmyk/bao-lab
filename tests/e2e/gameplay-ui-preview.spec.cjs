@@ -204,7 +204,7 @@ test('preview preserves existing parent storage and labels its limited layout sc
   await page.waitForFunction(() => window.harness.messages.some(m => m.type === 'ready'));
   await page.evaluate(([s, state]) => window.client.render(s, state, 'status'), [meterSchema(), hpState(30)]);
   const frame = page.frameLocator('#preview');
-  await expect(frame.getByRole('note').filter({ hasText: 'P0 單面板預覽' })).toBeVisible();
+  await expect(frame.getByRole('note').filter({ hasText: '單面板預覽' })).toBeVisible();
   await expect(frame.locator('.gameplay-meter')).toContainText('30 / 50');
   await page.evaluate(() => window.client.reset());
   expect(await page.evaluate(() => localStorage.getItem('preview-sentinel'))).toBe('existing-story');
