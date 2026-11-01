@@ -70,7 +70,118 @@
     choose.dataset.composerSelected=String(chosen);choose.setAttribute('aria-pressed',String(chosen));
     choose.addEventListener('keydown',event=>{
       if(event.altKey&&['ArrowUp','ArrowDown'].includes(event.key)){
-        event.preventDefault();const to=index+(event.key==='Arro…2647 tokens truncated…'範例地點');return state;
+        event.preventDefault();const to=index+(event.key==='ArrowUp'?-1:1);
+        if(to>=0&&to<list.length)execute({type:'move',path,to},{focus:true});
+      }
+    });
+    const handle=button('排序',()=>{},'拖曳排序：'+text);handle.className='secondary composer-drag-handle';handle.draggable=true;
+    handle.addEventListener('dragstart',event=>{dragging=path;event.dataTransfer.setData('text/plain',pathKey(path));event.dataTransfer.effectAllowed='move';});
+    row.addEventListener('dragover',event=>{if(dragging&&pathKey(dragging.slice(0,-1))===pathKey(path.slice(0,-1)))event.preventDefault();});
+    row.addEventListener('drop',event=>{event.preventDefault();if(dragging&&pathKey(dragging.slice(0,-1))===pathKey(path.slice(0,-1)))execute({type:'move',path:dragging,to:index},{focus:true});dragging=null;});
+    row.addEventListener('dragend',()=>{dragging=null;});
+    const heading=el('div',undefined,'composer-tree-heading');heading.append(handle,choose);
+    row.append(heading,mutationTools(path,list,index));return row;
+  }
+  function drawTree(){
+    const ui=Studio.getGameplayUI(), host=q('[data-composer-tree]');host.replaceChildren();
+    const panels=Array.isArray(ui?.panels)?ui.panels:[];
+    q('[data-panel-count]').textContent=`${panels.length} / ${Core.MAX_PANELS} 個面板`;
+    q('[data-add-panel]').disabled=!Array.isArray(ui?.panels)||panels.length>=Core.MAX_PANELS;
+    if(!panels.length)host.append(el('p','尚未建立面板。新增一個面板，再加入組件。','note'));
+    panels.forEach((panel,i)=>{
+      if(!panel||typeof panel!=='object'){host.append(el('p',`面板 ${i+1} 格式不完整，請先備份並修正來源資料。`,'note'));return;}
+      const group=el('div',undefined,'composer-tree-group');group.append(treeRow(panel,['panels',i],panels,i));
+      (Array.isArray(panel.sections)?panel.sections:[]).forEach((section,j)=>{
+        if(section&&typeof section==='object')group.append(treeRow(section,['panels',i,'sections',j],panel.sections,j));
+      });host.append(group);
+    });
+  }
+  function field(host,label,value,onInput,options={}){
+    const wrap=el('label',label);const control=el(options.multiline?'textarea':'input');
+    if(!options.multiline)control.type=options.number?'number':'text';
+    if(options.max)control.maxLength=options.max;
+    control.value=value??'';
+    control.addEventListener(options.onChange?'change':'input',()=>onInput(options.number?(control.value===''?undefined:Number(control.value)):control.value));
+    wrap.append(control);host.append(wrap);return control;
+  }
+  function bind(host,label,path,key,options={}){
+    const node=get(Studio.getGameplayUI(),path);
+    return field(host,label,node?.[key],value=>{
+      const ok=execute({type:'set',path,key,value},{refresh:false});
+      if(ok){clearTimeout(redrawTimer);redrawTimer=setTimeout(drawTree,200);}
+    },options);
+  }
+  function pathField(host,label,path,key,optional=false){
+    const value=String(get(Studio.getGameplayUI(),path)?.[key]||'');
+    const wrap=el('div',undefined,'composer-path-field'), sourceLabel=el('label',label), select=el('select');
+    for(const [v,t] of [...(optional?[['','固定最大值']]:[]),['time','時間'],['location','地點'],['events','事件'],['npcs','人物'],['modules','世界模組']]){
+      const option=el('option',t);option.value=v;select.append(option);
+    }
+    select.value=value.startsWith('modules.')||value&&!['time','location','events','npcs'].includes(value)?'modules':(value|| (optional?'':'modules'));
+    select.setAttribute('aria-label',label);sourceLabel.append(select);wrap.append(sourceLabel);
+    const suffixLabel=el('label',label+'的模組與欄位（例：player.hp）'), suffix=el('input');suffix.type='text';suffix.value=value.startsWith('modules.')?value.slice(8):(!Core.isDisplayPath(value)?value:'');suffixLabel.append(suffix);wrap.append(suffixLabel);host.append(wrap);
+    const sync=()=>{
+      suffixLabel.hidden=select.value!=='modules';
+      const next=select.value==='modules'?'modules.'+suffix.value.trim():select.value;
+      const valid=optional&&!next||Core.isDisplayPath(next);suffix.setAttribute('aria-invalid',String(!valid));
+      execute({type:'set',path,key,value:next||undefined},{refresh:false});
+    };
+    suffixLabel.hidden=select.value!=='modules';suffix.setAttribute('aria-invalid',String(Boolean(value)&&!Core.isDisplayPath(value)));
+    select.addEventListener('change',sync);suffix.addEventListener('input',sync);
+  }
+  function drawFields(){
+    const host=q('[data-composer-fields]');host.replaceChildren();
+    const ui=Studio.getGameplayUI(), node=get(ui,selected);
+    if(!node){host.append(el('p','先在結構區選擇面板或區塊。','note'));return;}
+    if(selected.length===2){
+      bind(host,'面板名稱',selected,'label',{max:60});
+      bind(host,'面板 ID',selected,'id',{onChange:true,max:40});
+      const controls=el('div',undefined,'composer-add-section');const label=el('label','加入組件'), select=el('select');select.setAttribute('aria-label','加入組件');
+      for(const type of Edit.TYPES){const option=el('option',names[type]);option.value=type;select.append(option);}label.append(select);controls.append(label);
+      const add=button('新增區塊',()=>{execute({type:'add-section',path:selected,sectionType:select.value},{focus:true});if(isNarrow())pane('fields');});
+      add.disabled=!Array.isArray(node.sections)||node.sections.length>=Core.MAX_SECTIONS;
+      controls.append(add,el('p',`${node.sections?.length||0} / ${Core.MAX_SECTIONS} 個區塊`,'note'));host.append(controls);return;
+    }
+    bind(host,'區塊標題',selected,'title',{max:60});
+    if(!Edit.TYPES.includes(node.type)){host.append(el('p','這個組件的原始設定完整保留。目前可排序、複製與刪除，專用欄位編輯將在後續版本提供。','note'));return;}
+    if(node.type==='list'){
+      pathField(host,'清單來源',selected,'path');bind(host,'顯示筆數（1～30）',selected,'limit',{number:true});bind(host,'沒有資料時顯示',selected,'empty',{max:120});return;
+    }
+    const items=Array.isArray(node.items)?node.items:[];
+    const add=button('新增項目',()=>execute({type:'add-item',path:selected},{focus:true}));add.disabled=!Array.isArray(node.items)||items.length>=Core.MAX_ITEMS;
+    host.append(el('p',`${items.length} / ${Core.MAX_ITEMS} 個項目`,'note'),add);
+    items.forEach((entry,i)=>{
+      if(!entry||typeof entry!=='object'){host.append(el('p',`項目 ${i+1} 格式不完整，原始資料保留。`,'note'));return;}
+      const path=selected.concat('items',i), section=el('fieldset',undefined,'composer-item');section.append(el('legend',`項目 ${i+1}`));
+      bind(section,'顯示名稱',path,'label',{max:60});
+      if(node.type==='meters'){
+        pathField(section,'數值來源',path,'value_path');pathField(section,'最大值來源',path,'max_path',true);
+        bind(section,'最小值',path,'min',{number:true});bind(section,'固定最大值',path,'max',{number:true});bind(section,'單位',path,'suffix',{max:20});
+      }else if(node.type==='stats'){
+        pathField(section,'資料來源',path,'path');bind(section,'單位',path,'suffix',{max:20});
+      }else{
+        bind(section,'點擊後填入的行動',path,'draft',{multiline:true,max:500});bind(section,'提示文字',path,'hint',{max:120});
+        if(entry.effect)section.append(el('p','此按鈕有購買／消耗效果，修改文字會保留效果。請用操作按鈕建立器調整交易內容。','note'));
+      }
+      section.append(mutationTools(path,items,i));host.append(section);
+    });
+  }
+  const reasons={duplicate:'識別碼重複，預覽將略過此項目。',incomplete:'設定尚未完成或來源無效，預覽暫時略過。',over_limit:'已超過平台上限，請刪減項目。',trimmed:'部分資料會被平台修正或裁切，請檢查。',unresolved:'版面引用的面板不存在或重複。',invalid:'設定值無效，預覽將使用平台預設。'};
+  function previewState(card,schema){
+    const state={};
+    for(const key of ['time','location','events','npcs','modules'])if(card.initial_state?.[key]!==undefined)state[key]=structuredClone(card.initial_state[key]);
+    state.modules ||= {};state.events ||= [];
+    state.moduleDefinitions=(Array.isArray(card.world_modules)?card.world_modules:[])
+      .filter(def=>def&&typeof def==='object'&&typeof def.id==='string')
+      .map(({id,kind,enabled})=>({id,...(typeof kind==='string'?{kind}:{}),enabled:enabled!==false}));
+    const seed=(path,value)=>{if(!path||Core.getPath(state,path)!==undefined)return;if(path.startsWith('modules.'))Core.setPath(state,path,value);else if(['time','location','events','npcs'].includes(path))state[path]=value;};
+    const visit=sections=>(sections||[]).forEach(section=>{
+      if(section.type==='tabs'){section.tabs.forEach(tab=>visit(tab.sections));return;}
+      if(section.type==='meters')section.items.forEach(item=>{seed(item.value_path,25);if(item.max_path)seed(item.max_path,100);});
+      else if(section.type==='stats')section.items.forEach(item=>seed(item.path,'範例資料'));
+      else if(['list','cards'].includes(section.type))seed(section.path,[{id:'sample',name:'範例項目',quantity:1}]);
+    });
+    (schema?.panels||[]).forEach(panel=>visit(panel.sections));seed('time','範例夜晚');seed('location','範例地點');return state;
   }
   function syncViewport(){
     if(!client)return;
