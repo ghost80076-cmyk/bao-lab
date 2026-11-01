@@ -229,7 +229,7 @@ assert.equal(Protocol.validatePayload('render', { schema: demo(), state: {}, pan
 assert.equal(Protocol.validatePayload('render', { schema: [] }).reason, 'render_needs_schema');
 assert.equal(Protocol.validatePayload('render', 'x').reason, 'bad_payload');
 
-console.log('Gameplay UI composer core PASS: exports, normalize immutability, draft preservation, preview protocol');
+
 
 // Preserve unknown data and diagnose children even when all tabs are invalid.
 {
@@ -240,3 +240,45 @@ console.log('Gameplay UI composer core PASS: exports, normalize immutability, dr
  const raw = {version: 1, panels: [{id: 'p', sections: [{type: 'tabs', tabs: [{id:'t', sections: [{type:'tabs', tabs:[]}]}]}]}]};
  assert.ok(Composer.analyzeDraft(raw, Core).nodes.some(n => n.reason === 'nested_tabs_not_allowed'));
 }
+
+// Builder/theme diagnostics must explain data that the runtime drops or changes.
+{
+ const make = builder => ({version:1, builder, panels:[panel('p')]});
+ const attr = key => ({key,target_path:'modules.player.hp',min:0,max:100,base:10});
+ const field = key => ({key,target_path:'modules.player.name',type:'text'});
+ const group = key => ({key,target_path:'modules.player.perk',options:[{id:'one',cost:0}]});
+ const raw = make({attributes:[attr('same'),attr('same')],fields:[field('same'),field('name')],choice_groups:[group('name'),group('perk')]});
+ const snapshot = JSON.stringify(raw);
+ const result = Composer.analyzeDraft(raw,Core);
+ for (const path of [['builder','attributes',1],['builder','fields',0],['builder','choice_groups',0]]) {
+   assert.equal(find(result,path)?.status,'duplicate',JSON.stringify(path));
+ }
+ assert.equal(result.schema.builder.attributes.length,1);
+ assert.equal(result.schema.builder.fields.length,1);
+ assert.equal(result.schema.builder.choice_groups.length,1);
+ assert.equal(JSON.stringify(raw),snapshot);
+ const invalid = Composer.analyzeDraft(make({attributes:[{key:'bad',target_path:'api.key'}], fields:'oops',choice_groups:[{...group('dups'),options:[{id:'x',cost:0},{id:'x',cost:1}]}]}),Core);
+ assert.equal(find(invalid,['builder','attributes',0])?.status,'incomplete');
+ assert.equal(find(invalid,['builder','fields'])?.status,'invalid');
+ assert.equal(find(invalid,['builder','choice_groups',0])?.status,'incomplete');
+ const capped = Composer.analyzeDraft(make({attributes:[null,...Array.from({length:Core.MAX_ATTRIBUTES+1},(_,i)=>attr('a'+i))]}),Core);
+ assert.equal(find(capped,['builder','attributes',Core.MAX_ATTRIBUTES])?.status,'ok');
+ assert.equal(find(capped,['builder','attributes',Core.MAX_ATTRIBUTES+1])?.status,'over_limit');
+ const choices = Composer.analyzeDraft(make({choice_groups:[null,...Array.from({length:Core.MAX_CHOICE_GROUPS},(_,i)=>group('g'+i))]}),Core);
+ assert.equal(find(choices,['builder','choice_groups',Core.MAX_CHOICE_GROUPS])?.status,'over_limit','groups are capped BEFORE filtering');
+ const pruned = Composer.analyzeDraft(make({fields:[{...field('choice'),type:'select',options:Array.from({length:Core.MAX_OPTIONS+1},(_,i)=>'o'+i),default:'missing'}],attributes:[{...attr('clamped'),base:999}],choice_groups:[{...group('perk'),options:[{id:'one',cost:0},{id:'invalid',cost:'bad'}]}]}),Core);
+ assert.ok(pruned.nodes.some(n=>n.path.join('.')==='builder.fields.0.options'&&n.status==='trimmed'));
+ assert.ok(pruned.nodes.some(n=>n.path.join('.')==='builder.fields.0.default'));
+ assert.ok(pruned.nodes.some(n=>n.path.join('.')==='builder.attributes.0.base'));
+ assert.ok(pruned.nodes.some(n=>n.path.join('.')==='builder.choice_groups.0.options'));
+ const themed = {version:1,panels:[panel('p')],theme:{preset:'hologram',density:'tiny',radius:'huge',meter:'rainbow',accent:'url(javascript:bad)',surface:'#abc',future:'keep'}};
+ const clone = Composer.cloneDraft(themed);
+ const themeResult = Composer.analyzeDraft(themed,Core);
+ for(const name of ['preset','density','radius','meter','accent']) assert.equal(find(themeResult,['theme',name])?.status,'invalid',name);
+ assert.equal(find(themeResult,['theme','surface']),undefined,'valid shorthand colors do not report a problem');
+ assert.deepEqual(themed,clone,'diagnosis does not overwrite invalid or future values');
+ assert.equal(Composer.analyzeDraft({...themed,theme:'arcane-night'},Core).summary.problems,0);
+ assert.ok(Composer.analyzeDraft({...themed,theme:[]},Core).nodes.some(n=>n.kind==='theme'&&n.status==='invalid'));
+}
+
+console.log('Gameplay UI composer core PASS: schema, builder/theme diagnostics, immutable drafts, UTF-8 preview protocol');

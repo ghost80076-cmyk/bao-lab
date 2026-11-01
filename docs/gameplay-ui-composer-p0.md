@@ -5,8 +5,8 @@ P0 提供編排器的共用匯出、原始草稿診斷與專用 iframe 預覽頁
 ## 草稿與契約
 
 - 原始 `gameplay_ui` 草稿是唯一編輯來源；節點上限依 core 的先過濾、再裁切與去重順序計算；`analyzeDraft()` 產生的 `schema` 只用於預覽，不能覆寫原始草稿。
-- 共用 `BAOGameplayUICore.normalize()`、`normalizePanel()`、`normalizeSection()` 與匯出上限。
-- 草稿診斷涵蓋空節點、整體無效、重複 Panel/Tab ID、巢狀 tabs、布局引用失效與項目裁切；它不是完整的儲存核准器，後續編輯器仍須顯示欄位修正與匯出確認。
+- 共用 `BAOGameplayUICore.normalize()`、`normalizePanel()`、`normalizeSection()`、`normalizeTheme()` 與匯出上限（包含 `MAX_CHOICE_GROUPS`）。Builder 診斷以隔離 probe 呼叫既有 normalize，不另寫欄位有效性規則。
+- 草稿診斷涵蓋空節點、整體無效、重複 Panel/Tab ID、巢狀 tabs、布局引用失效、builder 跨 attributes/fields/choice_groups 重複 key、無效或超限節點、選項裁切、數值修正，以及無效主題列舉／顏色；診斷不取代儲存核准流程，後續編輯器仍須顯示欄位修正與匯出確認。
 - 未編輯的未知欄位在草稿中保留；正式 renderer 仍只接受原本的允許清單。
 
 ## 最小預覽

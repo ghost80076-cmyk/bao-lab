@@ -7,8 +7,8 @@
  *
  * analyzeDraft() reports, per raw node, what normalize() would do to it. It mirrors the
  * order in which the core filters, caps and de-duplicates, so a node is flagged exactly
- * when the preview would not show it. Not analyzed yet: the `builder` block (attributes,
- * fields, choice_groups) and `theme`.
+ * when the preview would not show it. Builder and theme diagnostics also use the
+ * runtime normalizer; diagnosis never changes the editable draft.
  */
 (function(root, factory) {
   const api = factory(root && root.BAOGameplayUICore);
@@ -124,6 +124,107 @@
     });
   }
 
+  // Compare only authored fields understood by the normalizer. Future fields stay
+  // in the draft without being mistaken for invalid runtime data.
+  function analyzeChanges(raw, normalized, path, nodes) {
+    if (Array.isArray(raw) && Array.isArray(normalized)) {
+      if (raw.length !== normalized.length) {
+        nodes.push(node(path, 'builder', STATUS.TRIMMED, 'builder_items_filtered_or_limited'));
+      } else raw.forEach((value, i) => analyzeChanges(value, normalized[i], path.concat(i), nodes));
+    } else if (isObject(raw) && isObject(normalized)) {
+      Object.keys(raw).forEach(key => {
+        if (Object.prototype.hasOwnProperty.call(normalized, key)) analyzeChanges(raw[key], normalized[key], path.concat(key), nodes);
+      });
+    } else if (raw !== normalized) {
+      nodes.push(node(path, 'builder', STATUS.TRIMMED, 'builder_value_normalized'));
+    }
+  }
+
+  function analyzeBuilder(core, raw, nodes) {
+    if (!isObject(raw) || raw.builder === undefined) return;
+    const builder = raw.builder;
+    if (!isObject(builder)) {
+      nodes.push(node(['builder'], 'builder', STATUS.INVALID, 'builder_not_object'));
+      return;
+    }
+    // A harmless panel keeps the probe usable even when a builder node is invalid.
+    // Individual probes delegate every field/option rule to the existing runtime.
+    const probe = value => core.normalize({ version: 1, builder: value, panels: [{
+      id: 'probe', sections: [{type:'stats', items:[{path:'time'}]}]
+    }] }).builder;
+    const whole = probe(builder);
+    const seen = new Set(); // attributes, then fields, then groups: runtime priority
+    const lists = [
+      ['attributes', core.MAX_ATTRIBUTES, 'stat_'],
+      ['fields', core.MAX_FIELDS, 'field_'],
+      ['choice_groups', core.MAX_CHOICE_GROUPS, '']
+    ];
+    for (const [name, limit, prefix] of lists) {
+      if (builder[name] === undefined) continue;
+      if (!Array.isArray(builder[name])) {
+        nodes.push(node(['builder', name], 'builder', STATUS.INVALID, 'builder_collection_not_array'));
+        continue;
+      }
+      let valid = 0;
+      builder[name].forEach((entry, index) => {
+        const path = ['builder', name, index];
+        // Choice groups are sliced before filtering; attributes/fields after it.
+        if (name === 'choice_groups' && index >= limit) {
+          nodes.push(node(path, 'builder', STATUS.OVER_LIMIT, 'builder_over_limit'));
+          return;
+        }
+        const candidate = isObject(entry) && prefix
+          ? { ...entry, key: entry.key || `${prefix}${index + 1}` } : entry;
+        const normalized = probe({ [name]: [candidate] })[name][0];
+        if (!normalized) {
+          nodes.push(node(path, 'builder', STATUS.INCOMPLETE, 'builder_node_invalid'));
+          return;
+        }
+        if (valid++ >= limit) {
+          nodes.push(node(path, 'builder', STATUS.OVER_LIMIT, 'builder_over_limit'));
+          return;
+        }
+        if (seen.has(normalized.key)) {
+          nodes.push(node(path, 'builder', STATUS.DUPLICATE, 'builder_duplicate_key'));
+          return;
+        }
+        seen.add(normalized.key);
+        nodes.push(node(path, 'builder', STATUS.OK));
+        analyzeChanges(entry, normalized, path, nodes);
+      });
+    }
+    const header = {};
+    for (const key of ['kind','title','description','point_pool','randomize_choices','points_path']) {
+      if (Object.prototype.hasOwnProperty.call(builder, key)) header[key] = builder[key];
+    }
+    analyzeChanges(header, whole, ['builder'], nodes);
+  }
+
+  function analyzeTheme(core, raw, nodes) {
+    if (!isObject(raw) || raw.theme === undefined) return;
+    const theme = raw.theme;
+    if (typeof theme !== 'string' && !isObject(theme)) {
+      nodes.push(node(['theme'], 'theme', STATUS.INVALID, 'theme_not_object_or_preset'));
+      return;
+    }
+    const source = typeof theme === 'string' ? {preset: theme} : theme;
+    const normalized = core.normalizeTheme(theme);
+    const enums = {
+      preset: core.THEME_PRESETS, density: core.THEME_DENSITIES,
+      radius: core.THEME_RADII, meter: core.THEME_METERS
+    };
+    for (const [key, allowed] of Object.entries(enums)) {
+      if (source[key] !== undefined && !allowed.includes(String(source[key] || ''))) {
+        nodes.push(node(['theme', key], 'theme', STATUS.INVALID, 'theme_enum_invalid'));
+      }
+    }
+    for (const key of ['accent','surface','surface_alt','text','border','muted']) {
+      if (source[key] !== undefined && source[key] !== '' && normalized[key] === undefined) {
+        nodes.push(node(['theme', key], 'theme', STATUS.INVALID, 'theme_color_invalid'));
+      }
+    }
+  }
+
   /**
    * Diagnose a raw draft against the platform normalizer without modifying it.
    * Returns { schema, nodes, summary }:
@@ -161,6 +262,8 @@
     });
 
     analyzeLayout(core, raw, schema, nodes);
+    analyzeBuilder(core, raw, nodes);
+    analyzeTheme(core, raw, nodes);
 
     const problems = nodes.filter(n => n.status !== STATUS.OK);
     const count = status => problems.filter(n => n.status === status).length;
