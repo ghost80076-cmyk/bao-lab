@@ -709,9 +709,9 @@
   }
 
   return Object.freeze({
-    MAX_PANELS, MAX_SECTIONS, MAX_ITEMS, MAX_ATTRIBUTES, MAX_FIELDS, MAX_TABS,
+    MAX_PANELS, MAX_SECTIONS, MAX_ITEMS, MAX_ATTRIBUTES, MAX_FIELDS, MAX_OPTIONS, MAX_TABS,
     THEME_PRESETS, THEME_DENSITIES, THEME_RADII, THEME_METERS, LAYOUT_PRESETS, SCENE_SOURCES, SCENE_FITS, CARD_VARIANTS, TIMELINE_MODES,
-    normalize, normalizeTheme, normalizeLayout, builderDefaults, attributeCost, remainingPoints, normalizeBuilderValues, validateBuilderValues, randomizeBuilderValues,
+    normalize, normalizeSection, normalizePanel, normalizeTheme, normalizeLayout, builderDefaults, attributeCost, remainingPoints, normalizeBuilderValues, validateBuilderValues, randomizeBuilderValues,
     modulePanelCoverage, captureActionVersions, reconcileActionUpdate, applyBuilderValues, normalizeActionEffect, executeActionEffect, getPath, setPath, isTargetPath, isDisplayPath
   });
 });

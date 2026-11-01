@@ -22,7 +22,7 @@ test('install controller respects installability and dismissal', async () => {
 
 test('service worker keeps a minimal shell and refreshes the offline HTML fallback', async () => {
   const source = await read('sw.js');
-  assert.match(source, /yorubay-shell-v2/);
+  assert.match(source, /yorubay-shell-v3/);
   assert.match(source, /event\.request\.mode === 'navigate'/);
   assert.match(source, /cache\.put\('\/index\.html', response\.clone\(\)\)/);
   assert.match(source, /caches\.match\('\/index\.html'\)/);
