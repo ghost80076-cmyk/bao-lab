@@ -334,8 +334,9 @@
     state.updatedAt = new Date().toISOString();
     GameState.current.config = App.config;
     updateLabels();
-    App.saveStory?.(false);
+    const accepted = App.saveStory?.(false);
     window.BAOAvatarChat?.refresh?.();
+    return accepted !== false;
   }
 
   const start = App.startStory.bind(App);
@@ -765,8 +766,8 @@
     }
     box.querySelector('form')?.addEventListener('submit', event => {event.preventDefault(); applyDialog(target === 'host');});
   }
-  function applyDialog(keepOpen = false) {
-    if (!dialog) return;
+  async function applyDialog(keepOpen = false) {
+    if (!dialog || dialog.dataset.savePending === '1') return;
     const form = dialog.querySelector('#bao-actor-form form');
     const feedback = dialog.querySelector('#bao-actor-feedback');
     if (form.querySelector('[data-portrait-upload]')?.disabled) { feedback.textContent = '請等待頭像處理完成。'; return; }
@@ -797,8 +798,34 @@
     const actor = normalizeActor({...data, id:select.value || form.dataset.actorId || id(), role:form.elements.namedItem('role').value, portable:form._portableMeta || existing?.portable});
     state.hostedCharacters = addOrUpdate(state.hostedCharacters, actor);
     state.hostedCharacter = null;
-    persist();
-
+    const ownerDialog = dialog;
+    const saveButtons = [...ownerDialog.querySelectorAll('[data-apply], [data-add-more]')];
+    ownerDialog.dataset.savePending = '1';
+    saveButtons.forEach(button => { button.disabled = true; });
+    feedback.textContent = '正在確認人物設定已儲存…';
+    try {
+      if (!persist()) throw new Error('無法建立故事存檔，請勿離開此頁面。');
+      // saveStory() accepts a write synchronously; durable IndexedDB/localStorage
+      // persistence completes later. Do not close the editor on an unverified save.
+      await Storage.flush?.();
+      const saved = Storage.loadStory?.();
+      const stored = saved?.state?.storyActors?.hostedCharacters?.find(item => item?.id === actor.id);
+      const fieldsMatch = stored && ['id', 'role', ...ACTOR_FIELDS, 'portable'].every(key =>
+        same(stored[key] ?? null, actor[key] ?? null));
+      if (!fieldsMatch || window.BAOStorageWriteGuard?.verify?.(saved)?.ok === false) {
+        throw new Error('人物修改尚未確認寫入瀏覽器，請檢查儲存空間並重試。');
+      }
+    } catch (error) {
+      console.warn('YoruBay failed to confirm edited story NPC persistence:', error);
+      if (dialog === ownerDialog) feedback.textContent = String(error?.message || '人物設定儲存失敗，請重試。');
+      return;
+    } finally {
+      if (dialog === ownerDialog) {
+        delete ownerDialog.dataset.savePending;
+        saveButtons.forEach(button => { button.disabled = false; });
+      }
+    }
+    if (dialog !== ownerDialog) return;
     if (!keepOpen) {
       close();
       return;
