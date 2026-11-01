@@ -23,6 +23,7 @@
   let showArchived = false;
   let editingAction = null;
   let actionPreview = null;
+  const editedThemeFields = new Set();
 
   const id = () => `custom-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const safeImage = value => /^(https:\/\/[^\s]+|assets\/[a-zA-Z0-9_./-]+)$/.test(String(value || '')) ? value : DEFAULT_IMAGE;
@@ -98,6 +99,7 @@
             base = window.BAOCharacterStudioActionsCore.removeInventoryAction(readCard(),location);
             finishActionEdit(); renderInventoryActions(); syncGameplayThemeControls(Boolean(base.gameplay_ui)); dirty = true;
             $('studio-action-status').textContent = '已移除「'+label.textContent+'」，資源與背包資料保留。'; status('按鈕已移除，尚未儲存修改');
+            window.dispatchEvent(new CustomEvent('bao:studio-gameplay-loaded'));
           } catch(error) { status('✕ '+error.message); }
         }); row.append(remove); list.append(row);
       });
@@ -119,6 +121,7 @@
     dirty = true;
     $('studio-action-status').textContent = (updating ? '已更新「' : '已加入「') + options.label + '」。請儲存草稿或匯出；初始資源與背包已一併設定。';
     status('已加入原生操作，尚未儲存修改');
+    window.dispatchEvent(new CustomEvent('bao:studio-gameplay-loaded'));
   }
   const syncPurchaseFields = () => {
     form.querySelectorAll('[data-purchase-field]').forEach(label => {
@@ -214,15 +217,29 @@
     if (!normalized) throw new Error('手機介面設定無效。');
     return normalized;
   }
+  function readGameplayUI() {
+    const gameplayUI = base.gameplay_ui && typeof base.gameplay_ui === 'object' && !Array.isArray(base.gameplay_ui)
+      ? clone(base.gameplay_ui)
+      : null;
+    if (gameplayUI && editedThemeFields.size) {
+      const theme = gameplayTheme();
+      const originalTheme = gameplayUI.theme;
+      gameplayUI.theme = originalTheme && typeof originalTheme === 'object' && !Array.isArray(originalTheme)
+        ? {...originalTheme} : (typeof originalTheme === 'string' ? {preset:originalTheme} : {});
+      for (const key of editedThemeFields) {
+        const value = key === 'accent' ? text('gameplay_accent') : theme[key];
+        if (value === undefined || key === 'accent' && value === '') delete gameplayUI.theme[key]; else gameplayUI.theme[key] = value;
+      }
+    }
+    return gameplayUI;
+  }
   function readCard() {
     const name = text('name');
     const world = text('mode') === 'world';
     const profileText = text('profile');
     const avatar = text('avatar');
     const tags = text('tags').split(/[,，\n]+/).map(s => s.trim()).filter(Boolean).slice(0, 24);
-    const gameplayUI = base.gameplay_ui && typeof base.gameplay_ui === 'object' && !Array.isArray(base.gameplay_ui)
-      ? { ...clone(base.gameplay_ui), theme: gameplayTheme() }
-      : null;
+    const gameplayUI = readGameplayUI();
     return {
       ...base,
       id: text('id'), name, title: name,
@@ -247,6 +264,7 @@
     const c = engine.normalize(card || {});
     loading = true;
     base = c;
+    editedThemeFields.clear();
     if (field('dialogue_mode')) field('dialogue_mode').value = c.dialogue?.mode || 'standard';
     renderDialogueCast();
     draftId = chosenDraftId;
@@ -275,6 +293,7 @@
     dirty = false;
     window.BAONPCPersonalityHelper?.reset?.();
     status(chosenDraftId ? '已載入本機草稿' : '新草稿尚未儲存');
+    window.dispatchEvent(new CustomEvent('bao:studio-gameplay-loaded'));
   }
   async function refreshList() {
     const list = $('studio-drafts');
@@ -379,9 +398,15 @@
     builtInIds = new Set((await response.json()).map(entry => entry.id));
     return builtInIds;
   }
+  function confirmGameplay(card) {
+    if (!card.gameplay_ui || !window.BAOGameplayUIComposerCore) return true;
+    const report = window.BAOGameplayUIComposerCore.analyzeDraft(card.gameplay_ui, gameplayCore);
+    return !report.summary.problems || window.confirm(`互動 UI 有 ${report.summary.problems} 個設定提醒。部分內容在遊玩時可能被略過或修正。原始設定仍會保留；要繼續嗎？可回到互動 UI 的設定檢查查看原因。`);
+  }
   async function install() {
     const card = readCard();
     check(card);
+    if (!confirmGameplay(card)) return;
     if ((await builtinIds()).has(card.id)) throw new Error('角色 ID 與網站內建作品重複，請先更換 ID。');
     const existing = engine.loadCustom();
     if (existing.some(x => x.id === card.id) && !window.confirm(`本機角色「${card.id}」已存在。確定更新角色設定嗎？已有的故事存檔不會被改寫。`)) return;
@@ -406,6 +431,7 @@
   function download() {
     const card = readCard();
     check(card);
+    if (!confirmGameplay(card)) return;
     const json = JSON.stringify(toExport(card), null, 2);
     const url = URL.createObjectURL(new Blob([json], { type: 'application/json;charset=utf-8' }));
     const link = document.createElement('a'); link.href = url; link.download = `${card.id}.bao-character.json`; document.body.append(link); link.click(); link.remove();
@@ -444,8 +470,15 @@
   const invalidatePreview = () => $('studio-preview').classList.add('hidden');
   form.addEventListener('input', invalidatePreview);
   form.addEventListener('change', invalidatePreview);
-  form.addEventListener('input', event => { if (event.target.closest?.('#studio-npc-personality')) return; if (!loading) { dirty = true; status('尚未儲存修改'); } });
-  form.addEventListener('change', event => { if (event.target.closest?.('#studio-npc-personality')) return; if (!loading) { dirty = true; status('尚未儲存修改'); } });
+  form.addEventListener('input', event => { if (event.target.closest?.('#studio-npc-personality, #studio-gameplay-composer')) return; if (!loading) { dirty = true; status('尚未儲存修改'); } });
+  form.addEventListener('change', event => { if (event.target.closest?.('#studio-npc-personality, #studio-gameplay-composer')) return; if (!loading) { dirty = true; status('尚未儲存修改'); } });
+  form.addEventListener('input', event => {
+    if (event.target.matches?.('[data-gameplay-theme-control]')) {
+      const key = {gameplay_theme:'preset',gameplay_accent:'accent',gameplay_density:'density',gameplay_radius:'radius',gameplay_meter:'meter'}[event.target.name];
+      if (key) editedThemeFields.add(key);
+      window.dispatchEvent(new CustomEvent('bao:studio-gameplay-theme-changed'));
+    }
+  });
   form.addEventListener('submit', event => event.preventDefault());
   window.addEventListener('beforeunload', event => { if (dirty) { event.preventDefault(); event.returnValue = ''; } });
   run('studio-add-inventory-action', addInventoryAction);
@@ -467,6 +500,24 @@
   });
   window.BAOCharacterStudio = {
     readCard,
+    getGameplayUI: () => clone(readGameplayUI()),
+    getGameplayPreviewData: () => ({initial_state:clone(base.initial_state || {}),world_modules:clone(base.world_modules || [])}),
+    setGameplayUI: ui => {
+      if (editingAction) throw new Error('請先儲存或取消正在編輯的操作按鈕，再調整面板。');
+      const previouslyEnabled = Boolean(base.gameplay_ui) && base.gameplay_ui.enabled !== false;
+      base = {...base,gameplay_ui:clone(ui)};
+      editedThemeFields.clear();
+      if (ui && !previouslyEnabled) {
+        base.supported_display = {...base.supported_display,ui:true};
+        if (base.play_info_surface !== 'phone') base.play_info_surface = 'game-ui';
+      }
+      const theme = gameplayCore.normalizeTheme(ui?.theme);
+      for (const [name,key] of Object.entries({gameplay_theme:'preset',gameplay_accent:'accent',gameplay_density:'density',gameplay_radius:'radius',gameplay_meter:'meter'})) field(name).value=theme[key] || '';
+      syncGameplayThemeControls(Boolean(ui));
+      finishActionEdit(); renderInventoryActions();
+      dirty=true; $('studio-preview').classList.add('hidden'); status('互動 UI 已修改，請儲存草稿。');
+      window.dispatchEvent(new CustomEvent('bao:studio-gameplay-changed'));
+    },
     toExport: card => toExport(card || readCard()),
     listDrafts: () => database('list'),
     createDraft,

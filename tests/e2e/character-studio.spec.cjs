@@ -5,10 +5,7 @@ const name = '雨港的製卡師';
 const roleId = 'e2e-studio-rainport';
 
 test('character studio creates a private draft, previews safely, exports and installs a playable card', async ({ page }) => {
-  await page.goto('./');
-  await page.locator('#home-view [data-view="explore"]').click();
-  await expect(page.getByRole('link', { name: '＋ 角色卡創作室' })).toBeVisible();
-  await page.getByRole('link', { name: '＋ 角色卡創作室' }).click();
+  await page.goto('./character-studio.html');
   await expect(page.getByRole('heading', { name: '角色卡創作室' })).toBeVisible();
   await page.waitForFunction(() => Boolean(window.BAOCharacterStudio && window.BAOCharacterStudioFlow));
   await page.getByRole('button', { name: '全部欄位' }).click();
@@ -17,10 +14,10 @@ test('character studio creates a private draft, previews safely, exports and ins
   await page.locator('[name="description"]').fill('建立在這台裝置的測試角色。');
   await page.locator('[name="system_prompt"]').fill('只扮演雨港的角色，不替玩家行動。');
   await page.locator('[name="greeting"]').fill('<img src=x onerror="window.__cardExecuted = true"> 港口的燈亮了。');
-  await page.getByRole('button', { name: '預覽' }).click();
+  await page.getByRole('button', { name: '預覽', exact: true }).click();
   await expect(page.locator('#studio-preview-greeting')).toContainText('<img src=x onerror=');
   expect(await page.evaluate(() => window.__cardExecuted)).toBeUndefined();
-  await page.getByRole('button', { name: '儲存草稿' }).click();
+  await page.getByRole('button', { name: '儲存草稿', exact: true }).click();
   await expect(page.locator('#studio-status')).toContainText('草稿已儲存');
   expect(await page.evaluate(() => CharacterEngine.loadCustom().length)).toBe(0);
   const drafts = await page.evaluate(() => new Promise((resolve, reject) => {
@@ -41,13 +38,13 @@ test('character studio creates a private draft, previews safely, exports and ins
   await expect(page.locator('[name="greeting"]')).toHaveValue(/港口的燈亮了/);
 
   const downloadPromise = page.waitForEvent('download');
-  await page.getByRole('button', { name: '匯出 BAO/LAB JSON' }).click();
+  await page.getByRole('button', { name: '匯出夜灣 JSON' }).click();
   const download = await downloadPromise;
   const exported = JSON.parse(await fs.readFile(await download.path(), 'utf8'));
   expect(exported.meta.id).toBe(roleId);
   expect(exported.content.greeting).toContain('港口的燈亮了');
   expect(exported).not.toHaveProperty('api_key');
-  await page.getByRole('button', { name: '加入我的角色' }).click();
+  await page.getByRole('button', { name: '加入我的角色', exact: true }).click();
   await expect(page.locator('#studio-status')).toContainText('已加入這台裝置的角色庫');
   const installed = await page.evaluate(() => CharacterEngine.loadCustom().find(c => c.id === 'e2e-studio-rainport'));
   expect(installed.system_prompt).toContain('雨港');
@@ -55,6 +52,7 @@ test('character studio creates a private draft, previews safely, exports and ins
   await page.locator('#home-view [data-view="explore"]').click();
   await expect(page.locator('article').filter({ hasText: name })).toBeVisible();
   await page.locator('article').filter({ hasText: name }).click();
+  await page.getByRole('button', { name: '查看作品', exact: true }).click();
   await expect(page.getByRole('button', { name: '開始故事' })).toBeVisible();
 });
 
@@ -67,6 +65,6 @@ test('studio imports SillyTavern V2 as editable draft without auto publishing', 
   await expect(page.locator('#studio-status')).toContainText('酒館 V2 已轉換');
   await expect(page.locator('[name="name"]')).toHaveValue('酒館可編輯角色');
   expect(await page.evaluate(() => CharacterEngine.loadCustom().length)).toBe(0);
-  await page.getByRole('button', { name: '儲存草稿' }).click();
+  await page.getByRole('button', { name: '儲存草稿', exact: true }).click();
   await expect(page.locator('#studio-status')).toContainText('草稿已儲存');
 });

@@ -1,0 +1,38 @@
+/* Extends the existing author workbench; no author CSS is evaluated here. */
+html.studio-document{scroll-behavior:auto}
+#studio-gameplay-composer{margin:22px 0;min-width:0;color:var(--yoru-text,#f1eee8)}
+#studio-gameplay-composer h3{margin:0 0 8px;font-size:21px;line-height:1.4}
+#studio-gameplay-composer h4{margin:0 0 14px;font-size:17px;line-height:1.5}
+.composer-heading,.composer-pane-heading{display:flex;gap:12px;align-items:start;justify-content:space-between;flex-wrap:wrap}
+#studio-gameplay-composer .note{color:var(--yoru-text-secondary,#c8c2cc);font-size:13px;line-height:1.7;margin:8px 0 14px}
+#studio-gameplay-composer button{min-height:44px;cursor:pointer;font:inherit}
+#studio-gameplay-composer button:disabled{opacity:.5;cursor:not-allowed}
+#studio-gameplay-composer :is(button,input,select,textarea):focus-visible{outline:2px solid var(--yoru-lantern,#e2b66d);outline-offset:2px}
+#studio-gameplay-composer [hidden]{display:none!important}
+.composer-grid{display:grid;grid-template-columns:minmax(170px,.8fr) minmax(220px,1fr) minmax(270px,1.2fr);gap:18px;border-top:1px solid var(--yoru-card-border,#44404a);padding-top:18px}
+.composer-grid>section{min-width:0}
+#studio-gameplay-composer label{display:grid;gap:6px;font-size:13px;line-height:1.6;margin:0 0 14px;overflow-wrap:anywhere}
+#studio-gameplay-composer :is(input,select,textarea){box-sizing:border-box;width:100%;min-width:0;min-height:44px;font:inherit;color:var(--yoru-text,#f1eee8);padding:9px 10px}
+#studio-gameplay-composer textarea{min-height:100px;resize:vertical}
+#studio-gameplay-composer [aria-invalid="true"]{border-color:#e9a3a8}
+.composer-tree-group{margin:0 0 18px}
+.composer-tree-row{margin-bottom:8px;padding:4px 0 10px;border-bottom:1px solid var(--yoru-card-border,#44404a)}
+.composer-tree-row[data-node-path*="sections"]{margin-left:12px}
+.composer-tree-heading{display:flex;gap:6px;align-items:stretch}
+.composer-tree-heading>button[data-composer-selected]{width:100%;text-align:left;white-space:normal;overflow-wrap:anywhere}
+.composer-tree-heading>button[aria-pressed="true"]{color:var(--yoru-lantern,#e2b66d);border-color:var(--yoru-lantern,#e2b66d)}
+.composer-node-tools{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.composer-node-tools button{flex:1;padding:6px 5px;font-size:12px!important}
+.composer-add-section{margin-top:24px}
+.composer-item{margin:16px 0;padding:12px;border:1px solid var(--yoru-card-border,#5b5563);border-radius:12px;min-width:0}
+.composer-item legend{padding:0 6px;font-size:13px}
+.composer-path-field{margin-bottom:16px}
+.composer-preview-scroll{max-width:100%;overflow:auto;margin-top:14px;overscroll-behavior:contain;background:var(--yoru-input,#0f0f12)}
+.composer-preview-scroll iframe{display:block;border:0;max-width:none}
+.composer-diagnostics,.composer-help{margin-top:20px;padding-top:14px;border-top:1px solid var(--yoru-card-border,#44404a);font-size:13px;line-height:1.8;overflow-wrap:anywhere}
+.composer-diagnostics ul{padding-left:20px}.composer-help p{max-width:70ch;color:var(--yoru-text-secondary,#c8c2cc)}
+.composer-pane-nav{display:none}
+@media(max-width:1100px){.composer-pane-nav{display:flex;gap:8px;margin:12px 0}.composer-pane-nav button{flex:1;background:var(--yoru-input,#0f0f12);color:var(--yoru-text,#f1eee8);border:1px solid var(--yoru-card-border,#5b5563);border-radius:8px}.composer-pane-nav button[aria-pressed="true"]{border-color:var(--yoru-lantern,#e2b66d);color:var(--yoru-lantern,#e2b66d)}.composer-grid{display:block}.composer-grid>[data-composer-pane]{display:none}.composer-grid[data-current-pane="structure"]>[data-composer-pane="structure"],.composer-grid[data-current-pane="fields"]>[data-composer-pane="fields"],.composer-grid[data-current-pane="preview"]>[data-composer-pane="preview"]{display:block}}
+@media(prefers-reduced-motion:reduce){#studio-gameplay-composer *{scroll-behavior:auto!important}}
+
+.composer-tree-heading .composer-drag-handle{flex:0 0 44px;cursor:grab;user-select:none;font-size:12px;color:var(--yoru-text-secondary,#c8c2cc);padding:4px}

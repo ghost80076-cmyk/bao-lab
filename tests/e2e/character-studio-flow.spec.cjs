@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+test.use({ reducedMotion: 'reduce' });
 
 test('character studio defaults to a focused creation flow and keeps the full workbench available', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });

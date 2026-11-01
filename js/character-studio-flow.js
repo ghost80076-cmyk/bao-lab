@@ -88,7 +88,7 @@
     if (["system_prompt", "recommended_styles"].some(name => hasField(node, name))) return "core";
     if (hasField(node, "greeting")) return "opening";
     if (node.id === "studio-feature-guide" || ["profile", "world", "lore", "npc_rules", "author_instructions", "creator_notes", "quote"].some(name => hasField(node, name))) return "world";
-    if (node.id === "studio-gameplay-theme" || ["phone_ui_enabled", "dialogue_mode"].some(name => hasField(node, name))) return "appearance";
+    if (["studio-gameplay-theme","studio-gameplay-composer"].includes(node.id) || ["phone_ui_enabled", "dialogue_mode"].some(name => hasField(node, name))) return "appearance";
     if (node.classList?.contains("studio-button-row")) return "finish";
     return "finish";
   };
@@ -331,7 +331,7 @@
     editor.classList.toggle("studio-show-all", showAll);
     applyPanelVisibility();
     if (!showAll) revealActiveStep();
-    if (!showAll) targetFor(activeStep)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (!showAll) targetFor(activeStep)?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
   };
 
   const setActive = id => {
@@ -391,7 +391,7 @@
       field("profile")?.closest("details")?.setAttribute("open", "");
     }
 
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    target.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
 
     revealActiveStep();
 
