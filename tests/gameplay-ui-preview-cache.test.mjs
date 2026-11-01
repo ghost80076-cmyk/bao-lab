@@ -8,9 +8,10 @@ function worker() {
   const listeners = new Map();
   const entries = new Map([['/index.html', new Response('HOME')]]);
   let offline = false;
+  let cacheReads = 0;
   const caches = {
     open: async () => ({ put: async (key, value) => entries.set(key, value) }),
-    match: async key => entries.get(key)?.clone()
+    match: async key => { cacheReads += 1; return entries.get(key)?.clone(); }
   };
   const context = {
     self: { location: { origin: 'https://yorubay.test' }, addEventListener: (name, fn) => listeners.set(name, fn) },
@@ -23,6 +24,7 @@ function worker() {
   vm.runInNewContext(source, context);
   return {
     entries,
+    cacheReads: () => cacheReads,
     goOffline() { offline = true; },
     async navigate(path) {
       let result;
@@ -40,12 +42,14 @@ test('preview HTML cannot replace the offline home shell, including query string
     const sw = worker();
     assert.equal(await (await sw.navigate(path)).text(), 'PREVIEW');
     assert.equal(await sw.entries.get('/index.html').clone().text(), 'HOME');
+    assert.equal(sw.cacheReads(), 0);
     sw.goOffline();
     const unavailable = await sw.navigate(path);
     assert.equal(unavailable.status, 503);
     assert.match(unavailable.headers.get('content-type'), /text\/plain/);
     assert.equal(unavailable.headers.get('cache-control'), 'no-store');
     assert.doesNotMatch(await unavailable.text(), /HOME|<script/);
+    assert.equal(sw.cacheReads(), 0, 'preview must not consult app caches');
     assert.equal(await (await sw.navigate('/')).text(), 'HOME');
   }
 });

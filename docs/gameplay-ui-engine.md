@@ -347,3 +347,10 @@ UI 草稿使用 `{ option, custom }`；`gameplaySetup` 與世界狀態只儲存�
 ```
 
 `kind: "story"` 是 opt-in；未設定的既有作品維持原本 `gameplay` Builder 外觀與行為。
+
+
+## 作者預覽（P0，最小版）
+
+專用 `gameplay-ui-preview.html` 透過 postMessage 接收草稿與測試 state，以正式 renderer 繪製單一 Panel。完整限制與接入方式見 [編排器 P0 說明](gameplay-ui-composer-p0.md)。
+
+父頁 client 會在送出前驗證 JSON 與 UTF-8 大小，拒絕時回傳 `{ok:false,reason}` 並觸發 `error` 事件，不改最後一次有效預覽。`rendered.presentation` 是實際的單面板模式，`resolvedPresentation` 是正式 Stage resolver 判斷；`fidelity: single-panel`、`layoutExact: false` 表示桌機舞臺布局尚未預覽，頁面也會顯示提醒。

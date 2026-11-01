@@ -37,8 +37,12 @@
     return false;
   }
 
-  const byteSize = value => {
-    try { return new TextEncoder().encode(JSON.stringify(value)).byteLength; } catch (_) { return Infinity; }
+  /** UTF-8 byte length of a string (String.length counts UTF-16 units, which undercounts CJK text). */
+  const utf8ByteLength = text => new TextEncoder().encode(text).byteLength;
+
+  /** Serialized payload size in UTF-8 bytes; Infinity when it cannot be serialized. */
+  const payloadBytes = value => {
+    try { return utf8ByteLength(JSON.stringify(value)); } catch (_) { return Infinity; }
   };
 
   const fail = reason => ({ ok: false, reason });
@@ -59,11 +63,17 @@
     if (typeof data.type !== 'string' || !rule.allowed.includes(data.type)) return fail('bad_type');
     if (data.payload !== undefined && !isObject(data.payload)) return fail('bad_payload');
     const payload = data.payload || {};
-    if (!isPlainJSON(payload)) return fail('payload_not_plain_json');
-    if (byteSize(payload) > MAX_BYTES) return fail('payload_too_large');
-    const typed = checkPayload(data.type, payload);
-    if (!typed.ok) return typed;
+    const checked = validatePayload(data.type, payload);
+    if (!checked.ok) return checked;
     return { ok: true, type: data.type, payload };
+  }
+
+  /** Shape, JSON-safety and size checks for one payload; the sender can run it before posting. */
+  function validatePayload(type, payload) {
+    if (!isObject(payload)) return fail('bad_payload');
+    if (!isPlainJSON(payload)) return fail('payload_not_plain_json');
+    if (payloadBytes(payload) > MAX_BYTES) return fail('payload_too_large');
+    return checkPayload(type, payload);
   }
 
   function checkPayload(type, payload) {
@@ -78,5 +88,5 @@
 
   const makeMessage = (type, payload = {}) => ({ channel: CHANNEL, version: VERSION, type, payload });
 
-  return Object.freeze({ CHANNEL, VERSION, MAX_BYTES, MAX_DEPTH, TO_PREVIEW, FROM_PREVIEW, isPlainJSON, validateMessage, makeMessage });
+  return Object.freeze({ CHANNEL, VERSION, MAX_BYTES, MAX_DEPTH, TO_PREVIEW, FROM_PREVIEW, isPlainJSON, utf8ByteLength, payloadBytes, validatePayload, validateMessage, makeMessage });
 });

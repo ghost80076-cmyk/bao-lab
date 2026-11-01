@@ -121,31 +121,122 @@ assert.equal(Protocol.validateMessage({ data: msg('ready'), origin, source: win 
 assert.equal(Protocol.validateMessage({ data: msg('render', { schema: {} }), origin, source: win }, parentRule).reason, 'bad_type', 'the parent never accepts render commands');
 
 
+// --- review round: diagnostics must not under-report --------------------------------------------
+const pathOf = n => JSON.stringify(n.path);
+const find = (rep, path) => rep.nodes.find(n => pathOf(n) === JSON.stringify(path));
+const panel = (id, extra = {}) => ({ id, label: id, sections: [meterSection], ...extra });
 
-// Whole-schema diagnostics must agree with the runtime, including filtered siblings.
-const validPanel = { id: 'same', sections: [meterSection] };
-const duplicates = Composer.analyzeDraft({ version: 1, panels: [validPanel, validPanel] }, Core);
-assert.equal(duplicates.schema.panels.length, 1);
-assert.ok(duplicates.nodes.some(n => n.reason === 'duplicate_panel_id'));
-for (const raw of [{ version: 99, panels: [validPanel] }, { enabled: false, panels: [validPanel] }, {}]) {
-  const result = Composer.analyzeDraft(raw, Core);
-  assert.equal(result.schema, null);
-  assert.ok(result.summary.problems > 0, 'an unusable schema cannot report a clean draft');
+// the shipped demo card reports no problems (no false positives)
+const demoReport = Composer.analyzeDraft(demo(), Core);
+assert.equal(demoReport.summary.problems, 0, JSON.stringify(demoReport.nodes.filter(n => n.status !== 'ok')));
+assert.equal(demoReport.summary.schemaValid, true);
+
+// two panels with the same id: the preview keeps one, the diagnosis must say which was dropped
+const dupDraft = { version: 1, panels: [panel('status'), panel('status', { label: 'again' })] };
+const dupSnapshot = JSON.stringify(dupDraft);
+const dupReport = Composer.analyzeDraft(dupDraft, Core);
+assert.equal(dupReport.schema.panels.length, 1, 'preview really shows only one of them');
+assert.equal(find(dupReport, ['panels', 0]).status, 'ok');
+assert.equal(find(dupReport, ['panels', 1]).status, 'duplicate');
+assert.equal(find(dupReport, ['panels', 1]).reason, 'panel_duplicate_id');
+assert.equal(dupReport.summary.duplicates, 1);
+assert.ok(dupReport.summary.problems > 0);
+assert.equal(JSON.stringify(dupDraft), dupSnapshot, 'draft untouched, duplicate kept');
+
+// whole-schema rejection is reported, with the reason
+const v99 = Composer.analyzeDraft({ version: 99, panels: [panel('status')] }, Core);
+assert.equal(v99.schema, null);
+assert.equal(v99.summary.schemaValid, false);
+assert.equal(find(v99, []).status, 'invalid');
+assert.equal(find(v99, []).reason, 'schema_version_unsupported');
+assert.equal(Composer.analyzeDraft({ version: 1, enabled: false, panels: [panel('a')] }, Core).nodes[0].reason, 'schema_disabled');
+assert.equal(Composer.analyzeDraft({ version: 1 }, Core).nodes[0].reason, 'schema_has_no_usable_content');
+assert.equal(Composer.analyzeDraft({}, Core).nodes[0].reason, 'schema_has_no_usable_content');
+assert.equal(Composer.analyzeDraft(null, Core).nodes[0].reason, 'schema_not_object');
+assert.equal(Composer.analyzeDraft([], Core).nodes[0].reason, 'schema_not_object');
+for (const bad of [null, {}, { version: 99 }, { version: 1, panels: [{ id: 'x', sections: [] }] }]) {
+  const rep = Composer.analyzeDraft(bad, Core);
+  assert.equal(rep.schema, null);
+  assert.ok(rep.summary.problems > 0, 'an empty schema is never reported as "no problems"');
 }
-const nested = { version: 1, panels: [{ id: 'p', sections: [{ type: 'tabs', tabs: [
-  { id: 'one', sections: [meterSection, { type: 'tabs', tabs: [] }] },
-  { id: 'one', sections: [meterSection] }
-] }] }] };
-const nestedReport = Composer.analyzeDraft(nested, Core);
-assert.ok(nestedReport.nodes.some(n => n.reason === 'duplicate_tab_id'));
-assert.ok(nestedReport.nodes.some(n => n.reason === 'section_invalid_or_empty' && n.path.length > 4));
-const demoRoundTrip = demo();
-demoRoundTrip.future = { preserve: [1, 2] };
-const untouched = Composer.cloneDraft(demoRoundTrip);
-Composer.analyzeDraft(untouched, Core);
-assert.deepEqual(untouched, demoRoundTrip, 'unknown fields survive a no-edit round trip');
-assert.equal(ok(msg('render', { schema: { note: '漢'.repeat(100000) } })).reason, 'payload_too_large');
-assert.equal(ok(msg('render', { schema: { note: '😀'.repeat(70000) } })).reason, 'payload_too_large');
-assert.equal(ok(msg('render', { schema: { note: '漢'.repeat(1000) } })).ok, true);
+assert.equal(Composer.analyzeDraft({ version: '1', panels: [panel('a')] }, Core).summary.problems, 0, 'string "1" is accepted by the core, so it is not flagged');
 
-console.log('Gameplay UI composer core PASS: exports, immutability, diagnostics, nested tabs, round trip, UTF-8 protocol');
+// the cap counts VALID panels only, exactly like the core (invalid ones do not use up a slot)
+const mixed = { version: 1, panels: [{ id: 'blank', sections: [] }, ...Array.from({ length: Core.MAX_PANELS + 1 }, (_, i) => panel(`p${i}`))] };
+const mixedReport = Composer.analyzeDraft(mixed, Core);
+assert.equal(find(mixedReport, ['panels', 0]).status, 'incomplete');
+assert.equal(find(mixedReport, ['panels', Core.MAX_PANELS + 1]).status, 'over_limit', 'only the 9th valid panel is over the cap');
+assert.equal(find(mixedReport, ['panels', Core.MAX_PANELS]).status, 'ok');
+assert.equal(mixedReport.schema.panels.length, Core.MAX_PANELS);
+const oneBlank = { version: 1, panels: [{ id: 'blank', sections: [] }, ...Array.from({ length: Core.MAX_PANELS }, (_, i) => panel(`q${i}`))] };
+assert.equal(Composer.analyzeDraft(oneBlank, Core).summary.overLimit, 0, 'a blank panel plus 8 valid ones is not over the cap');
+
+// layout references that the core silently clears
+const layoutOf = layout => Composer.analyzeDraft({ version: 1, layout, panels: [panel('status'), panel('world')] }, Core);
+assert.equal(layoutOf({ preset: 'rpg-dashboard', left_panel: 'status', right_panel: 'world' }).summary.problems, 0);
+assert.equal(find(layoutOf({ preset: 'rpg-dashboard', left_panel: 'ghost', right_panel: 'world' }), ['layout', 'left_panel']).reason, 'layout_panel_not_found');
+assert.equal(find(layoutOf({ preset: 'rpg-dashboard', left_panel: 'status', right_panel: 'status' }), ['layout', 'right_panel']).reason, 'layout_right_same_as_left');
+assert.equal(find(layoutOf({ preset: 'terminal', primary_panel: 'ghost' }), ['layout', 'primary_panel']).status, 'unresolved');
+assert.equal(find(layoutOf({ preset: 'scene-rpg', right_panel: 'ghost' }), ['layout', 'right_panel']).status, 'unresolved');
+assert.equal(find(layoutOf({ preset: 'hologram' }), ['layout', 'preset']).reason, 'layout_preset_unknown');
+const dropped = Composer.analyzeDraft({ version: 1, layout: { preset: 'rpg-dashboard', left_panel: 'blank' }, panels: [panel('status'), { id: 'blank', sections: [] }] }, Core);
+assert.equal(find(dropped, ['layout', 'left_panel']).status, 'unresolved', 'layout pointing at a panel that was dropped');
+
+// tabs: duplicate tab ids, empty tabs, nested tabs and bad children are all visible
+const tabsDraft = { version: 1, panels: [{ id: 'archive', label: 'A', sections: [{
+  type: 'tabs', id: 'archive_tabs', tabs: [
+    { id: 'live', label: '即時', sections: [meterSection, { type: 'meters', items: [] }] },
+    { id: 'live', label: '同名', sections: [meterSection] },
+    { id: 'empty', label: '空', sections: [] },
+    { id: 'nest', label: '巢狀', sections: [{ type: 'tabs', tabs: [{ id: 'x', sections: [meterSection] }] }] }
+  ] }] }] };
+const tabsSnapshot = JSON.stringify(tabsDraft);
+const tabsReport = Composer.analyzeDraft(tabsDraft, Core);
+const tabPath = (...rest) => ['panels', 0, 'sections', 0, 'tabs', ...rest];
+assert.equal(find(tabsReport, tabPath(0)).status, 'ok');
+assert.equal(find(tabsReport, tabPath(0, 'sections', 0)).status, 'ok');
+assert.equal(find(tabsReport, tabPath(0, 'sections', 1)).status, 'incomplete', 'bad child inside a tab');
+assert.equal(find(tabsReport, tabPath(1)).status, 'duplicate');
+assert.equal(find(tabsReport, tabPath(2)).status, 'incomplete');
+assert.equal(find(tabsReport, tabPath(3, 'sections', 0)).reason, 'nested_tabs_not_allowed');
+assert.equal(tabsReport.schema.panels[0].sections[0].tabs.length, 1, 'only the first "live" tab survives in the preview');
+assert.equal(JSON.stringify(tabsDraft), tabsSnapshot);
+
+// --- review round: payload size is measured in UTF-8 bytes ----------------------------------------
+assert.equal(Protocol.utf8ByteLength('abc'), 3);
+assert.equal(Protocol.utf8ByteLength('é'), 2);
+assert.equal(Protocol.utf8ByteLength('中'), 3);
+assert.equal(Protocol.utf8ByteLength('😀'), 4, 'a surrogate pair is one 4-byte character');
+assert.equal(Protocol.utf8ByteLength('中文😀a'), 3 + 3 + 4 + 1);
+assert.equal(Protocol.utf8ByteLength('\ud800'), 3, 'a lone surrogate is encoded as U+FFFD (3 bytes)');
+assert.equal(Protocol.utf8ByteLength(''), 0);
+for (const sample of ['', 'plain ascii', '中文測試', 'mix 中 é 😀 \u0000 "quote"', '𠮷野家']) {
+  assert.equal(Protocol.utf8ByteLength(sample), Buffer.byteLength(sample, 'utf8'), `matches Buffer for ${JSON.stringify(sample)}`);
+}
+const cjk = '中'.repeat(90000); // 90,000 UTF-16 units but 270,000 UTF-8 bytes
+assert.ok(cjk.length < Protocol.MAX_BYTES && Buffer.byteLength(cjk) > Protocol.MAX_BYTES);
+assert.equal(ok(msg('set-state', { state: { text: cjk } })).reason, 'payload_too_large', 'about 300 KB of Chinese text is rejected');
+assert.equal(Protocol.validatePayload('set-state', { state: { text: cjk } }).reason, 'payload_too_large');
+const overhead = Protocol.payloadBytes({ state: { s: '' } });
+const exact = n => ({ state: { s: 'x'.repeat(n) } });
+assert.equal(Protocol.payloadBytes(exact(Protocol.MAX_BYTES - overhead)), Protocol.MAX_BYTES);
+assert.equal(ok(msg('set-state', exact(Protocol.MAX_BYTES - overhead))).ok, true, 'exactly MAX_BYTES is allowed');
+assert.equal(ok(msg('set-state', exact(Protocol.MAX_BYTES - overhead + 1))).reason, 'payload_too_large', 'one byte more is rejected');
+const cjkFit = (Protocol.MAX_BYTES - overhead) / 3;
+assert.equal(ok(msg('set-state', { state: { s: '中'.repeat(Math.floor(cjkFit)) } })).ok, true);
+assert.equal(ok(msg('set-state', { state: { s: '中'.repeat(Math.floor(cjkFit) + 1) } })).reason, 'payload_too_large');
+assert.equal(Protocol.validatePayload('render', { schema: demo(), state: {}, panelId: 'status' }).ok, true);
+assert.equal(Protocol.validatePayload('render', { schema: [] }).reason, 'render_needs_schema');
+assert.equal(Protocol.validatePayload('render', 'x').reason, 'bad_payload');
+
+console.log('Gameplay UI composer core PASS: exports, normalize immutability, draft preservation, preview protocol');
+
+// Preserve unknown data and diagnose children even when all tabs are invalid.
+{
+ const original = demo(); original.future = { preserve: [1, 2] };
+ const copy = Composer.cloneDraft(original);
+ Composer.analyzeDraft(copy, Core);
+ assert.deepEqual(copy, original);
+ const raw = {version: 1, panels: [{id: 'p', sections: [{type: 'tabs', tabs: [{id:'t', sections: [{type:'tabs', tabs:[]}]}]}]}]};
+ assert.ok(Composer.analyzeDraft(raw, Core).nodes.some(n => n.reason === 'nested_tabs_not_allowed'));
+}

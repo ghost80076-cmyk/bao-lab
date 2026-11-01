@@ -13,6 +13,7 @@
   const root = document.getElementById('game-ui');
   const tabs = document.getElementById('preview-tabs');
   const panelHost = document.getElementById('ui-panel');
+  const fidelityNote = document.getElementById('preview-fidelity');
   if (!Protocol || !Iso || !UI || !root || !tabs || !panelHost) throw new Error('preview page is missing a dependency');
 
   const clone = value => JSON.parse(JSON.stringify(value ?? null));
@@ -38,6 +39,9 @@
     const stage = Stage && schema
       ? Stage.resolve({ gameplay: schema, viewport: tier, width: window.innerWidth })
       : null;
+    const layoutExact = Boolean(stage) && stage.presentation !== 'embedded';
+    if (fidelityNote) fidelityNote.hidden = layoutExact || !ok;
+    document.documentElement.dataset.previewLayoutExact = String(layoutExact);
     Iso.post('rendered', {
       ok: Boolean(ok),
       panelId: activePanel,
@@ -47,7 +51,9 @@
       shell: stage ? stage.shell : '',
       presentation: 'panel',
       resolvedPresentation: stage ? stage.presentation : '',
-      previewScope: 'panel'
+      previewScope: 'panel',
+      fidelity: 'single-panel',
+      layoutExact
     });
   };
 

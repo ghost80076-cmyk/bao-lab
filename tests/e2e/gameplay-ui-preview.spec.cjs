@@ -82,6 +82,10 @@ test('resizing the iframe changes the real viewport, the Stage tier and the prod
     expect(rendered.presentation).toBe('panel');
     expect(rendered.previewScope).toBe('panel');
     expect(rendered.resolvedPresentation).toBe(presentation);
+    expect(rendered.fidelity).toBe('single-panel');
+    expect(rendered.layoutExact).toBe(presentation !== 'embedded');
+    if (presentation === 'embedded') await expect(frame.locator('#preview-fidelity')).toBeVisible();
+    else await expect(frame.locator('#preview-fidelity')).toBeHidden();
     // The iframe document itself reports the same width, i.e. media queries use the iframe viewport.
     expect(await page.frames().find(f => f !== page.mainFrame()).evaluate(() => window.innerWidth)).toBe(width);
   };
@@ -200,9 +204,40 @@ test('preview preserves existing parent storage and labels its limited layout sc
   await page.waitForFunction(() => window.harness.messages.some(m => m.type === 'ready'));
   await page.evaluate(([s, state]) => window.client.render(s, state, 'status'), [meterSchema(), hpState(30)]);
   const frame = page.frameLocator('#preview');
-  await expect(frame.getByRole('note')).toContainText('單面板預覽');
+  await expect(frame.getByRole('note').filter({ hasText: 'P0 單面板預覽' })).toBeVisible();
   await expect(frame.locator('.gameplay-meter')).toContainText('30 / 50');
   await page.evaluate(() => window.client.reset());
   expect(await page.evaluate(() => localStorage.getItem('preview-sentinel'))).toBe('existing-story');
   expect(await page.evaluate(() => sessionStorage.getItem('preview-sentinel'))).toBe('existing-session');
+});
+
+test('a plain gameplay schema is reported as an exact single-panel layout, without the warning', async ({ page }) => {
+  const frame = await openHarness(page);
+  await page.evaluate(([schema, state]) => window.client.render(schema, state, 'status'), [meterSchema(), hpState(30)]);
+  await expect(frame.locator('.gameplay-meter')).toHaveCount(1);
+  await page.evaluate(() => window.client.setViewport(1600, 700));
+  await expect.poll(async () => (await lastRendered(page)).width).toBe(1600);
+  const rendered = await lastRendered(page);
+  expect(rendered).toMatchObject({ shell: 'gameplay', presentation: 'panel', fidelity: 'single-panel', layoutExact: true });
+  await expect(frame.locator('#preview-fidelity')).toBeHidden();
+});
+
+test('the client reports oversize or malformed drafts instead of dropping them silently', async ({ page }) => {
+  const frame = await openHarness(page);
+  await page.evaluate(([schema, state]) => window.client.render(schema, state, 'status'), [meterSchema(), hpState(30)]);
+  await expect(frame.locator('.gameplay-meter')).toContainText('30 / 50');
+  const outcome = await page.evaluate(() => {
+    window.clientErrors = [];
+    window.client.on('error', e => window.clientErrors.push(e));
+    // ~270 KB of UTF-8 in only 90,000 UTF-16 units: must be rejected by byte size, not string length
+    const big = window.client.setState({ modules: { note: '中'.repeat(90000) } });
+    const bad = window.client.render([], {}, 'status');
+    return { big, bad, errors: window.clientErrors };
+  });
+  expect(outcome.big.ok).toBe(false);
+  expect(outcome.big.reason).toBe('payload_too_large');
+  expect(outcome.bad.reason).toBe('render_needs_schema');
+  expect(outcome.errors.map(e => e.reason)).toEqual(['payload_too_large', 'render_needs_schema']);
+  // the preview kept its last good state
+  await expect(frame.locator('.gameplay-meter')).toContainText('30 / 50');
 });

@@ -13,16 +13,9 @@
     if (!Protocol) throw new Error('gameplay-ui-preview-protocol-core.js must load first');
     if (!iframe || iframe.tagName !== 'IFRAME') throw new Error('an iframe element is required');
     const origin = options.origin || root.location.origin;
-    const listeners = { ready: [], rendered: [], state: [], notice: [] };
+    const listeners = { ready: [], rendered: [], state: [], notice: [], error: [] };
     let isReady = false;
     let current = null; // last render payload; re-sent whenever the preview document (re)loads
-
-    const send = (type, payload) => {
-      const target = iframe.contentWindow;
-      if (!target) return false;
-      target.postMessage(Protocol.makeMessage(type, payload), origin);
-      return true;
-    };
 
     const emit = (name, payload) => (listeners[name] || []).slice().forEach(fn => { try { fn(payload); } catch (_) {} });
 
@@ -40,14 +33,28 @@
     };
     root.addEventListener('message', onMessage);
 
+    // Payloads are checked here with the same rules the preview applies, so an oversize or malformed
+    // draft is reported to the composer instead of being dropped silently by the iframe.
+    const send = (type, payload) => {
+      const checked = Protocol.validatePayload(type, payload);
+      if (!checked.ok) { emit('error', { type, reason: checked.reason }); return checked; }
+      const target = iframe.contentWindow;
+      if (!target) return { ok: false, reason: 'no_iframe_window' };
+      target.postMessage(Protocol.makeMessage(type, payload), origin);
+      return { ok: true };
+    };
+
     return {
       /** Render a raw draft with a test state. Sent as soon as the iframe says it is ready. */
       render(schema, state, panelId) {
-        current = { schema, state: state || {}, panelId: panelId || '' };
-        if (isReady) send('render', current);
+        const next = { schema, state: state || {}, panelId: panelId || '' };
+        const checked = Protocol.validatePayload('render', next);
+        if (!checked.ok) { emit('error', { type: 'render', reason: checked.reason }); return checked; }
+        current = next;
+        return isReady ? send('render', current) : { ok: true, queued: true };
       },
-      setState(state) { send('set-state', { state: state || {} }); },
-      reset() { send('reset', {}); },
+      setState(state) { return send('set-state', { state: state || {} }); },
+      reset() { return send('reset', {}); },
       /** Change the iframe's actual width (and optionally height) in CSS pixels. */
       setViewport(width, height) {
         iframe.style.width = `${Math.max(240, Math.min(2560, Math.round(Number(width) || 0)))}px`;
