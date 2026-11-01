@@ -58,7 +58,8 @@ test('scene test images remain isolated, survive preview reload, and reject SVG'
  const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=','base64');
  await root.getByLabel('選擇場景測試圖',{exact:true}).setInputFiles({name:'pixel.png',mimeType:'image/png',buffer:png});await expect(root.locator('[data-preview-image-status]')).toContainText('測試圖已載入');
  const img=()=>root.frameLocator('iframe').locator('.gameplay-location-media img');await expect(img()).toHaveAttribute('src',/^blob:/);await expect.poll(()=>img().evaluate(i=>i.naturalWidth)).toBeGreaterThan(0);
- await root.locator('iframe').evaluate(f=>f.contentWindow.location.reload());await expect(img()).toHaveAttribute('src',/^blob:/);await expect.poll(()=>img().evaluate(i=>i.naturalWidth)).toBeGreaterThan(0);
+ const previewFrame=page.frames().find(f=>f.url().includes('gameplay-ui-preview.html'));
+ await Promise.all([previewFrame.waitForNavigation({waitUntil:'load'}),previewFrame.evaluate(()=>location.reload())]);await expect(img()).toHaveAttribute('src',/^blob:/);await expect.poll(()=>img().evaluate(i=>i.naturalWidth)).toBeGreaterThan(0);
  await root.getByRole('button',{name:'清除測試圖',exact:true}).click();await expect(img()).not.toHaveAttribute('src',/^blob:/);
  await root.getByLabel('選擇場景測試圖',{exact:true}).setInputFiles({name:'test.svg',mimeType:'image/svg+xml',buffer:Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"></svg>')});await expect(root.locator('[data-preview-image-status]')).toContainText('PNG、JPEG 或 WebP');
  expect(await page.evaluate(()=>BAOCharacterStudio.getGameplayUI())).toEqual(ui);
