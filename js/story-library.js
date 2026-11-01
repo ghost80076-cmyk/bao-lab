@@ -375,18 +375,98 @@
       });
     },
 
+    // Structural recovery checks only: no model calls, prompt assembly or raw-text logs.
+    recoveryReport(payload, { messageCount = payload?.chat?.messages?.length, checkpoint = null } = {}) {
+      const errors = [], warnings = [];
+      const messages = Array.isArray(payload?.chat?.messages) ? payload.chat.messages : [];
+      const count = Number(messageCount);
+      const cursor = Number(payload?.chat?.summarizedUntil ?? 0);
+      const bounded = value => Number.isInteger(Number(value)) && Number(value) >= 0 && Number(value) <= count;
+      if (!payload?.state || !payload?.config || !payload?.chat || !Array.isArray(payload?.chat?.messages)) errors.push("缺少世界、設定或對話資料");
+      if (!Number.isInteger(count) || count < 0 || messages.length !== count) errors.push("對話範圍與回溯點不一致");
+      if (!bounded(cursor)) errors.push("摘要游標超出回溯範圍");
+      if (cursor > 0 && !String(payload?.chat?.summary || '').trim()) errors.push("摘要游標已有進度，但摘要為空");
+      const ids = new Set(messages.map(item => item?.id).filter(Boolean));
+      if (ids.size !== messages.length) errors.push("對話 ID 缺失或重複");
+      const state = payload?.state || {};
+      for (const [name, pack] of [["Context Pack", payload?.contextPack], ["世界 Context Pack", state.contextPack], ["Context Pack 草稿", state.contextPackDraft]]) {
+        if (pack?.source?.type === 'current-story' && !bounded(pack.source.messageCount)) errors.push(name + " 的來源超出回溯範圍");
+      }
+      if (payload?.contextPack && state.contextPack && JSON.stringify(this.stableValue(payload.contextPack)) !== JSON.stringify(this.stableValue(state.contextPack)))
+        errors.push("存檔與世界的 Context Pack 不一致");
+      const resume = state.contextPackDraftResume?.source;
+      if (resume?.kind === 'current-story' && !bounded(resume.messageCount)) errors.push("Context Pack 續作來源超出回溯範圍");
+      for (const [name, job] of [["完整記憶重建", state.fullMemoryRebuild], ["記憶重建備份", state.fullMemoryRebuildBackup]]) {
+        if (job?.plan?.endIndex != null && (!Number.isInteger(job.plan.endIndex) || job.plan.endIndex < 0 || job.plan.endIndex >= count))
+          errors.push(name + " 的來源超出回溯範圍");
+      }
+      const rebuild = state.fullMemoryRebuild;
+      if (rebuild?.plan?.endId && !ids.has(rebuild.plan.endId)) errors.push("完整記憶重建引用了回溯範圍外的訊息");
+      else if (rebuild?.plan && window.BAOFullMemoryRebuildCore?.restore) {
+        try { window.BAOFullMemoryRebuildCore.restore(messages, rebuild.plan); }
+        catch (_) { errors.push("完整記憶重建的來源原文已變更"); }
+      }
+      if (state.fullMemoryRebuildBackup?.summarizedUntil != null && !bounded(state.fullMemoryRebuildBackup.summarizedUntil))
+        errors.push("記憶重建備份的摘要游標超出回溯範圍");
+      const boundary = checkpoint?.boundary;
+      if (checkpoint) {
+        if (checkpoint.seq !== count - 1 || checkpoint.messageId !== messages.at(-1)?.id || messages.at(-1)?.role !== 'assistant')
+          errors.push("歷史檢查點與回覆不一致");
+        if (boundary) {
+          if (boundary.version !== 1 || boundary.messageCount !== count || boundary.signature !== this.historySignature(messages)) errors.push("歷史檢查點的來源原文已變更");
+        } else warnings.push("舊檢查點缺少來源標記，只能驗證結構，無法證明所有歷史資料的來源");
+      }
+      const pending = Array.isArray(state.pendingStateTurns) ? state.pendingStateTurns.length : 0;
+      if (pending) {
+        warnings.push("仍有 " + pending + " 輪待補狀態；回溯不等於狀態已更新");
+        let position = 0;
+        for (const turn of state.pendingStateTurns) {
+          let found = false;
+          for (; position < messages.length - 1; position++) {
+            if (messages[position]?.role === 'user' && messages[position + 1]?.role === 'assistant'
+              && messages[position].content === turn?.player && messages[position + 1].content === turn?.assistant) {
+              position += 2; found = true; break;
+            }
+          }
+          if (!found) { warnings.push("待補狀態中有無法對應目前對話的來源，請先核對完整備份"); break; }
+        }
+      }
+      const refs = payload?._library || {};
+      if (refs.parentChapterId && (!refs.storyId || !refs.chapterId || refs.parentChapterId === refs.chapterId
+        || !Number.isInteger(refs.branchPointSeq) || refs.branchPointSeq < 0 || refs.branchPointSeq >= count
+        || !refs.branchPointMessageId || messages[refs.branchPointSeq]?.id !== refs.branchPointMessageId))
+        errors.push("分支來源資料不完整");
+      return { ok: !errors.length, errors, warnings, sources: {
+        messages: messages.length, summarizedUntil: cursor, summaryChars: String(payload?.chat?.summary || '').length,
+        memoryItems: Array.isArray(state.memory) ? state.memory.length : 0,
+        memorySlots: Array.isArray(payload?.preferences?.memorySlots) ? payload.preferences.memorySlots.length : 0,
+        contextPack: Boolean(payload?.contextPack || state.contextPack), pendingStateTurns: pending,
+        npcs: Array.isArray(state.npcs) ? state.npcs.length : 0,
+        branch: Boolean(refs.parentChapterId)
+      } };
+    },
+
+    historySignature(messages) {
+      const text = JSON.stringify(messages.map(item => [item.id, item.role, item.content, item.context_content || '']));
+      let hash = 2166136261;
+      for (let i = 0; i < text.length; i++) hash = Math.imul(hash ^ text.charCodeAt(i), 16777619);
+      return text.length + ':' + (hash >>> 0).toString(16);
+    },
+
     checkpointRecord(payload, refs) {
       const messages = Array.isArray(payload.chat?.messages) ? payload.chat.messages : [];
       let seq = -1;
       for (let index = messages.length - 1; index >= 0; index -= 1) {
         if (messages[index]?.role === "assistant") { seq = index; break; }
       }
-      if (seq < 0 || !messages[seq]?.id) return null;
+      // A pending player turn belongs to the next state, never the previous reply.
+      if (seq < 0 || seq !== messages.length - 1 || !messages[seq]?.id) return null;
       const safe = Storage.scrubSecrets(this.clone(payload));
       delete safe.chat?.messages;
       return {
         id: "checkpoint:" + refs.storyId + ":" + refs.chapterId + ":" + messages[seq].id,
         kind: "checkpoint",
+        boundary: { version: 1, messageCount: messages.length, signature: this.historySignature(messages) },
         storyId: refs.storyId,
         chapterId: refs.chapterId,
         messageId: String(messages[seq].id),
@@ -654,7 +734,12 @@
       payload.chat.messages = sourceMessages
         .filter(record => Number(record.seq) <= Number(point.seq))
         .map(record => this.messageFromRecord(record));
-      payload.chat.summarizedUntil = Math.min(Number(payload.chat.summarizedUntil || 0), payload.chat.messages.length);
+      const expected = Number(point.seq) + 1;
+      const prefix = sourceMessages.filter(record => Number(record.seq) <= Number(point.seq));
+      if (prefix.length !== expected || prefix.some((record, index) => record.seq !== index))
+        throw new Error("歷史對話不連續，沒有建立分支；請先匯出完整故事備份。");
+      const report = this.recoveryReport(payload, { messageCount: expected, checkpoint });
+      if (!report.ok) throw new Error("歷史恢復驗證未通過：" + report.errors.join("；") + "。原故事保留，請先匯出完整備份。");
       const currentRefs = this.refs();
       if (currentRefs.storyId !== sourceRefs.storyId || currentRefs.chapterId !== sourceRefs.chapterId) throw new Error("故事已切換，請重新選擇分支起點。");
       const refs = this.beginBranch({ label, messageId, seq: point.seq, preview: point.content });
@@ -880,3 +965,4 @@
   window.BAOStoryLibrary = StoryLibrary;
   StoryLibrary.open().finally(() => StoryLibrary.install());
 })();
+
