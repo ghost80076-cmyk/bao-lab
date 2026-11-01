@@ -26,6 +26,10 @@ jobs:
           node-version: 22
       - name: Minimal usage signals
         run: node tests/usage-signals-core.cjs
+      - name: Gemini relay environment diagnostics
+        run: |
+          python3 tests/gemini-relay-env.test.py
+          node tests/aws-relay-live-audit-core.cjs
       - name: Regex chat worker regression
         run: |
           node --check js/regex-chat-worker.js

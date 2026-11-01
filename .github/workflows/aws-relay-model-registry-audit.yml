@@ -7,6 +7,8 @@ on:
       - data/presets/models.json
       - scripts/audit-aws-openrouter-models.cjs
       - scripts/build-aws-relay-config-audit-parameters.cjs
+      - scripts/audit-gemini-relay-env.py
+      - tests/gemini-relay-env.test.py
       - .github/workflows/aws-relay-model-registry-audit.yml
   workflow_dispatch:
 
@@ -25,6 +27,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Validate read-only model diagnostics
+        run: |
+          python3 tests/gemini-relay-env.test.py
+          node tests/aws-relay-live-audit-core.cjs
 
       - name: Configure short-lived AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
