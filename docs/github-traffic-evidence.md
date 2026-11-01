@@ -5,7 +5,7 @@
 ## 啟用步驟
 
 1. 在來源 Repo 的 **Settings → Secrets and variables → Actions → Secrets**，新增 `TRAFFIC_READ_TOKEN`：Fine-grained PAT，僅選 `ghost80076-cmyk/bao-lab`，設定 **Administration: Read-only**，其他權限保持最低。
-2. **必須**建立另一個 **Private Repository**（如 `ghost80076-cmyk/yorubay-traffic-evidence`）。請勿把存證資料放在 Public Repo。
+2. **必須**建立另一個 **Private Repository**（如 `ghost80076-cmyk/yorubay-traffic-evidence`），建立時勾選 **Add a README** 以初始化預設分支。請勿把存證資料放在 Public Repo。
 3. 在來源 Repo Actions 新增 **Variable** `TRAFFIC_ARCHIVE_REPO` = `owner/private-repo`；新增 **Secret** `TRAFFIC_ARCHIVE_TOKEN`（Fine-grained PAT，僅給該私人 Repo 的 **Contents: Read and write**）。
 4. 合併 PR 後，在 **Actions → GitHub Traffic Evidence → Run workflow** 手動執行。此後每天 **UTC 09:17（台灣時間 17:17）** 排程擷取；排程可能延遲。
 5. 在私人目的地 Repo 的 `traffic-snapshots/YYYY-MM-DD/` 查看原始 JSON 與 Markdown 摘要。每次 Run/Attempt 各有獨立快照；相同檔名不會覆寫。
@@ -15,6 +15,7 @@
 **安全設計：** Public Repository 的 Actions Logs、Summary、Artifacts 也可能被外界讀取，因此本流程**不會在其中輸出 Clone 數字、逐日數據或 JSON**。GitHub Actions Summary 僅提供泛用成功訊息；完整內容只在你指定的私人 Repo。
 
 來源 Repo 的 Traffic 讀取權杖與私人目的地寫入權杖分開，避免權限交叉。前者不需要寫入程式碼；後者不需要來源 Repo 的 Administration 權限。
+
 ## 資料定義與判讀限制
 
 - Traffic 的 `count`、`uniques` 以及逐日數列均由 GitHub 官方 REST API 取得。每日日期為 **UTC**，有效視窗只有最近 **14 天**；過期日期無法補抓。
