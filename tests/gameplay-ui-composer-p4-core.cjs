@@ -84,3 +84,6 @@ const Protocol=require('../js/gameplay-ui-preview-protocol-core.js');
 }
 
 console.log('Gameplay UI composer P4 PASS: templates, state seed, contrast, builder diagnostics and bounded image protocol');
+
+assert.ok(Protocol.TO_PREVIEW.includes('refresh'));
+assert.equal(Protocol.validatePayload('refresh',{}).ok,true);

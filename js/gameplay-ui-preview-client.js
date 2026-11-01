@@ -15,6 +15,7 @@
     const origin = options.origin || root.location.origin;
     const listeners = { ready: [], rendered: [], state: [], notice: [], error: [] };
     let isReady = false;
+    let viewportFrame = 0;
     let currentImage = null; // last test image payload, re-sent with every reloaded preview document
     let current = null; // last render payload; re-sent whenever the preview document (re)loads
 
@@ -68,9 +69,11 @@
       setViewport(width, height) {
         iframe.style.width = `${Math.max(240, Math.min(2560, Math.round(Number(width) || 0)))}px`;
         if (height) iframe.style.height = `${Math.max(240, Math.round(Number(height)))}px`;
+        root.cancelAnimationFrame(viewportFrame);
+        if(isReady)viewportFrame=root.requestAnimationFrame(()=>send('refresh',{}));
       },
       on(name, fn) { if (listeners[name]) listeners[name].push(fn); return () => { listeners[name] = listeners[name].filter(x => x !== fn); }; },
-      destroy() { root.removeEventListener('message', onMessage); Object.keys(listeners).forEach(k => { listeners[k] = []; }); }
+      destroy() { root.cancelAnimationFrame(viewportFrame); root.removeEventListener('message', onMessage); Object.keys(listeners).forEach(k => { listeners[k] = []; }); }
     };
   }
 

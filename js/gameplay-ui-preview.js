@@ -123,6 +123,8 @@
     else if (result.type === 'set-state') {
       window.GameState.current = baseState(result.payload.state);
       draw();
+    } else if(result.type==='refresh') {
+      draw(); // redraw after the parent lays out the iframe; preserve preview state and action draft
     } else if (result.type === 'set-image') {
       if (Iso.setSceneImage(result.payload.mime,result.payload.data)) draw();
     } else if (result.type === 'reset' && initial) load(initial);

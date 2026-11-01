@@ -43,6 +43,10 @@ for(const width of [390,1440])test(`fullscreen preview returns focus and viewpor
  const root=await open(page,width,base());await pane(root,'預覽');const opener=root.getByRole('button',{name:'展開預覽',exact:true});await opener.click();
  const dialog=root.getByRole('dialog',{name:'互動 UI 放大預覽'});await expect(dialog).toBeVisible();await dialog.getByLabel('預覽寬度').selectOption('900');
  await expect.poll(()=>dialog.locator('iframe').evaluate(f=>f.contentWindow.innerWidth)).toBe(900);
+ await dialog.frameLocator('iframe').getByLabel('預覽行動草稿',{exact:true}).fill('保留這段預覽草稿');
+ await dialog.getByLabel('預覽寬度').selectOption('390');
+ await expect.poll(()=>dialog.locator('iframe').evaluate(f=>f.contentWindow.innerWidth)).toBe(390);
+ await expect(dialog.frameLocator('iframe').getByLabel('預覽行動草稿',{exact:true})).toHaveValue('保留這段預覽草稿');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await dialog.screenshot({path:info.outputPath('fullscreen.png')});await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();await expect(opener).toBeFocused();await expect(root.locator('.composer-grid iframe')).toHaveCount(1);
 });

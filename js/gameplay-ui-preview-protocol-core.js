@@ -18,7 +18,7 @@
   const BLOCKED_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
 
   // parent -> preview
-  const TO_PREVIEW = Object.freeze(['render', 'set-state', 'reset', 'set-image']);
+  const TO_PREVIEW = Object.freeze(['render', 'set-state', 'reset', 'set-image', 'refresh']);
   // A scene test image travels as base64 inside the JSON payload (the composer downsizes it first).
   const IMAGE_MIMES = Object.freeze(['image/jpeg', 'image/png', 'image/webp']);
   const MAX_IMAGE_CHARS = 200 * 1024;

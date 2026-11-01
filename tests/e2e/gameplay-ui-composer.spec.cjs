@@ -1,12 +1,15 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs/promises');
+test.use({reducedMotion:'reduce'});
 async function open(page,width=1440){
  await page.setViewportSize({width,height:950});await page.goto('/character-studio.html');
  await page.waitForFunction(()=>window.BAOCharacterStudioGameplayComposer&&window.BAOCharacterStudioFlow);
+ await page.waitForFunction(()=>[...document.styleSheets].some(s=>s.href?.includes('character-studio-flow.css')));
+ await page.evaluate(()=>document.fonts.ready);
  await page.getByRole('button',{name:'全部欄位',exact:true}).click();
  return page.locator('#studio-gameplay-composer');
 }
-async function pane(root,name){const b=root.getByRole('button',{name,exact:true});if(await b.isVisible())await b.click();}
+async function pane(root,name){const b=root.getByRole('button',{name,exact:true});if(await b.isVisible()){await b.focus();await b.press('Enter');await expect(b).toHaveAttribute('aria-pressed','true');}}
 for(const width of [1440,390])test(`authors compose, preview, sort and save without JSON at ${width}px`,async({page},testInfo)=>{
  const root=await open(page,width);
  expect(await page.evaluate(()=>BAOCharacterStudio.readCard().gameplay_ui)).toBeNull();
@@ -47,6 +50,8 @@ for(const width of [1440,390])test(`authors compose, preview, sort and save with
  await root.getByLabel('預覽寬度').selectOption('900');
  expect(await page.evaluate(()=>BAOCharacterStudio.getState().dirty)).toBe(false);
  await page.reload();await page.waitForFunction(()=>window.BAOCharacterStudioGameplayComposer);
+ await page.waitForFunction(()=>[...document.styleSheets].some(s=>s.href?.includes('character-studio-flow.css')));
+ await page.evaluate(()=>document.fonts.ready);
  await page.getByRole('button',{name:'全部欄位',exact:true}).click();
  await page.locator('.studio-draft').filter({hasText:'編排測試'}).click();
  await expect(root.getByRole('button',{name:'選擇面板：角色狀態',exact:true})).toBeVisible();
@@ -104,6 +109,7 @@ test('drag sorting changes the raw order and keeps focus on the moved panel',asy
   BAOCharacterStudio.setGameplayUI({version:1,panels:[{id:'a',label:'面板甲',sections:[]},{id:'b',label:'面板乙',sections:[]}]});
   BAOCharacterStudioGameplayComposer.refresh();
  });
+ await expect(root.locator('[data-preview-stage]')).not.toBeEmpty();
  const rows=root.locator('.composer-tree-group > .composer-tree-row');
  await root.getByRole('button',{name:'拖曳排序：面板甲'}).dragTo(rows.nth(1));
  expect(await page.evaluate(()=>BAOCharacterStudio.getGameplayUI().panels.map(p=>p.id))).toEqual(['b','a']);
