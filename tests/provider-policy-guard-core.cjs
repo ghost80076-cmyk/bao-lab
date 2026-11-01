@@ -81,6 +81,18 @@ test('explicit completion blocks are failures, not successful story/summary outp
   assert.equal(s.guard.isPaused(s.story, route), false);
 });
 
+test('a real narrated story ending with a safety finish stays visible while automatic helpers pause', async () => {
+  const s = setupWithTransport(async () => ({ text: '第24輪故事。', finishReason: 'SAFETY' }));
+  const first = await s.api.send(route, []);
+  const second = await s.api.send(route, []);
+  assert.equal(first.text, '第24輪故事。');
+  assert.equal(second.text, '第24輪故事。');
+  assert.equal(s.guard.isPaused(s.story, route), true);
+  await assert.rejects(s.api.send({ ...route, __stateTask: true }, []),
+    error => error.code === 'BAO_POLICY_CIRCUIT_OPEN');
+  assert.equal(s.calls.length, 2);
+});
+
 test('connection tests and unrelated failures never count as policy rejection', async () => {
   const s = setupWithTransport(async config => {
     if (config.__connectionTest) throw policyError();
