@@ -43,7 +43,12 @@
     if (!App.activeCharacter || !GameState.current) return false;
     close();
     const api = App.config?.api || {};
-    const presets = App.modelPresets || [];
+    const allPresets = App.modelPresets || [];
+    const hostedProvider = window.BAOCreditsPilot?.provider || "bao-credits";
+    const isHostedPreset = preset => preset?.provider === hostedProvider;
+    let presets = allPresets;
+    const initialHosted = api.type === hostedProvider || api.route === hostedProvider ||
+      Boolean(window.BAOCreditsPilot?.isAccountConnection?.(api));
     const localExisting = Boolean(localEndpoint(api.baseUrl, api.protocol || "openai"));
     const keyPlaceholder = localExisting
       ? "本機服務預設免填；有啟用 Token 再填"
@@ -60,6 +65,7 @@
       <p id="bao-chat-api-intro" class="bao-chat-api-intro">直接為目前故事連接或更換模型。故事、對話、記憶與世界狀態都不會重置。</p>
       ${isRetiredMiMo(api.model) ? `<p class="bao-chat-api-retired" role="status">目前故事使用 MiMo V2.5 舊模型。小米官方已停止接受舊 Model ID；OpenRouter 舊路由可能仍有第三方供應。建議從下方選擇 MiMo V2.6 Flash，按「套用到目前故事」才會更換，對話與記憶不會重置。</p>` : ""}
       <form id="bao-chat-api-form" autocomplete="off">
+        <label>連線方式<select name="connectionMode"><option value="hosted">夜灣燈火</option><option value="byok">自備 API／本機模型</option></select></label>
         <label>模型<select name="preset"><option value="custom">自訂／保留現有連線</option>${presets.map((p, i) =>
           `<option value="${i}">${escape(p.provider_label || p.provider || "API")} · ${escape(p.label || p.model || "自訂模型")}</option>`).join("")}</select></label>
         <label>連線金鑰（API Key）<input name="key" type="password" autocomplete="off" spellcheck="false" placeholder="${keyPlaceholder}"></label>
@@ -95,6 +101,10 @@
     const hint = backdrop.querySelector(".bao-chat-api-hint");
     const noAuthMarker = () => window.BAOLMStudioCore?.NO_AUTH || "BAO_LOCAL_NO_AUTH";
     const syncConnectionHint = () => {
+      if (field("connectionMode").value === "hosted") {
+        if (hint) hint.textContent = "使用帳號燈火計費；模型由夜灣連接，無須填寫 API Key。";
+        return;
+      }
       const protocol = field("protocol").value;
       const rawBaseUrl = field("baseUrl").value.trim();
       const target = localEndpoint(rawBaseUrl, protocol);
@@ -103,12 +113,27 @@
         if (hint) hint.textContent = "本機 OpenAI-compatible 連線可免 API Key；僅允許 localhost、127.0.0.1 或 ::1 的 HTTP /v1。";
         return;
       }
-      const canReuse = sameConnection(api, { baseUrl: rawBaseUrl, protocol }) &&
+      const canReuse = !initialHosted && sameConnection(api, { baseUrl: rawBaseUrl, protocol }) &&
         String(api.key || "").trim() && String(api.key || "").trim() !== noAuthMarker();
       field("key").placeholder = canReuse ? "留空會維持目前金鑰（相同連線）" : "貼上自己的連線金鑰";
       if (hint) hint.textContent = "API Key 只保留在目前開啟的頁面記憶體，不寫入故事存檔或備份。";
     };
     const currentInput = () => {
+      if (field("connectionMode").value === "hosted") {
+        const selected = presets[Number(field("preset").value)];
+        if (!isHostedPreset(selected)) throw new Error("請選擇可用的夜灣燈火模型。");
+        const candidate = {
+          ...api, type: selected.provider, route: selected.route,
+          protocol: selected.protocol, model: selected.model,
+          baseUrl: selected.base_url, key: "", local: false,
+          cacheMode: selected.cache || "unknown", explicitCacheModel: "",
+          cacheEnabled: App.config?.memory?.cache !== false
+        };
+        if (!window.BAOCreditsPilot?.prepareAccountConfig?.(candidate)) {
+          throw new Error("請先登入夜灣帳號，再使用夜灣燈火。");
+        }
+        return candidate;
+      }
       const model = field("model").value.trim();
       const rawBaseUrl = field("baseUrl").value.trim();
       const protocol = field("protocol").value;
@@ -120,7 +145,7 @@
       }
       const baseUrl = localTarget?.chatUrl || rawBaseUrl;
       const connection = { baseUrl, protocol };
-      const previousKey = sameConnection(api, connection) ? String(api.key || "").trim() : "";
+      const previousKey = !initialHosted && sameConnection(api, connection) ? String(api.key || "").trim() : "";
       const key = enteredKey || previousKey || (localTarget ? noAuthMarker() : "");
       const selected = presets[Number(field("preset").value)];
       const matchingPreset = selected && selected.protocol === protocol &&
@@ -138,11 +163,42 @@
         explicitCacheModel: explicitCache ? model : "",
         cacheEnabled: App.config?.memory?.cache !== false
       };
-      if (!localTarget && window.BAOCreditsPilot?.prepareAccountConfig?.(candidate)) return candidate;
+      if (!localTarget && window.BAOCreditsPilot?.isAccountConnection?.(candidate)) {
+        throw new Error("使用帳號燈火時，請將連線方式切換為「夜灣燈火」。");
+      }
       if (!candidate.key) throw new Error("請輸入這個模型服務的連線金鑰（API Key）。");
       return candidate;
     };
-    syncConnectionHint();
+    const syncMode = () => {
+      const hosted = field("connectionMode").value === "hosted";
+      presets = allPresets.filter(p => isHostedPreset(p) === hosted);
+      field("preset").innerHTML = (hosted ? "" : '<option value="custom">自訂／保留現有連線</option>') +
+        presets.map((p, i) => `<option value="${i}">${hosted ? "" : `${escape(p.provider_label || p.provider || "API")} · `}${escape(p.label || p.model || "自訂模型")}</option>`).join("");
+      const matching = presets.findIndex(p => p.model === api.model &&
+        (hosted || (p.protocol === api.protocol && normalizeUrl(p.base_url) === normalizeUrl(api.baseUrl))));
+      field("preset").value = matching >= 0 ? String(matching) : hosted && presets.length ? "0" : hosted ? "" : "custom";
+      field("key").value = "";
+      field("key").closest("label").hidden = hosted;
+      advanced.hidden = hosted;
+      for (const name of ["key", "protocol", "model", "baseUrl"]) field(name).disabled = hosted;
+      if (hosted) {
+        const selected = presets[Number(field("preset").value)];
+        field("protocol").value = selected?.protocol || "openai";
+        field("model").value = selected?.model || "";
+        field("baseUrl").value = selected?.base_url || "";
+      } else {
+        // Never turn a Hosted session/endpoint into an editable BYOK connection.
+        field("protocol").value = initialHosted ? "openai" : api.protocol || "openai";
+        field("model").value = initialHosted ? "" : api.model || "";
+        field("baseUrl").value = initialHosted ? "" : displayBaseUrl(api.baseUrl, api.protocol || "openai");
+        syncAdvanced();
+      }
+      setError(hosted && !presets.length ? "目前沒有可用的夜灣燈火模型，請稍後重試。" : "");
+      syncConnectionHint();
+    };
+    field("connectionMode").value = initialHosted ? "hosted" : "byok";
+    field("connectionMode").addEventListener("change", syncMode);
+    syncMode();
     field("baseUrl").addEventListener("input", syncConnectionHint);
     field("protocol").addEventListener("change", syncConnectionHint);
     field("preset").addEventListener("change", () => {
@@ -200,7 +256,7 @@
       } catch (cause) { setError(`連線測試失敗：${cause.message || cause}`); }
       finally { button.disabled = false; }
     };
-    field(window.BAOCreditsPilot?.isAccountReady?.(api) ? "preset" : (hasKey() ? "model" : "key")).focus();
+    field(initialHosted ? "preset" : (hasKey() ? "model" : "key")).focus();
     return true;
   };
 
@@ -257,7 +313,7 @@
       .bao-chat-api-head-actions{display:flex;align-items:center;gap:6px}.bao-chat-api-dialog header h2{margin:0;font-size:22px}.bao-chat-api-dialog header button{font-size:27px;line-height:1;color:inherit;border:0;background:none;cursor:pointer}.bao-chat-api-dialog header [data-api-help]{display:none;width:34px;height:34px;border:1px solid #4c5365;border-radius:10px;background:#171a23;font-size:15px;font-weight:800}
       .bao-chat-api-dialog p{font-size:14px;line-height:1.6;color:#d4d7e4}
       .bao-chat-api-dialog .bao-chat-api-retired{border:1px solid #9b7549;border-radius:10px;padding:10px 12px;color:#ffe3b3;background:#382a203d}
-      .bao-chat-api-dialog form{display:grid;gap:12px}.bao-chat-api-dialog label{display:grid;gap:5px;font-size:14px}
+      .bao-chat-api-dialog [hidden]{display:none!important}.bao-chat-api-dialog form{display:grid;gap:12px}.bao-chat-api-dialog label{display:grid;gap:5px;font-size:14px}
       .bao-chat-api-dialog input,.bao-chat-api-dialog select{box-sizing:border-box;width:100%;min-width:0;padding:10px;border:1px solid #697086;border-radius:8px;background:#141720;color:#fff;font:inherit}
       .bao-chat-api-advanced{border:1px solid #454b5d;border-radius:12px;background:#171a23}
       .bao-chat-api-advanced>summary{cursor:pointer;padding:11px 13px;color:#c9c6d2;font-size:13px}

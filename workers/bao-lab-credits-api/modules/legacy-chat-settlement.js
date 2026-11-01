@@ -115,22 +115,24 @@ async function legacyChatRoute(
     );
   }
 
-  const maxOutput =
+  const requestedMaxOutput =
     body
       ?.max_output_tokens ??
     2048;
 
   if (
     !integer(
-      maxOutput,
+      requestedMaxOutput,
       1,
-      maxOutputForRequest(provider, kind)
+      maxOutputForRequest(requestedProvider, kind)
     )
   ) {
     return fail(
       "invalid_max_output_tokens"
     );
   }
+
+  const maxOutput = Math.min(requestedMaxOutput, maxOutputForRequest(provider, kind));
 
   // Legacy 模式也不再直接拿 UTF-8 bytes 當 token。
   const reserve =
@@ -723,7 +725,7 @@ async function legacyChatRoute(
     finish_reason: result.finishReason || null,
 
     usage: {
-      requested_max_output_tokens: maxOutput,
+      requested_max_output_tokens: requestedMaxOutput,
       effective_max_output_tokens: maxOutput,
       input_tokens:
         verified

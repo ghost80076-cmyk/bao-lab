@@ -115,6 +115,16 @@ const errorCode = async response => (await response.json()).error;
   assert.equal(await errorCode(fullSummaryDenied),'insufficient_credits');
   const chatOverCap=await legacyChatRoute(new Request('https://worker.test/v1/chat',{method:'POST'}),geminiEnv,{},player,{...geminiSummary,request_kind:'chat'});
   assert.equal(chatOverCap.status,400,'legacy story output remains capped at 8192');
+  const routedEnv={MODELS_JSON:JSON.stringify([
+    {provider:'gemini',model:'gemini-3.1-pro-preview'},
+    {provider:'openrouter',model:'google/gemini-3.1-pro-preview'}
+  ])};
+  const routedDb={...deniedDb,prepare(sql){
+    if(sql.includes('hosted_route_overrides')) return {bind(){return {async first(){return {route_id:'openrouter'};}};}};
+    return deniedDb.prepare(sql);
+  }};
+  const routed=await legacyChatRoute(new Request('https://worker.test/v1/chat',{method:'POST'}),routedEnv,routedDb,player,geminiSummary);
+  assert.equal(await errorCode(routed),'insufficient_credits','16K logical summary reaches capped OpenRouter reservation');
   console.log("worker legacy chat settlement core test passed");
 })().catch(error => {
   console.error(error);

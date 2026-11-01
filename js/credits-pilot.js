@@ -210,7 +210,6 @@
     config.key = accountSentinel;
     return true;
   };
-  const upstreamName = model => hostedProviderFor(model) === "openrouter" ? "OpenRouter" : "Google Gemini";
   const providerBlockReasons = new Set(["SAFETY", "BLOCKLIST", "PROHIBITED_CONTENT", "SPII", "IMAGE_SAFETY", "CONTENT_FILTER"]);
   const providerBlockedStage = data => ["input", "output"].includes(data?.blocked_stage) ? data.blocked_stage : "";
   const emptyTextMessage = (name, data) => {
@@ -383,8 +382,12 @@
     try { data = await response.json(); }
     catch { throw new Error(`夜灣 後端回傳了無法解析的內容（HTTP ${response.status}）。`); }
     if (!response.ok) {
-      if (response.status === 401) clearAccountSessionHint();
-      const name = upstreamName(config.model);
+      if (response.status === 401 && data?.error === "unauthorized") clearAccountSessionHint();
+      // Only a server-reported direct route identifies the actual provider.
+      // The model catalog describes defaults; an admin override can change them.
+      const name = data?.route === "direct_openrouter" ? "OpenRouter"
+        : data?.route === "direct_gemini" ? "Google Gemini"
+        : data?.route === "direct_anthropic" ? "Anthropic" : "夜灣模型服務";
       const rateLimitScope = ["rate", "quota", "provider", "unknown"].includes(data?.rate_limit_scope)
         ? data.rate_limit_scope : "unknown";
       const rateLimitMessage = rateLimitScope === "quota"
@@ -412,7 +415,9 @@
           ? `夜灣與 ${name} 的連線結果無法完整確認；本次預留燈火已全數退回，請重新生成。`
           : `夜灣暫時無法確認 ${name} 的本次使用量；請稍後重試。若燈火餘額異常，請回報診斷編號。`,
         provider_empty_text: emptyTextMessage(name, data),
-        provider_http_error: Number(data?.upstream_http_status) >= 500
+        provider_http_error: [401, 403].includes(Number(data?.upstream_http_status))
+          ? `夜灣模型服務驗證或授權失敗（HTTP ${data.upstream_http_status}）。請向管理員回報診斷編號，無須填寫自己的 API Key。`
+          : Number(data?.upstream_http_status) >= 500
           ? `夜灣連線鏈路暫時異常（HTTP ${data.upstream_http_status}）。可能是中轉或供應商服務暫時故障，請稍後重試。`
           : `${name} 拒絕本次請求${data?.upstream_http_status ? `（HTTP ${data.upstream_http_status}）` : ""}。`,
         provider_network_error: `夜灣 後端連到 ${name} 時發生網路或逾時問題。`,
@@ -495,7 +500,7 @@
       }
       throw upstreamError;
     }
-    if (typeof data?.content !== "string" || !data.content.trim()) throw new Error(`${upstreamName(config.model)} 沒有回傳可顯示的文字內容。`);
+    if (typeof data?.content !== "string" || !data.content.trim()) throw new Error("夜灣模型服務沒有回傳可顯示的文字內容。");
     const input = Number.isInteger(data.usage?.input_tokens) ? data.usage.input_tokens : null;
     const output = Number.isInteger(data.usage?.output_tokens) ? data.usage.output_tokens : null;
     const cached = Number.isInteger(data.usage?.cached_tokens) ? data.usage.cached_tokens : null;
@@ -553,6 +558,9 @@
   }
 
   const refreshDialog = backdrop => {
+    // The mode-aware picker owns its filtered indices and credential fields.
+    // Keep the old adapter only for mixed-cache pages with the previous picker.
+    if (backdrop.querySelector('select[name="connectionMode"]')) return;
     const preset = backdrop.querySelector('select[name="preset"]');
     const modelField = backdrop.querySelector('input[name="model"]');
     const baseUrlField = backdrop.querySelector('input[name="baseUrl"]');

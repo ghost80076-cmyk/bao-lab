@@ -174,7 +174,7 @@ window.addEventListener("DOMContentLoaded", () => {
   loadBAOScript("js/experience-preferences-core.js?v=2")
     .then(() => loadBAOScript("js/experience-preferences.js?v=4"))
     .catch(err => console.warn("YoruBay experience preferences unavailable:", err));
-  loadBAOScript("js/chat-api-settings.js?v=3")
+  loadBAOScript("js/chat-api-settings.js?v=4")
     .then(() => loadBAOScript("js/model-discovery.js?v=4"))
     .catch(err => console.warn("BAO/LAB chat API settings or model discovery failed to load:", err));
   loadBAOScript("js/autonomous-world-workbench.js")
@@ -202,7 +202,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/model-routing.js?v=11"))
     .then(() => providerPolicyReady)
     .then(() => loadBAOScript("js/provider-diagnostics.js"))
-    .then(() => loadBAOScript("js/credits-pilot.js?v=1"))
+    .then(() => loadBAOScript("js/credits-pilot.js?v=2"))
     .catch(err => console.warn("BAO/LAB cost, provider compatibility, model routing or Hosted credits controls failed to load:", err));
   loadBAOScript("js/storage-write-guard.js?v=3")
     .then(() => loadBAOScript("js/chat-shell-fix.js?v=2"))
