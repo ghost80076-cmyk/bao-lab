@@ -88,11 +88,22 @@ const state = page => page.evaluate(() => ({
 test('rolls back from a message into a separate branch and can switch to the original story', async ({ page }) => {
   await openDemoStory(page);
   const { firstId, originalChapterId } = await seedStory(page);
-  await revealRollback(page, firstId);
-  const rollbackButton = page.locator(`[data-story-rollback="${firstId}"]`);
-  await expect(rollbackButton).toBeVisible();
-  page.once('dialog', dialog => dialog.accept());
-  await rollbackButton.click();
+  const dialogs = [];
+  page.on('dialog', async dialog => {
+    dialogs.push(dialog.message());
+    await dialog.accept();
+  });
+  // Startup hooks may replace or regroup this menu between visibility and
+  // click. Retry the complete disclosure + click, stopping once confirmed.
+  await expect(async () => {
+    if (dialogs.some(text => text.startsWith('回溯到這則 AI 回覆？'))) return;
+    await revealRollback(page, firstId);
+    await page.locator(`[data-story-rollback="${firstId}"]`).click({ timeout: 1500 });
+  }).toPass({ timeout: 15000 });
+  // restoreStory changes the visible messages before flush/layout/lock release.
+  // Wait for the operation's completion, not that intermediate state.
+  await expect.poll(() => dialogs.some(text => text.startsWith('已回溯至第 1 輪'))).toBe(true);
+  await page.waitForFunction(() => !BAOStoryMaintenanceLock.has(GameState.current));
   await expect.poll(() => page.evaluate(() => Chat.messages.length)).toBe(2);
   const rewound = await state(page);
   expect(rewound).toMatchObject({
