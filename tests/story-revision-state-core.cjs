@@ -36,6 +36,7 @@ global.GameState = {
     location: 'AFTER',
     time: 'midnight',
     pendingStateTurns: [{ player: 'old player', assistant: 'old assistant' }],
+    storyActors: { hostedCharacters: [{ id: 'npc-1', name: '旅館老闆', role: 'additional', personality: '玩家改成沉穩' }] },
     memory: ['old derived memory'],
     config: { api: { key: 'SECRET' } }
   }
@@ -48,7 +49,8 @@ global.Chat = {
       id: 'assistant-1', role: 'assistant', content: '舊版本', activeVariant: 0,
       variants: [{ id: 'variant-old', type: 'original', content: '舊版本' }],
       revisionBase: {
-        state: { location: 'BEFORE', time: 'evening', pendingStateTurns: [], memory: ['prior memory'] },
+        state: { location: 'BEFORE', time: 'evening', pendingStateTurns: [], memory: ['prior memory'],
+          storyActors: { hostedCharacters: [{ id: 'npc-1', name: '旅館老闆', role: 'additional', personality: '舊設定' }] } },
         summary: 'prior summary', summarizedUntil: 0
       }
     }
@@ -131,6 +133,7 @@ vm.runInThisContext(source, { filename: 'js/story-revision-state.js' });
   assert.match(apiCalls.at(-1).messages[0].content, /^STATE:BEFORE/);
   assert.match(apiCalls.at(-1).messages[0].content, /【本次任務】只改寫/);
   assert.equal(GameState.current.location, 'AFTER', 'temporary rollback must be restored after the API call');
+  assert.equal(GameState.current.storyActors.hostedCharacters[0].personality, '玩家改成沉穩', 'temporary story-tool rewind keeps edited NPC settings');
 
   const assistant = Chat.messages[1];
   assistant.variants.push({ id: 'variant-new', type: 'regenerate', content: '新版本' });
@@ -138,9 +141,11 @@ vm.runInThisContext(source, { filename: 'js/story-revision-state.js' });
   assistant.content = '新版本';
   App.saveStory(false);
   assert.equal(saves.at(-1).state.location, 'BEFORE', 'first revision save must not persist stale post-turn state');
+  assert.equal(saves.at(-1).state.storyActors.hostedCharacters[0].personality, '玩家改成沉穩', 'revision save keeps edited NPC settings rather than old snapshot');
   assert.deepEqual(saves.at(-1).state.pendingStateTurns, [], 'stale queued state turns must be rolled back too');
   await BAOStoryRevisionState.whenIdle();
   assert.equal(GameState.current.location, 'DERIVED:新版本');
+  assert.equal(GameState.current.storyActors.hostedCharacters[0].personality, '玩家改成沉穩', 'reconciliation must retain player-edited NPC');
   assert.deepEqual(GameState.current.pendingStateTurns, [{ player: '走進房間', assistant: '新版本' }]);
   assert.equal(Chat.summary, 'summary from selected variant');
   assert.equal(assistant.variants[1].derivedSnapshot.state.location, 'DERIVED:新版本');
@@ -156,6 +161,7 @@ vm.runInThisContext(source, { filename: 'js/story-revision-state.js' });
   App.saveStory(false);
   await BAOStoryRevisionState.whenIdle();
   assert.equal(GameState.current.location, 'DERIVED:舊版本');
+  assert.equal(GameState.current.storyActors.hostedCharacters[0].personality, '玩家改成沉穩', 'switching to cached reply must not undo NPC edits');
   assert.equal(Chat.summary, 'old variant summary');
   assert.equal(apiCalls.length, updatesBefore, 'cached derived variant should not call the story model again');
 
