@@ -11,6 +11,7 @@
       && String(left.protocol || "openai") === String(right.protocol || "openai");
   };
   let decorating = false;
+  let creating = false;
 
   const ensureStyles = () => {
     if (document.querySelector('link[href^="css/story-branches.css"]')) return;
@@ -24,6 +25,29 @@
   const waitForRevisionState = async () => {
     try { await window.BAOStoryRevisionState?.whenIdle?.(); }
     catch (error) { console.warn("BAO/LAB revision reconciliation did not finish before branch operation:", error); }
+  };
+  // Shell rendering schedules its own scroll/layout work. Position only after
+  // that work, using the actual message so both nested and page readers work.
+  const captureReadingPosition = () => ({
+    streamTop: document.querySelector("#chat-stream")?.scrollTop || 0,
+    pageTop: window.scrollY || 0
+  });
+  const positionReader = async (previous = null) => {
+    if (!document.querySelector("#chat-stream")) return;
+    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise(resolve => window.requestAnimationFrame(() => window.requestAnimationFrame(resolve)));
+    const stream = document.querySelector("#chat-stream");
+    if (!stream || !document.querySelector("#chat-view.active")) return;
+    if (previous) {
+      stream.scrollTop = previous.streamTop;
+      window.scrollTo({ top: previous.pageTop, behavior: "instant" });
+      return;
+    }
+    const target = [...stream.querySelectorAll(":scope > .message.assistant")].at(-1);
+    if (!target) return;
+    target.setAttribute("tabindex", "-1");
+    target.focus({ preventScroll: true });
+    target.scrollIntoView({ block: "end", inline: "nearest", behavior: "instant" });
   };
   const dateValue = chapter => Date.parse(chapter?.createdAt || chapter?.updatedAt || "") || 0;
   const compareChapters = (a, b) => dateValue(a) - dateValue(b)
@@ -93,15 +117,18 @@
     App.saveStory(false);
     window.BAORefreshSaveUI?.();
     close();
+    await positionReader();
     if (!save.config?.demoMode && !key) window.BAOChatAPISettings?.open?.();
     return true;
   };
 
   const createFrom = async index => {
+    if (creating) return;
     const message = Chat.messages?.[Number(index)];
     if (!message?.id || message.role !== "assistant") return alert("找不到這則 AI 回覆。");
     const label = window.prompt("替新分支命名：", "另一條故事線");
     if (label === null) return;
+    creating = true;
     try {
       await waitForRevisionState();
       App.saveStory?.(false);
@@ -116,11 +143,12 @@
       App.showView("chat");
       App.saveStory(false);
       window.BAORefreshSaveUI?.();
+      await positionReader();
       if (!save.config?.demoMode && !key) window.BAOChatAPISettings?.open?.();
-      alert("已建立獨立故事分支。原故事線仍完整保留。");
+      alert(`已建立並切換至「${save._library?.chapterLabel || label.trim() || "新故事分支"}」。原故事線仍完整保留，可從「故事分支」切換回去。`);
     } catch (error) {
       alert(error.message || "建立故事分支失敗。");
-    }
+    } finally { creating = false; }
   };
 
   const renderNode = (node, refs, map) => {
@@ -249,5 +277,5 @@
   observer.observe(document.body, { childList: true, subtree: true });
   setTimeout(decorate, 0);
   setTimeout(decorate, 150);
-  window.BAOStoryBranches = { version: 2, open, restore, createFrom, decorate, buildTree, lineageFor };
+  window.BAOStoryBranches = { version: 2, open, restore, createFrom, decorate, buildTree, lineageFor, captureReadingPosition, positionReader };
 })();
