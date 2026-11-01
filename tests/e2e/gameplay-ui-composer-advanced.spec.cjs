@@ -67,6 +67,9 @@ test('preview values can make a list empty and never dirty or overwrite initial 
  const root=await open(page,1440,card([{type:'list',title:'任務',path:'modules.quests',empty:'沒有任務'}]));
  await page.locator('[name="name"]').fill('進階預覽');await page.getByRole('button',{name:'儲存草稿',exact:true}).click();await expect(page.locator('#studio-status')).toContainText('草稿已儲存');
  const before=await page.evaluate(()=>BAOCharacterStudio.readCard().initial_state);
+ await root.locator('iframe').scrollIntoViewIfNeeded();
+ await expect(root.frameLocator('iframe').locator('.gameplay-ui-panel')).toBeVisible();
+ await expect(root.locator('[data-theme-contrast]')).not.toContainText('預覽載入後');
  await root.locator('[data-preview-values]').locator('..').locator('summary').click();
  await root.getByLabel('modules.quests',{exact:true}).fill('[]');await expect(root.frameLocator('iframe').locator('.gameplay-ui-panel')).toContainText('沒有任務');
  expect(await page.evaluate(()=>BAOCharacterStudio.getState().dirty)).toBe(false);expect(await page.evaluate(()=>BAOCharacterStudio.readCard().initial_state)).toEqual(before);

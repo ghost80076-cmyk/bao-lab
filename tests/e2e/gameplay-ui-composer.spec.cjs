@@ -24,7 +24,7 @@ for(const width of [1440,390])test(`authors compose, preview, sort and save with
  await pane(root,'預覽');
  const frame=root.frameLocator('iframe');
  await expect(frame.locator('.gameplay-meter')).toContainText('生命力');
- await expect(frame.locator('.gameplay-meter')).toContainText('25 / 80');
+ await expect(frame.locator('.gameplay-meter')).toContainText('48 / 80');
  expect(await root.locator('iframe').evaluate(f=>Object.keys(f.contentWindow.GameState.current).every(k=>['time','location','events','npcs','modules','moduleDefinitions'].includes(k)))).toBe(true);
  await root.screenshot({path:testInfo.outputPath('composer.png')});
  await root.getByLabel('預覽寬度').selectOption('390');

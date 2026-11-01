@@ -33,6 +33,20 @@
     return 'desktop';
   };
 
+  const themeColors = () => {
+    const out = {};
+    const probes = { accent: 'color:var(--gameplay-accent)', surface: 'background-color:var(--gameplay-surface)', text: 'color:var(--gameplay-text)', muted: 'color:var(--gameplay-muted)' };
+    for (const [name, css] of Object.entries(probes)) {
+      const probe = document.createElement('span');
+      probe.style.cssText = css + ';position:absolute;visibility:hidden';
+      root.appendChild(probe);
+      const cs = getComputedStyle(probe);
+      out[name] = name === 'surface' ? cs.backgroundColor : cs.color;
+      probe.remove();
+    }
+    return out;
+  };
+
   const report = ok => {
     const schema = UI.schemaFor(window.App.activeCharacter);
     const tier = viewportTier();
@@ -53,7 +67,8 @@
       resolvedPresentation: stage ? stage.presentation : '',
       previewScope: 'panel',
       fidelity: 'single-panel',
-      layoutExact
+      layoutExact,
+      colors: themeColors()
     });
   };
 
@@ -108,6 +123,8 @@
     else if (result.type === 'set-state') {
       window.GameState.current = baseState(result.payload.state);
       draw();
+    } else if (result.type === 'set-image') {
+      if (Iso.setSceneImage(result.payload.mime,result.payload.data)) draw();
     } else if (result.type === 'reset' && initial) load(initial);
   });
 

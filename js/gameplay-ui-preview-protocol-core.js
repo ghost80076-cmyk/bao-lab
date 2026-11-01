@@ -18,7 +18,10 @@
   const BLOCKED_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
 
   // parent -> preview
-  const TO_PREVIEW = Object.freeze(['render', 'set-state', 'reset']);
+  const TO_PREVIEW = Object.freeze(['render', 'set-state', 'reset', 'set-image']);
+  // A scene test image travels as base64 inside the JSON payload (the composer downsizes it first).
+  const IMAGE_MIMES = Object.freeze(['image/jpeg', 'image/png', 'image/webp']);
+  const MAX_IMAGE_CHARS = 200 * 1024;
   // preview -> parent
   const FROM_PREVIEW = Object.freeze(['ready', 'rendered', 'state', 'notice']);
 
@@ -83,10 +86,17 @@
       if (payload.panelId !== undefined && typeof payload.panelId !== 'string') return fail('render_panel_not_string');
     }
     if (type === 'set-state' && !isObject(payload.state)) return fail('set_state_needs_state');
+    if (type === 'set-image') {
+      if (typeof payload.data !== 'string') return fail('image_needs_data');
+      if (payload.data === '') return { ok: true };                  // an empty string clears the test image
+      if (!IMAGE_MIMES.includes(payload.mime)) return fail('image_mime_not_allowed');
+      if (payload.data.length > MAX_IMAGE_CHARS) return fail('image_too_large');
+      if (payload.data.length % 4 !== 0 || !/^[A-Za-z0-9+/]+={0,2}$/.test(payload.data)) return fail('image_not_base64');
+    }
     return { ok: true };
   }
 
   const makeMessage = (type, payload = {}) => ({ channel: CHANNEL, version: VERSION, type, payload });
 
-  return Object.freeze({ CHANNEL, VERSION, MAX_BYTES, MAX_DEPTH, TO_PREVIEW, FROM_PREVIEW, isPlainJSON, utf8ByteLength, payloadBytes, validatePayload, validateMessage, makeMessage });
+  return Object.freeze({ CHANNEL, VERSION, MAX_BYTES, MAX_DEPTH, IMAGE_MIMES, MAX_IMAGE_CHARS, TO_PREVIEW, FROM_PREVIEW, isPlainJSON, utf8ByteLength, payloadBytes, validatePayload, validateMessage, makeMessage });
 });

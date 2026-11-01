@@ -44,3 +44,12 @@ html.studio-document{scroll-behavior:auto;scroll-padding-top:240px}
 .composer-effect-entry{border:0;border-left:2px solid var(--yoru-card-border,#44404a);padding:0 0 0 12px;margin:16px 0;min-width:0}
 .composer-diagnostics li{margin-bottom:12px}.composer-diagnostics li button{margin-left:10px;padding:6px 12px}
 #studio-gameplay-composer [data-preview-values]{margin-top:16px}
+.composer-templates{margin:12px 0 20px;border-top:1px solid var(--yoru-card-border,#44404a);padding-top:10px}
+#studio-gameplay-composer summary{box-sizing:border-box;min-height:44px;padding:10px 0;cursor:pointer}
+#studio-gameplay-composer .composer-checkbox{display:flex;align-items:center;min-height:44px;gap:10px;margin-top:12px}
+#studio-gameplay-composer .composer-checkbox input{width:20px;min-height:20px;height:20px;flex:none}
+.composer-fullscreen{box-sizing:border-box;width:calc(100vw - 24px);max-width:1600px;height:calc(100dvh - 24px);max-height:none;border:1px solid var(--yoru-card-border,#44404a);border-radius:16px;padding:20px;background:var(--yoru-card,#181c22);color:var(--yoru-text,#f1eee8);overflow:auto}
+.composer-fullscreen::backdrop{background:rgba(5,7,12,.8)}
+.composer-fullscreen>[data-composer-pane]{display:block;margin-top:20px;min-width:0}
+.composer-fullscreen .composer-preview-scroll{width:100%}
+@media(max-width:530px){.composer-fullscreen{width:calc(100vw - 12px);height:calc(100dvh - 12px);padding:12px;border-radius:12px}}
