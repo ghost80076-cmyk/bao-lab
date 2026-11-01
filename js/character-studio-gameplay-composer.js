@@ -353,7 +353,7 @@
     // This runs only for an enabled UI or an explicit template preview. Load
     // immediately so long preview controls cannot defer WebKit's iframe below the fold.
     frame.loading='eager';frame.src='gameplay-ui-preview.html';frame.style.height='640px';
-    client.on('ready',()=>updatePreview());
+    // The client already replays the latest render on ready; do not initialize twice.
     client.on('dismiss',()=>{const dialog=q('dialog');if(dialog?.open)dialog.close();});
     client.on('rendered',result=>{q('[data-preview-stage]').textContent=`${result.viewport||''} · 正式舞臺：${result.resolvedPresentation||'panel'}。此處只預覽單一面板${result.layoutExact?'。':'；完整多欄排列請在正式遊玩驗收。'}`;showContrast(result.colors);});
     q('[data-preview-width]').addEventListener('change',syncViewport);

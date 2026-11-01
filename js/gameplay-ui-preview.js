@@ -107,8 +107,8 @@
     window.App.activeCharacter = { id: 'gameplay-ui-preview', gameplay_ui: clone(initial.schema) };
     window.GameState.current = clone(initial.state);
     activePanel = initial.panelId;
-    document.getElementById('user-input').value = '';
-    return draw();
+    const input=document.getElementById('user-input');input.value='';
+    const ok=draw();input.disabled=!ok;return ok;
   };
 
   window.addEventListener('message', event => {
