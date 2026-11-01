@@ -50,11 +50,3 @@ jobs:
           GH_ARCHIVE_REPO: ${{ vars.TRAFFIC_ARCHIVE_REPO }}
           GH_ARCHIVE_TOKEN: ${{ secrets.TRAFFIC_ARCHIVE_TOKEN }}
         run: python scripts/github_traffic_evidence.py
-      - name: Preserve raw snapshot as a private Actions artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: traffic-evidence-${{ github.run_id }}-${{ github.run_attempt }}
-          path: traffic-evidence-output/
-          retention-days: 90
-          if-no-files-found: ignore
