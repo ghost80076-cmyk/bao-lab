@@ -401,6 +401,8 @@
       if (details && id !== "appearance") details.open = true;
       if (focus && !focus.disabled && window.matchMedia("(min-width: 821px)").matches) {
         window.setTimeout(() => {
+          // A later step change or manual edit supersedes this deferred focus.
+          if (showAll || activeStep !== id || !form.contains(focus) || focus.disabled) return;
           try { focus.focus({ preventScroll: true }); } catch (_) {}
         }, 220);
       }
