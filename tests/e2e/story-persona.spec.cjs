@@ -46,6 +46,40 @@ test('author prompt editor is absent and player-owned AI actors survive story sa
   await page.locator('[data-apply]').click();
   await expect(page.locator('#chat-title')).toHaveText('自創男主');
   expect(await page.evaluate(id => App.characters.find(item => item.id === id).name, original.id)).toBe(original.name);
+
+  // Regression: editing a previously added NPC must survive a normal story turn.
+  const editedId = await page.evaluate(() => GameState.current.storyActors.hostedCharacters.find(actor => actor.name === '旅館老闆').id);
+  await page.locator('#bao-actor-entry').click();
+  await page.locator('#bao-actor-target').selectOption('host');
+  await page.locator('#bao-actor-existing').selectOption(editedId);
+  await expect(page.locator('#bao-actor-form [name="name"]')).toHaveValue('旅館老闆');
+  await page.locator('#bao-actor-form [name="personality"]').fill('玩家手動修改：沉穩而謹慎');
+  await page.locator('#bao-actor-form [name="relationship"]').fill('玩家手動修改：認識多年的朋友');
+  await page.locator('[data-apply]').click();
+  await page.evaluate(async () => {await Storage.flush();});
+  const expectedNpcFields = {personality:'玩家手動修改：沉穩而謹慎',relationship:'玩家手動修改：認識多年的朋友'};
+  const readEditedNpc = () => page.evaluate(id => {
+    const actor = GameState.current.storyActors.hostedCharacters.find(item => item.id === id);
+    return {personality:actor?.personality,relationship:actor?.relationship};
+  }, editedId);
+  expect(await readEditedNpc()).toEqual(expectedNpcFields);
+
+  // Keep the real sendMessage and save pipeline; stub only the provider response.
+  await page.evaluate(async () => {
+    const originalSend = API.send;
+    try {
+      API.send = async () => ({text:'故事正常推進，人物設定未被劇情更改。',usage:{}});
+      document.getElementById('user-input').value = '繼續下一輪';
+      await App.sendMessage();
+    } finally {
+      API.send = originalSend;
+    }
+    await Storage.flush();
+  });
+  expect(await readEditedNpc()).toEqual(expectedNpcFields);
+  const savedAfterTurn = await page.evaluate(() => Storage.loadStory());
+  expect(savedAfterTurn.state.storyActors.hostedCharacters.find(actor => actor.id === editedId)).toMatchObject(expectedNpcFields);
+
   await page.evaluate(async () => {App.saveStory(false); await Storage.flush();});
   const saved = await page.evaluate(() => Storage.loadStory());
   expect(saved.state.storyActors.hostedCharacters.map(actor => actor.name)).toEqual(['自創男主', '旅館老闆']);
