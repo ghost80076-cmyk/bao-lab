@@ -81,6 +81,14 @@ test('author prompt editor is absent and player-owned AI actors survive story sa
     await Storage.flush();
   });
   expect(await readEditedNpc()).toEqual(expectedNpcFields);
+  // The report concerns reopening the actual editor in the next round,
+  // not merely the in-memory state object.
+  await page.locator('#bao-actor-entry').click();
+  await page.locator('#bao-actor-target').selectOption('host');
+  await page.locator('#bao-actor-existing').selectOption(editedId);
+  await expect(page.locator('#bao-actor-form [name="personality"]')).toHaveValue(expectedNpcFields.personality);
+  await expect(page.locator('#bao-actor-form [name="relationship"]')).toHaveValue(expectedNpcFields.relationship);
+  await page.getByRole('button', {name:'取消',exact:true}).click();
   const savedAfterTurn = await page.evaluate(() => Storage.loadStory());
   expect(savedAfterTurn.state.storyActors.hostedCharacters.find(actor => actor.id === editedId)).toMatchObject(expectedNpcFields);
 
