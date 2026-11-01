@@ -386,7 +386,7 @@
       '>還原套用前摘要</button></div>' +
       '<details><summary>比較目前正式摘要</summary><pre>' + escape(Chat.summary || '尚無摘要') + '</pre></details>' +
       '<p class="note">故事救援：先使用「完整故事備份」匯出 JSON（也可下載本章 TXT），另選可正常整理的 AI 模型分批核對歷史。完成後按「建立獨立救援續玩副本」，原故事不改動；副本保留全部本地原文，只將已核對的舊輪次改用摘要送給模型。若模型仍阻擋內容，請勿反覆重試。</p>' +
-      '<div class="memory-draft-actions"><button type="button" class="secondary" data-full-backup>先下載完整 JSON 備份</button><button type="button" class="secondary" data-full-txt>下載本章 TXT</button></div>' +
+      '<div class="memory-draft-actions"><button type="button" class="secondary" data-full-inspect>檢查故事恢復資料（免費）</button><button type="button" class="secondary" data-full-backup>先下載完整 JSON 備份</button><button type="button" class="secondary" data-full-txt>下載本章 TXT</button></div>' +
       '<p class="note">分段來源會保留訊息 ID 和人物／世界狀態證據；正式套用僅更新長期摘要及覆蓋游標，事件索引、Canon、必記事項和世界狀態保持原樣。</p>' +
       '<p data-full-message role="status" aria-live="polite"></p>';
     const msg = area.querySelector('[data-full-message]'),
@@ -405,6 +405,13 @@
       }); msg.textContent = '本次呼叫 ' + value.calls + ' 次；已保存 ' + value.cursor + '／' + value.eligible + ' 輪。';
       } catch (e) { msg.textContent = String(e.message || e); }
       finally { const message = msg.textContent; rerender(); const out = root.querySelector('[data-full-message]'); if (out) out.textContent = message; }
+    });
+    area.querySelector('[data-full-inspect]')?.addEventListener('click', () => {
+      try {
+        const recovery = window.BAOStoryRollback;
+        if (!recovery?.inspectCurrent) throw new Error('故事恢復驗證功能尚未載入，請更新頁面後再試。');
+        msg.textContent = recovery.formatReport(recovery.inspectCurrent());
+      } catch (error) { msg.textContent = String(error.message || error); }
     });
     area.querySelector('[data-full-backup]')?.addEventListener('click', async () => {
       try { if (!window.BAOStoryBackup?.exportCurrentStory) throw new Error('完整故事備份功能尚未載入。'); await window.BAOStoryBackup.exportCurrentStory(); }
@@ -449,3 +456,4 @@
   }
   window.BAOFullStoryMemoryRebuild = Object.freeze({ run, apply, reset, rollback, createContinuation, mount, getDisplayJob });
 })();
+

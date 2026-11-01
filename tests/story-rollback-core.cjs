@@ -3,9 +3,11 @@ const assert = require('node:assert/strict');
 const vm = require('node:vm');
 const fs = require('node:fs');
 const path = require('node:path');
+const librarySource = fs.readFileSync(path.join(__dirname, '..', 'js', 'story-library.js'), 'utf8');
+const validator = vm.runInNewContext('({' + librarySource.slice(librarySource.indexOf('    recoveryReport('), librarySource.indexOf('    checkpointRecord(')) + '})', { window: {} });
 const source = fs.readFileSync(path.join(__dirname, '..', 'js', 'story-rollback.js'), 'utf8');
 
-function fixture({ checkpoint = true, confirm = true, pending = false, createFails = false, restoreFails = false, differentEndpoint = false } = {}) {
+function fixture({ checkpoint = true, confirm = true, pending = false, createFails = false, restoreFails = false, differentEndpoint = false, corruptCursor = false, maintenance = false, restoreCorrupts = false } = {}) {
   const events = { alerts: [], saves: 0, restored: [], created: 0, prompts: 0, apiOpens: 0 };
   const oldMessages = [
     { id: 'u1', role: 'user', content: 'start' },
@@ -21,18 +23,23 @@ function fixture({ checkpoint = true, confirm = true, pending = false, createFai
   const pointPayload = { characterId: 'char1', config: { api: branchApi }, chat: { messages: [], summary: 'historical memory', summarizedUntil: 0 }, state: { money: 100, npcs: [] } };
   const records = oldMessages.map((m, seq) => ({ kind: 'message', storyId: 'story1', chapterId: 'main', messageId: m.id, role: m.role, seq }));
   if (checkpoint) records.push({ kind: 'checkpoint', storyId: 'story1', chapterId: 'main', messageId: 'a1', seq: 1, payload: pointPayload });
+  if (corruptCursor) pointPayload.chat.summarizedUntil = 99;
   const chat = { messages: structuredClone(oldMessages), summarizing: false };
+  let activePayload = structuredClone(oldSave);
   const app = {
     config: { api: { ...mainApi, key: 'secret' } }, __requestPending: pending,
     saveStory: () => { events.saves++; return true; },
     renderChatShell: () => {}, showView: () => {}
   };
   const storage = {
+    buildStoryPayload: () => ({ ...structuredClone(activePayload), config: structuredClone(app.config), chat: { ...structuredClone(activePayload.chat), messages: structuredClone(chat.messages) } }),
     validateStory: p => !!(p.characterId && p.config && p.chat && Array.isArray(p.chat.messages)),
     flush: async () => 'indexedDB', loadStory: () => structuredClone(oldSave),
     restoreStory: p => {
       events.restored.push(structuredClone(p));
       if (restoreFails && p !== oldSave && p?.state?.money === 100) return false;
+      activePayload = structuredClone(p);
+      if (restoreCorrupts && p.state.money === 100) activePayload.chat.summary = 'unexpected future memory';
       chat.messages = structuredClone(p.chat.messages);
       app.config = structuredClone(p.config);
       refs = structuredClone(p._library);
@@ -40,6 +47,7 @@ function fixture({ checkpoint = true, confirm = true, pending = false, createFai
     }
   };
   const library = {
+    recoveryReport: validator.recoveryReport, historySignature: validator.historySignature, stableValue: value => value,
     open: async () => true,
     flush: async () => true,
     refs: () => structuredClone(refs),
@@ -49,13 +57,14 @@ function fixture({ checkpoint = true, confirm = true, pending = false, createFai
       events.created++;
       assert.equal(id, 'a1');
       assert.match(label, /回溯/);
-      refs = { ...originalRefs, chapterId: 'branch1', parentChapterId: 'main' };
+      refs = { ...originalRefs, chapterId: 'branch1', parentChapterId: 'main', branchPointMessageId: 'a1', branchPointSeq: 1 };
       if (createFails) throw new Error('quota reached');
       return { ...structuredClone(pointPayload), chat: { ...structuredClone(pointPayload.chat), messages: structuredClone(oldMessages.slice(0,2)) }, _library: structuredClone(refs) };
     }
   };
   const observer = class { observe() {} };
   const win = {
+    BAOStoryMaintenanceLock: { has: () => maintenance, start: () => !maintenance, end: () => {} },
     BAOStoryLibrary: library,
     BAOStoryBranches: { open() {} },
     BAOStoryRevisionState: { whenIdle: async () => {} },
@@ -138,5 +147,14 @@ function fixture({ checkpoint = true, confirm = true, pending = false, createFai
     assert.equal(f.events.created, 0);
     console.log('PASS last assistant message cannot be rewound unnecessarily');
   }
-  console.log('PASS 8 rollback core regression cases');
+  for (const option of ['corruptCursor', 'maintenance', 'restoreCorrupts']) {
+    const f = fixture({ [option]: true });
+    assert.equal(await f.rollback.rewind(1), false, option);
+    assert.equal(f.getRefs().chapterId, 'main');
+    assert.equal(f.chat.messages.length, 4);
+    assert.equal(f.app.config.api.key, 'secret');
+    if (option !== 'restoreCorrupts') assert.equal(f.events.created, 0);
+    console.log('PASS rollback preserves original on ' + option);
+  }
+  console.log('PASS 11 rollback core regression cases');
 })().catch(error => { console.error(error); process.exitCode = 1; });

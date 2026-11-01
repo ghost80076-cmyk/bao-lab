@@ -25,6 +25,7 @@ async function seedStory(page) {
       { role: 'assistant', content: '歷史岔路' }
     ]);
     Chat.summary = '舊記憶';
+    Chat.summarizedUntil = 2;
     GameState.current.time = '夜晚';
     GameState.current.location = '舊城';
     GameState.current.contextPack = { id: 'old-pack', summary: '舊資料' };
@@ -33,8 +34,20 @@ async function seedStory(page) {
     await Storage.flush();
     await BAOStoryLibrary.flush();
     Chat.add('user', '繼續走原路');
+    // A failed/pending next turn must not overwrite the preceding checkpoint.
+    Chat.summary = '等待回覆時的較晚記憶';
+    Chat.summarizedUntil = 3;
+    GameState.current.location = '等待回覆時的較晚地點';
+    App.saveStory(false);
+    await Storage.flush();
+    await BAOStoryLibrary.flush();
+    const point = (await BAOStoryLibrary.allRecords()).find(record => record.kind === 'checkpoint'
+      && record.chapterId === BAOStoryLibrary.refs().chapterId && record.messageId === Chat.messages[1].id);
+    if (point?.payload.chat.summary !== '舊記憶' || point?.payload.state.location !== '舊城')
+      throw new Error('Pending player turn overwrote the historical checkpoint');
     Chat.add('assistant', '前往新城');
     Chat.summary = '新記憶';
+    Chat.summarizedUntil = 4;
     GameState.current.time = '清晨';
     GameState.current.location = '新城';
     GameState.current.contextPack = { id: 'new-pack', summary: '新資料' };
@@ -67,6 +80,7 @@ const state = page => page.evaluate(() => ({
   time: GameState.current.time,
   location: GameState.current.location,
   summary: Chat.summary,
+  summarizedUntil: Chat.summarizedUntil,
   contextPackId: GameState.current.contextPack?.id,
   refs: BAOStoryLibrary.refs()
 }));
@@ -83,10 +97,18 @@ test('rolls back from a message into a separate branch and can switch to the ori
   const rewound = await state(page);
   expect(rewound).toMatchObject({
     messages: ['第一次選擇', '歷史岔路'],
-    time: '夜晚', location: '舊城', summary: '舊記憶', contextPackId: 'old-pack',
+    time: '夜晚', location: '舊城', summary: '舊記憶', summarizedUntil: 2, contextPackId: 'old-pack',
     refs: { parentChapterId: originalChapterId }
   });
   expect(rewound.refs.chapterId).not.toBe(originalChapterId);
+  const inspected = await page.evaluate(() => {
+    const previous = API.send;
+    API.send = () => { throw new Error('Local recovery inspection must never call a model'); };
+    try { return BAOStoryRollback.inspectCurrent(); }
+    finally { API.send = previous; }
+  });
+  expect(inspected.ok).toBe(true);
+  expect(inspected.sources).toMatchObject({ messages: 2, summarizedUntil: 2, contextPack: true, branch: true });
   await page.evaluate(() => BAOStoryBranches.open());
   await expect(page.locator('.story-branch-node')).toHaveCount(2);
   await page.locator(`[data-chapter="${originalChapterId}"]`).getByRole('button', { name: '切換' }).click();
@@ -107,4 +129,28 @@ test('mobile message exposes a rollback action without overflowing the viewport'
     await expect(page.locator(`[data-story-rollback="${firstId}"]`)).toBeVisible({ timeout: 500 });
   }).toPass({ timeout: 8000 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+
+test('rejects an out-of-range historical summary without changing the original story', async ({ page }) => {
+  await openDemoStory(page);
+  const { firstId, originalChapterId } = await seedStory(page);
+  await page.evaluate(async ({ firstId, originalChapterId }) => {
+    const records = await BAOStoryLibrary.allRecords();
+    const checkpoint = records.find(record => record.kind === 'checkpoint'
+      && record.chapterId === originalChapterId && record.messageId === firstId);
+    checkpoint.payload.chat.summarizedUntil = 99;
+    await new Promise((resolve, reject) => {
+      const tx = BAOStoryLibrary._db.transaction(BAOStoryLibrary.storeName, 'readwrite');
+      tx.objectStore(BAOStoryLibrary.storeName).put(checkpoint);
+      tx.oncomplete = resolve; tx.onerror = () => reject(tx.error);
+    });
+  }, { firstId, originalChapterId });
+  const alerts = [];
+  page.on('dialog', async dialog => { alerts.push(dialog.message()); await dialog.accept(); });
+  expect(await page.evaluate(() => BAOStoryRollback.rewind(1))).toBe(false);
+  expect(await state(page)).toMatchObject({ summary: '新記憶', summarizedUntil: 4,
+    refs: { chapterId: originalChapterId } });
+  expect(alerts.join('')).toContain('摘要游標超出回溯範圍');
+  expect(await page.evaluate(() => Chat.messages.length)).toBe(4);
 });
