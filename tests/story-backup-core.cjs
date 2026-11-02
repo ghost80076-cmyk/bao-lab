@@ -53,6 +53,8 @@ const payload = (chapterId, label, parentChapterId, location, summary, secret = 
 
 const rootPayload = payload('root', '主線', '', '城門', '主線摘要');
 const branchPayload = payload('branch', '碼頭線', 'root', '碼頭', '分支摘要');
+branchPayload.state.storyDiscussion = {messages:[{role:'user',content:'DISCUSSION_ONLY'}]};
+branchPayload.state.settingSplitJob = {fingerprint:'source',offset:12,summary:'draft',complete:false};
 let currentRefs = { ...branchPayload._library };
 let nextId = 0;
 let records = [
@@ -135,6 +137,9 @@ assert.match(storyToolsSource, /details\.bao-gallery-more/);
   assert.equal(imported.payload.chat.summary, '分支摘要');
   assert.equal(imported.payload.contextPack.summary, '碼頭線 Context Pack');
   assert.equal(imported.payload.config.api.key, '');
+  assert.equal(imported.payload.state.storyDiscussion.messages[0].content,'DISCUSSION_ONLY');
+  assert.equal(imported.payload.state.settingSplitJob.offset,12);
+  assert.ok(!BAOStoryBackup.transcriptText(imported.payload).includes('DISCUSSION_ONLY'));
 
   const importedChapters = records.filter(item => item.kind === 'chapter' && item.storyId === imported.storyId);
   assert.equal(importedChapters.length, 2);

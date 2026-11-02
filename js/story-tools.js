@@ -703,6 +703,12 @@
     host.querySelector("[data-title]").value = pack.title;
     host.querySelector("[data-summary]").value = pack.summary;
     host.querySelector("[data-events]").value = pack.importantEvents.join("\n");
+    const isSavedDraft = GameState.current?.contextPackDraft && confirmationSignature(pack) === confirmationSignature(normalizePack(GameState.current.contextPackDraft));
+    const resumeSource = isSavedDraft ? window.BAOContextPackResume?.getSession?.()?.source : null;
+    const splitSource = sourceMessages?.length ? sourceMessages : window.BAOContextPackResume?.resolveSource?.(resumeSource);
+    if (splitSource?.length && window.BAOStoryDiscussion) {
+      const split = document.createElement("button");split.type="button";split.className="secondary";split.textContent="拆分匯入設定";split.onclick=()=>window.BAOStoryDiscussion.openSplit(splitSource);host.querySelector(".story-tools-actions")?.append(split);
+    }
     host.querySelector("[data-relations]").value = pack.relationships.join("\n");
     host.querySelector("[data-threads]").value = pack.openThreads.join("\n");
     host.querySelector("[data-statuses]").value = JSON.stringify(pack.characterStatuses, null, 2);
@@ -884,10 +890,10 @@
       (participantHTML ? '<div class="story-import-participants"><h4>說話者身分</h4>' + participantHTML + '</div>' : '') +
       '<details open><summary>訊息預覽（頭尾最多 6 則）</summary><div class="story-import-preview-list">' + sampleHTML + '</div></details>' +
       '<div class="story-import-note">下一步只建立待確認的劇情摘要包（Context Pack）草稿；模型不會永久推斷玩家心理、喜惡或意圖。</div>' +
-      '<div class="story-tools-actions"><button class="primary" type="button" data-continue>確認身分並建立草稿</button></div></section>';
+      '<div class="story-tools-actions"><button class="primary" type="button" data-continue>確認身分並建立草稿</button><button class="secondary" type="button" data-split-settings>確認身分並拆分設定</button></div></section>';
 
     host.querySelector("[data-back]").onclick = () => importScreen(host);
-    host.querySelector("[data-continue]").onclick = () => {
+    const continueImport = split => {
       const assignments = {};
       for (let index = 0; index < participants.length; index += 1) {
         const selected = host.querySelector('[data-participant-index="' + index + '"]').value;
@@ -902,7 +908,14 @@
         format: report.format || "",
         messageCount: sourceMessages.length
       });
+      if (split) window.BAOContextPackResume?.beginDraft?.(sourceMessages, draft.source);
       editor(host);
+      if (split) window.BAOStoryDiscussion?.openSplit?.(sourceMessages);
+    };
+    host.querySelector("[data-continue]").onclick = () => continueImport(false);
+    host.querySelector("[data-split-settings]").onclick = () => {
+      if (!window.BAOStoryDiscussion) return tell("設定拆分工具仍在載入，請稍後再試。");
+      continueImport(true);
     };
   };
 

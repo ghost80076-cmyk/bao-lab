@@ -85,7 +85,7 @@ async function run(legacy) {
   c.App.buildSystemPrompt = build;
   h.transport(async () => result);
 
-  for (const flags of [{}, { __memoryTask: true }, { __stateTask: true }, { __auxiliaryTask: true }, { __connectionTest: true }]) {
+  for (const flags of [{}, { __memoryTask: true }, { __stateTask: true }, { __auxiliaryTask: true }, { __connectionTest: true }, { __storyTool: true, __discussionTask: true }]) {
     await c.API.send(flags, messages);
     assert.equal(h.calls.at(-1).location, 'AFTER');
     assert.equal(h.calls.at(-1).config, flags);

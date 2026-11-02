@@ -85,6 +85,7 @@
   };
 
   const ACTIONS = {
+    discussion() { window.BAOStoryDiscussion?.open?.(); },
     guide() { window.BAOMascot?.openGuide?.(); },
     token() {
       if (window.BAOChatExperienceRepairs?.openSettings) {
@@ -144,6 +145,7 @@
         <section class="story-control-section" aria-labelledby="story-control-primary-title">
           <div class="story-control-section-heading"><h3 id="story-control-primary-title">目前故事</h3><span>常用設定</span></div>
           <div class="story-control-grid story-control-primary">
+            ${card("discussion", "戲外討論", {title:"故事討論",detail:"獨立討論劇情，不會自動寫入正文或記憶"}, "打開討論")}
             ${card("model", "故事模型", data.model, "切換模型")}
             ${card("persona", "玩家身份", data.persona, "調整人物")}
             ${card("memory", "故事記憶", data.memory, "查看記憶")}

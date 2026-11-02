@@ -1,0 +1,19 @@
+.yoru-discussion-backdrop { position:fixed;inset:0;z-index:12000;background:#090b10cc;display:grid;place-items:center;padding:16px; }
+.yoru-discussion { width:min(720px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;background:var(--yoru-surface,#171b24);color:var(--yoru-text,#f1eee8);border:1px solid var(--yoru-border,#55505f);border-radius:18px;padding:20px;box-sizing:border-box;overflow:hidden; }
+.yoru-discussion > main { min-height:0;overflow-y:auto;flex:0 1 auto; }
+.yoru-discussion > header { flex:0 0 auto; }
+.yoru-discussion > [data-status] { flex:0 0 auto;margin:12px 0 0; }
+.yoru-discussion header { display:flex;align-items:center;justify-content:space-between;gap:12px; }
+.yoru-discussion h2 { font-size:20px;margin:0; }
+.yoru-discussion p { line-height:1.65; }
+.yoru-discussion button { min-height:44px;white-space:normal; }
+.yoru-discussion button:focus-visible,.yoru-discussion textarea:focus-visible { outline:2px solid #c4b3ff;outline-offset:3px; }
+.yoru-discussion textarea { width:100%;min-height:100px;box-sizing:border-box;resize:vertical;font:inherit;line-height:1.6; }
+.yoru-discussion [data-log] { overflow:auto;max-height:42dvh; }
+.yoru-discussion article { padding:12px 0;border-bottom:1px solid #71687b66; }
+.yoru-discussion article p { white-space:pre-wrap;overflow-wrap:anywhere;margin:6px 0; }
+.yoru-discussion [data-status] { min-height:1.6em;overflow-wrap:anywhere; }
+.yoru-discussion .discussion-actions { display:flex;gap:8px;flex-wrap:wrap;margin-top:12px; }
+.yoru-discussion label { display:block;margin:12px 0; }
+.yoru-discussion label input[type=checkbox] { width:auto;min-height:24px;vertical-align:middle;margin-right:8px; }
+@media(max-width:820px) { .yoru-discussion-backdrop { padding:8px; } .yoru-discussion { padding:16px;max-height:calc(100dvh - 16px); } }
