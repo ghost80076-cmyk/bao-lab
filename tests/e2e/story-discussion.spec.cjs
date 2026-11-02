@@ -34,6 +34,8 @@ for(const width of [390,1280])test(`discussion remains outside story and import 
   await split.locator('[data-select="world"]').check();
   await split.locator('[data-apply]').click();await expect(split.locator('[data-status]')).toContainText('已保存確認設定');
   const applied=await page.evaluate(()=>({world:GameState.current.worldbookLibrary.installed.at(-1).entries[0].content,persona:App.config.persona,actors:GameState.current.storyActors?.hostedCharacters||[],messages:Chat.messages.length}));
+  const geometry=await split.evaluate(el=>({header:el.querySelector('header').getBoundingClientRect().top,bodyBottom:el.querySelector('[data-body]').getBoundingClientRect().bottom,statusTop:el.querySelector('[data-status]').getBoundingClientRect().top}));
+  expect(geometry.header).toBeGreaterThanOrEqual(0);expect(geometry.bodyBottom).toBeLessThanOrEqual(geometry.statusTop+2);
   await page.screenshot({path:testInfo.outputPath('setting-split.png')});
   expect(applied.world).toBe('玩家編輯後的背景');expect(applied.persona.extra).toBeUndefined();expect(applied.actors.some(a=>a.name==='凜')).toBe(false);expect(applied.messages).toBe(2);
 });

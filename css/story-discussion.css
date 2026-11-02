@@ -1,5 +1,8 @@
 .yoru-discussion-backdrop { position:fixed;inset:0;z-index:12000;background:#090b10cc;display:grid;place-items:center;padding:16px; }
-.yoru-discussion { width:min(720px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;background:var(--yoru-surface,#171b24);color:var(--yoru-text,#f1eee8);border:1px solid var(--yoru-border,#55505f);border-radius:18px;padding:20px;box-sizing:border-box;overflow:auto; }
+.yoru-discussion { width:min(720px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;background:var(--yoru-surface,#171b24);color:var(--yoru-text,#f1eee8);border:1px solid var(--yoru-border,#55505f);border-radius:18px;padding:20px;box-sizing:border-box;overflow:hidden; }
+.yoru-discussion > main { min-height:0;overflow-y:auto;flex:0 1 auto; }
+.yoru-discussion > header { flex:0 0 auto; }
+.yoru-discussion > [data-status] { flex:0 0 auto;margin:12px 0 0; }
 .yoru-discussion header { display:flex;align-items:center;justify-content:space-between;gap:12px; }
 .yoru-discussion h2 { font-size:20px;margin:0; }
 .yoru-discussion p { line-height:1.65; }
