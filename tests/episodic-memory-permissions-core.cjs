@@ -28,8 +28,8 @@ assert.match(query(source.slice(0,1))[0].block,/被偷/,'rollback retains earlie
 const restored = JSON.parse(JSON.stringify(state));
 assert.match(query(source,['琳'],restored)[0].block,/抽屜/,'portable JSON reload preserves aliases and dated knowledge');
 const matrix = core.knowledgeMatrix({state:restored,messages:source});
-assert.equal(matrix[0].knowledge.length,1,'aliases resolve to one latest observation in inspector');
-assert.equal(matrix[0].knowledge[0].mode,'told');
+assert.equal(matrix[0].knowledge.length,2,'player inspector retains each source label for explicit source review');
+assert.equal(matrix[0].knowledge.find(k=>k.actor==='琳').mode,'told');
 const reordered = [source[1],source[0]];
 assert.match(query(reordered)[0].block,/被偷/,'reordered history cannot know a later event before it occurs');
 assert.equal(core.knowledgeMatrix({state,messages:reordered})[0].knowledge[0].mode,'rumor');

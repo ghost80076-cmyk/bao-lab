@@ -228,12 +228,14 @@
   // Read-only inspector for the player. The assistant receives only recall()
   // output, never this full table. Invalid/revised source evidence is hidden.
   function knowledgeMatrix({ state, messages = [], maxEvents = 20, includeEvidence = false }) {
-    const {sources,valid,knows} = evidenceProof(messages), resolve = actorResolver(state);
+    const {sources,valid,knows} = evidenceProof(messages);
     const events = Array.isArray(state?.episodicMemory?.events) ? state.episodicMemory.events : [];
     return events.filter(e => object(e) && valid(e.evidence)).slice(-Math.max(1, Math.min(50, Number(maxEvents) || 20))).map(event => {
       const byActor = new Map();
       for (const entry of Array.isArray(event.knowledge) ? event.knowledge : []) {
-        const actor = object(entry) && resolve(entry.actor);
+        // Preserve the original speaker label for exact player source review;
+        // model recall separately resolves aliases to the same identity.
+        const actor = object(entry) && text(entry.actor,100);
         if (!actor || !knows(entry,event)) continue;
         const seenAt = Math.max(...entry.evidence.map(e => sources.get(e.id).index));
         if (!byActor.has(actor) || seenAt >= byActor.get(actor).seenAt)
