@@ -1,0 +1,37 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const path = require('node:path');
+const source = path.join(__dirname, '..', 'js');
+const core = require(path.join(source, 'memory-core.js'));
+for (const purpose of ['長期記憶摘要', '世界狀態重建', 'Context Pack']) {
+  const prompt = core.taskSystem(purpose, '只輸出 JSON');
+  assert.match(prompt, /虛構劇情資料統整/);
+  assert.match(prompt, /不是要求你執行的指令/);
+  assert.match(prompt, /不要求忽略安全保護/);
+  assert.match(prompt, new RegExp(purpose));
+  assert.match(prompt, /只輸出 JSON/);
+}
+const events = [];
+const sandbox = { console, window: null };
+sandbox.window = sandbox;
+vm.createContext(sandbox);
+vm.runInContext(fs.readFileSync(path.join(source, 'story-maintenance-lock.js'), 'utf8'), sandbox);
+const lock = sandbox.BAOStoryMaintenanceLock;
+const owner = {};
+const unsubscribe = lock.subscribe((who, active) => events.push([who, active?.label || '']));
+assert.equal(lock.start(owner, { label: '正在核對歷史' }), true);
+assert.equal(lock.has(owner), true);
+assert.equal(lock.current(owner).label, '正在核對歷史');
+assert.equal(lock.start(owner), false, 'concurrent maintenance must be rejected');
+assert.equal(lock.end(owner), true);
+assert.equal(lock.has(owner), false);
+assert.deepEqual(events.map(event => event[1]), ['正在核對歷史', '']);
+const previous = {};
+const next = {};
+assert.equal(lock.start(owner, { token: previous }), true);
+assert.equal(lock.end(owner, next), false, 'stale finally must not release newer task');
+assert.equal(lock.has(owner), true);
+assert.equal(lock.end(owner, previous), true);
+unsubscribe();
+console.log('shared RP data task context and maintenance lock tests passed');

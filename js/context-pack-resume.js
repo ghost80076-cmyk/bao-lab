@@ -232,7 +232,7 @@
   ].join("\n\n");
 
   const requestMessages = prompt => [
-      { role: "system", content: "只整理可驗證的劇情事實，輸出合法 JSON，不續寫故事。" },
+      { role: "system", content: window.BAOMemoryCore?.taskSystem?.("Context Pack 片段提取與合併", "只整理可驗證的劇情事實，輸出完整合法 JSON，不續寫故事。") || "只整理可驗證的劇情事實，輸出合法 JSON，不續寫故事。" },
       { role: "user", content: prompt }
     ];
   const requestFragment = async (config, prompt, isCurrent) => {
@@ -418,9 +418,15 @@
     const owner = state();
     if (!owner) throw new Error('目前沒有故事可保存整理進度。');
     if (active.has(owner)) throw new Error('本故事的摘要包仍在整理中。');
+    const maintenance = window.BAOStoryMaintenanceLock;
+    if (App.__requestPending || Chat.summarizing || (maintenance && !maintenance.start(owner, { label: "正在整理 Context Pack" })))
+      throw new Error("故事或其他資料整理正在進行，請完成後再整理摘要包。");
     active.add(owner);
     try { return await organizeTask(...args); }
-    finally { active.delete(owner); }
+    finally {
+      active.delete(owner);
+      maintenance?.end?.(owner);
+    }
   };
 
   const enhanceEditor = () => {

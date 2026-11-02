@@ -22,16 +22,32 @@
     return { composer, send, cancel, input: document.getElementById("user-input") };
   };
 
+  const maintenanceTask = () => window.BAOStoryMaintenanceLock?.current?.(window.GameState?.current) || null;
   const setPending = pending => {
     const { composer, send, cancel, input } = controls();
+    const maintenance = maintenanceTask();
     composer?.classList.toggle("story-request-pending", pending);
-    if (send) send.disabled = pending;
+    if (send) send.disabled = pending || Boolean(maintenance);
     if (cancel) {
       cancel.classList.toggle("hidden", !pending);
       cancel.disabled = false;
       cancel.textContent = "取消生成";
     }
-    input?.setAttribute("aria-busy", pending ? "true" : "false");
+    input?.setAttribute("aria-busy", pending || maintenance ? "true" : "false");
+    // Not a story message: keep input editable and do not touch unsent drafts.
+    let notice = document.getElementById("bao-story-maintenance-notice");
+    if (!notice && composer?.before && typeof document.createElement === "function") {
+      notice = document.createElement("p");
+      notice.id = "bao-story-maintenance-notice";
+      notice.className = "note";
+      notice.setAttribute("role", "status");
+      notice.setAttribute("aria-live", "polite");
+      composer.before(notice);
+    }
+    if (notice) {
+      notice.hidden = !maintenance;
+      notice.textContent = maintenance ? maintenance.label + "；完成前暫停送出新回合，已輸入文字保留。" : "";
+    }
   };
 
   App.cancelGeneration = function() {
@@ -46,6 +62,10 @@
   };
 
   const requestLifecycleWrapper = async function(next, ...args) {
+    if (window.BAOStoryMaintenanceLock?.has?.(window.GameState?.current)) {
+      setPending(Boolean(this.__requestPending));
+      return; // No text is cleared and no provider request is sent.
+    }
     if (this.config?.demoMode) return next(...args);
     const text = document.getElementById("user-input")?.value.trim();
     const accountReady = Boolean(window.BAOCreditsPilot?.isAccountReady?.(this.config?.api));
@@ -78,6 +98,11 @@
   if (originalExitChat) App.exitChat = function() { this.cancelGeneration?.(); return originalExitChat(); };
 
   controls();
+  // Standalone memory / state scans can begin after a normal story request ends.
+  window.BAOStoryMaintenanceLock?.subscribe?.((owner) => {
+    if (owner === window.GameState?.current) setPending(Boolean(App.__requestPending));
+  });
+  setPending(Boolean(App.__requestPending));
   App.__requestLifecyclePatched = true;
   // Real browsers have document.head; headless core tests deliberately do not.
   if (document.head?.append && !document.querySelector('script[src="js/scene-render-integrity.js?v=1"]')) {

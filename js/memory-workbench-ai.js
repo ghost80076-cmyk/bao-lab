@@ -73,11 +73,13 @@
       const sourceId=core.fingerprint(src);
       const isCurrent=()=>currentStory()===owner&&App.config===storyConfig&&core.fingerprint(readSource())===sourceId;
       const controls=[...area.querySelectorAll('button,select,input')];
+      const maintenance = window.BAOStoryMaintenanceLock;
+      let ownsMaintenance = false;
       try{
         const cfg=core.config(storyConfig,'notes',App.modelPresets||[]);
         window.BAOCreditsPilot?.prepareAccountConfig?.(cfg);
         if(!cfg.key&&!cfg.local&&!window.BAOCreditsPilot?.isAccountReady?.(cfg))throw new Error("整理模型尚未連線，請先完成 API 設定。");
-        const makeMessages=(chunk,previous)=>[{role:"system",content:"只進行記憶整理，不要續寫故事。"},{role:"user",content:prompt(chunk,style,previous)}];
+        const makeMessages=(chunk,previous)=>[{role:"system",content:core.taskSystem?.("長期記憶工作台整理", "只整理記憶，不續寫故事；只輸出完整 JSON。") || "只進行記憶整理，不要續寫故事。"},{role:"user",content:prompt(chunk,style,previous)}];
         const planId=core.fingerprint(JSON.stringify([1,mode,style,cfg.model,cfg.baseUrl,cfg.protocol,cfg.maxOutputTokens,cfg.__memoryInputTokens,cfg.__memoryContextTokens]));
         const jobId=core.fingerprint(JSON.stringify([sourceId,planId]));
         const saved=owner.memoryRefineJob;
@@ -85,6 +87,9 @@
         const remaining=src.slice(prior.offset||0);
         const estimated=Math.max(1,Math.ceil(core.tokens(remaining)/core.sourceBudget(cfg,makeMessages('',prior.summary||''))));
         if(estimated>1&&!confirm(`本次來源預估至少需要 ${estimated} 批整理，每批會產生模型費用；每次最多執行 8 批，可從成功進度繼續。要開始嗎？`))return;
+        if(App.__requestPending || Chat.summarizing || (maintenance && !maintenance.start(owner, { label: "正在進行 AI 記憶整理" })))
+          throw new Error("目前有其他故事／整理工作，請完成後再整理；尚未送出付費請求。");
+        ownsMaintenance = Boolean(maintenance);
         active.set(owner,{mode,style});
         controls.forEach(control=>control.disabled=true);
         notify(owner,`整理中 · ${cfg.model}`);
@@ -107,6 +112,7 @@
         App.saveStory?.(false);
       }catch(err){if(currentStory()===owner)notify(owner,`整理失敗：${String(err.message||err).split("\n")[0]}${owner.memoryRefineJob?'；已完成批次保留，可再次按下繼續。':''}`);}
       finally{
+        if(ownsMaintenance) maintenance.end(owner);
         active.delete(owner);
         controls.forEach(control=>control.disabled=false);
         area.querySelector('[data-write-draft]').disabled=!currentDraft();

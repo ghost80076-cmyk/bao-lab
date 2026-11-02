@@ -60,7 +60,7 @@ const WorldStateEngine = {
 
     try {
       const result = await API.send(config.api, [
-        { role: "system", content: "只輸出合法 JSON 世界狀態。" },
+        { role: "system", content: window.BAOMemoryCore?.taskSystem?.("世界狀態增量核對", "只輸出合法 JSON 世界狀態 PATCH。") || "只輸出合法 JSON 世界狀態。" },
         { role: "user", content: prompt }
       ]);
       const data = window.BAOHelperData.stateUpdate(this.parse(result?.text || ""), [], `${playerText}\n${assistantText}`);

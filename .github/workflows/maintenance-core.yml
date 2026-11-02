@@ -119,6 +119,13 @@ jobs:
       - name: Frontend extension-chain contract
         run: node tests/frontend-extension-contract.cjs
 
+      - name: Fictional data tasks and maintenance send gate
+        run: |
+          node tests/story-data-task-context-maintenance-core.cjs
+          node tests/story-maintenance-send-gate-core.cjs
+          node tests/request-lifecycle-core.cjs
+          node tests/memory-summary-ownership-core.cjs
+
       - name: Author regex compatibility
         run: |
           node tests/author-regex-core.test.js

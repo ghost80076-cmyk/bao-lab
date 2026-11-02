@@ -11,11 +11,11 @@ const memoryWorkbenchSource = read("js/memory-workbench-core.js");
 assert(adminHTML.includes('src="js/character.js?v=12"'));
 assert(adminHTML.includes('src="js/admin-character-publish.js?v=4"'));
 assert(memoryWorkbenchSource.includes('data-summary-mode-notice'));
-assert(siteUI.includes('js/world-state-cost.js?v=12'));
+assert(siteUI.includes('js/world-state-cost.js?v=13'));
 assert(siteUI.includes('js/provider-policy-guard.js?v=1'), 'policy circuit must load before hosted transport');
 assert(siteUI.indexOf('js/provider-policy-guard.js?v=1') < siteUI.indexOf('js/credits-pilot.js?v=2'));
-assert(index.includes('src="js/site-ui.js?v=171"'));
-assert(siteUI.includes('js/full-story-memory-rebuild.js?v=3'));
+assert(index.includes('src="js/site-ui.js?v=172"'));
+assert(siteUI.includes('js/full-story-memory-rebuild.js?v=4'));
 const appSource = read("js/app.js");
 const bridge = read("js/global-bridge.js");
 const helper = read("js/helper-api-routing.js");
@@ -55,14 +55,14 @@ increasing(index, [
   'src="js/character.js?v=11"',
   'src="js/app.js',
   'src="js/chat-markup.js?v=6"',
-  'src="js/story-maintenance-lock.js?v=1"',
+  'src="js/story-maintenance-lock.js?v=2"',
   'src="js/site-ui.js'
 ], "core script");
 
 // World-state chain: the bridge must install its guards before world modules.
 increasing(siteUI, [
   'loadBAOScript("js/global-bridge.js?v=8")',
-  'loadBAOScript("js/world-state.js?v=4")',
+  'loadBAOScript("js/world-state.js?v=5")',
   'loadBAOScript("js/character-status.js?v=5")',
   'loadBAOScript("js/three-realms-cultivation-core.js?v=1")',
   'loadBAOScript("js/three-realms-event-profiles.js?v=6")',
@@ -83,7 +83,7 @@ increasing(siteUI, [
   'then(() => worldModulesReady)',
   'loadBAOScript("js/three-realms-events.js?v=3")',
   'loadBAOScript("js/streaming-ui.js',
-  'loadBAOScript("js/request-lifecycle.js?v=5")'
+  'loadBAOScript("js/request-lifecycle.js?v=6")'
 ], "story extension");
 
 // Stage capability must resolve before Reader Context / Player Shell consume it.

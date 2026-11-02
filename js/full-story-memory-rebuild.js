@@ -37,7 +37,7 @@
       '尚未明確公開的秘密不得假設所有角色都知道。只輸出完整 JSON。';
   }
   function requestMessages(prompt) {
-    return [{ role: 'system', content: '僅處理記憶資料，輸出完整 JSON，不續寫故事。' },
+    return [{ role: 'system', content: memory.taskSystem?.('完整故事歷史證據重建', '僅處理歷史記憶資料，只輸出完整 JSON，不續寫故事。') || '僅處理記憶資料，輸出完整 JSON，不續寫故事。' },
       { role: 'user', content: prompt }];
   }
   function extractPrompt(text, groups) {
