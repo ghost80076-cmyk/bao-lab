@@ -661,6 +661,7 @@ jobs:
         run: |
           node tests/episodic-memory-core.cjs
           node tests/episodic-memory-permissions-core.cjs
+          node tests/scene-chat-bootstrap-core.cjs
       - name: Recall ownership during asynchronous prompt assembly
         run: |
           node tests/episodic-recall-ownership-core.cjs

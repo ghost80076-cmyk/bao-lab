@@ -75,9 +75,10 @@ const GROUPS = [
   ] },
   { id: 'ui', patterns: [
     /^(?:css\/|index\.html$|(?:gameplay-ui-preview|character-studio|author|account|lights)\.html$)/,
-    /^js\/(?:gameplay-ui|stage-capability|phone-|site-ui|character-studio|experience-preferences|story-reader|chat-reading|app\.js)/,
-    /^tests\/(?:gameplay-ui|stage-capability|phone-|experience-preferences|story-reader|chat-reading)/
+    /^js\/(?:gameplay-ui|stage-capability|scene-chat-integration|no-api-world-preview|phone-|site-ui|character-studio|experience-preferences|story-reader|chat-reading|app\.js)/,
+    /^tests\/(?:gameplay-ui|stage-capability|scene-chat-integration|no-api-world-preview|phone-|experience-preferences|story-reader|chat-reading)/
   ], tests: [
+    'tests/scene-chat-bootstrap-core.cjs',
     'tests/gameplay-ui-engine-core.cjs',
     'tests/experience-preferences-core.cjs',
     'tests/character-studio-gameplay-ui-core.cjs',

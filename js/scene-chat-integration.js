@@ -1,7 +1,9 @@
 /* Presentation-only integration: no model calls, prompt changes, or world-state writes. */
 (() => {
   'use strict';
-  if (!window.App || !window.Chat || !window.BAOScenePresentation) return;
+  // Parser-loaded lexical bindings are ready before the asynchronous global
+  // bridge publishes window.App/window.Chat. Do not silently skip this module.
+  if (typeof App === 'undefined' || typeof Chat === 'undefined' || !window.BAOScenePresentation) return;
   const KEY = 'bao-lab:scene-view-v1';
   const choices = ['auto', 'general', 'romance', 'intimacy', 'danger', 'mystery'];
   const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { return {}; } };

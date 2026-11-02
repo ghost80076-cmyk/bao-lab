@@ -17,17 +17,21 @@ Baseline: main `5c7e7ca485776557dce99b99c8965694c98a7919` (P1 #923).
 
 No new database, relationship graph, model request or network dependency. Existing version-1 episodic state and source signatures remain readable; `afterEvent` is an additive optional field. The normal 4-event / 2,400-character recall bounds remain intact. Summary strings, Canon schema and user confirmation flow stay compatible. Cache versions are advanced for changed runtime assets.
 
-Connected domains: automatic summary, character knowledge, Canon, worldbook scoped-read permissions, branch/rollback and snapshot ownership, JSON save/reload, helper request isolation and frontend loaders. No provider routing, wallet settlement, worker, migration, renderer or gameplay UI changes.
+Connected domains: automatic summary, character knowledge, Canon, worldbook scoped-read permissions, branch/rollback and snapshot ownership, JSON save/reload, helper request isolation and frontend loaders. No provider routing, wallet settlement, worker, migration or rendering/layout algorithm changes. A CI-discovered scene initialization race is also fixed (see below).
 
 ## Evidence
 
 - New `tests/episodic-memory-permissions-core.cjs` exercises snapshot isolation, replay preservation, duplicate IDs (same/different content), source rewrite, source reordering, portable reload, alias consistency, oversized audiences, rollback, stale extraction indexes and corrected facts versus old beliefs. Running it against baseline fails on snapshot mutation; it passes on the revised implementation.
 - Existing episodic integration verifies actual Chat ingestion, final request injection, source invalidation, bounded recall and unchanged model-call count. Added actual-request assertions for relationship-direction instructions in summary, episode extraction and Canon extraction/merge.
-- Local regression-impact gate: 31 suites passed, covering memory maintenance/checkpoints, full rebuild, backup/storage recovery, rollback/revision/status ownership and frontend contracts. Existing helper-context and gate-selection tests also pass; modified runtime JavaScript passes syntax checks and `git diff --check`.
+- Local regression-impact gate: 32 suites passed, covering memory maintenance/checkpoints, full rebuild, backup/storage recovery, rollback/revision/status ownership and frontend contracts. Existing helper-context and gate-selection tests also pass; modified runtime JavaScript passes syntax checks and `git diff --check`.
 - The new P2 suite runs in Core tests and the memory regression-impact group. The gate also includes existing episodic and worldbook asynchronous ownership tests, and now recognizes Chat/helper-data and recall-ownership paths as memory impacts.
 - The first remote request-observability run caught an inspector contract regression: merging alias labels prevented explicit source selection. Restored the original per-label inspector contract while keeping normalized model recall, and added NPC timeline source/resolution plus actor alias tests to the memory gate.
 - Refreshed both checked-in recall evidence reports for the revised source hash, and updated the mutation probe to target the new public-fact guard. The acceptance runner still proves that empty recall, incorrect provenance and scope leaks fail; it is included in the memory gate. All 52 supported base cases and 7 supported held-out cases pass. Each suite retains one explicitly unsupported diagnostic false negative.
 - Remote CI/browser results are tracked in the PR. No paid live-provider test, physical-device verification, merge or production deployment is implied by local tests.
+
+## CI-discovered scene initialization race
+
+The first complete Fast E2E run passed 83 story-control tests but timed out twice waiting for the Yume scene module. The trace proves scene-chat-integration executed before global-bridge: the parser-loaded lexical App/Chat existed, while window.App/window.Chat had not been published. The old guard permanently skipped initialization. Check the actual lexical bindings instead; retain the rendering algorithm and advance loader cache versions. The new bootstrap regression reproduces both early and late bridge orderings without model requests or state mutation. Full browser assertions remain unchanged.
 
 ## Rollback
 
