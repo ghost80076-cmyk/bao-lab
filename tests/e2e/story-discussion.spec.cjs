@@ -14,6 +14,8 @@ async function setup(page) {
 for(const width of [390,1280])test(`discussion remains outside story and import settings require review at ${width}px`,async({page},testInfo)=>{
   await page.setViewportSize({width,height:850});await setup(page);
   await page.getByRole('button',{name:'開啟控制中心',exact:true}).click();
+  const currentSettings=page.locator('#bao-chat-tool-drawer .bao-control-sections').getByRole('button',{name:'目前設定',exact:true});
+  await currentSettings.click();
   await page.locator('[data-story-control-action="discussion"]').click();
   const panel=page.getByRole('dialog',{name:'故事討論',exact:true});await expect(panel).toBeVisible();
   await panel.locator('[data-question]').fill('DISCUSSION_SECRET 如何調查？');
