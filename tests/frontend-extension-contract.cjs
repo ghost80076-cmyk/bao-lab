@@ -14,7 +14,7 @@ assert(memoryWorkbenchSource.includes('data-summary-mode-notice'));
 assert(siteUI.includes('js/world-state-cost.js?v=13'));
 assert(siteUI.includes('js/provider-policy-guard.js?v=1'), 'policy circuit must load before hosted transport');
 assert(siteUI.indexOf('js/provider-policy-guard.js?v=1') < siteUI.indexOf('js/credits-pilot.js?v=2'));
-assert(index.includes('src="js/site-ui.js?v=175"'));
+assert(index.includes('src="js/site-ui.js?v=176"'));
 assert(siteUI.includes('js/full-story-memory-rebuild.js?v=5'));
 const appSource = read("js/app.js");
 const bridge = read("js/global-bridge.js");
@@ -48,8 +48,8 @@ increasing(index, [
   'src="js/story-history-core.js?v=2"',
   'src="js/state.js?v=3"',
   'src="js/api.js',
-  'src="js/helper-data.js?v=5"',
-  'src="js/episodic-memory-core.js?v=6"',
+  'src="js/helper-data.js?v=6"',
+  'src="js/episodic-memory-core.js?v=7"',
   'src="js/memory-core.js',
   'src="js/chat.js',
   'src="js/character.js?v=11"',

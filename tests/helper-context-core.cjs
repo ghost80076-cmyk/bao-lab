@@ -31,6 +31,7 @@ const addTurns = n => { for (let i = 0; i < n; i++) { Chat.add('user', `玩家-$
   assert.match(Chat.summary, /艾琳坦白/);
   assert.doesNotMatch(Chat.summary, /接吻|王室|nextScene/);
   const first = JSON.stringify(requests[0].messages);
+  assert.match(first, /A 信任 B.*B 信任 A.*彼此信任/, 'summary request preserves relationship direction');
   assert.match(first, /玩家-0/);
   assert.doesNotMatch(first, /玩家-8/, 'memory excludes recent protected raw dialogue');
   addTurns(3);

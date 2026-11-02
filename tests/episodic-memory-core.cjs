@@ -103,6 +103,7 @@ ctx.API = { async send(api, messages) {
   assert.ok(api.__responseSchema.properties.episodes, "Gemini schema must permit event extraction");
   assert.ok(api.__responseSchema.properties.knowledgeUpdates, "reuse memory call for later knowledge changes");
   assert.match(JSON.stringify(messages), /\[s0\]/);
+  assert.match(JSON.stringify(messages), /A 信任 B.*B 信任 A.*彼此信任/, "episode extraction preserves relationship direction");
   return { text: JSON.stringify({ events: ['雨夜爭吵'], episodes: [{ ...event, evidenceIds: ['s0'], knowledge: [{ ...event.knowledge[0], evidenceIds: ['s1'] }] }] }) };
 } };
 (async () => {

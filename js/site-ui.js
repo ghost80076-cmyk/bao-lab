@@ -212,7 +212,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/memory-workbench-core.js?v=12"))
     .then(() => loadBAOOptionalGroup("full-story-memory-rebuild", ["js/full-story-memory-rebuild-core.js?v=2", "js/full-story-memory-rebuild.js?v=5"]))
     .then(() => loadBAOScript("js/memory-workbench-ai.js?v=6"))
-    .then(() => loadBAOScript("js/canon-workbench.js?v=6"))
+    .then(() => loadBAOScript("js/canon-workbench.js?v=7"))
     .then(() => loadBAOScript("js/memory-workbench-simplify.js?v=4"))
     .then(() => loadBAOScript("js/chat-markup.js?v=5"))
     .then(() => loadBAOScript("js/story-tools.js?v=13"))

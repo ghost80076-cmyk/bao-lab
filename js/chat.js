@@ -273,7 +273,7 @@ const Chat = {
           "保留已發生事件、已知資訊、明確關係、承諾、物品與目標。玩家偏好只能記錄玩家明說的內容；不得把 AI 推測的心理當作事實。",
           window.BAOHelperData.memoryRules,
           config?.memory?.episodicRecall === false ? "" : window.BAOEpisodicMemory?.rules,
-          config?.memory?.episodicRecall === false || !window.BAOEpisodicMemory ? "" : `【近期事件索引（僅供明確更正時引用 ID，不可當作本次新證據）】\n${JSON.stringify(window.BAOEpisodicMemory.updateContext(owner))}`,
+          config?.memory?.episodicRecall === false || !window.BAOEpisodicMemory ? "" : `【近期事件索引（僅供明確更正時引用 ID，不可當作本次新證據）】\n${JSON.stringify(window.BAOEpisodicMemory.updateContext(owner, this.messages))}`,
           "刪除重複修辭、寒暄與不影響後續的細節。不要加入原文沒有的資訊，不要寫分析過程。",
           `【本次完整 JSON 輸出預算】四類長期摘要各最多 ${attempt ? 6 : 8} 項、每項最多 80 字；episodes 與 knowledgeUpdates 各最多 ${attempt ? 2 : 4} 筆。每筆事件的 knowledge 最多 2 筆，每筆 text／claim 最多 60 字，entities／keywords／evidenceIds 各最多 3 項。無新證據可用空陣列。這些上限優先於前述格式的較寬上限；精簡重複內容，保留仍有效的重要事實，必須完成整個 JSON，不可只輸出開頭。`,
           this.summary ? `【既有摘要】\n${this.summary}` : "",
@@ -344,7 +344,7 @@ const Chat = {
       let episodeWarning = "";
       if (owner && !normalized.repaired && config?.memory?.episodicRecall !== false) {
         try {
-          window.BAOEpisodicMemory?.ingest(owner, window.BAOHelperData.parse(result?.text || ""), chunk);
+          window.BAOEpisodicMemory?.ingest(owner, window.BAOHelperData.parse(result?.text || ""), chunk, this.messages);
         } catch (episodeError) {
           episodeWarning = "事件索引暫時未更新；長期摘要仍已保存。";
           console.warn("BAO/LAB episode indexing failed:", episodeError);

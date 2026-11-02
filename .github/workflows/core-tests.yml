@@ -658,7 +658,9 @@ jobs:
       - name: Per-request multi-model cost accounting
         run: node tests/per-request-cost-core.cjs
       - name: Episodic memory evidence and knowledge recall
-        run: node tests/episodic-memory-core.cjs
+        run: |
+          node tests/episodic-memory-core.cjs
+          node tests/episodic-memory-permissions-core.cjs
       - name: Recall ownership during asynchronous prompt assembly
         run: |
           node tests/episodic-recall-ownership-core.cjs

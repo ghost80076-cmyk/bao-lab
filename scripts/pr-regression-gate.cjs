@@ -14,9 +14,13 @@ const GROUPS = [
     'tests/story-backup-core.cjs', 'tests/context-pack-resume-core.cjs', 'tests/request-lifecycle-core.cjs'
   ] },
   { id: 'memory', patterns: [
-    /^js\/(?:memory-|context-|canon-|episodic-memory|full-story-memory|story-tools|story-maintenance|story-data-task|helper-context|reader-context)/,
-    /^tests\/(?:memory-|context-|canon-|episodic-memory|full-story-memory|story-maintenance|story-data-task)/
+    /^js\/(?:memory-|context-|canon-|episodic-memory|full-story-memory|story-tools|story-maintenance|story-data-task|helper-context|helper-data|reader-context|chat\.js)/,
+    /^tests\/(?:memory-|context-|canon-|episodic-memory|full-story-memory|story-maintenance|story-data-task|helper-context|episodic-recall-ownership|worldbook-recall-ownership)/
   ], tests: [
+    'tests/episodic-memory-core.cjs',
+    'tests/episodic-memory-permissions-core.cjs',
+    'tests/episodic-recall-ownership-core.cjs',
+    'tests/worldbook-recall-ownership-core.cjs',
     'tests/memory-orchestration-core.cjs',
     'tests/memory-checkpoint-persistence-core.cjs',
     'tests/memory-workbench-persistence-core.cjs',

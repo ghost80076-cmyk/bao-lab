@@ -24,6 +24,8 @@
   };
   const resolveActor = (state,value) => actorResolver(state)(value);
   const resolveCast = (state,actors,resolve = actorResolver(state)) => {
+    // Never silently drop a speaker from a private audience.
+    if (!Array.isArray(actors) || actors.length > 30 || actors.some(a => !text(a,100))) return [];
     const names = list(actors,30).map(resolve);
     return names.some(name => name === null) ? [] : [...new Set(names)];
   };
@@ -41,6 +43,30 @@
   };
   const hash = value => { let n = 2166136261; for (const c of String(value)) n = Math.imul(n ^ c.codePointAt(0), 16777619); return (n >>> 0).toString(36); };
   const signature = m => hash(JSON.stringify([m.role, m.content, m.context_content || '']));
+  const modes = ['witnessed', 'told', 'rumor', 'inferred'];
+  const sourceIndex = messages => {
+    const sources = new Map(), seen = new Set();
+    for (const [index,message] of (Array.isArray(messages) ? messages : []).entries()) {
+      if (!object(message) || !text(message.id,100)) continue;
+      if (seen.has(message.id)) { sources.delete(message.id); continue; }
+      seen.add(message.id);
+      if (['user','assistant'].includes(message.role) && typeof message.content === 'string')
+        sources.set(message.id,{message,index});
+    }
+    return sources;
+  };
+  const evidenceProof = messages => {
+    const sources = sourceIndex(messages);
+    const valid = evidence => Array.isArray(evidence) && evidence.length > 0 && evidence.every(e =>
+      object(e) && sources.has(e.id) && signature(sources.get(e.id).message) === e.signature);
+    const first = evidence => Math.min(...evidence.map(e => sources.get(e.id).index));
+    const last = evidence => Math.max(...evidence.map(e => sources.get(e.id).index));
+    const knows = (entry,event) => object(entry) && modes.includes(entry.mode) && text(entry.claim)
+      && valid(entry.evidence) && valid(event.evidence)
+      && (entry.afterEvent === true ? first(entry.evidence) > last(event.evidence)
+        : first(entry.evidence) >= first(event.evidence));
+    return {sources,valid,first,last,knows};
+  };
   const terms = value => {
     const s = String(value || '').toLowerCase(), out = s.match(/[a-z0-9_]{2,}/g) || [];
     for (const run of s.match(/[\u3400-\u9fff]{2,}/g) || []) {
@@ -49,7 +75,7 @@
     }
     return [...new Set(out)].slice(0, 160);
   };
-  const rules = `在原本四類摘要 JSON 之外，可附加 episodes 陣列（最多 12 筆），只提取本次待整理原文的重要事件，不重抄既有摘要。每筆格式：{"text":"精簡事件","time":"原文明說的故事時間或空字串","entities":["人物／地點"],"keywords":["線索／同義詞"],"evidenceIds":["原文 message ID"],"visibility":"restricted|public","certainty":"confirmed|rumor|inference|retracted","supersedes":["被明確推翻的既有事件 ID"],"knowledge":[{"actor":"角色正式名稱","mode":"witnessed|told|rumor|inferred","claim":"此角色實際知道或相信的內容","evidenceIds":["得知資訊的 message ID"]}]}。visibility 預設 restricted；只有原文明確對所有人公開的事件才用 public，不可因玩家看過就視為公開。角色出場不代表知情；knowledge 只能根據目擊、告知、傳聞或推理的明確原文來源，無來源留空。傳聞、猜測與錯誤信念不能改寫客觀事實。supersedes 只在本次原文明確推翻既有事件結論時填入，正常後續發展與和解不等於原事件未發生。不得推測日期或玩家心理。既有事件在後續對話被角色得知、誤信或更正時，可另輸出 knowledgeUpdates（最多 12 筆），格式為 {"eventId":"既存事件 ID","actor":"角色正式名稱","mode":"witnessed|told|rumor|inferred","claim":"該角色此刻實際知道或相信的內容","evidenceIds":["本次新對話 message ID"]}；只根據本輪新原文更新，不可根據事件索引臆造角色知情，不用把舊事件再新增一次；完全沒有更新時輸出空陣列。`;
+  const rules = `在原本四類摘要 JSON 之外，可附加 episodes 陣列（最多 12 筆），只提取本次待整理原文的重要事件，不重抄既有摘要。每筆格式：{"text":"精簡事件","time":"原文明說的故事時間或空字串","entities":["人物／地點"],"keywords":["線索／同義詞"],"evidenceIds":["原文 message ID"],"visibility":"restricted|public","certainty":"confirmed|rumor|inference|retracted","supersedes":["被明確推翻的既有事件 ID"],"knowledge":[{"actor":"角色正式名稱","mode":"witnessed|told|rumor|inferred","claim":"此角色實際知道或相信的內容","evidenceIds":["得知資訊的 message ID"]}]}。visibility 預設 restricted；只有原文明確對所有人公開的事件才用 public，不可因玩家看過就視為公開。角色出場不代表知情；knowledge 只能根據目擊、告知、傳聞或推理的明確原文來源，無來源留空。傳聞、猜測與錯誤信念不能改寫客觀事實。supersedes 只在本次原文明確推翻既有事件結論時填入，正常後續發展與和解不等於原事件未發生。不得推測日期或玩家心理。人物關係必須保留方向與主體，例如「A 信任 B」不能改寫為「B 信任 A」或「彼此信任」；沒有雙向原文證據就不能對稱化，不得替玩家決定感情。既有事件在後續對話被角色得知、誤信或更正時，可另輸出 knowledgeUpdates（最多 12 筆），格式為 {"eventId":"既存事件 ID","actor":"角色正式名稱","mode":"witnessed|told|rumor|inferred","claim":"該角色此刻實際知道或相信的內容","evidenceIds":["本次新對話 message ID"]}；只根據本輪新原文更新，不可根據事件索引臆造角色知情，不用把舊事件再新增一次；完全沒有更新時輸出空陣列。`;
   const strings = { type: 'array', items: { type: 'string' } };
   const schema = { type: 'object', properties: {
     events: strings, knownFacts: strings, relationships: strings, openThreads: strings,
@@ -67,12 +93,13 @@
       claim: { type: 'string' }, evidenceIds: strings
     }, required: ['eventId', 'actor', 'mode', 'claim', 'evidenceIds'] } }
   }, required: ['events', 'knownFacts', 'relationships', 'openThreads', 'episodes'] };
-  function ingest(state, raw, chunk) {
+  function ingest(state, raw, chunk, messages = chunk) {
     if (!state || (!Array.isArray(raw?.episodes) && !Array.isArray(raw?.knowledgeUpdates))) return;
-    const sources = new Map(chunk.filter(m => m.id).map(m => [m.id, m]));
+    const sources = sourceIndex(chunk), proof = evidenceProof(messages);
     const anchors = ids => {
       const names = list(ids);
-      return names.length && names.every(id => sources.has(id)) ? names.map(id => ({ id, signature: signature(sources.get(id)) })) : [];
+      const evidence = names.length && names.every(id => sources.has(id)) ? names.map(id => ({ id, signature: signature(sources.get(id).message) })) : [];
+      return proof.valid(evidence) ? evidence : [];
     };
     const previous = Array.isArray(state.episodicMemory?.events) ? state.episodicMemory.events.filter(object).slice(-1000) : [];
     const events = previous.slice();
@@ -91,9 +118,19 @@
         certainty: ['confirmed', 'rumor', 'inference', 'retracted'].includes(rawEvent.certainty) ? rawEvent.certainty : 'inference', knowledge };
       const order = new Map(chunk.map((m, i) => [m.id, i]));
       next.supersedes = list(rawEvent.supersedes).filter(target => previous.some(e => object(e) && e.id === target && e.id !== id &&
-        Array.isArray(e.evidence) && e.evidence.every(a => object(a) && !order.has(a.id))));
+        Array.isArray(e.evidence) && (proof.valid(e.evidence)
+          ? proof.first(evidence) > proof.last(e.evidence)
+          : messages === chunk && e.evidence.every(a => object(a) && !order.has(a.id)))));
       const index = events.findIndex(e => e.id === id);
-      if (index < 0) events.push(next); else events[index] = next;
+      if (index < 0) events.push(next); else {
+        // Replaying the original extraction must retain later observations,
+        // but rewritten origin messages cannot inherit the old history.
+        if (JSON.stringify(events[index].evidence) === JSON.stringify(evidence)) {
+          const history = [...knowledge,...(Array.isArray(events[index].knowledge) ? events[index].knowledge : [])];
+          next.knowledge = [...new Map(history.map(k => [JSON.stringify(k),k])).values()].slice(-100);
+        }
+        events[index] = next;
+      }
     }
     // Later knowledge does not rewrite the event's objective facts. Keep dated
     // observations so rewinding a branch still retrieves earlier beliefs.
@@ -109,17 +146,19 @@
       // If the original event and update are in this chunk, the new
       // knowledge must actually occur later; otherwise use prior chunks.
       if (originInChunk.length && earliest <= Math.max(...originInChunk)) continue;
-      const record = { actor, mode: item.mode, claim, evidence };
+      const record = { actor, mode: item.mode, claim, evidence, afterEvent: true };
+      // Full-history callers can also reject updates to an event that no
+      // longer exists on this branch. Legacy chunk-only callers stay readable.
+      if (messages !== chunk && !proof.knows(record,event)) continue;
       const history = Array.isArray(event.knowledge) ? event.knowledge : [];
       if (history.some(k => k.actor === actor && k.mode === record.mode && k.claim === claim
         && JSON.stringify(k.evidence) === JSON.stringify(evidence))) continue;
-      event.knowledge = [...history, record].slice(-100);
+      events[events.indexOf(event)] = {...event,knowledge: [...history, record].slice(-100)};
     }
     state.episodicMemory = { version: 1, events: events.slice(-1000) };
   }
   function recall({ state, messages = [], input = '', actors = [], exclude = '', maxChars = 2400, onDecision = () => {} }) {
-    const sources = new Map(messages.map((m, i) => [m.id, { message: m, index: i }]));
-    const valid = evidence => Array.isArray(evidence) && evidence.length && evidence.every(e => object(e) && sources.has(e.id) && signature(sources.get(e.id).message) === e.signature);
+    const {sources,valid,knows} = evidenceProof(messages);
     const resolve = actorResolver(state), words = terms(input), audience = resolveCast(state,actors,resolve);
     const excluded = String(exclude), seen = new Set(), candidates = [];
     const events = (Array.isArray(state?.episodicMemory?.events) ? state.episodicMemory.events : []).slice(-1000);
@@ -135,19 +174,21 @@
       if (!object(event)) continue;
       const decision = reason => onDecision({id: event.id, reason});
       if (!valid(event.evidence)) { decision('evidence'); continue; }
-      if (event.certainty === 'retracted' || superseded.has(event.id)) { decision('retracted'); continue; }
+      const withdrawn = event.certainty === 'retracted' || superseded.has(event.id);
       // A single shared request must not receive secrets inaccessible to any
       // current speaker. Unknown cast => only explicitly public facts.
       const knowledge = audience.map(actor => {
         const history = (Array.isArray(event.knowledge) ? event.knowledge : []).filter(k =>
-          object(k) && resolve(k.actor) === actor && valid(k.evidence));
+          object(k) && resolve(k.actor) === actor && knows(k,event));
         history.sort((a, b) => Math.max(...a.evidence.map(e => sources.get(e.id).index))
           - Math.max(...b.evidence.map(e => sources.get(e.id).index)));
         return history.length ? [history[history.length - 1]] : [];
       });
-      const shared = event.visibility === 'public' && event.certainty === 'confirmed';
+      // Correcting an objective fact does not make every character learn the
+      // correction. Old, evidenced beliefs remain explicitly role knowledge.
+      const shared = !withdrawn && event.visibility === 'public' && event.certainty === 'confirmed';
       const known = audience.length && knowledge.every(items => items.length);
-      if (!shared && !known) { decision('knowledge'); continue; }
+      if (!shared && !known) { decision(withdrawn ? 'retracted' : 'knowledge'); continue; }
       const claims = shared ? [{ text: event.text, label: '公開事實', evidence: event.evidence }] : knowledge.flatMap((items, i) => items.filter(k => knowledge.every(group => group.some(other => other.claim === k.claim))).map(k => ({ text: k.claim, label: `${audience[i]}｜${k.mode}`, evidence: k.evidence })));
       if (!claims.length) { decision('knowledge'); continue; }
       const visibleClaims = claims.filter(c => c.text && !excluded.includes(c.text));
@@ -187,18 +228,16 @@
   // Read-only inspector for the player. The assistant receives only recall()
   // output, never this full table. Invalid/revised source evidence is hidden.
   function knowledgeMatrix({ state, messages = [], maxEvents = 20, includeEvidence = false }) {
-    const sources = new Map(messages.map((m, i) => [m.id, { message: m, index: i }]));
-    const valid = anchors => Array.isArray(anchors) && anchors.length > 0
-      && anchors.every(e => object(e) && sources.has(e.id)
-        && signature(sources.get(e.id).message) === e.signature);
+    const {sources,valid,knows} = evidenceProof(messages), resolve = actorResolver(state);
     const events = Array.isArray(state?.episodicMemory?.events) ? state.episodicMemory.events : [];
     return events.filter(e => object(e) && valid(e.evidence)).slice(-Math.max(1, Math.min(50, Number(maxEvents) || 20))).map(event => {
       const byActor = new Map();
       for (const entry of Array.isArray(event.knowledge) ? event.knowledge : []) {
-        if (!object(entry) || !entry.actor || !valid(entry.evidence)) continue;
+        const actor = object(entry) && resolve(entry.actor);
+        if (!actor || !knows(entry,event)) continue;
         const seenAt = Math.max(...entry.evidence.map(e => sources.get(e.id).index));
-        if (!byActor.has(entry.actor) || seenAt >= byActor.get(entry.actor).seenAt)
-          byActor.set(entry.actor, { actor: entry.actor, mode: entry.mode, claim: entry.claim, seenAt,
+        if (!byActor.has(actor) || seenAt >= byActor.get(actor).seenAt)
+          byActor.set(actor, { actor, mode: entry.mode, claim: entry.claim, seenAt,
             ...(includeEvidence ? { evidence: entry.evidence.map(e => ({ id: e.id, signature: e.signature })) } : {}) });
       }
       return { id: event.id, text: event.text, time: event.time || '',
@@ -206,6 +245,10 @@
         knowledge: [...byActor.values()].map(({ seenAt, ...k }) => k) };
     }).reverse();
   }
-  const updateContext = state => (Array.isArray(state?.episodicMemory?.events) ? state.episodicMemory.events : []).filter(object).slice(-8).map(e => ({ id: e.id, text: text(e.text, 120) }));
+  const updateContext = (state,messages) => {
+    const proof = messages === undefined ? null : evidenceProof(messages);
+    return (Array.isArray(state?.episodicMemory?.events) ? state.episodicMemory.events : [])
+      .filter(e => object(e) && (!proof || proof.valid(e.evidence))).slice(-8).map(e => ({ id:e.id,text:text(e.text,120) }));
+  };
   window.BAOEpisodicMemory = { rules, schema, updateContext, ingest, recall, knowledgeMatrix, audience, canRead, resolveActor, terms, signature };
 })();
