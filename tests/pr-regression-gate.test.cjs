@@ -10,12 +10,17 @@ test('memory edits include revision, rollback and state consistency', () => {
   const plan = select(['js/memory-workbench-ai.js']);
   assert.ok(plan.groups.includes('memory'));
   includes(plan, 'memory-orchestration-core.cjs', 'story-revision-state-core.cjs',
-    'story-rollback-core.cjs', 'status-revision-entry-ownership-core.cjs');
+    'story-rollback-core.cjs', 'status-revision-entry-ownership-core.cjs', 'world-state-completion-core.cjs');
 });
 test('revision edits carry memory ownership and branch recovery checks', () => {
   const plan = select(['js/story-revision-state.js', 'js/story-branches.js']);
   assert.ok(plan.groups.includes('story-state'));
   includes(plan, 'story-branch-commit-core.cjs', 'memory-summary-ownership-core.cjs');
+});
+test('modular state implementation gets state completion and rollback checks', () => {
+  const plan = select(['js/world-modules.js']);
+  assert.ok(plan.groups.includes('story-state'));
+  includes(plan, 'world-state-completion-core.cjs', 'story-rollback-core.cjs');
 });
 test('model or provider changes test memory and policy outcomes', () => {
   const plan = select(['js/helper-api-routing.js']);

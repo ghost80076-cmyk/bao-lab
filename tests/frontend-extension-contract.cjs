@@ -14,7 +14,7 @@ assert(memoryWorkbenchSource.includes('data-summary-mode-notice'));
 assert(siteUI.includes('js/world-state-cost.js?v=13'));
 assert(siteUI.includes('js/provider-policy-guard.js?v=1'), 'policy circuit must load before hosted transport');
 assert(siteUI.indexOf('js/provider-policy-guard.js?v=1') < siteUI.indexOf('js/credits-pilot.js?v=2'));
-assert(index.includes('src="js/site-ui.js?v=173"'));
+assert(index.includes('src="js/site-ui.js?v=174"'));
 assert(siteUI.includes('js/full-story-memory-rebuild.js?v=4'));
 const appSource = read("js/app.js");
 const bridge = read("js/global-bridge.js");
@@ -62,12 +62,12 @@ increasing(index, [
 // World-state chain: the bridge must install its guards before world modules.
 increasing(siteUI, [
   'loadBAOScript("js/global-bridge.js?v=8")',
-  'loadBAOScript("js/world-state.js?v=5")',
+  'loadBAOScript("js/world-state.js?v=6")',
   'loadBAOScript("js/character-status.js?v=5")',
   'loadBAOScript("js/three-realms-cultivation-core.js?v=1")',
   'loadBAOScript("js/three-realms-event-profiles.js?v=6")',
   'loadBAOScript("js/three-realms-events-core.js?v=6")',
-  'loadBAOScript("js/world-modules.js?v=10")',
+  'loadBAOScript("js/world-modules.js?v=11")',
   'loadBAOScript("js/world-state-hook.js?v=7")'
 ], "world-state extension");
 
@@ -113,7 +113,7 @@ assert.match(siteUI, /window\.BAOEnsureStoryLibrary = \(\) =>/);
 // Modules without their own global idempotency guard currently rely on the loader;
 // protect against accidentally adding a second loader while the wrapper design is unchanged.
 assert.equal(
-  siteUI.split('loadBAOScript("js/world-modules.js?v=10")').length - 1,
+  siteUI.split('loadBAOScript("js/world-modules.js?v=11")').length - 1,
   1,
   "world-modules must be loaded exactly once by site-ui"
 );

@@ -242,6 +242,7 @@
     const characterStatusRules = window.BAOCharacterStatus?.trackerRules?.() || "";
     const statusBlock = characterStatusRules ? `【人物狀態欄位】\n只有角色狀態真的改變時，才在 character_statuses 內回傳該角色更新後的欄位。不得猜測沒有證據的身體、服裝、心理或關係變化。\n${characterStatusRules}` : "";
     const snapshot = this.stateSnapshot(defs, turnText);
+    const accepts = this.captureUpdateGuard(config);
     const prompt = [
       "你是角色扮演遊戲的狀態追蹤器，不是故事作者。",
       "只根據本輪玩家輸入與故事回覆更新有明確依據的狀態，不得自行補劇情。",
@@ -265,11 +266,10 @@
 
     try {
       const result = await API.send({ ...config.api, maxOutputTokens: Math.min(Number(config.api.maxOutputTokens || 1200), 1200) }, [
-        { role: "system", content: "只進行狀態追蹤，只輸出合法 JSON。" },
+        { role: "system", content: window.BAOMemoryCore?.taskSystem?.("世界模組與人物狀態增量核對", "只進行狀態追蹤，只輸出合法 JSON。") || "只進行狀態追蹤，只輸出合法 JSON。" },
         { role: "user", content: prompt }
       ]);
-      if (GameState.current !== owner) return null;
-      if (result?.blockReason || /^(MAX_TOKENS|LENGTH|MAX_OUTPUT_TOKENS|MAX_COMPLETION_TOKENS|SAFETY|PROHIBITED_CONTENT|BLOCKLIST|SPII|CONTENT_FILTER)$/i.test(result?.finishReason || '')) return null;
+      if (!accepts(result)) return null;
       const raw = this.parse(result?.text || "");
       const data = window.BAOHelperData.stateUpdate(raw, defs, `${playerText}\n${assistantText}`, { collectionMode: 'merge', removalEvidence: assistantText });
       const missingCharacters = data ? window.BAOHelperData.characterCoverage(raw, data, snapshot.character_statuses || {}) : [];
