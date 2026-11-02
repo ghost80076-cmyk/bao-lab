@@ -35,7 +35,7 @@ try{
  const wrongProof=core.replace("${sourceIds.join('、')}","${candidate.event.evidence.map(e => e.id).join('、')}");
  assert.notEqual(wrongProof,core);write(files[1],wrongProof);
  const provenance=run();assert.equal(provenance.status,1);assert.ok(provenance.report.supported.sourceErrors>0,'plausible text with incorrect evidence must fail');
- const unrestricted=core.replace("const shared = event.visibility === 'public' && event.certainty === 'confirmed';","const shared = true;");
+ const unrestricted=core.replace("const shared = !withdrawn && event.visibility === 'public' && event.certainty === 'confirmed';","const shared = true;");
  assert.notEqual(unrestricted,core);write(files[1],unrestricted);
  const leak=run();assert.equal(leak.status,1);assert.ok(leak.report.supported.forbiddenContentCases>0,'scope leak must fail');
  console.log('PASS fixed oracles, fresh evidence, counted diagnostic gaps; empty retrieval, wrong provenance and scope leak fail the gate');

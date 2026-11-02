@@ -23,6 +23,7 @@ const GROUPS = [
     'tests/npc-timeline-resolution-core.cjs',
     'tests/actor-alias-core.cjs',
     'tests/actor-alias-runtime.cjs',
+    'tests/recall-acceptance-runner-core.cjs',
     'tests/episodic-recall-ownership-core.cjs',
     'tests/worldbook-recall-ownership-core.cjs',
     'tests/memory-orchestration-core.cjs',
