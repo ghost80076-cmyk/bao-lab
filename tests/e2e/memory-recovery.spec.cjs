@@ -183,7 +183,10 @@ for (const width of [390, 1280]) {
     await page.evaluate(()=>{
       App.config.api={type:'custom',protocol:'openai',key:'mock',model:'test',baseUrl:'https://memory.test/chat/completions'};
       App.config.memory.summaryApiMode='same';
-      Chat.messages.forEach(m=>m.content=m.content.slice(0,35));
+      // Seed consistent messages/variant snapshots rather than silently editing
+      // already-rendered revision content before saving a reload fixture.
+      Chat.reset();
+      for(let index=0;index<30;index++){Chat.add('user','行動'+index);Chat.add('assistant','結果'+index);}
       App.saveStory=()=>GameState.current.memoryRefineDraft&&!GameState.current.memoryRefineJob?false:Storage.saveStory();
       BAOMemoryWorkbench.open();
     });
@@ -201,6 +204,9 @@ for (const width of [390, 1280]) {
     await page.evaluate(()=>{
       if(!Storage.restoreStory(Storage.loadStory()))throw new Error('restore failed');
       App.config.api.key='mock';
+      const job=GameState.current.memoryRefineJob;
+      const source=Chat.messages.slice(-40).map(m=>`[${m.id||'legacy'}] ${m.role==='user'?'玩家':'角色'}：${m.role==='assistant'&&Chat.modelContent?Chat.modelContent(m):m.content}`).join('\n\n');
+      if(job.offset!==source.length||job.prefix!==BAOMemoryCore.fingerprint(source))throw new Error('restored checkpoint source differs');
       App.renderChatShell(false);App.showView('chat');BAOMemoryWorkbench.open();
     });
     desk=page.locator('.memory-desk');
