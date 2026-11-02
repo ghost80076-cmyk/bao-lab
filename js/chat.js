@@ -158,7 +158,7 @@ const Chat = {
     try {
       const repairConfig = { ...summaryConfig, __memoryTask: true, __memoryTaskKind: 'repair', __memoryRepairTask: true, cacheEnabled: false, maxOutputTokens: Math.min(1400, Number(summaryConfig?.maxOutputTokens || 1400)) };
       const repairMessages = [
-          { role: "system", content: window.BAOMemoryCore?.taskSystem?.("摘要 JSON 格式修復", "只修正格式，不新增、不推測故事事實；只輸出完整 JSON。") || "你是 JSON 修復器。只修正格式，不新增、不推測任何故事事實。" },
+          { role: "system", content: window.BAOMemoryCore?.taskSystem?.("JSON 修復器", "你是 JSON 修復器。只修正格式，不新增、不推測任何故事事實；只輸出完整 JSON。") || "你是 JSON 修復器。只修正格式，不新增、不推測任何故事事實。" },
           { role: "user", content: `請把以下內容轉成指定 JSON；只輸出 JSON。\n\n${window.BAOHelperData.memoryRules}\n\n【待修復輸出】\n${source.slice(0, 12000)}` }
         ];
       const repair = window.BAOMemoryCore
@@ -283,7 +283,7 @@ const Chat = {
           __automaticPolicyTask: true,
           ...(config?.memory?.episodicRecall !== false && window.BAOEpisodicMemory ? { __responseSchema: window.BAOEpisodicMemory.schema } : {}) };
         window.BAOCreditsPilot?.prepareAccountConfig?.(summaryConfig);
-        const requestMessages = [{ role: "system", content: window.BAOMemoryCore?.taskSystem?.("長期記憶摘要", "你是 Observer，不是故事作者。只輸出記憶規格 JSON，不要續寫故事或模仿正文文風。") || "你是 Observer，不是作者。只輸出記憶規格 JSON，不要續寫故事或模仿正文文風。" }, { role: "user", content: prompt }];
+        const requestMessages = [{ role: "system", content: window.BAOMemoryCore?.taskSystem?.("長期記憶摘要", "你是 Observer，不是作者。只輸出記憶規格 JSON，不要續寫故事或模仿正文文風。") || "你是 Observer，不是作者。只輸出記憶規格 JSON，不要續寫故事或模仿正文文風。" }, { role: "user", content: prompt }];
         if (window.BAOMemoryCore && !window.BAOMemoryCore.fits(summaryConfig, requestMessages)) {
           const completed = chunk.map((m, i) => m.role === 'assistant' ? i + 1 : 0).filter(n => n > 0 && n < chunk.length);
           const smaller = completed.filter(n => n <= Math.ceil(chunk.length / 2)).pop();
