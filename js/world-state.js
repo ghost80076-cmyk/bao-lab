@@ -40,8 +40,27 @@ const WorldStateEngine = {
     };
   },
 
+  // Share completion/source validation with the modular tracker, which replaces
+  // update() after loading. A valid JSON object alone is not proof of success.
+  captureUpdateGuard(config) {
+    const owner = GameState.current;
+    const history = () => JSON.stringify(window.Chat?.messages || []);
+    const source = history(), settings = JSON.stringify(config);
+    const appConfig = window.App?.config, appSettings = JSON.stringify(appConfig);
+    return result => {
+      if (GameState.current !== owner || history() !== source || JSON.stringify(config) !== settings ||
+          window.App?.config !== appConfig || JSON.stringify(window.App?.config) !== appSettings) return false;
+      const error = window.BAOMemoryCore?.completionError
+        ? window.BAOMemoryCore.completionError(result)
+        // Compatibility for standalone/legacy hosts without the shared core.
+        : result?.blockReason || /^(SAFETY|PROHIBITED_CONTENT|BLOCKLIST|SPII|CONTENT_FILTER|IMAGE_SAFETY|MAX_TOKENS|LENGTH|MAX_OUTPUT_TOKENS|MAX_COMPLETION_TOKENS)$/i.test(String(result?.finishReason || '').trim());
+      return !error;
+    };
+  },
+
   async update(config, playerText, assistantText) {
     if (!this.enabled(config) || !config?.api?.key || !GameState.current) return null;
+    const accepts = this.captureUpdateGuard(config);
     const prompt = [
       "你是角色扮演遊戲的狀態整理器，不是故事作者。",
       "根據本輪玩家輸入與故事回覆，只更新有明確依據的世界狀態。",
@@ -63,6 +82,7 @@ const WorldStateEngine = {
         { role: "system", content: window.BAOMemoryCore?.taskSystem?.("世界狀態增量核對", "只輸出合法 JSON 世界狀態 PATCH。") || "只輸出合法 JSON 世界狀態。" },
         { role: "user", content: prompt }
       ]);
+      if (!accepts(result)) return null;
       const data = window.BAOHelperData.stateUpdate(this.parse(result?.text || ""), [], `${playerText}\n${assistantText}`);
       if (GameState.current) GameState.current.stateRequestDiagnostics = {
         ...(GameState.current.stateRequestDiagnostics || {}), parsed: Boolean(data), applied: false

@@ -24,10 +24,11 @@ const GROUPS = [
     'tests/story-revision-state-core.cjs',
     'tests/story-rollback-core.cjs',
     'tests/status-revision-entry-ownership-core.cjs',
-    'tests/story-maintenance-send-gate-core.cjs'
+    'tests/story-maintenance-send-gate-core.cjs',
+    'tests/world-state-completion-core.cjs'
   ] },
   { id: 'story-state', patterns: [
-    /^js\/(?:story-(?:branches|rollback|revision|history|library|integrity|timeline|helper|persona|actor)|world-state|state(?:\.|\/)|state-tracker|character-status|npc-|same-model-state-merge|global-bridge)/,
+    /^js\/(?:story-(?:branches|rollback|revision|history|library|integrity|timeline|helper|persona|actor)|world-state|world-modules|state(?:\.|\/)|state-tracker|character-status|npc-|same-model-state-merge|global-bridge)/,
     /^tests\/(?:story-(?:branch|rollback|revision|history|library|integrity|timeline|helper|persona|actor)|world-state|state-|character-status|npc-|same-model-state)/
   ], tests: [
     'tests/story-revision-state-core.cjs',
@@ -35,7 +36,8 @@ const GROUPS = [
     'tests/story-rollback-core.cjs',
     'tests/state-snapshot-continuity-core.cjs',
     'tests/status-revision-entry-ownership-core.cjs',
-    'tests/memory-summary-ownership-core.cjs'
+    'tests/memory-summary-ownership-core.cjs',
+    'tests/world-state-completion-core.cjs'
   ] },
   { id: 'model-requests', patterns: [
     /^js\/(?:api\.js|helper-api|model-|provider-|request-|chat-api|story-data-task|world-state|memory-core)/,

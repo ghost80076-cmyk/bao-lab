@@ -55,6 +55,8 @@ jobs:
         run: node tests/native-status-packs-core.cjs
       - name: State helper concurrency guard
         run: node tests/world-state-concurrency-core.cjs
+      - name: State completion and source ownership
+        run: node tests/world-state-completion-core.cjs
       - name: World template and usage integrity
         run: |
           node tests/status-usage-integrity-core.cjs
