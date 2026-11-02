@@ -29,3 +29,10 @@ These instructions apply to Codex working in this repository. They coordinate th
 - Keep UI changes scoped; verify relevant Chromium/Firefox/WebKit tests, desktop/mobile viewports, keyboard/focus/overlay behavior, theme contrast, and affected screenshot evidence. Report what was run; browser viewport simulation is **not** physical Android/iPhone keyboard validation.
 - `.codex/hooks.json` comes from Impeccable. Its local execution/trust is controlled by the developer's Codex environment; simply storing it in GitHub does not imply Hooks or downloaded executables have run on Windows.
 - Do not run optional asset-generation scripts, alter production infrastructure, deploy, or merge solely because a Skill suggests doing so. Follow the explicit user request and normal review/CI process.
+
+## Cross-PR correctness and completion
+
+- Before proposing a PR, inspect the full diff and list directly affected and connected domains. Changes to story memory, revision, branches/rollback, state/status, API/provider routing, storage and billing can affect other tools even when modified file paths do not overlap.
+- Consult scripts/pr-regression-gate.cjs and docs/pr-regression-contract.md for executable checks; never claim a subsystem was verified just because AGENTS.md or an AI prompt required it.
+- Report actual CI job results, failed/skipped/pending checks, unverified surfaces and rollback strategy. The regression-impact job adds cross-feature checks but does not replace Core tests or Playwright.
+- A handoff must distinguish source changed, tests passed, PR merged, production deployed and production smoke verified. These are separate observable events.
