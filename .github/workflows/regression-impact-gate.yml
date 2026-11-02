@@ -1,0 +1,35 @@
+name: Regression impact gate
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: regression-impact-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  regression-impact:
+    name: regression-impact
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout full history for PR diff
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify gate rules and test inventory
+        run: node --test tests/pr-regression-gate.test.cjs
+      - name: Execute cross-feature regression contracts
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node scripts/pr-regression-gate.cjs --base "$BASE_SHA" --head "$HEAD_SHA"
