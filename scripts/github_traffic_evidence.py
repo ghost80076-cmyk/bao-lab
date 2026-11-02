@@ -123,7 +123,7 @@ def make_summary(snapshot: dict, status: str) -> str:
     lines = [
         "# GitHub Traffic 每日存證",
         "",
-        f"- Repo: \`{snapshot['repository']}\`",
+        f"- Repo: `{snapshot['repository']}`",
         f"- 擷取時間 (UTC): {snapshot['collected_at_utc']}",
         f"- 最近 14 天 Clone：**{clones['rolling_14d_count']:,}**；Unique cloners：**{clones['rolling_14d_uniques']:,}**",
         f"- 最近 14 天 Views：**{views['rolling_14d_count']:,}**；Unique visitors：**{views['rolling_14d_uniques']:,}**",
