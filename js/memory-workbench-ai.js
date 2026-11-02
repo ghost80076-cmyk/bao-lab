@@ -70,11 +70,13 @@
       const readSource=()=>sourceText(mode,window.BAOMemoryWorkbench.readSlots());
       const src=readSource();
       if(!src.trim()){status.textContent="目前沒有可整理的內容。";return;}
-      const sourceId=core.fingerprint(src);
-      const isCurrent=()=>currentStory()===owner&&App.config===storyConfig&&core.fingerprint(readSource())===sourceId;
+      const sourceId=core.fingerprint(src),settings=JSON.stringify(storyConfig);
+      const isCurrent=()=>currentStory()===owner&&App.config===storyConfig&&JSON.stringify(storyConfig)===settings&&core.fingerprint(readSource())===sourceId;
+      const persist=changes=>core.commitState({owner,changes,isCurrent,save:()=>App.saveStory?.(false),flush:()=>window.Storage?.flush?.(),load:window.Storage?.loadStory?.bind(window.Storage),verify:window.BAOStorageWriteGuard?.verify});
       const controls=[...area.querySelectorAll('button,select,input')];
       const maintenance = window.BAOStoryMaintenanceLock;
       let ownsMaintenance = false;
+      const lockToken = {};
       try{
         const cfg=core.config(storyConfig,'notes',App.modelPresets||[]);
         window.BAOCreditsPilot?.prepareAccountConfig?.(cfg);
@@ -87,7 +89,7 @@
         const remaining=src.slice(prior.offset||0);
         const estimated=Math.max(1,Math.ceil(core.tokens(remaining)/core.sourceBudget(cfg,makeMessages('',prior.summary||''))));
         if(estimated>1&&!confirm(`本次來源預估至少需要 ${estimated} 批整理，每批會產生模型費用；每次最多執行 8 批，可從成功進度繼續。要開始嗎？`))return;
-        if(App.__requestPending || Chat.summarizing || (maintenance && !maintenance.start(owner, { label: "正在進行 AI 記憶整理" })))
+        if(App.__requestPending || Chat.summarizing || (maintenance && !maintenance.start(owner, { label: "正在進行 AI 記憶整理", token: lockToken })))
           throw new Error("目前有其他故事／整理工作，請完成後再整理；尚未送出付費請求。");
         ownsMaintenance = Boolean(maintenance);
         active.set(owner,{mode,style});
@@ -100,19 +102,17 @@
             if(!normalized.summary)throw new Error(normalized.error||'模型沒有產生可用整理稿。');
             return normalized.summary;
           },
-          save:async checkpoint=>{owner.memoryRefineJob={version:1,id:jobId,planId,prefix:core.fingerprint(src.slice(0,checkpoint.offset)),mode,style,...checkpoint};App.saveStory?.(false);},
+          save:checkpoint=>persist({memoryRefineJob:{version:1,id:jobId,planId,prefix:core.fingerprint(src.slice(0,checkpoint.offset)),mode,style,...checkpoint}}),
           onProgress:progress=>notify(owner,`整理中 · 已完成 ${progress.completed} 批 · ${Math.floor(progress.offset/src.length*100)}%`)
         });
         if(result.complete){
-          owner.memoryRefineDraft=result.summary;
-          delete owner.memoryRefineJob;
+          await persist({memoryRefineDraft:result.summary,memoryRefineJob:undefined});
           area.querySelector('[data-refine-draft]').textContent=result.summary;
           notify(owner,`完成 · 共 ${result.completed} 批，請預覽後寫入。`);
         }else notify(owner,`已保存 ${result.completed} 批進度，尚有來源未整理；按「產生整理稿」繼續。`);
-        App.saveStory?.(false);
       }catch(err){if(currentStory()===owner)notify(owner,`整理失敗：${String(err.message||err).split("\n")[0]}${owner.memoryRefineJob?'；已完成批次保留，可再次按下繼續。':''}`);}
       finally{
-        if(ownsMaintenance) maintenance.end(owner);
+        if(ownsMaintenance) maintenance.end(owner, lockToken);
         active.delete(owner);
         controls.forEach(control=>control.disabled=false);
         area.querySelector('[data-write-draft]').disabled=!currentDraft();

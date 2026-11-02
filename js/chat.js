@@ -249,7 +249,8 @@ const Chat = {
       return; // Another maintenance task owns the story; leave raw turns for later.
     }
     this.summaryTask = task;
-    const isCurrent = () => this.summaryTask === task && window.GameState?.current === owner
+    const settings = JSON.stringify(config);
+    const isCurrent = () => JSON.stringify(config) === settings && this.summaryTask === task && window.GameState?.current === owner
       && this.summary === previousSummary && this.summarizedUntil === start
       && JSON.stringify(this.messages.slice(start, end).map(m => [m.id, m.content, m.context_content || ""])) === sourceSignature;
     this.summarizing = true;

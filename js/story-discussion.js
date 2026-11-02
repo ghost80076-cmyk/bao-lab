@@ -136,10 +136,11 @@
         const memory=window.BAOMemoryCore, config=App.config, cfg=memory.config(config,'notes',App.modelPresets||[],{signal});
         window.BAOCreditsPilot?.prepareAccountConfig?.(cfg);
         if(!cfg.key&&!window.BAOCreditsPilot?.isAccountReady?.(cfg))throw new Error('請先連接記憶整理模型。');
+        const settings=JSON.stringify(config);
         const plan=memory.fingerprint(JSON.stringify([cfg.model,cfg.baseUrl,cfg.protocol,cfg.maxOutputTokens]));
         const previous=job();
         const checkpoint=previous?.plan===plan?previous:{};
-        const result=await memory.foldText({source,config:cfg,checkpoint,makeMessages:(chunk,previous)=>core.splitMessages(chunk,previous).map((m,i)=>i?m:{...m,content:memory.taskSystem('匯入設定分類',m.content)}),send:(...args)=>API.send(...args),normalize:r=>JSON.stringify(core.parseDraft(r.text)),isCurrent:()=>view.current()&&App.config===config&&!signal.aborted,save:async progress=>{owner.settingSplitJob={...progress,fingerprint,plan,complete:false};await persist(owner);},onProgress:p=>{view.status.textContent=`已整理 ${p.completed} 批（${Math.floor(p.offset/p.total*100)}%）。`;}});
+        const result=await memory.foldText({source,config:cfg,checkpoint,makeMessages:(chunk,previous)=>core.splitMessages(chunk,previous).map((m,i)=>i?m:{...m,content:memory.taskSystem('匯入設定分類',m.content)}),send:(...args)=>API.send(...args),normalize:r=>JSON.stringify(core.parseDraft(r.text)),isCurrent:()=>view.current()&&App.config===config&&JSON.stringify(config)===settings&&!signal.aborted,save:async progress=>{owner.settingSplitJob={...progress,fingerprint,plan,complete:false};await persist(owner);},onProgress:p=>{view.status.textContent=`已整理 ${p.completed} 批（${Math.floor(p.offset/p.total*100)}%）。`;}});
         if(!view.current())throw new Error('故事已切換。');
         owner.settingSplitJob={...result,fingerprint,plan};await persist(owner);
         view.status.textContent=result.complete?'草稿完成，請修改並勾選要加入故事的類別。':'本次批次已保存，請按「產生／繼續」接續。';

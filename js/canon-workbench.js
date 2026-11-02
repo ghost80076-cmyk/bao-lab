@@ -46,7 +46,15 @@
   };
   const parseJSON = text => {
     const clean=String(text||"").trim().replace(/^```(?:json)?\s*/i,"").replace(/\s*```$/,"");
-    try{return JSON.parse(clean);}catch{const first=clean.indexOf("{"),last=clean.lastIndexOf("}");if(first<0||last<=first)throw new Error("模型沒有回傳可解析的 Canon JSON。");return JSON.parse(clean.slice(first,last+1));}
+    let data;
+    try{data=JSON.parse(clean);}catch{
+      const first=clean.indexOf("{"),last=clean.lastIndexOf("}");
+      if(first<0||last<=first)throw new Error("模型沒有回傳可解析的 Canon JSON。");
+      data=JSON.parse(clean.slice(first,last+1));
+    }
+    if(!data||!Array.isArray(data.notebooks)||data.notebooks.some(book=>!book||typeof book.title!=='string'||typeof book.content!=='string'))
+      throw new Error('Canon 整理欄位不完整，未推進整理進度。');
+    return data;
   };
   const schema='{"notebooks":[{"title":"","category":"relationships|knowledge|timeline|world|threads|current|conflicts","tier":"core|relevant|ui","certainty":"confirmed|mixed|uncertain","entities":[],"characters":[],"locations":[],"factions":[],"relatedThreads":[],"content":"條目化內容","evidence":"訊息編號與 message ID"}]}';
   const canonResponseSchema = {
@@ -85,7 +93,7 @@
     `本次模式：${mode==="full"?"完整重建":mode==="incremental"?"增量更新":"階層式中間合併"}；合併層級 ${level}；處理後訊息數為 ${totalMessages}。`,`只輸出合法 JSON，格式：${schema}`,
     final&&prior.notebooks.length?`【既有 Canon（僅供比對）】\n${JSON.stringify(prior.notebooks)}`:"",`【分段提取結果】\n${JSON.stringify(fragments)}`
   ].filter(Boolean).join("\n\n");
-  const requestMessages=prompt=>[{role:"system",content:"只進行劇情 Canon 整理與校驗，只輸出合法 JSON。"},{role:"user",content:prompt}];
+  const requestMessages=prompt=>[{role:"system",content:window.BAOMemoryCore.taskSystem("劇情 Canon 整理與校驗", "只進行劇情 Canon 整理與校驗，只輸出合法 JSON。")},{role:"user",content:prompt}];
   const requestConfig=(task={},kind='canon-extract')=>window.BAOMemoryCore.config(task.story||App.config,kind,App.modelPresets||[],{__responseSchema:canonResponseSchema});
   const request=async(prompt,kind='canon-extract',task={})=>{
     const config=requestConfig(task,kind);
@@ -100,15 +108,15 @@
     const work=job.merge||{level:fragments.slice(),depth:0,done:completed,index:0,next:[],processing:false};
     job.merge=work;
     while(work.processing||(work.level.length>1&&(work.level.length>MERGE_BATCH_SIZE||!core.fits(requestConfig(task,'canon-final'),requestMessages(mergePrompt(work.level,prior,mode,totalMessages,work.depth+1,true)))))){
-      if(!work.processing){work.depth++;work.processing=true;work.index=0;work.next=[];task.save();}
+      if(!work.processing){work.depth++;work.processing=true;work.index=0;work.next=[];await task.save();}
       while(work.index<work.level.length){
         const batch=core.mergeBatch(requestConfig(task,'canon-merge'),work.level.slice(work.index),items=>requestMessages(mergePrompt(items,normalizeCanon({}),"hierarchical",totalMessages,work.depth,false)),MERGE_BATCH_SIZE);
-        if(batch.length===1){work.next.push(batch[0]);work.index++;task.save();continue;}
+        if(batch.length===1){work.next.push(batch[0]);work.index++;await task.save();continue;}
         onProgress(`階層合併 L${work.depth}`,work.done,Math.max(totalCalls,work.done+1));
         const result=await request(mergePrompt(batch,normalizeCanon({}),"hierarchical",totalMessages,work.depth,false),'canon-merge',task);
-        work.next.push(parseJSON(result?.text||""));work.done++;work.index+=batch.length;task.save();
+        work.next.push(parseJSON(result?.text||""));work.done++;work.index+=batch.length;await task.save();
       }
-      work.level=work.next;work.next=[];work.index=0;work.processing=false;task.save();
+      work.level=work.next;work.next=[];work.index=0;work.processing=false;await task.save();
     }
     onProgress("最終合併與一致性校驗",work.done,Math.max(totalCalls,work.done+1));
     const result=await request(mergePrompt(work.level,prior,mode,totalMessages,work.depth+1,true),'canon-final',task);
@@ -135,8 +143,14 @@
     const all=ensureMessages(),prior=confirmed(),start=mode==="full"?0:processedStart(prior,all),selected=all.slice(start);
     if(!selected.length)throw new Error(mode==="full"?"目前沒有可整理的對話。":"上次確認後沒有新增對話。");
     const signature=()=>core.fingerprint(JSON.stringify(Chat.messages));
+    const settings=JSON.stringify(storyConfig);
     const expected=signature(),previousDraft=owner.canonDraft,previousCanon=owner.canon;
-    const task={story:{api:route,memory:{summaryApiMode:'same'}},isCurrent:()=>currentState()===owner&&App.config===storyConfig&&signature()===expected&&owner.canonDraft===previousDraft&&owner.canon===previousCanon};
+    const task={story:{api:route,memory:{summaryApiMode:'same'}},isCurrent:()=>currentState()===owner&&App.config===storyConfig&&JSON.stringify(storyConfig)===settings&&signature()===expected&&owner.canonDraft===previousDraft&&owner.canon===previousCanon};
+    const maintenance=window.BAOStoryMaintenanceLock,token={};
+    if(App.__requestPending||Chat.summarizing||(maintenance&&!maintenance.start(owner,{label:'正在整理劇情檔案',token})))
+      throw new Error('故事或其他資料整理正在進行，請完成後再整理劇情檔案。');
+    const persist=changes=>core.commitState({owner,changes,isCurrent:()=>currentState()===owner&&App.config===storyConfig&&JSON.stringify(storyConfig)===settings&&signature()===expected,
+      save:()=>App.saveStory?.(false),flush:()=>window.Storage?.flush?.(),load:window.Storage?.loadStory?.bind(window.Storage),verify:window.BAOStorageWriteGuard?.verify});
     active.add(owner);
     try{
       const chunks=planChunks(selected,start,task),totalCalls=chunks.length+mergeCallCount(chunks.length);
@@ -147,18 +161,23 @@
       const job=saved?JSON.parse(JSON.stringify(saved)):{version:1,id:jobId,fragments:[],nextChunk:0,merge:null};
       if(job.nextChunk>chunks.length||job.fragments.length!==job.nextChunk)throw new Error('劇情檔案整理進度與來源不一致。');
       task.job=job;
-      task.save=()=>{if(!task.isCurrent())throw new Error('故事已變更，已停止保存整理進度。');owner.canonJob=JSON.parse(JSON.stringify(job));App.saveStory?.(false);};
+      task.save=async()=>{if(!task.isCurrent())throw new Error('故事已變更，已停止保存整理進度。');await persist({canonJob:JSON.parse(JSON.stringify(job))});};
       const fragments=job.fragments;
-      for(let index=job.nextChunk;index<chunks.length;index++){
+      for(let index=job.nextChunk;!job.candidate&&index<chunks.length;index++){
         onProgress(`提取證據 ${index+1}/${chunks.length}`,index,totalCalls);
         const result=await request(extractPrompt(chunks[index],index+1,chunks.length),'canon-extract',task);
-        fragments.push(parseJSON(result?.text||""));job.nextChunk=index+1;task.save();
+        fragments.push(parseJSON(result?.text||""));job.nextChunk=index+1;await task.save();
       }
-      const result=await mergeFragments(fragments,prior,mode,all.length,onProgress,totalCalls,chunks.length,task);
-      if(!task.isCurrent())throw new Error('故事已變更，已停止寫入劇情檔案。');
-      const next=normalizeCanon({notebooks:result.merged.notebooks,lastProcessedMessageCount:all.length,lastProcessedMessageId:all.at(-1)?.id||""});
-      delete owner.canonJob;saveDraft(next);onProgress("草稿完成，等待玩家確認",result.completed,Math.max(totalCalls,result.completed));return next;
-    }finally{active.delete(owner);}
+      if(!job.candidate){
+        const result=await mergeFragments(fragments,prior,mode,all.length,onProgress,totalCalls,chunks.length,task);
+        if(!task.isCurrent())throw new Error('故事已變更，已停止寫入劇情檔案。');
+        job.candidate=normalizeCanon({notebooks:result.merged.notebooks,lastProcessedMessageCount:all.length,lastProcessedMessageId:all.at(-1)?.id||""});
+        await task.save();
+      }
+      const next=normalizeCanon(job.candidate);
+      await persist({canonJob:undefined,canonDraft:next});
+      onProgress("草稿完成，等待玩家確認",totalCalls,totalCalls);return next;
+    }finally{active.delete(owner);maintenance?.end(owner,token);}
   };
   const estimate=mode=>{
     const prior=confirmed(),all=ensureMessages(),start=mode==="full"?0:processedStart(prior,all);

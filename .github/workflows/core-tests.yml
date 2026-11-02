@@ -80,6 +80,10 @@ jobs:
         run: node tests/story-scene-prompt-core.cjs
       - name: Story flow core
         run: node tests/story-flow-core.cjs
+      - name: Memory checkpoint persistence and workbench lifecycle
+        run: |
+          node tests/memory-checkpoint-persistence-core.cjs
+          node tests/memory-workbench-persistence-core.cjs
       - name: Context Pack resumable organization
         run: node tests/context-pack-resume-core.cjs
       - name: Experience 3.0 preference and tool presentation

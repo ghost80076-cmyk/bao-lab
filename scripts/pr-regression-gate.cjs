@@ -18,6 +18,12 @@ const GROUPS = [
     /^tests\/(?:memory-|context-|canon-|episodic-memory|full-story-memory|story-maintenance|story-data-task)/
   ], tests: [
     'tests/memory-orchestration-core.cjs',
+    'tests/memory-checkpoint-persistence-core.cjs',
+    'tests/memory-workbench-persistence-core.cjs',
+    'tests/canon-workbench-core.cjs',
+    'tests/full-story-memory-rebuild-core.cjs',
+    'tests/storage-fallback-integrity-core.cjs',
+    'tests/story-backup-recovery-core.cjs',
     'tests/memory-truncation-recovery-core.cjs',
     'tests/memory-summary-ownership-core.cjs',
     'tests/context-pack-resume-core.cjs',
