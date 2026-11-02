@@ -85,5 +85,12 @@ async function flush() { for (let i = 0; i < 12; i++) await Promise.resolve(); }
   assert.equal(changed.ctx.Chat.summary, '');
   assert.equal(changed.ctx.Chat.summarizedUntil, 0);
   assert.equal(changed.ctx.Chat.summarizing, false);
+  const replaced = setup();
+  const replacedTask = replaced.run();
+  replaced.ctx.App.config = {};
+  replaced.calls[0].resolve({text:'GOOD'});
+  await replacedTask;
+  assert.equal(replaced.ctx.Chat.summary, '');
+  assert.equal(replaced.ctx.Chat.summarizedUntil, 0);
   console.log('memory summary ownership core test passed');
 })().catch(error => { console.error(error); process.exitCode = 1; });
