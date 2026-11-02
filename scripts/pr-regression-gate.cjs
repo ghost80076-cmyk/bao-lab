@@ -9,6 +9,10 @@ const GROUPS = [
     'tests/frontend-extension-contract.cjs',
     'tests/story-integrity-core.cjs'
   ] },
+  { id: 'discussion-settings', patterns: [/^js\/story-discussion/, /^css\/story-discussion/, /^tests\/story-discussion/], tests: [
+    'tests/story-discussion-core.cjs', 'tests/story-revision-pipeline-core.cjs',
+    'tests/story-backup-core.cjs', 'tests/context-pack-resume-core.cjs', 'tests/request-lifecycle-core.cjs'
+  ] },
   { id: 'memory', patterns: [
     /^js\/(?:memory-|context-|canon-|episodic-memory|full-story-memory|story-tools|story-maintenance|story-data-task|helper-context|reader-context)/,
     /^tests\/(?:memory-|context-|canon-|episodic-memory|full-story-memory|story-maintenance|story-data-task)/

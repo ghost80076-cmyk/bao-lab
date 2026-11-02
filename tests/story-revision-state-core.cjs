@@ -36,6 +36,8 @@ global.GameState = {
     location: 'AFTER',
     time: 'midnight',
     pendingStateTurns: [{ player: 'old player', assistant: 'old assistant' }],
+    storyDiscussion: { messages: [{role:'user',content:'PRIVATE_DISCUSSION'}] },
+    settingSplitJob: {summary:'DRAFT_ONLY',complete:false},
     storyActors: { hostedCharacters: [{ id: 'npc-1', name: '旅館老闆', role: 'additional', personality: '玩家改成沉穩' }] },
     memory: ['old derived memory'],
     config: { api: { key: 'SECRET' } }
@@ -162,6 +164,8 @@ vm.runInThisContext(source, { filename: 'js/story-revision-state.js' });
   await BAOStoryRevisionState.whenIdle();
   assert.equal(GameState.current.location, 'DERIVED:舊版本');
   assert.equal(GameState.current.storyActors.hostedCharacters[0].personality, '玩家改成沉穩', 'switching to cached reply must not undo NPC edits');
+  assert.equal(GameState.current.storyDiscussion.messages[0].content,'PRIVATE_DISCUSSION');
+  assert.equal(GameState.current.settingSplitJob.summary,'DRAFT_ONLY');
   assert.equal(Chat.summary, 'old variant summary');
   assert.equal(apiCalls.length, updatesBefore, 'cached derived variant should not call the story model again');
 
