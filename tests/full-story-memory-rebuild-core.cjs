@@ -168,5 +168,22 @@ const service=global.BAOFullStoryMemoryRebuild;
   assert.equal(Chat.summary,'OLD_OFFICIAL');
   App.saveStory=oldSave;
 
+  const sendBeforeConfig = API.send;
+  API.send = async (...args) => { const result = await sendBeforeConfig(...args); App.config.api.model = 'changed-in-place'; return result; };
+  await assert.rejects(service.run(20), /來源已變更/);
+  assert.equal(GameState.current.fullMemoryRebuild.cursor, 0);
+  API.send = sendBeforeConfig;
+  await service.reset();
+  while (GameState.current.fullMemoryRebuild?.stage !== 'ready') await service.run(20);
+  const oldOwner = GameState.current;
+  Storage.flush = async () => {
+    GameState.current = {memory:['OTHER_MEMORY']};
+    Chat.summary = 'OTHER_SUMMARY'; Chat.summarizedUntil = 2;
+  };
+  await assert.rejects(service.apply(), /安全保存/);
+  assert.equal(Chat.summary, 'OTHER_SUMMARY', 'failed old-story save cannot restore global Chat over a newly opened story');
+  assert.equal(Chat.summarizedUntil, 2);
+  assert.deepEqual(GameState.current.memory, ['OTHER_MEMORY']);
+  assert.equal(oldOwner.fullMemoryRebuild.stage, 'ready', 'original candidate stays available');
   console.log('full story memory rebuild core and runtime tests passed');
 })().catch(error => { console.error(error); process.exitCode=1; });

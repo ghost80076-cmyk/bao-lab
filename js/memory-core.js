@@ -1,4 +1,4 @@
-/* Shared, provider-neutral memory planning. No storage or network side effects. */
+/* Shared provider-neutral memory planning and caller-adapted checkpoint persistence. */
 (function(root, factory) {
   const core = factory(root);
   if (typeof module === 'object' && module.exports) module.exports = core;
@@ -102,7 +102,7 @@
     return text.slice(0, low);
   }
   function completionError(result) {
-    const reason = String(result?.finishReason || '').toUpperCase();
+    const reason = String(result?.finishReason || '').trim().toUpperCase();
     if (result?.blockReason || /^(SAFETY|PROHIBITED_CONTENT|BLOCKLIST|SPII|CONTENT_FILTER|IMAGE_SAFETY)$/.test(reason))
       return '供應商回報記憶輸出遭阻擋；保留原摘要與原始對話。';
     if (/^(MAX_TOKENS|LENGTH|MAX_OUTPUT_TOKENS|MAX_COMPLETION_TOKENS)$/.test(reason))
@@ -111,6 +111,36 @@
   }
   function assertCurrent(isCurrent) {
     if (isCurrent && !isCurrent()) throw Object.assign(new Error('故事或整理來源已變更，已停止寫入。'), { code: 'BAO_MEMORY_STALE' });
+  }
+  // Caller-owned storage adapters keep this core independent of browser storage.
+  // A synchronous save acceptance is not a committed checkpoint. Restore only
+  // fields still owned by this transaction if persistence or source checks fail.
+  async function commitState({ owner, changes, isCurrent, save, flush, load, verify }) {
+    assertCurrent(isCurrent);
+    const previous = Object.fromEntries(Object.keys(changes).map(key => [key,
+      { exists: Object.hasOwn(owner, key), value: owner[key] }]));
+    const write = (key, value) => { if (value === undefined) delete owner[key]; else owner[key] = value; };
+    for (const [key, value] of Object.entries(changes)) write(key, value);
+    try {
+      if (typeof save !== 'function' || await save() === false) throw new Error('整理進度尚未受理保存。');
+      if (flush) await flush();
+      assertCurrent(isCurrent);
+      assertCurrent(() => Object.keys(changes).every(key => owner[key] === changes[key]));
+      if (load) {
+        const saved = await load();
+        if (!saved || Object.keys(changes).some(key => JSON.stringify(saved.state?.[key]) !== JSON.stringify(changes[key])))
+          throw new Error('整理進度與讀回存檔不一致。');
+        if (verify && (await verify(saved))?.ok === false) throw new Error('整理進度尚未確認寫入儲存空間。');
+        assertCurrent(isCurrent);
+        assertCurrent(() => Object.keys(changes).every(key => owner[key] === changes[key]));
+      }
+    } catch (error) {
+      for (const [key, value] of Object.entries(changes)) {
+        if (owner[key] !== value) continue;
+        if (previous[key].exists) owner[key] = previous[key].value; else delete owner[key];
+      }
+      throw error;
+    }
   }
   async function request(config, messages, send, options = {}) {
     assertCurrent(options.isCurrent);
@@ -152,5 +182,5 @@
     }
     return { offset, summary, completed, complete: offset === source.length };
   }
-  return { resolve, config, taskSystem, DATA_TASK_CONTEXT, tokens, bytes, fingerprint, fits, inputLimit, sourceBudget, prefix, completionError, request, mergeBatch, foldText };
+  return { resolve, config, taskSystem, DATA_TASK_CONTEXT, tokens, bytes, fingerprint, fits, inputLimit, sourceBudget, prefix, completionError, request, mergeBatch, foldText, commitState };
 });

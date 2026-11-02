@@ -23,7 +23,7 @@ function setup(guarded = false) {
   };
   seed();
   const config = { api: { key: 'mock', model: 'mock' }, memory: { mode: 'smart', maxRounds: 4, summaryInterval: 2 } };
-  return { ctx, calls, notice, seed, run: () => ctx.Chat.maybeSummarize(config) };
+  return { ctx, calls, notice, seed, config, run: () => ctx.Chat.maybeSummarize(config) };
 }
 async function flush() { for (let i = 0; i < 12; i++) await Promise.resolve(); }
 (async () => {
@@ -77,5 +77,20 @@ async function flush() { for (let i = 0; i < 12; i++) await Promise.resolve(); }
     assert.equal(ctx.Chat.memoryHealth, health, 'invalidated source/reset cannot publish stale failure');
     assert.equal(ctx.Chat.summarizing, false);
   }
+  const changed = setup();
+  const summaryTask = changed.run();
+  changed.config.api.model = 'changed-in-place';
+  changed.calls[0].resolve({text:'GOOD'});
+  await summaryTask;
+  assert.equal(changed.ctx.Chat.summary, '');
+  assert.equal(changed.ctx.Chat.summarizedUntil, 0);
+  assert.equal(changed.ctx.Chat.summarizing, false);
+  const replaced = setup();
+  const replacedTask = replaced.run();
+  replaced.ctx.App.config = {};
+  replaced.calls[0].resolve({text:'GOOD'});
+  await replacedTask;
+  assert.equal(replaced.ctx.Chat.summary, '');
+  assert.equal(replaced.ctx.Chat.summarizedUntil, 0);
   console.log('memory summary ownership core test passed');
 })().catch(error => { console.error(error); process.exitCode = 1; });

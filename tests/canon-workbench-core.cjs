@@ -116,6 +116,8 @@ assert.equal(oversizedChunks.every(chunk => chunk.includes("msg-oversized")), tr
   assert.match(API.calls[0].messages[1].content, /msg-test-/);
   const priorDraft = GameState.current.canonDraft;
   const send = API.send;
+  API.send = async () => ({text:'{}',finishReason:'STOP'});
+  await assert.rejects(BAOCanonWorkbench.run('full'), /欄位不完整/);
   for (const finishReason of ['MAX_TOKENS', 'length', 'content_filter']) {
     API.send = async (...args) => ({ ...await send.apply(API, args), finishReason });
     await assert.rejects(BAOCanonWorkbench.run('full'), /截斷|阻擋/);
@@ -146,6 +148,45 @@ assert.equal(oversizedChunks.every(chunk => chunk.includes("msg-oversized")), tr
   await assert.rejects(BAOCanonWorkbench.run('full'), /故事或整理來源已變更/);
   assert.equal(GameState.current.canonDraft, undefined);
   assert.ok(old.canonDraft);
+  // Real shared lock and durable checkpoint lifecycle.
+  vm.runInThisContext(fs.readFileSync(path.join(__dirname, '../js/story-maintenance-lock.js'), 'utf8'));
+  GameState.current = {};
+  API.send = async (...args) => {
+    assert.equal(BAOStoryMaintenanceLock.has(GameState.current), true);
+    assert.match(args[1][0].content, /虛構劇情資料統整/);
+    return send.apply(API, args);
+  };
+  const beforeLocked = API.calls.length;
+  BAOStoryMaintenanceLock.start(GameState.current);
+  await assert.rejects(BAOCanonWorkbench.run('full'), /其他資料整理/);
+  assert.equal(API.calls.length, beforeLocked, 'lock collision cannot call provider');
+  BAOStoryMaintenanceLock.end(GameState.current);
+  App.saveStory = () => false;
+  await assert.rejects(BAOCanonWorkbench.run('full'), /保存/);
+  assert.equal(GameState.current.canonJob, undefined, 'failed save cannot advance extraction');
+  assert.equal(BAOStoryMaintenanceLock.has(GameState.current), false);
+  let disk;
+  global.Storage = {flush: async () => {}, loadStory: () => ({state: disk})};
+  global.BAOStorageWriteGuard = {verify: () => ({ok: true})};
+  let failFinal = true;
+  App.saveStory = () => {
+    if (failFinal && GameState.current.canonDraft && !GameState.current.canonJob) return false;
+    disk = structuredClone(GameState.current); return true;
+  };
+  await assert.rejects(BAOCanonWorkbench.run('full'), /保存/);
+  assert.ok(GameState.current.canonJob.candidate, 'completed model result retained for save retry');
+  assert.equal(GameState.current.canonDraft, undefined);
+  GameState.current = structuredClone(disk);
+  failFinal = false;
+  const beforeSaveRetry = API.calls.length;
+  await BAOCanonWorkbench.run('full');
+  assert.equal(API.calls.length, beforeSaveRetry, 'completed candidate resumes after reload without rebilling');
+  assert.ok(GameState.current.canonDraft);
+  GameState.current = {};
+  API.send = async (...args) => { const result = await send.apply(API, args); App.config.api.model = 'changed-during-call'; return result; };
+  await assert.rejects(BAOCanonWorkbench.run('full'), /來源已變更/);
+  assert.equal(GameState.current.canonJob, undefined);
+  assert.equal(BAOStoryMaintenanceLock.has(GameState.current), false);
   console.log("canon workbench core test passed");
 })().catch(error => {
   console.error(error);

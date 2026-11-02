@@ -153,6 +153,8 @@ assert.equal(JSON.stringify(GameState.current.contextPackDraftResume).includes("
   const freshPack = BAOContextPackResume.beginDraft(sourceMessages, { type: 'current-story' });
   const savedDraft = JSON.stringify(GameState.current.contextPackDraft);
   const send = API.send;
+  API.send = async () => ({text:'{}',finishReason:'STOP'});
+  await assert.rejects(BAOContextPackResume.organizeDraft(freshPack, sourceMessages, () => {}, {skipConfirm:true}), /欄位不完整/);
   for (const finishReason of ['MAX_TOKENS', 'length', 'content_filter']) {
     API.send = async (...args) => ({ ...await send.apply(API, args), finishReason });
     await assert.rejects(BAOContextPackResume.organizeDraft(freshPack, sourceMessages, () => {}, { skipConfirm: true }), /截斷|阻擋/);
@@ -186,6 +188,39 @@ assert.equal(JSON.stringify(GameState.current.contextPackDraftResume).includes("
   await assert.rejects(BAOContextPackResume.organizeDraft(stalePack, sourceMessages, () => {}, { skipConfirm: true }), /故事或整理來源已變更/);
   assert.equal(GameState.current.contextPackDraft, undefined, 'late results cannot write into a different story');
   assert.equal(oldStory.contextPackDraftResume.work.nextChunk, 0);
+  GameState.current = {};
+  API.send = send;
+  let disk, failCheckpoint = true;
+  Storage.flush = async () => {};
+  Storage.loadStory = () => ({state: disk});
+  global.BAOStorageWriteGuard = {verify: () => ({ok: true})};
+  App.saveStory = () => {
+    if (failCheckpoint && GameState.current.contextPackDraftProgress) return false;
+    disk = structuredClone(GameState.current); return true;
+  };
+  const durablePack = BAOContextPackResume.beginDraft(sourceMessages, {type:'current-story'});
+  await assert.rejects(BAOContextPackResume.organizeDraft(durablePack, sourceMessages, () => {}, {skipConfirm:true}), /保存/);
+  assert.equal(GameState.current.contextPackDraftResume.work.nextChunk, 0);
+  assert.equal(GameState.current.contextPackDraftProgress, undefined);
+  failCheckpoint = false;
+  GameState.current = structuredClone(disk);
+  let failFinal = true;
+  App.saveStory = () => {
+    if (failFinal && !GameState.current.contextPackDraftResume.work) return false;
+    disk = structuredClone(GameState.current); return true;
+  };
+  await assert.rejects(BAOContextPackResume.organizeDraft(GameState.current.contextPackDraft, sourceMessages, () => {}, {skipConfirm:true}), /保存/);
+  assert.equal(GameState.current.contextPackDraftResume.work.nextChunk, 3);
+  GameState.current = structuredClone(disk);
+  failFinal = false;
+  const paidBeforeRetry = calls.length;
+  await BAOContextPackResume.organizeDraft(GameState.current.contextPackDraft, sourceMessages, () => {}, {skipConfirm:true});
+  assert.equal(calls.length, paidBeforeRetry, 'final save retry uses already-paid merged result after reload');
+  assert.equal(GameState.current.contextPackDraftResume.work, null);
+  const configPack = BAOContextPackResume.beginDraft(sourceMessages, {type:'current-story'});
+  API.send = async (...args) => { const result = await send.apply(API, args); App.config.memory.summaryApi.model = 'changed-during-call'; return result; };
+  await assert.rejects(BAOContextPackResume.organizeDraft(configPack, sourceMessages, () => {}, {skipConfirm:true}), /來源已變更/);
+  assert.equal(GameState.current.contextPackDraftResume.work.nextChunk, 0);
   console.log("Context Pack resumable organization core checks passed.");
 })().catch(error => {
   console.error(error);

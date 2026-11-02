@@ -80,9 +80,13 @@
   const setSession = session => {
     const current = state();
     if (!current) return;
-    current[SESSION_KEY] = Object.assign({}, session, { version: VERSION, updatedAt: now() });
+    current[SESSION_KEY] = Object.assign(clone(session), { version: VERSION, updatedAt: now() });
     saveStory();
   };
+  const persistChanges = (owner, changes, isCurrent) => window.BAOMemoryCore.commitState({
+    owner, changes, isCurrent, save: () => App.saveStory?.(false),
+    flush: () => Storage.flush?.(), load: Storage.loadStory?.bind(Storage), verify: window.BAOStorageWriteGuard?.verify
+  });
   const clearSession = () => {
     const current = state();
     if (!current) return;
@@ -237,22 +241,26 @@
     ];
   const requestFragment = async (config, prompt, isCurrent) => {
     const result = await window.BAOMemoryCore.request(config, requestMessages(prompt), (...args) => API.send(...args), { isCurrent });
-    return normalizeFragment(parseAIJSON(result?.text || ""));
+    const data = parseAIJSON(result?.text || "");
+    if (typeof data.summary !== 'string' ||
+        ['importantEvents','relationships','openThreads'].some(key => !Array.isArray(data[key]) || data[key].some(value => typeof value !== 'string')) ||
+        ['characterStatuses','worldState','modules'].some(key => !data[key] || typeof data[key] !== 'object' || Array.isArray(data[key])))
+      throw new Error('摘要包整理欄位不完整，未推進整理進度。');
+    return normalizeFragment(data);
   };
 
   const planFingerprint = plan => hashText((plan?.chunks || []).map((chunk, index) => index + ":" + fingerprintMessages(chunk)).join("|"));
 
-  const saveCheckpoint = (seedPack, fragment, messages, session, progress) => {
-    const current = state();
-    if (!current) return;
-    current.contextPackDraft = packFromFragment(seedPack, fragment, messages);
-    current.contextPackDraftProgress = Object.assign({ version: 2, updatedAt: now() }, progress || {});
-    current[SESSION_KEY] = Object.assign({}, session, { version: VERSION, updatedAt: now() });
-    saveStory();
-  };
+  const saveCheckpoint = (seedPack, fragment, messages, session, progress, owner, isCurrent) =>
+    persistChanges(owner, {
+      contextPackDraft: packFromFragment(seedPack, fragment, messages),
+      contextPackDraftProgress: Object.assign({ version: 2, updatedAt: now() }, progress || {}),
+      [SESSION_KEY]: Object.assign(clone(session), { version: VERSION, updatedAt: now() })
+    }, isCurrent);
 
   const organizeTask = async (pack, inputMessages, onProgress = () => {}, options = {}) => {
     const core = window.BAOMemoryCore, owner = state(), storyConfig = App.config;
+    const settings = JSON.stringify(storyConfig);
     const config = core.config(storyConfig, 'context-pack', App.modelPresets || [], { __responseSchema: false });
     window.BAOCreditsPilot?.prepareAccountConfig?.(config);
     if (!config.key && !config.local && !window.BAOCreditsPilot?.isAccountReady?.(config)) throw new Error("尚未設定整理模型的連線金鑰；重新連接後即可從保存進度繼續。");
@@ -321,8 +329,10 @@
 
     const sourceKey = JSON.stringify(session.source);
     let expectedDraft = owner?.contextPackDraft;
-    const isCurrent = () => state() === owner && App.config === storyConfig && owner?.contextPackDraft === expectedDraft
+    const sourceCurrent = () => state() === owner && App.config === storyConfig && JSON.stringify(storyConfig) === settings
       && JSON.stringify(getSession()?.source) === sourceKey && Boolean(resolveSource(session.source));
+    const isCurrent = () => sourceCurrent() && owner?.contextPackDraft === expectedDraft;
+    await persistChanges(owner, { [SESSION_KEY]: clone(owner[SESSION_KEY]) }, isCurrent);
     onProgress({ phase: "plan", chunkCount: plan.chunkCount, mergeCalls: plan.mergeCalls, totalCalls: plan.totalCalls, completedCalls, remainingCalls });
 
     while (work.nextChunk < plan.chunks.length) {
@@ -332,13 +342,13 @@
       work.fragments.push(fragment);
       work.nextChunk += 1;
       session.work = work;
-      saveCheckpoint(session.seedPack || pack, combineFragmentsLocally(work.fragments), messages, session, {
+      await saveCheckpoint(session.seedPack || pack, combineFragmentsLocally(work.fragments), messages, session, {
         phase: "chunk",
         completed: work.nextChunk,
         total: plan.chunkCount,
         mergeCompleted: work.mergeCompleted || 0,
         totalCalls: plan.totalCalls
-      });
+      }, owner, sourceCurrent);
       expectedDraft = owner.contextPackDraft;
     }
 
@@ -369,14 +379,14 @@
         work.mergeCompleted += 1;
         session.work = work;
         const partial = combineFragmentsLocally(work.mergeNext.concat(work.mergeInput.slice(work.mergeIndex)));
-        saveCheckpoint(session.seedPack || pack, partial, messages, session, {
+        await saveCheckpoint(session.seedPack || pack, partial, messages, session, {
           phase: "merge",
           completed: work.mergeCompleted,
           total: plan.mergeCalls,
           level: work.mergeLevel,
           chunkCompleted: work.nextChunk,
           totalCalls: plan.totalCalls
-        });
+        }, owner, sourceCurrent);
         expectedDraft = owner.contextPackDraft;
       }
       work.mergeInput = clone(work.mergeNext);
@@ -389,15 +399,12 @@
 
     const finalFragment = work.mergeInput[0] || work.fragments[0] || combineFragmentsLocally(work.fragments);
     const finalPack = packFromFragment(session.seedPack || pack, finalFragment, messages);
-    const current = state();
-    if (current) {
-      current.contextPackDraft = clone(finalPack);
-      delete current.contextPackDraftProgress;
-      session.work = null;
-      session.seedPack = clone(finalPack);
-      current[SESSION_KEY] = Object.assign({}, session, { updatedAt: now() });
-      saveStory();
-    }
+    session.work = null;
+    session.seedPack = clone(finalPack);
+    await persistChanges(owner, {
+      contextPackDraft: clone(finalPack), contextPackDraftProgress: undefined,
+      [SESSION_KEY]: Object.assign(clone(session), { updatedAt: now() })
+    }, sourceCurrent);
     onProgress({ phase: "done", chunkCount: plan.chunkCount, mergeCalls: plan.mergeCalls, totalCalls: plan.totalCalls });
     return finalPack;
   };
@@ -418,14 +425,14 @@
     const owner = state();
     if (!owner) throw new Error('目前沒有故事可保存整理進度。');
     if (active.has(owner)) throw new Error('本故事的摘要包仍在整理中。');
-    const maintenance = window.BAOStoryMaintenanceLock;
-    if (App.__requestPending || Chat.summarizing || (maintenance && !maintenance.start(owner, { label: "正在整理 Context Pack" })))
+    const maintenance = window.BAOStoryMaintenanceLock, lockToken = {};
+    if (App.__requestPending || Chat.summarizing || (maintenance && !maintenance.start(owner, { label: "正在整理 Context Pack", token: lockToken })))
       throw new Error("故事或其他資料整理正在進行，請完成後再整理摘要包。");
     active.add(owner);
     try { return await organizeTask(...args); }
     finally {
       active.delete(owner);
-      maintenance?.end?.(owner);
+      maintenance?.end?.(owner, lockToken);
     }
   };
 

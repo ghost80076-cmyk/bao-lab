@@ -48,7 +48,7 @@ for (const width of [390, 1280]) {
       GameState.current.memorySlots=[{id:'promise',title:'約定',text:'明天回到港口',enabled:true}];
       App.renderChatShell(false); App.showView('chat');
       window.savedCoverage=[];
-      App.saveStory=async()=>savedCoverage.push(Chat.summarizedUntil);
+      App.saveStory=()=>{savedCoverage.push(Chat.summarizedUntil);return Storage.saveStory();};
     }, mode);
   }
 
@@ -171,6 +171,52 @@ for (const width of [390, 1280]) {
     await desk.locator('[data-write-draft]').click();
     const state=await page.evaluate(()=>({cursor:Chat.summarizedUntil,messages:Chat.messages.length,text:GameState.current.memorySlots[0].text}));
     expect(state.cursor).toBe(0);expect(state.messages).toBe(182);expect(state.text).toContain('已確認的約定');
+  });
+
+  test(`completed notes retry final persistence after reload without another model call (${width}px)`, async ({ page }) => {
+    await prepare(page);
+    let calls=0;
+    await page.route('https://memory.test/**', async route=>{
+      calls++;
+      await route.fulfill({contentType:'application/json',body:JSON.stringify({choices:[{message:{content:JSON.stringify({events:['已保存的批次結果']})},finish_reason:'stop'}]})});
+    });
+    await page.evaluate(()=>{
+      App.config.api={type:'custom',protocol:'openai',key:'mock',model:'test',baseUrl:'https://memory.test/chat/completions'};
+      App.config.memory.summaryApiMode='same';
+      // Seed consistent messages/variant snapshots rather than silently editing
+      // already-rendered revision content before saving a reload fixture.
+      Chat.reset();
+      for(let index=0;index<30;index++){Chat.add('user','行動'+index);Chat.add('assistant','結果'+index);}
+      App.saveStory=()=>GameState.current.memoryRefineDraft&&!GameState.current.memoryRefineJob?false:Storage.saveStory();
+      BAOMemoryWorkbench.open();
+    });
+    let desk=page.locator('.memory-desk');
+    await desk.locator('[data-tab="notes"]').click();
+    await desk.locator('[data-memory-ai-helper]').click();
+    await desk.locator('[data-run-refine]').click();
+    await expect(desk.locator('[data-refine-status]')).toContainText('保存');
+    await expect(desk.locator('[data-run-refine]')).toBeEnabled();
+    expect(calls).toBe(1);
+    expect(await page.evaluate(()=>({draft:GameState.current.memoryRefineDraft||'',batches:Storage.loadStory().state.memoryRefineJob.completed})))
+      .toEqual({draft:'',batches:1});
+    await page.reload();
+    await page.waitForFunction(async()=>{await Storage.ready();return Boolean(window.BAOMemoryAI&&window.BAOMemoryWorkbenchSimple&&Storage.loadStory());});
+    await page.evaluate(()=>{
+      if(!Storage.restoreStory(Storage.loadStory()))throw new Error('restore failed');
+      App.config.api.key='mock';
+      const job=GameState.current.memoryRefineJob;
+      const source=Chat.messages.slice(-40).map(m=>`[${m.id||'legacy'}] ${m.role==='user'?'玩家':'角色'}：${m.role==='assistant'&&Chat.modelContent?Chat.modelContent(m):m.content}`).join('\n\n');
+      if(job.offset!==source.length||job.prefix!==BAOMemoryCore.fingerprint(source))throw new Error('restored checkpoint source differs');
+      App.renderChatShell(false);App.showView('chat');BAOMemoryWorkbench.open();
+    });
+    desk=page.locator('.memory-desk');
+    await desk.locator('[data-tab="notes"]').click();
+    await desk.locator('[data-memory-ai-helper]').click();
+    await desk.locator('[data-run-refine]').click();
+    await expect(desk.locator('[data-refine-status]')).toContainText('完成 · 共');
+    await expect(desk.locator('[data-refine-draft]')).toContainText('已保存的批次結果');
+    expect(calls).toBe(1);
+    expect(await page.evaluate(()=>Chat.summarizedUntil)).toBe(0);
   });
 
   test(`Canon uses the helper route and resumes its final merge (${width}px)`, async ({ page }) => {
