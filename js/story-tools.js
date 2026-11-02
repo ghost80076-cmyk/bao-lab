@@ -703,8 +703,11 @@
     host.querySelector("[data-title]").value = pack.title;
     host.querySelector("[data-summary]").value = pack.summary;
     host.querySelector("[data-events]").value = pack.importantEvents.join("\n");
-    if (sourceMessages?.length && window.BAOStoryDiscussion) {
-      const split = document.createElement("button");split.type="button";split.className="secondary";split.textContent="拆分匯入設定";split.onclick=()=>window.BAOStoryDiscussion.openSplit(sourceMessages);host.querySelector(".story-tools-actions")?.append(split);
+    const isSavedDraft = GameState.current?.contextPackDraft && confirmationSignature(pack) === confirmationSignature(normalizePack(GameState.current.contextPackDraft));
+    const resumeSource = isSavedDraft ? window.BAOContextPackResume?.getSession?.()?.source : null;
+    const splitSource = sourceMessages?.length ? sourceMessages : window.BAOContextPackResume?.resolveSource?.(resumeSource);
+    if (splitSource?.length && window.BAOStoryDiscussion) {
+      const split = document.createElement("button");split.type="button";split.className="secondary";split.textContent="拆分匯入設定";split.onclick=()=>window.BAOStoryDiscussion.openSplit(splitSource);host.querySelector(".story-tools-actions")?.append(split);
     }
     host.querySelector("[data-relations]").value = pack.relationships.join("\n");
     host.querySelector("[data-threads]").value = pack.openThreads.join("\n");
@@ -905,6 +908,7 @@
         format: report.format || "",
         messageCount: sourceMessages.length
       });
+      if (split) window.BAOContextPackResume?.beginDraft?.(sourceMessages, draft.source);
       editor(host);
       if (split) window.BAOStoryDiscussion?.openSplit?.(sourceMessages);
     };

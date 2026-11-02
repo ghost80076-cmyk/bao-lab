@@ -210,8 +210,8 @@ for (const width of [390, 1280]) {
     const dialog = page.getByRole('dialog', { name:'故事總覽' });
     const more = dialog.locator('.story-control-more');
     const card = dialog.locator('.story-control-card');
-    await expect(card).toHaveCount(11);
-    await expect(dialog.locator('.story-control-primary .story-control-card')).toHaveCount(5);
+    await expect(card).toHaveCount(12);
+    await expect(dialog.locator('.story-control-primary .story-control-card')).toHaveCount(6);
     await expect(dialog.locator('.story-control-secondary .story-control-card')).toHaveCount(6);
     await expect(more).not.toHaveAttribute('open','');
     await expect(dialog.locator('[data-story-control-action="model"]')).toBeVisible();
@@ -240,7 +240,7 @@ for (const width of [390, 1280]) {
       },level);
       await expect(more).toHaveAttribute('open','');
       await expect(dialog.locator('[data-story-control-action="extensions"]')).toBeVisible();
-      await expect(card).toHaveCount(11);
+      await expect(card).toHaveCount(12);
       await dialog.getByRole('button',{name:'關閉故事總覽'}).click();
     }
     // The visible fifth shortcut reuses the existing per-story editor, not a separate Token state.

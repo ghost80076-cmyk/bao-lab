@@ -4,7 +4,6 @@
   if (!core || !window.App || !window.Storage) return;
   let dialog = null;
   const esc = value => App.escapeHTML(String(value ?? ''));
-  const clone = value => Storage.clone(value);
   const id = () => 'import-' + (globalThis.crypto?.randomUUID?.() || Date.now().toString(36));
   const ownerNow = () => window.GameState?.current;
   const sourceText = messages => JSON.stringify(messages.map(m=>({role:m.role,content:String(m.content||'')})));
@@ -118,7 +117,7 @@
       const draft=core.parseDraft(current.summary);
       const edits=current.edits || {};
       applied=Boolean(current.applied);
-      fields.innerHTML=Object.entries({characters:'AI 人物設定（JSON 陣列）',player:'玩家補充設定',world:'世界背景設定',summary:'前情摘要筆記'}).map(([key,label])=>`<label><input type="checkbox" data-select="${key}">${label}<textarea data-field="${key}" ${applied?'disabled':''}></textarea></label>`).join('');
+      fields.innerHTML=Object.entries({characters:'AI 人物設定（JSON 陣列）',player:'玩家補充設定',world:'世界背景設定',summary:'前情摘要筆記'}).map(([key,label])=>`<label><input type="checkbox" data-select="${key}">${label}<textarea aria-label="${label}草稿" data-field="${key}" ${applied?'disabled':''}></textarea></label>`).join('');
       for(const key of ['characters','player','world','summary'])fields.querySelector(`[data-field="${key}"]`).value=typeof edits[key]==='string'?edits[key]:(key==='characters'?JSON.stringify(draft.characters,null,2):draft[key]);
       fields.oninput=()=>{
         if(!view.current()||applied||!job())return;
@@ -131,6 +130,7 @@
     }
     showDraft();
     body.querySelector('[data-generate]').onclick=async()=>{
+      if (job()?.complete) { showDraft(); return; }
       try { await locked(view,'正在拆分匯入設定',async signal=>{
         if(job()?.applied)throw new Error('此來源已套用，請重新匯入其他來源。');
         const memory=window.BAOMemoryCore, config=App.config, cfg=memory.config(config,'notes',App.modelPresets||[],{signal});
