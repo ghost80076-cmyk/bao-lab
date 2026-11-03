@@ -88,7 +88,7 @@
     const desk=window.BAOMemoryWorkbench;
     const slots=desk?.promptSlots?desk.promptSlots():(desk?.readSlots?.()||readJSON(MEMORY_KEY,memorySlots))
       .filter(slot=>slot&&slot.enabled&&typeof slot.text==='string'&&slot.text.trim()&&(slot.knowledge_scope===undefined||slot.knowledge_scope==='shared'));
-    return slots.map(slot=>`【${slot.title}】\n${slot.text.trim()}`).join('\n\n');
+    return slots.map(slot=>`【${slot.title}】\n${slot.knowledge_scope==='actors'?`玩家指定已知角色：${JSON.stringify(slot.known_by)}\n`:''}${slot.text.trim()}`).join('\n\n');
   };
 
   const ensureStyles = () => {

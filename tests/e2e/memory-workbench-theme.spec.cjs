@@ -103,13 +103,14 @@ for (const width of [390,1280]) {
   await page.setViewportSize({width,height:844});await page.goto('/');
   await page.waitForFunction(()=>window.BAOMemoryWorkbenchSimple&&window.BAOMemoryWorkbench&&window.BAOPromptCache&&window.BAOEpisodicMemory&&App.characters?.length&&Storage.status().ready);
   await page.evaluate(()=>{
-   App.activeCharacter=CharacterEngine.normalize({id:'manual-note-scope-fixture',name:'艾琳',greeting:'燈還亮著。',system_prompt:'依角色已知資訊延續故事。'});
+   App.activeCharacter=CharacterEngine.normalize({id:'manual-note-scope-fixture',name:'艾琳',greeting:'燈還亮著。',system_prompt:'依角色已知資訊延續故事。',character_status:{primary_character_name:'艾琳'}});
    App.config={persona:{name:'旅人'},narrativeMode:'immersive',displayMode:'text',api:{model:'mock'},memory:{mode:'rounds',maxRounds:20,maxContext:32000}};
    GameState.create(App.activeCharacter,App.config);Chat.reset();Chat.add('assistant','燈還亮著。');
    GameState.current.npcs=[{npc_id:'a',name:'艾琳',aliases:['琳'],presence:'away'}];
    BAOMemoryWorkbench.writeSlots([{id:'scope-note',title:'密函',text:'港口暗號4721。',enabled:true,knowledge_scope:'actors',known_by:['艾琳'],extra:{source:'manual'}}]);
    App.renderChatShell(false);App.showView('chat');BAOMemoryWorkbench.open();
   });
+  expect(await page.evaluate(()=>GameState.current.npcs.find(n=>n.name==='艾琳')?.aliases)).toContain('琳');
   const desk=page.getByRole('dialog',{name:'記憶工作台',exact:true});
   await desk.locator('.memory-desk-tab[data-tab="notes"]').click();
   const card=desk.locator('[data-slot="scope-note"]');await card.locator('[data-slot-scope-label]').click();

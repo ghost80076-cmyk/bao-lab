@@ -24,7 +24,7 @@ const request=async()=>JSON.stringify(await ctx.App.buildMessages());
  const original=JSON.stringify(state.memorySlots);
  const audience=state.memorySlots[1].known_by;state.memorySlots[1].known_by=['琳',...Array.from({length:30},(_,i)=>'角色'+i)];
  assert.doesNotMatch(await request(),/港口暗號4721/,'over-limit allowlist fails closed instead of partial truncation');state.memorySlots[1].known_by=audience;
- let prompt=await request();assert.match(prompt,/港口暗號4721/);assert.match(prompt,/城門開啟/);
+ let prompt=await request();assert.match(prompt,/港口暗號4721/);assert.match(prompt,/玩家指定已知角色/);assert.match(prompt,/城門開啟/);
  assert.doesNotMatch(prompt,/未知秘密8899|無效秘密5577|停用秘密1122/);
  assert.match(prompt,/背景不代表每位角色都已知情/);
  state.npcs.push({name:'守衛',presence:'present'});

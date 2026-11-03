@@ -44,7 +44,7 @@ test('regenerate, rewrite, cached variants and reload share the matching world a
   expect(await page.evaluate(()=>({gold:GameState.current.modules.economy.gold,phone:GameState.current.phoneUI.chat.map(x=>x.text),phase:GameState.current.stateTracker.phase,calls:__siteCalls.length}))).toEqual({gold:60,phone:['改寫訊息'],phase:'updated',calls:3});
   await page.evaluate(async()=>{const m=Chat.messages.at(-1);m.activeVariant=0;m.content=m.variants[0].content;App.saveStory(false);await BAOStoryRevisionState.whenIdle();await Storage.flush();});
   expect(await page.evaluate(()=>({gold:GameState.current.modules.economy.gold,phone:GameState.current.phoneUI.chat.map(x=>x.text),calls:__siteCalls.length}))).toEqual({gold:80,phone:['原文訊息'],calls:3});
-  await page.reload();await page.waitForFunction(()=>window.BAOStoryRevisionState&&Storage.status().ready);
+  await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.BAOStoryRevisionState&&Storage.status().ready);
   expect(await page.evaluate(()=>{Storage.restoreStory(Storage.loadStory());return {gold:GameState.current.modules.economy.gold,phone:GameState.current.phoneUI.chat.map(x=>x.text),text:Chat.messages.at(-1).content};})).toEqual({gold:80,phone:['原文訊息'],text:'原文：已到車旁，金幣剩八十。'});
 });
 
