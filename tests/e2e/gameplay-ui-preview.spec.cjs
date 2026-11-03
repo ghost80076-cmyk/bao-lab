@@ -95,10 +95,17 @@ test('resizing the iframe changes the real viewport, the Stage tier and the prod
   await expectTier(1500, 'desktop', 'embedded');
 
   // The same meter still renders at phone width (production CSS, not a scaled container).
-  await page.evaluate(() => window.client.setViewport(390, 700));
-  await expect(frame.locator('.gameplay-meter')).toBeVisible();
-  const box = await frame.locator('.gameplay-meter').boundingBox();
-  expect(box.width).toBeLessThanOrEqual(390);
+  await expectTier(390, 'mobile', 'panel');
+  const meter = frame.locator('.gameplay-meter');
+  await expect(meter).toBeVisible();
+  await expect(meter).toContainText('30 / 50');
+  // setViewport queues a refresh on the next animation frame. WebKit may
+  // resolve a visible element just before that refresh replaces its DOM node;
+  // re-resolve geometry until the final rendered meter exists and fits.
+  await expect.poll(async () => {
+    const box = await meter.boundingBox();
+    return Boolean(box && box.width > 0 && box.width <= 390);
+  }, { message: 'the final phone-width meter is visible and fits within 390px' }).toBe(true);
 });
 
 test('the preview ignores malformed messages and messages from other windows', async ({ page }) => {

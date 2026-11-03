@@ -30,6 +30,10 @@ Existing raw history, free-text summaries, Context Packs, author data and other 
 - Browser tests in the existing memory workbench suite cover 390/1280 widths, keyboard toggle/Escape, default-off, real prompt scope, mixed-cast denial, actual Storage payload/restore, disabling without deleting scenes, rewritten-source denial, stale-desk write rejection, geometry and screenshots. Existing four-theme tests remain. The memory workbench suite also joins Firefox/WebKit smoke so the new setting is exercised in all three browser engines.
 - CI/browser, merge, Pages deployment and production smoke are separate release evidence recorded in the PR. No paid provider request or physical-device keyboard validation is implied by mocks/viewport emulation.
 
+## CI-discovered preview test race
+
+A WebKit Stage preview resize test passed visibility and then received `null` from `boundingBox()` on both attempts. Its trace shows the parent resized from 1,500 to 390px and immediately resolved a visible meter; the client schedules `refresh` in a later animation frame, which re-renders that panel and can detach the captured element. The failure screenshot contains a correctly fitting meter after the refresh. The test now waits for the existing real-width/Stage-tier/render report on the final 390px transition, rechecks the 30/50 value, and polls non-null, positive geometry within the original 390px bound. No runtime, timeout relaxation or assertion removal; final cross-browser results remain separate evidence.
+
 ## Release and rollback
 
 Only Pages assets/cache versions change. No Worker/AWS/wallet/settlement/author/DB migration change. Reverting runtime files and loader versions restores prior event-only behavior; original messages and summaries remain. Added scene data is ignored by old versions. Standard truncation/failure behavior and local save warnings remain authoritative.
