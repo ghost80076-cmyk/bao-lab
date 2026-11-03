@@ -30,7 +30,7 @@ global.API = {
   calls: [],
   async send(config, messages) {
     this.calls.push({ config, messages });
-    return { text: JSON.stringify({ notebooks: [{ title: "艾琳與北塔", category: "relationships", tier: "relevant", certainty: "confirmed", content: "艾琳昨夜見過守塔人。", evidence: "訊息 2" }] }) };
+    return { text: JSON.stringify({ notebooks: [{ title: "艾琳與北塔", category: "relationships", tier: "relevant", certainty: "confirmed", knowledge_scope: "shared", known_by: [], content: "艾琳昨夜見過守塔人。", evidence: "訊息 2" }] }) };
   }
 };
 
@@ -93,6 +93,11 @@ assert.equal(oversizedChunks.every(chunk => chunk.includes("msg-oversized")), tr
   assert.equal(API.calls.length, 2, "one extraction call plus one merge call expected");
   for (const call of API.calls) assert.match(call.messages[1].content, /A 信任 B.*B 信任 A.*彼此信任/, "both extraction and merge preserve relationship direction");
   assert.equal(API.calls.every(call => call.config.__memoryTask === true), true);
+  for (const call of API.calls) {
+    const schema=call.config.__responseSchema.properties.notebooks.items;
+    assert.ok(schema.required.includes("knowledge_scope") && schema.required.includes("known_by"));
+    assert.match(call.messages[1].content, /knowledge_scope.*known_by/);
+  }
   assert.equal(API.calls.every(call => call.config.__responseSchema?.properties?.notebooks), true, "Canon requests must carry their own Gemini schema");
   assert.equal(GameState.current.canon, undefined, "AI output must not become official Canon before player confirmation");
   assert.equal(GameState.current.canonDraft.notebooks[0].title, "艾琳與北塔");

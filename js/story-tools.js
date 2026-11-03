@@ -251,6 +251,7 @@
       Object.keys(pack.modules).length ? "背包／技能／任務等世界模組：\n" + JSON.stringify(pack.modules) : "",
       pack.openThreads.length ? "未完成伏筆／目標：\n- " + pack.openThreads.join("\n- ") : "",
       pack.recentDialogue.length ? "最近必要對話：\n" + pack.recentDialogue.map(x => (x.role === "user" ? "玩家" : "AI 角色") + "：" + x.content).join("\n") : "",
+      window.BAOHelperData?.narrativeMemoryRules || "",
       "只把玩家已確認的內容當作既有事實。不得從紀錄永久推斷玩家心理、喜惡、人格、意圖或未說出口的決定。"
     ].filter(Boolean).join("\n\n");
   };
@@ -644,7 +645,7 @@
     let rounds = Number(Chat.contextGuard?.recentRounds || configured);
     if (!Number.isFinite(rounds) || rounds < 1) rounds = configured;
     const memoryMessages = [];
-    if (mode === "smart" && Chat.summary) memoryMessages.push({ role: "system", content: "【長期記憶摘要】\n" + Chat.summary });
+    if (mode === "smart" && Chat.summary) memoryMessages.push({ role: "system", content: "【長期記憶摘要】\n" + (window.BAOHelperData?.narrativeMemoryRules || "") + "\n" + Chat.summary });
     memoryMessages.push(...(mode === "full" ? clone(Chat.messages) : clone(Chat.messages.slice(-rounds * 2))));
     const manualMemory = (window.BAOMemoryWorkbench?.readSlots?.() || []).filter(x => x.enabled && String(x.text || "").trim());
     const status = window.BAOCharacterStatus?.compactForPrompt?.(latestUserText(), { maxCharacters: 2, maxChars: 1400, consumeViewed: false }) || { text: "", names: [] };

@@ -111,7 +111,7 @@ const Chat = {
     };
     this.renderGuard();
     const result = [];
-    if (this.summary) result.push({ role: "system", content: `【長期記憶摘要】\n以下內容是較早對話的壓縮記憶，請保持人物關係、重要事件、承諾、偏好與未解決事項的一致性。\n${this.summary}` });
+    if (this.summary) result.push({ role: "system", content: `【長期記憶摘要】\n以下內容是較早對話的壓縮記憶，請保持人物關係、重要事件、承諾、偏好與未解決事項的一致性。\n${window.BAOHelperData?.narrativeMemoryRules || ""}\n${this.summary}` });
     result.push(...this.modelMessages(recent));
     return result;
   },
