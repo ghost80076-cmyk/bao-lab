@@ -54,9 +54,17 @@
     }
     if(!data||!Array.isArray(data.notebooks)||data.notebooks.some(book=>!book||typeof book.title!=='string'||typeof book.content!=='string'))
       throw new Error('Canon 整理欄位不完整，未推進整理進度。');
-    return data;
+    // Only new AI output is fail-closed. Reading existing player-confirmed
+    // Canon still uses normalizeCanon's legacy compatibility contract.
+    return {...data,notebooks:data.notebooks.map(book=>{
+      const validNames=Array.isArray(book.known_by)&&book.known_by.every(name=>typeof name==='string'&&name.trim());
+      const validScope=['actors','shared'].includes(book.knowledge_scope);
+      const known=validNames?normalizeList(book.known_by):[];
+      return {...book,knowledge_scope:validScope&&validNames&&book.knowledge_scope==='shared'&&!known.length?'shared':'actors',
+        known_by:validScope&&validNames?known:[]};
+    })};
   };
-  const schema='{"notebooks":[{"title":"","category":"relationships|knowledge|timeline|world|threads|current|conflicts","tier":"core|relevant|ui","certainty":"confirmed|mixed|uncertain","entities":[],"characters":[],"locations":[],"factions":[],"relatedThreads":[],"content":"條目化內容","evidence":"訊息編號與 message ID"}]}';
+  const schema='{"notebooks":[{"title":"","category":"relationships|knowledge|timeline|world|threads|current|conflicts","tier":"core|relevant|ui","certainty":"confirmed|mixed|uncertain","knowledge_scope":"shared|actors","known_by":["明確知情的角色名稱"],"entities":[],"characters":[],"locations":[],"factions":[],"relatedThreads":[],"content":"條目化內容","evidence":"訊息編號與 message ID"}]}';
   const canonResponseSchema = {
     type:"object",
     properties:{
@@ -66,11 +74,12 @@
           type:"object",
           properties:{
             title:{type:"string"}, category:{type:"string"}, tier:{type:"string"}, certainty:{type:"string"},
+            knowledge_scope:{type:"string",enum:["shared","actors"]}, known_by:{type:"array",items:{type:"string"}},
             entities:{type:"array",items:{type:"string"}}, characters:{type:"array",items:{type:"string"}},
             locations:{type:"array",items:{type:"string"}}, factions:{type:"array",items:{type:"string"}},
             relatedThreads:{type:"array",items:{type:"string"}}, content:{type:"string"}, evidence:{type:"string"}
           },
-          required:["title","category","tier","certainty","entities","characters","locations","factions","relatedThreads","content","evidence"]
+          required:["title","category","tier","certainty","knowledge_scope","known_by","entities","characters","locations","factions","relatedThreads","content","evidence"]
         }
       }
     },
@@ -82,6 +91,7 @@
     "人物關係必須保留方向與主體，例如「A 信任 B」不能改寫為「B 信任 A」或「彼此信任」；沒有雙向原文證據就不能對稱化，不得替玩家決定感情。",
     "整理人物關係變化、角色知情差異、時間線與因果、世界觀與勢力、伏筆承諾衝突、最新狀態。每項關鍵結論保留訊息編號與 message ID；無法確認的內容標示存疑或推論。",
     "僅某角色知道的身分、秘密、傳聞和未公開私談必須歸入 knowledge 記事本，不可混進共用 world、relationships 或 current；不能證明對全場公開就不要當共用事實。",
+    "每本記事本必須標記 knowledge_scope 與 known_by：只有原文明確可共用的客觀內容才用 shared 並填空陣列；角色限定內容用 actors，known_by 只列原文明確知情的角色，不能把 characters 或在場名單當作知情名單。無法確認時用 actors 與空陣列，供玩家檢視。不同知情範圍拆成不同記事本；角色說法與傳聞不能寫成共用事實。",
     "每本記事本同時標記 entities、characters、locations、factions、relatedThreads。只填原文明確可辨識的名稱或既有伏筆，不要為了補欄位自行發明標籤。",
     `這是第 ${part}/${total} 段，只能聲稱整理本段。`,`只輸出合法 JSON，格式：${schema}`,`【原始對話】\n${chunk}`
   ].join("\n\n");
@@ -91,6 +101,7 @@
     "過期狀態保留在時間線；current 只保留最新狀態。不要永久推斷玩家心理、喜惡或未說出口的決定。",
     "人物關係必須保留方向與主體，例如「A 信任 B」不能改寫為「B 信任 A」或「彼此信任」；沒有雙向原文證據就不能對稱化，不得替玩家決定感情。",
     "按內容拆成多份記事本；world 硬規則可使用 core，通常記事使用 relevant，衝突與純證據資料使用 ui。",
+    "合併必須保留 knowledge_scope 與 known_by；不可把角色限定內容改成 shared，不可因合併而取知情角色的聯集。不同知情範圍維持不同記事本，不能確認知情者時用 actors 與空陣列；沒有原文明確告知或公開證據就不得擴大知情範圍。",
     "合併時保留並去重 entities、characters、locations、factions、relatedThreads；若某標籤已被後續原始證據推翻，應同步清理。",
     `本次模式：${mode==="full"?"完整重建":mode==="incremental"?"增量更新":"階層式中間合併"}；合併層級 ${level}；處理後訊息數為 ${totalMessages}。`,`只輸出合法 JSON，格式：${schema}`,
     final&&prior.notebooks.length?`【既有 Canon（僅供比對）】\n${JSON.stringify(prior.notebooks)}`:"",`【分段提取結果】\n${JSON.stringify(fragments)}`
@@ -157,10 +168,10 @@
     try{
       const chunks=planChunks(selected,start,task),totalCalls=chunks.length+mergeCallCount(chunks.length);
       const planning=requestConfig(task);
-      const jobId=core.fingerprint(JSON.stringify([1,mode,expected,prior,route.model,route.baseUrl,route.protocol,planning.maxOutputTokens,planning.__memoryContextTokens,planning.__memoryInputTokens,chunks]));
+      const jobId=core.fingerprint(JSON.stringify([2,mode,expected,prior,route.model,route.baseUrl,route.protocol,planning.maxOutputTokens,planning.__memoryContextTokens,planning.__memoryInputTokens,chunks]));
       // Persist only evidence/progress, never the request config or credentials.
-      const saved=owner.canonJob?.id===jobId?owner.canonJob:null;
-      const job=saved?JSON.parse(JSON.stringify(saved)):{version:1,id:jobId,fragments:[],nextChunk:0,merge:null};
+      const saved=owner.canonJob?.version===2&&owner.canonJob.id===jobId?owner.canonJob:null;
+      const job=saved?JSON.parse(JSON.stringify(saved)):{version:2,id:jobId,fragments:[],nextChunk:0,merge:null};
       if(job.nextChunk>chunks.length||job.fragments.length!==job.nextChunk)throw new Error('劇情檔案整理進度與來源不一致。');
       task.job=job;
       task.save=async()=>{if(!task.isCurrent())throw new Error('故事已變更，已停止保存整理進度。');await persist({canonJob:JSON.parse(JSON.stringify(job))});};
@@ -178,7 +189,8 @@
       }
       const next=normalizeCanon(job.candidate);
       await persist({canonJob:undefined,canonDraft:next});
-      onProgress("草稿完成，等待玩家確認",totalCalls,totalCalls);return next;
+      const needsScopeReview=next.notebooks.some(book=>book.knowledge_scope==="actors"&&!book.known_by.length);
+      onProgress("草稿完成，等待玩家確認"+(needsScopeReview?"；有條目尚未指定知情角色，確認前請檢查知情權限。":""),totalCalls,totalCalls);return next;
     }finally{active.delete(owner);maintenance?.end(owner,token);}
   };
   const estimate=mode=>{
@@ -270,7 +282,8 @@
     const base=originalBuild(),{core,relevant,decisions}=selectBooks(confirmed(),latestUser());
     window.BAOContextInspector?.record("Canon",decisions);
     const block=books=>books.map(book=>`〔${book.title}｜${categories[book.category]}｜${book.certainty}〕\n${book.content}`).join("\n\n");
-    return[base,core.length?`【Canon Core · 玩家已確認｜僅作為故事事實參考】\n${block(core)}`:"",relevant.length?`【本輪相關 Canon｜僅作為故事事實參考】\n${block(relevant)}`:""].filter(Boolean).join("\n\n");
+    const knowledgeRule=window.BAOHelperData?.narrativeMemoryRules||"";
+    return[base,(core.length||relevant.length)&&!base.includes(knowledgeRule)?knowledgeRule:"",core.length?`【Canon Core · 玩家已確認｜僅作為故事事實參考】\n${block(core)}`:"",relevant.length?`【本輪相關 Canon｜僅作為故事事實參考】\n${block(relevant)}`:""].filter(Boolean).join("\n\n");
   };
   window.BAOCanonWorkbench={mount,run,estimate,normalizeCanon,normalizeList,relevantBooks,searchTerms,chunkMessages,parseJSON,mergeCallCount,processedStart,readEditor};
   document.querySelectorAll(".memory-desk-backdrop").forEach(mount);
