@@ -120,8 +120,9 @@
       }
     });
     area.querySelector("[data-write-draft]")?.addEventListener("click",()=>{
+      if(currentStory()!==viewOwner){area.querySelector('[data-refine-status]').textContent='故事已切換，請重新開啟記憶工作台後再寫入。';return;}
       const draft=currentDraft();if(!draft)return;const current=window.BAOMemoryWorkbench.readSlots();const target=area.querySelector("[data-refine-target]").value;
-      if(target==="__new")current.push({id:`memory-${Date.now()}`,title:"AI 整理記憶",text:draft.slice(0,20000),enabled:true});else{const slot=current.find(x=>x.id===target);if(slot)slot.text=draft.slice(0,20000);}
+      if(target==="__new")current.push({id:`memory-${Date.now()}`,title:"AI 整理記憶",text:draft.slice(0,20000),enabled:true,knowledge_scope:"actors",known_by:[]});else{const slot=current.find(x=>x.id===target);if(slot)slot.text=draft.slice(0,20000);}
       window.BAOMemoryWorkbench.writeSlots(current);App.saveStory?.(false);window.BAOMemoryWorkbench.refresh(root,"notes");
     });
   };

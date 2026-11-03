@@ -410,7 +410,9 @@ jobs:
           node tests/account-author-identity.cjs
           node --check workers/bao-lab-credits-api/worker.js
       - name: Memory knowledge boundaries
-        run: node tests/memory-knowledge-boundaries-core.cjs
+        run: |
+          node tests/memory-knowledge-boundaries-core.cjs
+          node tests/manual-memory-knowledge-core.cjs
       - name: Canon workbench
         run: node tests/canon-workbench-core.cjs
       - name: Mature narrative and character agency settings

@@ -647,7 +647,8 @@
     const memoryMessages = [];
     if (mode === "smart" && Chat.summary) memoryMessages.push({ role: "system", content: "【長期記憶摘要】\n" + (window.BAOHelperData?.narrativeMemoryRules || "") + "\n" + Chat.summary });
     memoryMessages.push(...(mode === "full" ? clone(Chat.messages) : clone(Chat.messages.slice(-rounds * 2))));
-    const manualMemory = (window.BAOMemoryWorkbench?.readSlots?.() || []).filter(x => x.enabled && String(x.text || "").trim());
+    const manualMemory = window.BAOMemoryWorkbench?.promptSlots?.() || (window.BAOMemoryWorkbench?.readSlots?.() || [])
+      .filter(x => x && x.enabled && typeof x.text === "string" && x.text.trim() && (x.knowledge_scope === undefined || x.knowledge_scope === "shared"));
     const status = window.BAOCharacterStatus?.compactForPrompt?.(latestUserText(), { maxCharacters: 2, maxChars: 1400, consumeViewed: false }) || { text: "", names: [] };
     const core = window.BAOWorldModules?.compactForPrompt?.() || "";
     const relevant = window.BAOWorldModules?.compactRelevantForPrompt?.(latestUserText(), { maxModules: 3, maxChars: 2200, consumeViewed: false }) || { text: "", ids: [] };
