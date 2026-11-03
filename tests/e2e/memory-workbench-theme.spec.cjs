@@ -84,9 +84,15 @@ for(const width of [390,1280]){
    App.activeCharacter=App.characters[0];App.config={api:{model:'mock'},memory:{mode:'smart',maxRounds:20,maxContext:32000},persona:{name:'旅人'}};
    GameState.create(App.activeCharacter,App.config);Chat.reset();App.renderChatShell(false);App.showView('chat');
   });
-  const opener=page.locator(width<=820?'#bao-mobile-composer-tools':'#bao-surface-mode-toggle');await opener.focus();
+  const opener=page.locator(width<=820?'#bao-mobile-composer-tools':'#bao-surface-mode-toggle');
   const before=await page.evaluate(()=>JSON.stringify({state:GameState.current,config:App.config}));
-  await page.evaluate(()=>BAOMemoryWorkbench.open());
+  // Focus and open in one browser task: late shell hydration can replace the
+  // launcher between separate automation commands, before open captures it.
+  await page.evaluate(w=>{
+   const target=document.getElementById(w<=820?'bao-mobile-composer-tools':'bao-surface-mode-toggle');
+   target.focus();if(document.activeElement!==target)throw Error('opener did not receive focus');
+   BAOMemoryWorkbench.open();
+  },width);
   const desk=page.getByRole('dialog',{name:'記憶工作台',exact:true});await expect(desk).toBeVisible();
   await expect(page.locator('.app-shell')).toHaveAttribute('inert','');
   await expect(desk.locator('.memory-desk-close')).toBeFocused();

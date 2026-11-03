@@ -34,6 +34,8 @@ Existing raw history, free-text summaries, Context Packs, author data and other 
 
 A WebKit Stage preview resize test passed visibility and then received `null` from `boundingBox()` on both attempts. Its trace shows the parent resized from 1,500 to 390px and immediately resolved a visible meter; the client schedules `refresh` in a later animation frame, which re-renders that panel and can detach the captured element. The failure screenshot contains a correctly fitting meter after the refresh. The test now waits for the existing real-width/Stage-tier/render report on the final 390px transition, rechecks the 30/50 value, and polls non-null, positive geometry within the original 390px bound. No runtime, timeout relaxation or assertion removal; final cross-browser results remain separate evidence.
 
+The newly expanded WebKit smoke also found one first-attempt failure in the pre-existing opener-focus test (the configured retry passed). Its trace places shell replacement between the separate focus command and workbench open. The synthetic API-open fixture now focuses the current launcher and opens synchronously in one browser task, asserting focus before open; the original trap/Escape/return-focus and state-equality checks remain. This removes an artificial inter-command hydration window rather than bypassing the return-focus contract.
+
 ## Release and rollback
 
 Only Pages assets/cache versions change. No Worker/AWS/wallet/settlement/author/DB migration change. Reverting runtime files and loader versions restores prior event-only behavior; original messages and summaries remain. Added scene data is ignored by old versions. Standard truncation/failure behavior and local save warnings remain authoritative.
