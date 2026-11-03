@@ -5,6 +5,7 @@
   const attr = v => App.escapeAttr(String(v ?? ""));
   const blank = () => [{ id: "memory-1", title: "記憶 1", text: "", enabled: true }];
   let saveTimer = null;
+  let saveOwner = null;
   let returnFocus = null;
   let retryTask = null;
   const backgroundInert = new Map();
@@ -45,9 +46,10 @@
     story.memorySlots = next;
     clearTimeout(saveTimer);
     // The normal story save includes memorySlots and also protects API keys.
+    saveOwner = story;
     saveTimer = setTimeout(() => {
       if (window.GameState?.current === story) App.saveStory?.(false);
-      saveTimer = null;
+      saveTimer = null; saveOwner = null;
     }, 350);
   };
   const close = () => {
@@ -56,7 +58,7 @@
     backgroundInert.clear();
     const target = returnFocus; returnFocus = null;
     if (target?.isConnected && !target.closest('[inert]')) target.focus({preventScroll:true});
-    if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; App.saveStory?.(false); }
+    if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; if(window.GameState?.current===saveOwner)App.saveStory?.(false); saveOwner=null; }
   };
   const memoryStateLabel = diag => {
     if (Chat.summarizing || diag.health?.phase === "running") return "整理中";
@@ -126,17 +128,25 @@
       text:node.querySelector('[data-slot-text]')?.value||'',enabled:Boolean(node.querySelector('[data-slot-enabled]')?.checked),...permissions};
   });
   const bindNotes = root => {
-    root.querySelectorAll("[data-slot-text]").forEach(el=>el.addEventListener("input",()=>{const card=el.closest("[data-slot]");card.querySelector("[data-slot-count]").textContent=`${el.value.length.toLocaleString()} / 20,000`;write(collect(root));stats(root);}));
+    const owner=window.GameState?.current;
+    const isCurrent=()=>{
+      if(window.GameState?.current===owner)return true;
+      const notice=root.querySelector('[data-pane="notes"] .memory-pane-title p');
+      if(notice)notice.textContent='故事已切換，請重新開啟工作台；未寫入這次修改。';
+      return false;
+    };
+    root.querySelectorAll("[data-slot-text]").forEach(el=>el.addEventListener("input",()=>{if(!isCurrent())return;const card=el.closest("[data-slot]");card.querySelector("[data-slot-count]").textContent=`${el.value.length.toLocaleString()} / 20,000`;write(collect(root));stats(root);}));
     root.querySelectorAll('[data-slot-scope],[data-slot-known-by]').forEach(el=>el.addEventListener('change',()=>{
+      if(!isCurrent())return;
       const card=el.closest('[data-slot]'),scope=card.querySelector('[data-slot-scope]'),names=card.querySelector('[data-slot-known-by]');
       names.disabled=scope.value==='shared';
       const count=[...new Set(names.value.split(/[\n,，、]+/).map(name=>name.trim()).filter(Boolean))].length;
       card.querySelector('[data-slot-scope-label]').textContent=scope.value==='shared'?'共用背景':(count>30?'超過 30 位（未提供給模型）':count?`限定已知角色（${count} 位）`:'待指定知情角色（未提供給模型）');
       write(collect(root));stats(root);
     }));
-    root.querySelectorAll("[data-slot-title],[data-slot-enabled]").forEach(el=>el.addEventListener("change",()=>{write(collect(root));stats(root);}));
-    root.querySelectorAll("[data-slot-delete]").forEach(btn=>btn.addEventListener("click",()=>{btn.closest("[data-slot]")?.remove();let slots=collect(root);if(!slots.length)slots=blank();write(slots);render(root,"notes");}));
-    root.querySelector("[data-add-note]")?.addEventListener("click",()=>{const slots=collect(root);slots.push({id:`memory-${Date.now()}`,title:`記憶 ${slots.length+1}`,text:"",enabled:true});write(slots);render(root,"notes");});
+    root.querySelectorAll("[data-slot-title],[data-slot-enabled]").forEach(el=>el.addEventListener("change",()=>{if(!isCurrent())return;write(collect(root));stats(root);}));
+    root.querySelectorAll("[data-slot-delete]").forEach(btn=>btn.addEventListener("click",()=>{if(!isCurrent())return;btn.closest("[data-slot]")?.remove();let slots=collect(root);if(!slots.length)slots=blank();write(slots);render(root,"notes");}));
+    root.querySelector("[data-add-note]")?.addEventListener("click",()=>{if(!isCurrent())return;const slots=collect(root);slots.push({id:`memory-${Date.now()}`,title:`記憶 ${slots.length+1}`,text:"",enabled:true});write(slots);render(root,"notes");});
   };
   const retryAutoMemory = async () => {
     if (retryTask || Chat.summarizing || App.__requestPending || App.config?.memory?.mode !== "smart") return;

@@ -137,5 +137,18 @@ for (const width of [390,1280]) {
   expect(await page.evaluate(async()=>JSON.stringify(await App.buildMessages()))).toContain('港口暗號4721');
   await page.evaluate(()=>{App.config.narrativeMode='world';GameState.current.npcs.forEach(n=>n.presence='away');});
   expect(await page.evaluate(async()=>JSON.stringify(await App.buildMessages()))).not.toContain('港口暗號4721');
+  await page.evaluate(()=>BAOMemoryWorkbench.open());
+  await desk.locator('.memory-desk-tab[data-tab="notes"]').click();
+  await desk.locator('[data-slot-text]').fill('同一故事內尚未保存的編輯。');
+  const fresh=await page.evaluate(()=>{
+   GameState.current={...structuredClone(GameState.current),memorySlots:[{id:'other-note',title:'另一故事',text:'不能覆蓋的新筆記',enabled:true}]};
+   window.__noteSavesAfterSwitch=0;App.saveStory=()=>{window.__noteSavesAfterSwitch++;return true;};
+   return JSON.stringify(GameState.current);
+  });
+  await desk.locator('[data-slot-text]').fill('不能跨故事寫入的舊編輯。');
+  await expect(desk.locator('[data-pane="notes"] .memory-pane-title p')).toContainText('故事已切換');
+  expect(await page.evaluate(()=>JSON.stringify(GameState.current))).toBe(fresh);
+  await desk.locator('.memory-desk-close').click();
+  expect(await page.evaluate(()=>window.__noteSavesAfterSwitch)).toBe(0);
  });
 }
