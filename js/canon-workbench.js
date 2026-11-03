@@ -283,7 +283,11 @@
     window.BAOContextInspector?.record("Canon",decisions);
     const block=books=>books.map(book=>`〔${book.title}｜${categories[book.category]}｜${book.certainty}〕\n${book.content}`).join("\n\n");
     const knowledgeRule=window.BAOHelperData?.narrativeMemoryRules||"";
-    return[base,(core.length||relevant.length)&&!base.includes(knowledgeRule)?knowledgeRule:"",core.length?`【Canon Core · 玩家已確認｜僅作為故事事實參考】\n${block(core)}`:"",relevant.length?`【本輪相關 Canon｜僅作為故事事實參考】\n${block(relevant)}`:""].filter(Boolean).join("\n\n");
+    const append = window.BAOPromptCache?.appendSection || ((base,kind,body) => [base,body].filter(Boolean).join("\n\n"));
+    let prompt = [base,(core.length||relevant.length)&&!base.includes(knowledgeRule)?knowledgeRule:""].filter(Boolean).join("\n\n");
+    if (core.length) prompt = append(prompt,"memory",`【Canon Core · 玩家已確認｜僅作為故事事實參考】\n${block(core)}`);
+    if (relevant.length) prompt = append(prompt,"dynamic",`【本輪相關 Canon｜僅作為故事事實參考】\n${block(relevant)}`);
+    return prompt;
   };
   window.BAOCanonWorkbench={mount,run,estimate,normalizeCanon,normalizeList,relevantBooks,searchTerms,chunkMessages,parseJSON,mergeCallCount,processedStart,readEditor};
   document.querySelectorAll(".memory-desk-backdrop").forEach(mount);

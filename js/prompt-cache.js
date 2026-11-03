@@ -6,16 +6,50 @@
   const headerOf = block => String(block.match(/^【([^】]+)】/)?.[1] || "").split("｜")[0].trim();
   const cacheMetricKnown = usage => usage?.cached_tokens !== null && usage?.cached_tokens !== undefined && Number.isFinite(Number(usage.cached_tokens));
 
-  const partitionSystemPrompt = prompt => {
-    const blocks = String(prompt || "").split(/\n{2,}(?=【[^】]+】)/).map(value => value.trim()).filter(Boolean);
-    const stable = [], memory = [], dynamic = [];
-    blocks.forEach(block => {
-      const header = headerOf(block);
-      if (MEMORY_HEADERS.has(header)) memory.push(block);
-      else if (DYNAMIC_HEADERS.has(header)) dynamic.push(block);
-      else stable.push(block);
-    });
-    return { stable: stable.join("\n\n"), memory: memory.join("\n\n"), dynamic: dynamic.join("\n\n") };
+  // These transient ranges come from the trusted producer, never from headings
+  // inside a player's data. Ordinary buildSystemPrompt() remains a plain string.
+  let sectionCollection = null;
+  const appendSection = (base, kind, content) => {
+    const prefix = String(base || ""), data = String(content || "");
+    if (!data) return prefix;
+    const start = prefix.length + (prefix ? 2 : 0), result = prefix + (prefix ? "\n\n" : "") + data;
+    if (sectionCollection) sectionCollection.push({ kind, prefix: result, start, end: result.length });
+    return result;
+  };
+  const partitionSystemPrompt = (prompt, sections = []) => {
+    const source = String(prompt || ""), buckets = { stable: [], memory: [], dynamic: [] };
+    const classify = value => {
+      const blocks = value.split(/\n{2,}(?=【[^】]+】)/).map(block => block.trim()).filter(Boolean);
+      for (const block of blocks) {
+        const header = headerOf(block);
+        buckets[MEMORY_HEADERS.has(header) ? "memory" : DYNAMIC_HEADERS.has(header) ? "dynamic" : "stable"].push(block);
+      }
+    };
+    let offset = 0;
+    for (const section of sections) {
+      classify(source.slice(offset,section.start));
+      buckets[section.kind].push(source.slice(section.start,section.end).trim());
+      offset = section.end;
+    }
+    classify(source.slice(offset));
+    return Object.fromEntries(Object.entries(buckets).map(([key,blocks]) => [key,blocks.filter(Boolean).join("\n\n")]));
+  };
+  const capturePromptParts = build => {
+    const parent = sectionCollection, records = [];
+    sectionCollection = records;
+    let prompt;
+    try { prompt = String(build() || ""); }
+    finally { sectionCollection = parent; }
+    const ranges = records.map(record => {
+      const at = prompt.indexOf(record.prefix);
+      return { kind: record.kind, start: at + record.start, end: at + record.end, valid: at >= 0 && at === prompt.lastIndexOf(record.prefix) };
+    }).sort((a,b) => a.start-b.start);
+    // If an outer wrapper rewrote a registered prefix, retain the entire
+    // prompt as system memory; do not guess which data became a fixed rule.
+    if (ranges.some((range,i) => !range.valid || !["memory","dynamic"].includes(range.kind)
+      || range.start < (i ? ranges[i-1].end : 0) || range.end > prompt.length))
+      return { stable: "", memory: prompt, dynamic: "" };
+    return partitionSystemPrompt(prompt,ranges);
   };
 
   const storySessionId = () => {
@@ -62,7 +96,7 @@
     const hasLatestUser = latestIndex >= 0 && context[latestIndex]?.role === "user";
     const latest = hasLatestUser ? context[latestIndex] : null;
     const earlier = hasLatestUser ? context.slice(0, latestIndex) : context.slice();
-    const parts = partitionSystemPrompt(this.buildSystemPrompt());
+    const parts = capturePromptParts(() => this.buildSystemPrompt());
     const memorySystems = [];
     const history = [];
     if (parts.memory) memorySystems.push(parts.memory);
@@ -192,7 +226,7 @@
 
   patchCacheUsageAccounting();
   patchMemoryRequestGuard();
-  window.BAOPromptCache = { partitionSystemPrompt, storySessionId, cacheMetricKnown };
+  window.BAOPromptCache = { partitionSystemPrompt, capturePromptParts, appendSection, storySessionId, cacheMetricKnown };
   // The small Node unit-test DOM has no querySelector/head; load only inside real browsers.
   if (typeof document.querySelector === 'function' && document.head && !document.querySelector('script[src="js/gemini-explicit-cache.js?v=3"]')) {
     const script = document.createElement('script');

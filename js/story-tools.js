@@ -239,7 +239,7 @@
     });
   };
 
-  const packPrompt = input => {
+  const packPromptData = input => {
     const pack = normalizePack(input);
     return [
       "【Context Pack · 玩家已確認的前情】",
@@ -250,11 +250,13 @@
       Object.keys(pack.worldState).length ? "世界狀態：\n" + JSON.stringify(pack.worldState) : "",
       Object.keys(pack.modules).length ? "背包／技能／任務等世界模組：\n" + JSON.stringify(pack.modules) : "",
       pack.openThreads.length ? "未完成伏筆／目標：\n- " + pack.openThreads.join("\n- ") : "",
-      pack.recentDialogue.length ? "最近必要對話：\n" + pack.recentDialogue.map(x => (x.role === "user" ? "玩家" : "AI 角色") + "：" + x.content).join("\n") : "",
-      window.BAOHelperData?.narrativeMemoryRules || "",
-      "只把玩家已確認的內容當作既有事實。不得從紀錄永久推斷玩家心理、喜惡、人格、意圖或未說出口的決定。"
+      pack.recentDialogue.length ? "最近必要對話：\n" + pack.recentDialogue.map(x => (x.role === "user" ? "玩家" : "AI 角色") + "：" + x.content).join("\n") : ""
     ].filter(Boolean).join("\n\n");
   };
+
+  const packPromptFooter = () => [window.BAOHelperData?.narrativeMemoryRules || "",
+    "只把玩家已確認的內容當作既有事實。不得從紀錄永久推斷玩家心理、喜惡、人格、意圖或未說出口的決定。"].filter(Boolean).join("\n\n");
+  const packPrompt = input => [packPromptData(input),packPromptFooter()].filter(Boolean).join("\n\n");
 
   const chatGPTMessages = conversation => {
     const mapping = conversation?.mapping;
@@ -1343,7 +1345,9 @@
   const contextPackPromptWrapper = function(next, ...args) {
     const base = next(...args);
     const pack = GameState.current?.contextPack;
-    return pack?.playerConfirmed ? base + "\n\n" + packPrompt(pack) : base;
+    if (!pack?.playerConfirmed) return base;
+    const append = window.BAOPromptCache?.appendSection || ((base,kind,body) => [base,body].filter(Boolean).join("\n\n"));
+    return append(base,"memory",packPromptData(pack))+"\n\n"+packPromptFooter();
   };
   if (typeof App.wrapBuildSystemPrompt === "function") {
     App.wrapBuildSystemPrompt("story-tools:context-pack", contextPackPromptWrapper);

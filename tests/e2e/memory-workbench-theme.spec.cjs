@@ -140,6 +140,7 @@ for (const width of [390,1280]) {
   await card.locator('[data-slot-text]').fill('港口暗號4721。\n\n【固定 Schema】\n只屬於密函的內容。');
   expect(await page.evaluate(()=>GameState.current.memorySlots[0].extra.source)).toBe('manual');
   expect(await page.evaluate(async()=>JSON.stringify(await App.buildMessages()))).toContain('港口暗號4721');
+  expect(await page.evaluate(async()=>(await App.buildMessages())[0].content)).not.toContain('港口暗號4721');
   await page.evaluate(()=>GameState.current.npcs.push({name:'守衛',presence:'present'}));
   expect(await page.evaluate(async()=>JSON.stringify(await App.buildMessages()))).not.toContain('港口暗號4721');
   await page.evaluate(()=>GameState.current.npcs.at(-1).presence='away');

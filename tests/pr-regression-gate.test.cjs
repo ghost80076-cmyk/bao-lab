@@ -12,6 +12,11 @@ test('memory edits include revision, rollback and state consistency', () => {
   includes(plan, 'memory-orchestration-core.cjs', 'story-revision-state-core.cjs',
     'story-rollback-core.cjs', 'status-revision-entry-ownership-core.cjs', 'world-state-completion-core.cjs');
 });
+test('prompt cache edits include memory ownership and opaque data boundaries',()=>{
+ const plan=select(['js/prompt-cache.js']);
+ assert.ok(plan.groups.includes('memory'));
+ includes(plan,'memory-prompt-sections-core.cjs','story-rollback-core.cjs','memory-summary-ownership-core.cjs');
+});
 test('revision edits carry memory ownership and branch recovery checks', () => {
   const plan = select(['js/story-revision-state.js', 'js/story-branches.js']);
   assert.ok(plan.groups.includes('story-state'));
