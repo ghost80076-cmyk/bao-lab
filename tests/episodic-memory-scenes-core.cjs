@@ -26,6 +26,7 @@ assert.doesNotMatch(recall()[0].block,/未知客觀秘密|午夜秘密時刻/);
 assert.equal(recall({hybrid:false}).length,0,'legacy/default mode never includes scenes');
 assert.equal(recall({actors:['守衛']}).length,0);assert.equal(recall({actors:['琳','守衛']}).length,0);
 assert.equal(recall({actors:[]}).length,0);assert.equal(recall({input:'金融利率'}).length,0);
+assert.equal(recall({input:'未知客觀秘密'}).length,0,'private objective text cannot trigger retrieval');
 assert.equal(recall({exclude:scene.knowledge[0].claim}).length,0);
 assert.equal(recall({maxChars:20}).length,0);
 for(const changed of [messages.map(m=>m.id==='c'?{...m,content:'改寫中間訊息'}:m),messages.filter(m=>m.id!=='c'),[...messages,{...messages[0]}],[messages[0],messages[2],messages[1],...messages.slice(3)]])
@@ -51,9 +52,10 @@ const corrected=recall({state:publicState,actors:[]});assert.equal(corrected.len
 assert.equal(recall({state:publicState,actors:[],messages:messages.slice(0,4)})[0].id,publicId,'branch without correction retains earlier public scene');
 // Full-text list should beat a higher tag-only hit. Exact-text duplicates share
 // one budget slot; private objective text never participates in full-text scoring.
-const ranked={};core.ingest(ranked,{episodes:[{text:'下雨了',keywords:['bridge','promise'],visibility:'public',certainty:'confirmed',evidenceIds:['a']},
+const ranked={};core.ingest(ranked,{episodes:[{text:'下雨了',keywords:['bridge','promise','river'],visibility:'public',certainty:'confirmed',evidenceIds:['a']},
  {text:'bridge promise',keywords:[],visibility:'public',certainty:'confirmed',evidenceIds:['b']}]},messages,messages);
-assert.equal(recall({state:ranked,input:'bridge promise',actors:[]})[0].block.includes('公開事實：bridge promise'),true);
+assert.match(recall({state:ranked,input:'bridge promise river',actors:[],hybrid:false})[0].block,/公開事實：下雨了/,'legacy tag-only match ranks first');
+assert.match(recall({state:ranked,input:'bridge promise river',actors:[]})[0].block,/公開事實：bridge promise/,'visible full-text can outrank a stronger tag-only match');
 const duplicate={npcs:clone(state.npcs)};core.ingest(duplicate,{episodes:[{...scene,evidenceIds:['a']}],scenes:[scene]},messages.slice(0,4),messages);
 assert.equal(recall({state:duplicate}).length,1,'same visible content in event and scene is sent once');
 const bounded={};for(let i=0;i<8;i++)core.ingest(bounded,{scenes:[{...scene,text:'橋邊'+i,visibility:'public',knowledge:[]}]},messages.slice(0,4),messages);
