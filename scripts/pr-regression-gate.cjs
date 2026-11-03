@@ -19,6 +19,7 @@ const GROUPS = [
   ], tests: [
     'tests/episodic-memory-core.cjs',
     'tests/episodic-memory-permissions-core.cjs',
+    'tests/episodic-memory-scenes-core.cjs',
     'tests/npc-timeline-sources-core.cjs',
     'tests/npc-timeline-resolution-core.cjs',
     'tests/actor-alias-core.cjs',

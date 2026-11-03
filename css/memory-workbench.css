@@ -242,3 +242,8 @@ html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk
 .memory-note-permissions>label{display:grid;gap:6px;margin-block:10px;color:var(--yoru-text,var(--text))}
 .memory-note-permissions :is(input,select){width:100%;min-width:0;min-height:44px;box-sizing:border-box;padding:10px;border:1px solid var(--yoru-input-border,var(--border));border-radius:10px;background:var(--yoru-input,var(--bg));color:var(--yoru-text,var(--text))}
 .memory-note-permissions>.note{color:var(--yoru-muted,var(--muted));font-size:12px;line-height:1.6}
+
+/* Optional scene recall uses the existing disclosure/row palette and hit area. */
+.memory-desk [data-hybrid-memory-settings]>summary{min-height:44px;box-sizing:border-box;padding-block:12px}
+.memory-desk [data-hybrid-memory-settings] .memory-auto-row{min-width:0}
+.memory-desk [data-hybrid-memory-settings] .memory-auto-row>span{min-width:0;overflow-wrap:anywhere}
