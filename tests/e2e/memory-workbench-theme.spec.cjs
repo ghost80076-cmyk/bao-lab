@@ -103,7 +103,7 @@ for (const width of [390,1280]) {
   await page.setViewportSize({width,height:844});await page.goto('/');
   await page.waitForFunction(()=>window.BAOMemoryWorkbenchSimple&&window.BAOMemoryWorkbench&&window.BAOPromptCache&&window.BAOEpisodicMemory&&App.characters?.length&&Storage.status().ready);
   await page.evaluate(()=>{
-   App.activeCharacter={...App.characters[0],name:'艾琳',greeting:'燈還亮著。'};
+   App.activeCharacter=CharacterEngine.normalize({id:'manual-note-scope-fixture',name:'艾琳',greeting:'燈還亮著。',system_prompt:'依角色已知資訊延續故事。'});
    App.config={persona:{name:'旅人'},narrativeMode:'immersive',displayMode:'text',api:{model:'mock'},memory:{mode:'rounds',maxRounds:20,maxContext:32000}};
    GameState.create(App.activeCharacter,App.config);Chat.reset();Chat.add('assistant','燈還亮著。');
    GameState.current.npcs=[{npc_id:'a',name:'艾琳',aliases:['琳'],presence:'away'}];
