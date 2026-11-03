@@ -17,6 +17,11 @@ test('prompt cache edits include memory ownership and opaque data boundaries',()
  assert.ok(plan.groups.includes('memory'));
  includes(plan,'memory-prompt-sections-core.cjs','story-rollback-core.cjs','memory-summary-ownership-core.cjs');
 });
+test('summary review edits include knowledge, storage and rollback contracts',()=>{
+ const plan=select(['js/summary-knowledge-core.js']);
+ assert.ok(plan.groups.includes('memory'));
+ includes(plan,'summary-knowledge-core.cjs','story-rollback-core.cjs','memory-summary-ownership-core.cjs');
+});
 test('revision edits carry memory ownership and branch recovery checks', () => {
   const plan = select(['js/story-revision-state.js', 'js/story-branches.js']);
   assert.ok(plan.groups.includes('story-state'));

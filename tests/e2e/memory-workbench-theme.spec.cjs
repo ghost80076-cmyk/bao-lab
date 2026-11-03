@@ -71,6 +71,8 @@ for (const width of [390, 1280]) {
       await expect(desk.locator('.memory-health-card')).toHaveCSS('color', palette.text);
       await expect(desk.locator('.memory-note-card').first()).toHaveCSS('background-color', palette.card);
       await expect(desk.locator('.memory-summary-preview')).toHaveCSS('background-color', palette.card);
+      await expect(desk.locator('.summary-review')).toHaveCSS('background-color', palette.card);
+      await expect(desk.locator('.summary-review')).toHaveCSS('color', palette.text);
       await desk.locator('.memory-desk-tab[data-tab="notes"]').click();
       await expect(desk.locator('[data-slot-title]')).toHaveValue('碼頭的約定');
       await expect(desk.locator('[data-slot-text]')).toHaveValue('明天一定要回到港口。');
@@ -211,5 +213,77 @@ for(const width of [390,1280]){
   await page.evaluate(()=>{App.config={...App.config,memory:{...App.config.memory,hybridRecall:false}};GameState.current={...structuredClone(GameState.current)};window.__sceneMemorySaves=0;App.saveStory=()=>{window.__sceneMemorySaves++;return true;};});
   await toggle.click();await expect(toggle).toBeDisabled();await expect(toggle).toBeChecked();
   expect(await page.evaluate(()=>App.config.memory.hybridRecall)).toBe(false);expect(await page.evaluate(()=>window.__sceneMemorySaves)).toBe(0);
+ });
+}
+
+for(const width of [390,1280]){
+ test(`reviewed summary scope persists and protects pending source at ${width}px`,async({page},testInfo)=>{
+  await page.setViewportSize({width,height:844});await openReady(page);
+  await page.evaluate(()=>{
+   App.activeCharacter=CharacterEngine.normalize({id:'summary-review-fixture',name:'艾琳',greeting:'開始。',system_prompt:'依照角色已知資訊延續故事。',character_status:{primary_character_name:'艾琳'}});
+   App.config={persona:{name:'旅人'},narrativeMode:'immersive',displayMode:'text',api:{model:'mock'},memory:{mode:'smart',maxRounds:4,summaryInterval:4,maxContext:32000}};
+   GameState.create(App.activeCharacter,App.config);Chat.reset();
+   Chat.messages=[{id:'review-source-a',role:'user',content:'我和艾琳交談。'},{id:'review-source-b',role:'assistant',content:'艾琳回答了港口的消息。'},
+    ...Array.from({length:30},(_,i)=>({id:'review-tail'+i,role:i%2?'assistant':'user',content:i===0?'後續原文8841。':'日常對話。'}))];
+   Chat.summary='港口暗號7712。\n城門開放。\n排除事項9911。';Chat.summarizedUntil=2;GameState.current.memory=[Chat.summary];
+   GameState.current.npcs=[{npc_id:'a',name:'艾琳',aliases:['琳'],presence:'away'}];
+   App.renderChatShell(false);App.showView('chat');
+  });
+  await page.waitForFunction(()=>Array.isArray(GameState.current?.quickCommands)&&GameState.current.commentaryMods?.version===1&&GameState.current.interpretationMods?.version===1);
+  const original=await page.evaluate(()=>({summary:Chat.summary,cursor:Chat.summarizedUntil}));
+  const prompt=()=>page.evaluate(async()=>JSON.stringify(await App.buildMessages()));
+  expect(await prompt()).toContain('排除事項9911');
+  await page.evaluate(()=>BAOMemoryWorkbench.open());
+  const desk=page.getByRole('dialog',{name:'記憶工作台',exact:true}),section=desk.locator('.summary-review');
+  await section.locator('summary').click();await section.locator('[data-summary-review-prepare]').click();
+  await expect(section.locator('[data-summary-review-entry]')).toHaveCount(3);
+  await section.locator('[data-summary-review-evidence]>summary').click();
+  await expect(section.locator('[data-summary-source-messages]')).toContainText('review-source-a');await expect(section.locator('[data-summary-source-messages]')).toContainText('我和艾琳交談');
+  await expect(section.locator('[data-summary-source-next]')).toBeDisabled();
+  await section.locator('[data-summary-review-evidence]>summary').click();
+  await section.locator('[data-summary-review-apply]').click();await expect(section.locator('[data-summary-review-status]')).toContainText('第 1 段');
+  expect(await page.evaluate(()=>GameState.current.summaryKnowledge)).toBeUndefined();
+  let captured=false;
+  const assign=async()=>{
+   await section.locator('[data-summary-review-entry="0"] [data-summary-review-actors]').fill('琳');
+   await section.locator('[data-summary-review-entry="1"] [data-summary-review-scope]').selectOption('shared');
+   await section.locator('[data-summary-review-entry="2"] [data-summary-review-scope]').selectOption('exclude');
+   if(!captured){
+    const field=section.locator('[data-summary-review-entry="0"] [data-summary-review-actors]');
+    await field.scrollIntoViewIfNeeded();await field.focus();
+    expect((await field.boundingBox()).height).toBeGreaterThanOrEqual(44);
+    expect(await desk.evaluate(n=>n.scrollWidth<=n.clientWidth+2)).toBe(true);
+    await page.screenshot({path:testInfo.outputPath(`summary-review-${width}.png`),fullPage:true});captured=true;
+   }
+   await section.locator('[data-summary-review-apply]').click();await expect(section.locator('[data-summary-review-status]')).toContainText('已保存');
+  };
+  await assign();expect(await prompt()).toContain('港口暗號7712');expect(await prompt()).toContain('城門開放');expect(await prompt()).not.toContain('排除事項9911');
+  expect(await page.evaluate(()=>BAOStoryMaintenanceLock.has(GameState.current))).toBe(false);
+  await page.evaluate(()=>GameState.current.npcs.push({name:'守衛',presence:'present'}));expect(await prompt()).not.toContain('港口暗號7712');expect(await prompt()).toContain('城門開放');
+  await page.evaluate(()=>GameState.current.npcs.at(-1).presence='away');
+  expect(await desk.evaluate(n=>n.scrollWidth<=n.clientWidth+2)).toBe(true);
+  await section.locator('[data-summary-review-prepare]').focus();await page.keyboard.press('Escape');await expect(desk).toHaveCount(0);
+  expect(await page.evaluate(()=>{const payload=Storage.buildStoryPayload('摘要知情');Chat.reset();if(!Storage.restoreStory(payload))throw Error('restore failed');return GameState.current.summaryKnowledge.active;})).toBe(true);
+  expect(await prompt()).toContain('港口暗號7712');expect(await prompt()).not.toContain('排除事項9911');
+  expect(await page.evaluate(()=>({summary:Chat.summary,cursor:Chat.summarizedUntil}))).toEqual(original);
+  await page.evaluate(()=>BAOMemoryWorkbench.open());await section.locator('summary').click();
+  await section.locator('[data-summary-review-undo]').click();await expect(section.locator('[data-summary-review-status]')).toContainText('已保存');
+  expect(await page.evaluate(()=>GameState.current.summaryKnowledge)).toBeUndefined();expect(await prompt()).toContain('排除事項9911');
+  await section.locator('[data-summary-review-prepare]').click();await assign();
+  await page.evaluate(()=>{Chat.summary='尚未審閱新摘要4433。';Chat.summarizedUntil=4;GameState.current.memory=[Chat.summary];BAOMemoryWorkbench.refresh(document.querySelector('.memory-desk-backdrop'),'context');});
+  await section.locator('summary').click();await expect(section.locator('[data-summary-review-state]')).toContainText('摘要已更新');await expect(section.locator('[data-summary-review-undo]')).toBeDisabled();
+  expect(await prompt()).not.toContain('尚未審閱新摘要4433');expect(await prompt()).toContain('後續原文8841');expect(await page.evaluate(()=>Chat.contextGuard.rawStart)).toBe(2);
+  await page.evaluate(()=>Chat.messages[0].content='來源已被改寫。');
+  expect(await page.evaluate(async()=>{try{await App.buildMessages();return 'unexpected success';}catch(e){return e.message;}})).toContain('來源已改寫');
+  const beforeFailure=await page.evaluate(()=>{window.__summarySave=App.saveStory;App.saveStory=()=>false;return JSON.stringify([GameState.current.summaryKnowledge,GameState.current.summaryKnowledgeBackup]);});
+  await section.locator('[data-summary-review-off]').click();await expect(section.locator('[data-summary-review-status]')).toContainText('未受理保存');
+  expect(await page.evaluate(()=>JSON.stringify([GameState.current.summaryKnowledge,GameState.current.summaryKnowledgeBackup]))).toBe(beforeFailure);
+  expect(await page.evaluate(()=>BAOStoryMaintenanceLock.has(GameState.current))).toBe(false);
+  await page.evaluate(()=>App.saveStory=window.__summarySave);
+  await section.locator('[data-summary-review-off]').click();await expect(section.locator('[data-summary-review-status]')).toContainText('已保存');expect(await prompt()).toContain('尚未審閱新摘要4433');
+  await section.locator('[data-summary-review-prepare]').click();await section.locator('[data-summary-review-scope]').selectOption('shared');
+  const switched=await page.evaluate(()=>{GameState.current=structuredClone(GameState.current);App.config={...App.config};window.__crossSummarySaves=0;App.saveStory=()=>{window.__crossSummarySaves++;return true;};return JSON.stringify(GameState.current);});
+  await section.locator('[data-summary-review-apply]').click();await expect(section.locator('[data-summary-review-status]')).toContainText('故事已切換');
+  expect(await page.evaluate(()=>JSON.stringify(GameState.current))).toBe(switched);expect(await page.evaluate(()=>window.__crossSummarySaves)).toBe(0);
  });
 }
