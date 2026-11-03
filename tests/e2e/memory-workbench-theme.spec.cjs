@@ -1,9 +1,18 @@
 const { test, expect } = require('@playwright/test');
 
+async function openReady(page) {
+  await page.goto('/');
+  // A partially installed story pipeline can still normalize quick commands
+  // and MOD defaults after a fixture captures its supposedly immutable state.
+  await page.waitForFunction(() => window.BAOExtensionLoadHealth?.snapshot().story === 'ready'
+    && BAOExtensionLoadHealth.snapshot().world === 'ready' && window.YoruExperience
+    && App.characters?.length && Storage.status().ready);
+}
+
 for (const width of [390, 1280]) {
   test('memory workbench matches site themes and preserves story notes (' + width + 'px)', async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
-    await page.goto('./');
+    await openReady(page);
     await page.waitForFunction(() => Boolean(
       window.YoruExperience && window.BAOMemoryWorkbenchSimple &&
       window.BAOMemoryWorkbench && App.characters?.length && window.GameState
@@ -78,7 +87,7 @@ for (const width of [390, 1280]) {
 
 for(const width of [390,1280]){
  test(`memory desk supports keyboard exit and restores the opener at ${width}px`,async({page})=>{
-  await page.setViewportSize({width,height:844});await page.goto('/');
+  await page.setViewportSize({width,height:844});await openReady(page);
   await page.waitForFunction(()=>window.BAOMemoryWorkbench && window.BAOStoryControlCenter && App.characters?.length);
   await page.evaluate(()=>{
    App.activeCharacter=App.characters[0];App.config={api:{model:'mock'},memory:{mode:'smart',maxRounds:20,maxContext:32000},persona:{name:'旅人'}};
@@ -106,7 +115,7 @@ for(const width of [390,1280]){
 
 for (const width of [390,1280]) {
  test(`manual note knowledge survives editing and portable reload at ${width}px`,async({page},testInfo)=>{
-  await page.setViewportSize({width,height:844});await page.goto('/');
+  await page.setViewportSize({width,height:844});await openReady(page);
   await page.waitForFunction(()=>window.BAOMemoryWorkbenchSimple&&window.BAOMemoryWorkbench&&window.BAOPromptCache&&window.BAOEpisodicMemory&&App.characters?.length&&Storage.status().ready);
   await page.evaluate(()=>{
    App.activeCharacter=CharacterEngine.normalize({id:'manual-note-scope-fixture',name:'艾琳',greeting:'燈還亮著。',system_prompt:'依角色已知資訊延續故事。',character_status:{primary_character_name:'艾琳'}});
@@ -163,7 +172,7 @@ for (const width of [390,1280]) {
 
 for(const width of [390,1280]){
  test(`optional scene recall uses current audience and survives save at ${width}px`,async({page},testInfo)=>{
-  await page.setViewportSize({width,height:844});await page.goto('/');
+  await page.setViewportSize({width,height:844});await openReady(page);
   await page.waitForFunction(()=>window.BAOMemoryWorkbenchSimple&&window.BAOPromptCache&&window.BAOEpisodicMemory&&App.characters?.length&&Storage.status().ready);
   await page.evaluate(()=>{
    App.activeCharacter=CharacterEngine.normalize({id:'scene-memory-fixture',name:'艾琳',greeting:'燈還亮著。',system_prompt:'依角色知情延續故事。',character_status:{primary_character_name:'艾琳'}});
