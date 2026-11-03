@@ -647,8 +647,16 @@
     let rounds = Number(Chat.contextGuard?.recentRounds || configured);
     if (!Number.isFinite(rounds) || rounds < 1) rounds = configured;
     const memoryMessages = [];
-    if (mode === "smart" && Chat.summary) memoryMessages.push({ role: "system", content: "【長期記憶摘要】\n" + (window.BAOHelperData?.narrativeMemoryRules || "") + "\n" + Chat.summary });
-    memoryMessages.push(...(mode === "full" ? clone(Chat.messages) : clone(Chat.messages.slice(-rounds * 2))));
+    let summaryText = Chat.summary, rawStart = Math.max(0,Chat.messages.length-rounds*2);
+    if (mode === "smart" && state.summaryKnowledge?.active) {
+      if (!window.BAOSummaryKnowledgeCore) throw new Error('摘要知情模組尚未就緒，請重新整理頁面。');
+      const reviewed = window.BAOSummaryKnowledgeCore.view({state,summary:Chat.summary,cursor:Chat.summarizedUntil,
+        messages:Chat.messages,config:App.config,primary:App.activeCharacter?.name||''});
+      summaryText = reviewed.text;
+      rawStart = Math.min(Math.max(0,Chat.messages.length-rounds*2-Math.max(2,Number(App.config?.memory?.summaryInterval||4))*2),reviewed.coveredUntil);
+    }
+    if (mode === "smart" && summaryText) memoryMessages.push({ role: "system", content: "【長期記憶摘要】\n" + (window.BAOHelperData?.narrativeMemoryRules || "") + "\n" + summaryText });
+    memoryMessages.push(...(mode === "full" ? clone(Chat.messages) : clone(Chat.messages.slice(rawStart))));
     const manualMemory = window.BAOMemoryWorkbench?.promptSlots?.() || (window.BAOMemoryWorkbench?.readSlots?.() || [])
       .filter(x => x && x.enabled && typeof x.text === "string" && x.text.trim() && (x.knowledge_scope === undefined || x.knowledge_scope === "shared"));
     const status = window.BAOCharacterStatus?.compactForPrompt?.(latestUserText(), { maxCharacters: 2, maxChars: 1400, consumeViewed: false }) || { text: "", names: [] };

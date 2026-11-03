@@ -14,8 +14,8 @@ const GROUPS = [
     'tests/story-backup-core.cjs', 'tests/context-pack-resume-core.cjs', 'tests/request-lifecycle-core.cjs'
   ] },
   { id: 'memory', patterns: [
-    /^js\/(?:memory-|context-|canon-|episodic-memory|full-story-memory|story-tools|story-maintenance|story-data-task|helper-context|helper-data|reader-context|prompt-cache\.js|player-settings\.js|chat\.js)/,
-    /^tests\/(?:memory-|context-|canon-|manual-memory|episodic-memory|full-story-memory|story-maintenance|story-data-task|helper-context|episodic-recall-ownership|worldbook-recall-ownership)/
+    /^js\/(?:memory-|summary-knowledge|context-|canon-|episodic-memory|full-story-memory|story-tools|story-maintenance|story-data-task|helper-context|helper-data|reader-context|prompt-cache\.js|player-settings\.js|chat\.js)/,
+    /^tests\/(?:memory-|summary-knowledge|context-|canon-|manual-memory|episodic-memory|full-story-memory|story-maintenance|story-data-task|helper-context|episodic-recall-ownership|worldbook-recall-ownership)/
   ], tests: [
     'tests/episodic-memory-core.cjs',
     'tests/episodic-memory-permissions-core.cjs',
@@ -37,6 +37,7 @@ const GROUPS = [
     'tests/context-source-decisions-core.cjs',
     'tests/prompt-cache-core.cjs',
     'tests/memory-prompt-sections-core.cjs',
+    'tests/summary-knowledge-core.cjs',
     'tests/full-story-memory-rebuild-core.cjs',
     'tests/storage-fallback-integrity-core.cjs',
     'tests/story-backup-recovery-core.cjs',

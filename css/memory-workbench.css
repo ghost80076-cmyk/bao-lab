@@ -247,3 +247,13 @@ html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk
 .memory-desk [data-hybrid-memory-settings]>summary{min-height:44px;box-sizing:border-box;padding-block:12px}
 .memory-desk [data-hybrid-memory-settings] .memory-auto-row{min-width:0}
 .memory-desk [data-hybrid-memory-settings] .memory-auto-row>span{min-width:0;overflow-wrap:anywhere}
+/* Optional summary review stays inside the existing memory desk palette. */
+.summary-review>summary{min-height:44px;box-sizing:border-box;padding-block:12px}
+.summary-review-actions{display:flex;flex-wrap:wrap;gap:8px;margin-block:12px}
+.summary-review button{min-height:44px;white-space:normal}
+.summary-review-grid{display:grid;gap:12px;margin-block:14px}
+.summary-review-text{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;line-height:1.65;margin:0 0 12px;color:inherit}
+.summary-review .memory-note-permissions{min-width:0}
+
+.summary-review-source{max-height:300px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;font-size:13px;line-height:1.65;color:inherit}
+.summary-review-source-id{display:block;overflow-wrap:anywhere;font-size:11px;color:var(--yoru-muted,var(--muted))}

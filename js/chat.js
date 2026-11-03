@@ -98,7 +98,15 @@ const Chat = {
     // explicit provider size error) over silently forgetting unsummarized text.
     const buffer = Math.max(2, Number(config?.memory?.summaryInterval || 4)) * 2;
     const targetStart = Math.max(0, this.messages.length - rounds * 2 - buffer);
-    const coveredUntil = this.summary
+    let reviewed = null;
+    const summaryOwner = typeof GameState !== 'undefined' ? GameState.current : window.GameState?.current;
+    if (summaryOwner?.summaryKnowledge?.active) {
+      if (!window.BAOSummaryKnowledgeCore) throw new Error('摘要知情模組尚未就緒，請重新整理頁面後再試。');
+      reviewed = window.BAOSummaryKnowledgeCore.view({state:summaryOwner,summary:this.summary,
+        cursor:this.summarizedUntil,messages:this.messages,config,primary:typeof App !== 'undefined'?App.activeCharacter?.name||'':''});
+    }
+    const summaryText = reviewed ? reviewed.text : this.summary;
+    const coveredUntil = reviewed ? reviewed.coveredUntil : this.summary
       ? Math.max(0, Math.min(Number(this.summarizedUntil || 0), this.messages.length))
       : 0;
     const start = Math.min(targetStart, coveredUntil);
@@ -111,7 +119,7 @@ const Chat = {
     };
     this.renderGuard();
     const result = [];
-    if (this.summary) result.push({ role: "system", content: `【長期記憶摘要】\n以下內容是較早對話的壓縮記憶，請保持人物關係、重要事件、承諾、偏好與未解決事項的一致性。\n${window.BAOHelperData?.narrativeMemoryRules || ""}\n${this.summary}` });
+    if (summaryText) result.push({ role: "system", content: `【長期記憶摘要】\n以下內容是較早對話的壓縮記憶，請保持人物關係、重要事件、承諾、偏好與未解決事項的一致性。\n${window.BAOHelperData?.narrativeMemoryRules || ""}\n${summaryText}` });
     result.push(...this.modelMessages(recent));
     return result;
   },
