@@ -12,7 +12,7 @@
     if (document.querySelector('link[href^="css/memory-workbench.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/memory-workbench.css?v=5";
+    link.href = "css/memory-workbench.css?v=6";
     document.head.appendChild(link);
   };
   const read = () => {
@@ -28,6 +28,16 @@
       return Array.isArray(slots) && slots.length ? slots : blank();
     } catch { return blank(); }
   };
+  const slotScope = slot => slot?.knowledge_scope === undefined || slot?.knowledge_scope === 'shared' ? 'shared' : 'actors';
+  const knownBy = slot => (slot?.knowledge_scope === undefined || ['shared','actors'].includes(slot?.knowledge_scope)) && Array.isArray(slot?.known_by)
+    ? [...new Set(slot.known_by.filter(name=>typeof name==='string'&&name.trim()).map(name=>name.trim()))] : [];
+  const promptSlots = () => {
+    const state=window.GameState?.current,core=window.BAOEpisodicMemory;
+    const actors=core?.audience?.({state,config:App.config,primary:App.activeCharacter?.name||''})||[];
+    return read().filter(slot=>slot&&slot.enabled&&typeof slot.text==='string'&&slot.text.trim()&&
+      (slotScope(slot)==='shared'||(state&&slot.knowledge_scope==='actors'&&knownBy(slot).length<=30&&core?.canRead?.(slot,actors,state))));
+  };
+  const scopeHTML = slot => `<details class="memory-note-permissions"><summary data-slot-scope-label>${slotScope(slot)==='shared'?'共用背景':(knownBy(slot).length>30?'超過 30 位（未提供給模型）':knownBy(slot).length?`限定已知角色（${knownBy(slot).length} 位）`:'待指定知情角色（未提供給模型）')}</summary><label>提供範圍<select data-slot-scope aria-label="筆記知情範圍"><option value="shared" ${slotScope(slot)==='shared'?'selected':''}>共用背景</option><option value="actors" ${slotScope(slot)==='actors'?'selected':''}>限定已知角色</option></select></label><label>已知角色（正式名稱或已登錄別名，逗號分隔）<input type="text" data-slot-known-by aria-label="筆記已知角色" maxlength="3000" value="${attr(knownBy(slot).join('、'))}" ${slotScope(slot)==='shared'?'disabled':''}></label><p class="note">限定筆記只在本輪所有回應角色都列入名單時提供；名單最多 30 位；空白或超出上限時不提供。這項設定只控制此筆筆記，其他對話與摘要仍依原規則載入。</p></details>`;
   const write = slots => {
     const next = Array.isArray(slots) && slots.length ? slots : blank();
     const story = window.GameState?.current;
@@ -100,16 +110,30 @@
       <div class="memory-pane-title memory-preview-title"><div><h3>近期脈絡預覽</h3><p>下面只顯示最近 12 則訊息作為預覽，不代表模型實際只收到這些內容。</p></div><span class="memory-pill">PREVIEW ONLY</span></div>
       <div class="memory-context-list">${recent.length ? recent.map(m=>`<article class="memory-context-item"><span class="role">${m.role === "user" ? "PLAYER" : "CHARACTER"}</span><p>${esc(String(m.content).slice(0,1200))}</p></article>`).join("") : '<div class="memory-empty">目前還沒有對話。</div>'}</div></section>`;
   };
-  const notesHTML = slots => `<section class="memory-pane" data-pane="notes"><div class="memory-pane-title"><div><h3>長期筆記</h3><p>此故事啟用中的內容會提供給故事模型；可手動新增、修改或停用。不同故事互不混用。</p></div><span class="memory-pill">STORY LOCAL</span></div><div class="memory-note-grid">${slots.map(s=>`<article class="memory-note-card" data-slot="${attr(s.id)}"><div class="memory-note-top"><input type="checkbox" data-slot-enabled ${s.enabled?"checked":""}><input type="text" data-slot-title maxlength="60" value="${attr(s.title)}"><button type="button" class="memory-note-delete" data-slot-delete>刪除</button></div><textarea data-slot-text maxlength="20000" placeholder="世界觀、NPC、角色關係、重要事件與承諾…">${esc(s.text||"")}</textarea><div class="memory-note-meta"><span>本故事長期筆記</span><span data-slot-count>${String(s.text||"").length.toLocaleString()} / 20,000</span></div></article>`).join("")}</div><button type="button" class="memory-add-note" data-add-note>＋ 新增長期筆記</button></section>`;
+  const notesHTML = slots => `<section class="memory-pane" data-pane="notes"><div class="memory-pane-title"><div><h3>長期筆記</h3><p>筆記會依啟用狀態與知情範圍提供給故事模型。可手動新增、修改或停用，不同故事互不混用。</p></div><span class="memory-pill">STORY LOCAL</span></div><div class="memory-note-grid">${slots.map(s=>`<article class="memory-note-card" data-slot="${attr(s.id)}"><div class="memory-note-top"><input type="checkbox" data-slot-enabled ${s.enabled?"checked":""}><input type="text" data-slot-title maxlength="60" value="${attr(s.title)}"><button type="button" class="memory-note-delete" data-slot-delete>刪除</button></div><textarea data-slot-text maxlength="20000" placeholder="世界觀、NPC、角色關係、重要事件與承諾…">${esc(s.text||"")}</textarea>${scopeHTML(s)}<div class="memory-note-meta"><span>本故事長期筆記</span><span data-slot-count>${String(s.text||"").length.toLocaleString()} / 20,000</span></div></article>`).join("")}</div><button type="button" class="memory-add-note" data-add-note>＋ 新增長期筆記</button></section>`;
   const refineShellHTML = () => `<section class="memory-pane" data-pane="refine"><div class="memory-pane-title"><div><h3>AI 整理</h3><p>選擇資料範圍與整理模型，先產生草稿，再決定是否寫入長期筆記。</p></div><span class="memory-pill">MODEL ASSIST</span></div><div id="memory-ai-area"></div></section>`;
   const canonShellHTML = () => `<section class="memory-pane" data-pane="canon"><div class="memory-pane-title"><div><h3>Canon 資料庫</h3><p>從歷史對話建立可校驗、可修改、由玩家確認的劇情基準。</p></div><span class="memory-pill">PLAYER CONFIRMED</span></div><div id="canon-workbench-area"></div></section>`;
   const switchPane = (root,name) => {
     root.querySelectorAll(".memory-desk-tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===name));
     root.querySelectorAll(".memory-pane").forEach(x=>x.classList.toggle("active",x.dataset.pane===name));
   };
-  const collect = root => [...root.querySelectorAll("[data-slot]")].map(node=>({id:node.dataset.slot,title:node.querySelector("[data-slot-title]")?.value.trim()||"未命名記憶",text:node.querySelector("[data-slot-text]")?.value||"",enabled:Boolean(node.querySelector("[data-slot-enabled]")?.checked)}));
+  const collect = root => [...root.querySelectorAll("[data-slot]")].map(node=>{
+    const prior=read().find(slot=>slot?.id===node.dataset.slot)||{};
+    const scope=node.querySelector('[data-slot-scope]'),names=node.querySelector('[data-slot-known-by]');
+    const permissions=scope?{knowledge_scope:scope.value==='shared'?'shared':'actors',
+      known_by:names?[...new Set(names.value.split(/[\n,，、]+/).map(name=>name.trim()).filter(Boolean))]:knownBy(prior)}:{};
+    return {...prior,id:node.dataset.slot,title:node.querySelector('[data-slot-title]')?.value.trim()||'未命名記憶',
+      text:node.querySelector('[data-slot-text]')?.value||'',enabled:Boolean(node.querySelector('[data-slot-enabled]')?.checked),...permissions};
+  });
   const bindNotes = root => {
     root.querySelectorAll("[data-slot-text]").forEach(el=>el.addEventListener("input",()=>{const card=el.closest("[data-slot]");card.querySelector("[data-slot-count]").textContent=`${el.value.length.toLocaleString()} / 20,000`;write(collect(root));stats(root);}));
+    root.querySelectorAll('[data-slot-scope],[data-slot-known-by]').forEach(el=>el.addEventListener('change',()=>{
+      const card=el.closest('[data-slot]'),scope=card.querySelector('[data-slot-scope]'),names=card.querySelector('[data-slot-known-by]');
+      names.disabled=scope.value==='shared';
+      const count=[...new Set(names.value.split(/[\n,，、]+/).map(name=>name.trim()).filter(Boolean))].length;
+      card.querySelector('[data-slot-scope-label]').textContent=scope.value==='shared'?'共用背景':(count>30?'超過 30 位（未提供給模型）':count?`限定已知角色（${count} 位）`:'待指定知情角色（未提供給模型）');
+      write(collect(root));stats(root);
+    }));
     root.querySelectorAll("[data-slot-title],[data-slot-enabled]").forEach(el=>el.addEventListener("change",()=>{write(collect(root));stats(root);}));
     root.querySelectorAll("[data-slot-delete]").forEach(btn=>btn.addEventListener("click",()=>{btn.closest("[data-slot]")?.remove();let slots=collect(root);if(!slots.length)slots=blank();write(slots);render(root,"notes");}));
     root.querySelector("[data-add-note]")?.addEventListener("click",()=>{const slots=collect(root);slots.push({id:`memory-${Date.now()}`,title:`記憶 ${slots.length+1}`,text:"",enabled:true});write(slots);render(root,"notes");});
@@ -205,6 +229,6 @@
   };
   const bindButton=()=>{const btn=document.querySelector('#bao-player-settings [data-bao-open="memory"]');if(!btn)return;btn.textContent="🧠 記憶工作台";btn.onclick=open;};
   const originalRender=App.renderChatShell.bind(App);App.renderChatShell=function(fresh=false){originalRender(fresh);setTimeout(bindButton,0);};
-  window.BAOMemoryWorkbench={open,retryAutoMemory,readSlots:read,writeSlots:write,refresh:(root,tab)=>render(root,tab)};
+  window.BAOMemoryWorkbench={open,retryAutoMemory,readSlots:read,writeSlots:write,promptSlots,refresh:(root,tab)=>render(root,tab)};
   ensureStyles(); setTimeout(bindButton,180);
 })();

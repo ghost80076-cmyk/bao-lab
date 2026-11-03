@@ -84,7 +84,12 @@
   };
   const saveSettings = () => writeJSON(SETTINGS_KEY, durableSettings());
   const saveMemory = () => writeJSON(MEMORY_KEY, memorySlots);
-  const enabledMemoryText = () => (window.BAOMemoryWorkbench?.readSlots?.() || readJSON(MEMORY_KEY, memorySlots)).filter(x => x.enabled && String(x.text || "").trim()).map(x => `【${x.title}】\n${x.text.trim()}`).join("\n\n");
+  const enabledMemoryText = () => {
+    const desk=window.BAOMemoryWorkbench;
+    const slots=desk?.promptSlots?desk.promptSlots():(desk?.readSlots?.()||readJSON(MEMORY_KEY,memorySlots))
+      .filter(slot=>slot&&slot.enabled&&typeof slot.text==='string'&&slot.text.trim()&&(slot.knowledge_scope===undefined||slot.knowledge_scope==='shared'));
+    return slots.map(slot=>`【${slot.title}】\n${slot.text.trim()}`).join('\n\n');
+  };
 
   const ensureStyles = () => {
     if (document.querySelector('link[href^="css/player-settings.css"]')) return;
@@ -425,7 +430,7 @@
   App.buildSystemPrompt = function() {
     const base = originalBuildSystemPrompt();
     const memory = enabledMemoryText();
-    return [base, "", "【玩家回覆設定】", lengthInstruction(this.config), povInstruction(), dialogueInstruction(), languageInstruction(), memory ? `\n【玩家手動記憶】\n${memory}` : ""].filter(Boolean).join("\n");
+    return [base, "", "【玩家回覆設定】", lengthInstruction(this.config), povInstruction(), dialogueInstruction(), languageInstruction(), memory ? `\n【玩家手動記憶】\n${memory}\n\n${window.BAOHelperData?.narrativeMemoryRules||""}` : ""].filter(Boolean).join("\n");
   };
 
   const originalOpenBuilder = App.openBuilder.bind(App);

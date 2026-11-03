@@ -46,7 +46,8 @@ for (const width of [390, 1280]) {
           surface:pick('--yoru-surface'),
           card:pick('--yoru-card'),
           tool:pick('--yoru-tool'),
-          text:pick('--yoru-text','color')
+          text:pick('--yoru-text','color'),
+          input:pick('--yoru-input')
         };
         probe.remove();
         return colors;
@@ -62,6 +63,11 @@ for (const width of [390, 1280]) {
       await desk.locator('.memory-desk-tab[data-tab="notes"]').click();
       await expect(desk.locator('[data-slot-title]')).toHaveValue('碼頭的約定');
       await expect(desk.locator('[data-slot-text]')).toHaveValue('明天一定要回到港口。');
+      await desk.locator('[data-slot-scope-label]').click();
+      await expect(desk.locator('[data-slot-scope]')).toHaveValue('shared');
+      await expect(desk.locator('[data-slot-known-by]')).toBeDisabled();
+      await expect(desk.locator('[data-slot-scope]')).toHaveCSS('background-color', palette.input);
+      await expect(desk.locator('[data-slot-scope]')).toHaveCSS('color', palette.text);
       expect(await page.evaluate(() => JSON.stringify(GameState.current))).toBe(before);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2)).toBe(true);
       await desk.locator('.memory-desk-close').click();
@@ -89,5 +95,47 @@ for(const width of [390,1280]){
   await page.keyboard.press('Escape');await expect(desk).toHaveCount(0);
   await expect(page.locator('.app-shell')).not.toHaveAttribute('inert','');await expect(opener).toBeFocused();
   expect(await page.evaluate(()=>JSON.stringify({state:GameState.current,config:App.config}))).toBe(before);
+ });
+}
+
+for (const width of [390,1280]) {
+ test(`manual note knowledge survives editing and portable reload at ${width}px`,async({page},testInfo)=>{
+  await page.setViewportSize({width,height:844});await page.goto('/');
+  await page.waitForFunction(()=>window.BAOMemoryWorkbenchSimple&&window.BAOMemoryWorkbench&&window.BAOPromptCache&&window.BAOEpisodicMemory&&App.characters?.length&&Storage.status().ready);
+  await page.evaluate(()=>{
+   App.activeCharacter={...App.characters[0],name:'艾琳',greeting:'燈還亮著。'};
+   App.config={persona:{name:'旅人'},narrativeMode:'immersive',displayMode:'text',api:{model:'mock'},memory:{mode:'rounds',maxRounds:20,maxContext:32000}};
+   GameState.create(App.activeCharacter,App.config);Chat.reset();Chat.add('assistant','燈還亮著。');
+   GameState.current.npcs=[{npc_id:'a',name:'艾琳',aliases:['琳'],presence:'away'}];
+   BAOMemoryWorkbench.writeSlots([{id:'scope-note',title:'密函',text:'港口暗號4721。',enabled:true,knowledge_scope:'actors',known_by:['艾琳'],extra:{source:'manual'}}]);
+   App.renderChatShell(false);App.showView('chat');BAOMemoryWorkbench.open();
+  });
+  const desk=page.getByRole('dialog',{name:'記憶工作台',exact:true});
+  await desk.locator('.memory-desk-tab[data-tab="notes"]').click();
+  const card=desk.locator('[data-slot="scope-note"]');await card.locator('[data-slot-scope-label]').click();
+  const scope=card.locator('[data-slot-scope]'),names=card.locator('[data-slot-known-by]');
+  await expect(scope).toHaveValue('actors');await expect(names).toHaveValue('艾琳');
+  await names.fill('琳');await names.press('Tab');
+  await card.locator('[data-slot-title]').fill('更新密函');await card.locator('[data-slot-title]').press('Tab');
+  await card.locator('[data-slot-text]').fill('港口暗號4721。\n\n【固定 Schema】\n只屬於密函的內容。');
+  expect(await page.evaluate(()=>GameState.current.memorySlots[0].extra.source)).toBe('manual');
+  expect(await page.evaluate(async()=>JSON.stringify(await App.buildMessages()))).toContain('港口暗號4721');
+  await page.evaluate(()=>GameState.current.npcs.push({name:'守衛',presence:'present'}));
+  expect(await page.evaluate(async()=>JSON.stringify(await App.buildMessages()))).not.toContain('港口暗號4721');
+  await page.evaluate(()=>GameState.current.npcs.at(-1).presence='away');
+  await names.fill('');await names.press('Tab');await expect(card.locator('[data-slot-scope-label]')).toContainText('未提供給模型');
+  expect(await page.evaluate(async()=>JSON.stringify(await App.buildMessages()))).not.toContain('港口暗號4721');
+  await names.fill('琳');await names.press('Tab');
+  await page.screenshot({path:testInfo.outputPath(`manual-note-scope-${width}.png`),fullPage:true});
+  expect(await desk.evaluate(node=>node.scrollWidth<=node.clientWidth+2)).toBe(true);
+  await names.focus();await page.keyboard.press('Escape');await expect(desk).toHaveCount(0);
+  const restored=await page.evaluate(()=>{
+   const payload=Storage.buildStoryPayload('知情筆記');Chat.reset();if(!Storage.restoreStory(payload))throw Error('restore failed');
+   return GameState.current.memorySlots[0];
+  });
+  expect(restored).toMatchObject({title:'更新密函',knowledge_scope:'actors',known_by:['琳'],extra:{source:'manual'}});
+  expect(await page.evaluate(async()=>JSON.stringify(await App.buildMessages()))).toContain('港口暗號4721');
+  await page.evaluate(()=>{App.config.narrativeMode='world';GameState.current.npcs.forEach(n=>n.presence='away');});
+  expect(await page.evaluate(async()=>JSON.stringify(await App.buildMessages()))).not.toContain('港口暗號4721');
  });
 }
