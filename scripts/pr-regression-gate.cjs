@@ -38,6 +38,7 @@ const GROUPS = [
     'tests/prompt-cache-core.cjs',
     'tests/memory-prompt-sections-core.cjs',
     'tests/summary-knowledge-core.cjs',
+    'tests/summary-knowledge-longplay-core.cjs',
     'tests/full-story-memory-rebuild-core.cjs',
     'tests/storage-fallback-integrity-core.cjs',
     'tests/story-backup-recovery-core.cjs',
