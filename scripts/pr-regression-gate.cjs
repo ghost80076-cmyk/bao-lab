@@ -14,9 +14,18 @@ const GROUPS = [
     'tests/story-backup-core.cjs', 'tests/context-pack-resume-core.cjs', 'tests/request-lifecycle-core.cjs'
   ] },
   { id: 'memory', patterns: [
-    /^js\/(?:memory-|context-|canon-|episodic-memory|full-story-memory|story-tools|story-maintenance|story-data-task|helper-context|reader-context)/,
-    /^tests\/(?:memory-|context-|canon-|episodic-memory|full-story-memory|story-maintenance|story-data-task)/
+    /^js\/(?:memory-|context-|canon-|episodic-memory|full-story-memory|story-tools|story-maintenance|story-data-task|helper-context|helper-data|reader-context|chat\.js)/,
+    /^tests\/(?:memory-|context-|canon-|episodic-memory|full-story-memory|story-maintenance|story-data-task|helper-context|episodic-recall-ownership|worldbook-recall-ownership)/
   ], tests: [
+    'tests/episodic-memory-core.cjs',
+    'tests/episodic-memory-permissions-core.cjs',
+    'tests/npc-timeline-sources-core.cjs',
+    'tests/npc-timeline-resolution-core.cjs',
+    'tests/actor-alias-core.cjs',
+    'tests/actor-alias-runtime.cjs',
+    'tests/recall-acceptance-runner-core.cjs',
+    'tests/episodic-recall-ownership-core.cjs',
+    'tests/worldbook-recall-ownership-core.cjs',
     'tests/memory-orchestration-core.cjs',
     'tests/memory-checkpoint-persistence-core.cjs',
     'tests/memory-workbench-persistence-core.cjs',
@@ -66,9 +75,10 @@ const GROUPS = [
   ] },
   { id: 'ui', patterns: [
     /^(?:css\/|index\.html$|(?:gameplay-ui-preview|character-studio|author|account|lights)\.html$)/,
-    /^js\/(?:gameplay-ui|stage-capability|phone-|site-ui|character-studio|experience-preferences|story-reader|chat-reading|app\.js)/,
-    /^tests\/(?:gameplay-ui|stage-capability|phone-|experience-preferences|story-reader|chat-reading)/
+    /^js\/(?:gameplay-ui|stage-capability|scene-chat-integration|no-api-world-preview|phone-|site-ui|character-studio|experience-preferences|story-reader|chat-reading|app\.js)/,
+    /^tests\/(?:gameplay-ui|stage-capability|scene-chat-integration|no-api-world-preview|phone-|experience-preferences|story-reader|chat-reading)/
   ], tests: [
+    'tests/scene-chat-bootstrap-core.cjs',
     'tests/gameplay-ui-engine-core.cjs',
     'tests/experience-preferences-core.cjs',
     'tests/character-studio-gameplay-ui-core.cjs',

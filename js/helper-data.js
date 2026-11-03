@@ -14,7 +14,7 @@
     return null;
   };
   const categories = { events: "重要事件", knownFacts: "人物已知資訊", relationships: "已確認關係", openThreads: "未完成事件" };
-  const memoryRules = '只輸出 JSON：{"events":["事實"],"knownFacts":["誰知道什麼"],"relationships":["明確關係"],"openThreads":["未完成目標"]}。每項是精簡事實，不寫小說、修辭、建議或下一幕安排；不確定與心理推測不寫入。合併既有記憶，保留仍有效的重要事實。每類最多 16 項，每項最多 160 字。';
+  const memoryRules = '只輸出 JSON：{"events":["事實"],"knownFacts":["誰知道什麼"],"relationships":["明確關係"],"openThreads":["未完成目標"]}。每項是精簡事實，不寫小說、修辭、建議或下一幕安排；不確定與心理推測不寫入。合併既有記憶，保留仍有效的重要事實。人物關係必須保留方向與主體，例如「A 信任 B」不能改寫為「B 信任 A」或「彼此信任」；沒有雙向原文證據就不能對稱化，不得替玩家決定感情。每類最多 16 項，每項最多 160 字。';
   const memoryText = text => {
     const data = parse(text);
     if (!object(data)) return "";

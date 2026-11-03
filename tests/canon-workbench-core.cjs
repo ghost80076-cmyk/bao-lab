@@ -91,6 +91,7 @@ assert.equal(oversizedChunks.every(chunk => chunk.includes("msg-oversized")), tr
   delete GameState.current.canon;
   await BAOCanonWorkbench.run("full");
   assert.equal(API.calls.length, 2, "one extraction call plus one merge call expected");
+  for (const call of API.calls) assert.match(call.messages[1].content, /A 信任 B.*B 信任 A.*彼此信任/, "both extraction and merge preserve relationship direction");
   assert.equal(API.calls.every(call => call.config.__memoryTask === true), true);
   assert.equal(API.calls.every(call => call.config.__responseSchema?.properties?.notebooks), true, "Canon requests must carry their own Gemini schema");
   assert.equal(GameState.current.canon, undefined, "AI output must not become official Canon before player confirmation");
