@@ -102,7 +102,7 @@
     const heading = pane.querySelector(".memory-pane-title h3");
     const copy = pane.querySelector(".memory-pane-title p");
     if (heading) heading.textContent = "必記事項";
-    if (copy) copy.textContent = "只放重要約定、關係與規則；啟用的筆記會占用上下文，避免貼入整段聊天或重複設定。";
+    if (copy && root.dataset?.memoryNotesStale!=="true") copy.textContent = "只放重要約定、關係與規則；筆記依啟用狀態與知情範圍載入，可展開各筆設定提供對象。";
     pane.querySelector(".memory-pill")?.remove();
     pane.querySelectorAll(".memory-note-meta span:first-child").forEach(node => node.textContent = "只屬於目前故事");
     const add = pane.querySelector("[data-add-note]");
@@ -251,7 +251,7 @@
 
     if (desk.dataset.memoryCompactBound === "true") return;
     desk.dataset.memoryCompactBound = "true";
-    const editable = target => target instanceof Element && target.matches("[data-slot-text],[data-slot-title]");
+    const editable = target => target instanceof Element && target.matches("[data-slot-text],[data-slot-title],[data-slot-known-by]");
     desk.addEventListener("focusin", event => {
       if (!editable(event.target)) return;
       desk.classList.add("memory-editing");

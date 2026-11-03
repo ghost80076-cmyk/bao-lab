@@ -18,7 +18,7 @@ The existing text-based prompt partitioner remains unchanged. Arbitrary headings
 
 ## Interface and compatibility
 
-Existing workbench layout, theme tokens, focus trap, Escape/return focus, local-first saves and API boundaries remain. New controls use the existing theme palette and at least 44px targets. Context preview uses the same role selection as the actual prompt. Stored version/schema numbers do not change; fields are additive and travel through existing story/JSON backups.
+Existing workbench layout, theme tokens, focus trap, Escape/return focus, local-first saves and API boundaries remain. New controls use the existing theme palette and at least 44px targets. The simplified workbench retains stale-story feedback, describes the selected audience, and treats the actor-name field as a mobile editing input. Context preview uses the same role selection as the actual prompt. Stored version/schema numbers do not change; fields are additive and travel through existing story/JSON backups.
 
 No worker, AWS, provider routing, wallet or database migration change. No model request is added. Old application versions ignore these additive permissions, so rolling back can restore the former all-enabled-notes behavior; scoped notes must be treated accordingly during a rollback.
 

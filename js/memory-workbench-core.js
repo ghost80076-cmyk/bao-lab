@@ -131,6 +131,7 @@
     const owner=window.GameState?.current;
     const isCurrent=()=>{
       if(window.GameState?.current===owner)return true;
+      if(root.dataset)root.dataset.memoryNotesStale='true';
       const notice=root.querySelector('[data-pane="notes"] .memory-pane-title p');
       if(notice)notice.textContent='故事已切換，請重新開啟工作台；未寫入這次修改。';
       return false;
@@ -194,6 +195,7 @@
     }
   };
   const render = (root,active="context") => {
+    if(root.dataset)delete root.dataset.memoryNotesStale;
     const slots = read();
     const box = root.querySelector(".memory-desk-content");
     box.innerHTML = contextHTML()+notesHTML(slots)+refineShellHTML()+canonShellHTML();
