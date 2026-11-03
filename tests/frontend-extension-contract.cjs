@@ -14,7 +14,7 @@ assert(memoryWorkbenchSource.includes('data-summary-mode-notice'));
 assert(siteUI.includes('js/world-state-cost.js?v=13'));
 assert(siteUI.includes('js/provider-policy-guard.js?v=1'), 'policy circuit must load before hosted transport');
 assert(siteUI.indexOf('js/provider-policy-guard.js?v=1') < siteUI.indexOf('js/credits-pilot.js?v=2'));
-assert(index.includes('src="js/site-ui.js?v=179"'));
+assert(index.includes('src="js/site-ui.js?v=180"'));
 assert(siteUI.includes('js/full-story-memory-rebuild.js?v=5'));
 const appSource = read("js/app.js");
 const bridge = read("js/global-bridge.js");
@@ -74,7 +74,7 @@ increasing(siteUI, [
 // Story chain: story-tools is installed before prompt/cache orchestration and request lifecycle.
 increasing(siteUI, [
   'loadBAOScript("js/storage-write-guard.js?v=3")',
-  'loadBAOScript("js/story-tools.js?v=15")',
+  'loadBAOScript("js/story-tools.js?v=16")',
   'window.BAOEnsureStoryLibrary()',
   'loadBAOScript("js/context-pack-resume.js',
   'loadBAOScript("js/prompt-cache.js',
@@ -118,7 +118,7 @@ assert.equal(
   "world-modules must be loaded exactly once by site-ui"
 );
 assert.equal(
-  siteUI.split('loadBAOScript("js/story-tools.js?v=15")').length - 1,
+  siteUI.split('loadBAOScript("js/story-tools.js?v=16")').length - 1,
   1,
   "story-tools must be loaded exactly once by site-ui"
 );
@@ -167,7 +167,8 @@ assert.match(chatToolNavigation, /App\.wrapRenderChatShell\("chat-tool-navigatio
 assert.match(chatToolNavigation, /watchSidebar\(\);/);
 assert.match(chatToolNavigation, /schedule\(\);/);
 assert.match(storyTools, /App\.wrapBuildSystemPrompt\("story-tools:context-pack", contextPackPromptWrapper\)/);
-assert.match(storyTools, /return pack\?\.playerConfirmed \? base \+ "\\n\\n" \+ packPrompt\(pack\) : base;/);
+assert.match(storyTools, /if \(!pack\?\.playerConfirmed\) return base;/);
+assert.match(storyTools, /append\(base,"memory",packPromptData\(pack\)\)/);
 
 
 // Additional wrappers currently participating in API.send / App.sendMessage.

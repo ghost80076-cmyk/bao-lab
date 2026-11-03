@@ -10,8 +10,10 @@ assert.ok(match, "contextPackPromptWrapper must remain directly testable");
 let current = {};
 let packPromptCalls = 0;
 const context = {
+  window: {},
+  packPromptFooter: () => "只把玩家已確認的內容當作既有事實。不得從紀錄永久推斷玩家心理、喜惡、人格、意圖或未說出口的決定。",
   GameState: { get current() { return current; } },
-  packPrompt(pack) {
+  packPromptData(pack) {
     packPromptCalls += 1;
     assert.equal(pack, current.contextPack);
     return "【Context Pack · 玩家已確認的前情】\n\n前情摘要：\n已確認內容\n\n只把玩家已確認的內容當作既有事實。不得從紀錄永久推斷玩家心理、喜惡、人格、意圖或未說出口的決定。";

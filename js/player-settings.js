@@ -430,7 +430,10 @@
   App.buildSystemPrompt = function() {
     const base = originalBuildSystemPrompt();
     const memory = enabledMemoryText();
-    return [base, "", "【玩家回覆設定】", lengthInstruction(this.config), povInstruction(), dialogueInstruction(), languageInstruction(), memory ? `\n【玩家手動記憶】\n${memory}\n\n${window.BAOHelperData?.narrativeMemoryRules||""}` : ""].filter(Boolean).join("\n");
+    const fixed = [base, "", "【玩家回覆設定】", lengthInstruction(this.config), povInstruction(), dialogueInstruction(), languageInstruction()].filter(Boolean).join("\n");
+    if (!memory) return fixed;
+    const append = window.BAOPromptCache?.appendSection || ((base,kind,body) => [base,body].filter(Boolean).join("\n\n"));
+    return append(fixed,"memory",`【玩家手動記憶】\n${memory}`)+"\n\n"+(window.BAOHelperData?.narrativeMemoryRules||"");
   };
 
   const originalOpenBuilder = App.openBuilder.bind(App);
