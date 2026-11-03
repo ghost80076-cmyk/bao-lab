@@ -149,6 +149,7 @@ for (const width of [390,1280]) {
   await desk.locator('[data-slot-text]').fill('不能跨故事寫入的舊編輯。');
   await expect(desk.locator('[data-pane="notes"] .memory-pane-title p')).toContainText('故事已切換');
   expect(await page.evaluate(()=>JSON.stringify(GameState.current))).toBe(fresh);
+  if(width<=820)await desk.locator('[data-memory-editing-done]').click();
   await desk.locator('.memory-desk-close').click();
   expect(await page.evaluate(()=>window.__noteSavesAfterSwitch)).toBe(0);
  });
