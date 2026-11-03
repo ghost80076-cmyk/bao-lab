@@ -65,7 +65,11 @@
       && valid(entry.evidence) && valid(event.evidence)
       && (entry.afterEvent === true ? first(entry.evidence) > last(event.evidence)
         : first(entry.evidence) >= first(event.evidence));
-    return {sources,valid,first,last,knows};
+    const scene = evidence => valid(evidence) && evidence.length >= 2 && evidence.length <= 24
+      && sources.get(evidence[0].id).message.role === 'user'
+      && sources.get(evidence.at(-1).id).message.role === 'assistant'
+      && evidence.every((e,i) => !i || sources.get(e.id).index === sources.get(evidence[i-1].id).index + 1);
+    return {sources,valid,first,last,knows,scene};
   };
   const terms = value => {
     const s = String(value || '').toLowerCase(), out = s.match(/[a-z0-9_]{2,}/g) || [];
@@ -93,31 +97,49 @@
       claim: { type: 'string' }, evidenceIds: strings
     }, required: ['eventId', 'actor', 'mode', 'claim', 'evidenceIds'] } }
   }, required: ['events', 'knownFacts', 'relationships', 'openThreads', 'episodes'] };
-  function ingest(state, raw, chunk, messages = chunk) {
+  const sceneRules = `可另附 scenes 陣列，最多 2 筆；每筆格式與 episodes 相同，但 text 是同一時間、地點與連續行動的場景摘要（最多 180 字）。只根據本次待整理原文，以 evidenceIds 列出場景起點與終點 message ID，必須從玩家訊息開始、角色回覆結束，跨度最多 24 則；跨地點／時間跳轉要分開，無法確定邊界時留空。場景不代表在場者全知；公開事實與各角色 claim 需分開，visibility 預設 restricted，knowledge 每人只收其有證據的場景認知。不可把既有摘要、事件索引或當前場景 state 當作原文；不可用後來的結果補進較早場景。後續場景認知變更可用既有 knowledgeUpdates 的 eventId 指向 scene- ID；明確推翻場景結論可用 supersedes，不可把正常後續發展當成抹除舊場景。`;
+  const sceneSchema = { ...schema, properties: { ...schema.properties,
+    scenes: { type: 'array', items: schema.properties.episodes.items }
+  } };
+  function ingestCollection(state, raw, chunk, messages, scene = false) {
     if (!state || (!Array.isArray(raw?.episodes) && !Array.isArray(raw?.knowledgeUpdates))) return;
+    const key = scene ? 'scenes' : 'events', limit = scene ? 300 : 1000;
     const sources = sourceIndex(chunk), proof = evidenceProof(messages);
-    const anchors = ids => {
-      const names = list(ids);
+    const anchors = (ids, spanRequired = false) => {
+      if (spanRequired && (!Array.isArray(ids) || ids.length > 24 || ids.some(id => typeof id !== 'string' || !id.trim()))) return [];
+      let names = list(ids);
+      // Scene evidence covers the complete contiguous exchange, not just two
+      // cherry-picked messages. Never infer scene boundaries from current state.
+      if (spanRequired) {
+        if (names.length < 2 || !names.every(id => sources.has(id))) return [];
+        const positions = names.map(id => sources.get(id).index);
+        const span = chunk.slice(Math.min(...positions), Math.max(...positions) + 1);
+        if (span.length > 24 || span[0]?.role !== 'user' || span.at(-1)?.role !== 'assistant') return [];
+        names = span.map(m => m.id);
+        const full = names.map(id => proof.sources.get(id)?.index);
+        if (full.some((n,i) => !Number.isInteger(n) || (i && n !== full[i-1] + 1))) return [];
+      }
       const evidence = names.length && names.every(id => sources.has(id)) ? names.map(id => ({ id, signature: signature(sources.get(id).message) })) : [];
       return proof.valid(evidence) ? evidence : [];
     };
-    const previous = Array.isArray(state.episodicMemory?.events) ? state.episodicMemory.events.filter(object).slice(-1000) : [];
+    const previous = Array.isArray(state.episodicMemory?.[key]) ? state.episodicMemory[key].filter(object).slice(-limit) : [];
     const events = previous.slice();
-    for (const rawEvent of (Array.isArray(raw.episodes) ? raw.episodes : []).slice(0, 12)) {
+    for (const rawEvent of (Array.isArray(raw.episodes) ? raw.episodes : []).slice(0, scene ? 2 : 12)) {
       if (!object(rawEvent)) continue;
-      const content = text(rawEvent.text), evidence = anchors(rawEvent.evidenceIds);
+      const content = text(rawEvent.text, scene ? 600 : 240), evidence = anchors(rawEvent.evidenceIds, scene);
       if (!content || !evidence.length) continue;
       const knowledge = (Array.isArray(rawEvent.knowledge) ? rawEvent.knowledge : []).slice(0, 30).flatMap(k => {
         if (!object(k) || !['witnessed', 'told', 'rumor', 'inferred'].includes(k.mode)) return [];
-        const actor = text(k.actor, 100), claim = text(k.claim), evidence = anchors(k.evidenceIds);
+        const actor = text(k.actor, 100), claim = text(k.claim, scene ? 600 : 240), evidence = anchors(k.evidenceIds);
         return actor && claim && evidence.length ? [{ actor, claim, mode: k.mode, evidence }] : [];
       });
-      const id = `episode-${hash(evidence.map(e => e.id).join("|"))}-${hash(content)}`;
+      const id = `${scene ? "scene" : "episode"}-${hash(evidence.map(e => e.id).join("|"))}-${hash(content)}`;
       const next = { id, text: content, time: text(rawEvent.time, 100), entities: list(rawEvent.entities), keywords: list(rawEvent.keywords), evidence,
         visibility: rawEvent.visibility === 'public' ? 'public' : 'restricted',
         certainty: ['confirmed', 'rumor', 'inference', 'retracted'].includes(rawEvent.certainty) ? rawEvent.certainty : 'inference', knowledge };
       const order = new Map(chunk.map((m, i) => [m.id, i]));
-      next.supersedes = list(rawEvent.supersedes).filter(target => previous.some(e => object(e) && e.id === target && e.id !== id &&
+      next.supersedes = list(rawEvent.supersedes).filter(target => [...previous,
+        ...(Array.isArray(state.episodicMemory?.[scene ? 'events' : 'scenes']) ? state.episodicMemory[scene ? 'events' : 'scenes'] : [])].some(e => object(e) && e.id === target && e.id !== id &&
         Array.isArray(e.evidence) && (proof.valid(e.evidence)
           ? proof.first(evidence) > proof.last(e.evidence)
           : messages === chunk && e.evidence.every(a => object(a) && !order.has(a.id)))));
@@ -155,16 +177,26 @@
         && JSON.stringify(k.evidence) === JSON.stringify(evidence))) continue;
       events[events.indexOf(event)] = {...event,knowledge: [...history, record].slice(-100)};
     }
-    state.episodicMemory = { version: 1, events: events.slice(-1000) };
+    state.episodicMemory = { ...state.episodicMemory, version: 1, [key]: events.slice(-limit) };
   }
-  function recall({ state, messages = [], input = '', actors = [], exclude = '', maxChars = 2400, onDecision = () => {} }) {
-    const {sources,valid,knows} = evidenceProof(messages);
+  function ingest(state, raw, chunk, messages = chunk) {
+    if (!state || !raw || !['episodes','knowledgeUpdates','scenes'].some(key => Array.isArray(raw[key]))) return;
+    const updates = Array.isArray(raw?.knowledgeUpdates) ? raw.knowledgeUpdates : [];
+    ingestCollection(state, { ...raw, knowledgeUpdates: updates.filter(k => !String(k?.eventId).startsWith('scene-')) }, chunk, messages);
+    if (Array.isArray(raw?.scenes) || updates.some(k => String(k?.eventId).startsWith('scene-')))
+      ingestCollection(state, { episodes: raw?.scenes, knowledgeUpdates: updates.filter(k => String(k?.eventId).startsWith('scene-')) }, chunk, messages, true);
+  }
+  function recall({ state, messages = [], input = '', actors = [], exclude = '', maxChars = 2400, hybrid = false, onDecision = () => {} }) {
+    const {sources,valid,knows,scene} = evidenceProof(messages);
     const resolve = actorResolver(state), words = terms(input), audience = resolveCast(state,actors,resolve);
     const excluded = String(exclude), seen = new Set(), candidates = [];
-    const events = (Array.isArray(state?.episodicMemory?.events) ? state.episodicMemory.events : []).slice(-1000);
+    const events = [
+      ...(Array.isArray(state?.episodicMemory?.events) ? state.episodicMemory.events : []).slice(-1000),
+      ...(hybrid && Array.isArray(state?.episodicMemory?.scenes) ? state.episodicMemory.scenes.slice(-300).map(e => object(e) ? {...e, scene: true} : e) : [])
+    ];
     const superseded = new Set();
     for (const update of events) {
-      if (!object(update) || !valid(update.evidence) || !['confirmed', 'retracted'].includes(update.certainty)) continue;
+      if (!object(update) || !(update.scene ? scene(update.evidence) : valid(update.evidence)) || !['confirmed', 'retracted'].includes(update.certainty)) continue;
       for (const target of list(update.supersedes)) {
         const old = events.find(e => e?.id === target);
         if (old && valid(old.evidence) && Math.min(...update.evidence.map(e => sources.get(e.id).index)) > Math.max(...old.evidence.map(e => sources.get(e.id).index))) superseded.add(target);
@@ -173,7 +205,7 @@
     for (const event of events) {
       if (!object(event)) continue;
       const decision = reason => onDecision({id: event.id, reason});
-      if (!valid(event.evidence)) { decision('evidence'); continue; }
+      if (!(event.scene ? scene(event.evidence) : valid(event.evidence))) { decision('evidence'); continue; }
       const withdrawn = event.certainty === 'retracted' || superseded.has(event.id);
       // A single shared request must not receive secrets inaccessible to any
       // current speaker. Unknown cast => only explicitly public facts.
@@ -189,10 +221,10 @@
       const shared = !withdrawn && event.visibility === 'public' && event.certainty === 'confirmed';
       const known = audience.length && knowledge.every(items => items.length);
       if (!shared && !known) { decision(withdrawn ? 'retracted' : 'knowledge'); continue; }
-      const claims = shared ? [{ text: event.text, label: '公開事實', evidence: event.evidence }] : knowledge.flatMap((items, i) => items.filter(k => knowledge.every(group => group.some(other => other.claim === k.claim))).map(k => ({ text: k.claim, label: `${audience[i]}｜${k.mode}`, evidence: k.evidence })));
+      const claims = shared ? [{ text: text(event.text, event.scene ? 600 : 240), label: '公開事實', evidence: event.evidence }] : knowledge.flatMap((items, i) => items.filter(k => knowledge.every(group => group.some(other => other.claim === k.claim))).map(k => ({ text: k.claim, label: `${audience[i]}｜${k.mode}`, evidence: k.evidence })));
       if (!claims.length) { decision('knowledge'); continue; }
       const visibleClaims = claims.filter(c => c.text && !excluded.includes(c.text));
-      const lines = visibleClaims.map(c => `${c.label}：${text(c.text)}`);
+      const lines = visibleClaims.map(c => `${c.label}：${text(c.text, event.scene ? 600 : 240)}`);
       if (!lines.length) { decision('duplicate'); continue; }
       const haystack = [shared ? event.text : '', ...list(event.entities), ...list(event.keywords), ...claims.map(c => c.text)].join('\n').toLowerCase();
       let score = words.reduce((n, word) => n + (haystack.includes(word) ? 1 : 0), 0);
@@ -210,15 +242,28 @@
       }
       if (!score) { decision('irrelevant'); continue; }
       const index = Math.max(...event.evidence.map(e => sources.get(e.id).index));
-      candidates.push({ event, score, ...(match ? {match} : {}), index, lines, shared, proofs: visibleClaims.map((claim,i) => ({line:lines[i],evidence:claim.evidence})) });
+      candidates.push({ event, score, ...(match ? {match} : {}), index, lines, shared, lexical: terms(visibleClaims.map(c => c.text).join("\n")), proofs: visibleClaims.map((claim,i) => ({line:lines[i],evidence:claim.evidence})) });
     }
     candidates.sort((a, b) => b.score - a.score || b.index - a.index || String(a.event.id).localeCompare(String(b.event.id)));
+    if (hybrid && candidates.length) {
+      // Fuse the existing tag/relationship ranking with visible-claim full-text
+      // rarity. Authorization and provenance run BEFORE either ranking list.
+      // No vectors, remote model, persistent cache or secret-text scoring.
+      const df = new Map();
+      for (const c of candidates) for (const word of c.lexical) df.set(word,(df.get(word)||0)+1);
+      const average = candidates.reduce((n,c) => n+c.lexical.length,0)/candidates.length || 1;
+      for (const c of candidates) c.fulltext = words.reduce((n,word) => n + (c.lexical.includes(word)
+        ? Math.log(1+(candidates.length-(df.get(word)||0)+0.5)/((df.get(word)||0)+0.5)) * 2.2/(1+1.2*(0.25+0.75*c.lexical.length/average)) : 0),0);
+      const fulltext = candidates.filter(c => c.fulltext > 0).slice().sort((a,b) => b.fulltext-a.fulltext || b.index-a.index || String(a.event.id).localeCompare(String(b.event.id)));
+      candidates.forEach((c,i) => { const rank = fulltext.indexOf(c); c.fused = 1/(60+i+1)+(rank<0?0:1/(60+rank+1)); });
+      candidates.sort((a,b) => b.fused-a.fused || b.score-a.score || b.index-a.index || String(a.event.id).localeCompare(String(b.event.id)));
+    }
     const selected = []; let used = 0;
     for (const candidate of candidates) {
       const lines = candidate.lines.filter(line => !seen.has(line));
       if (!lines.length) { onDecision({id:candidate.event.id, reason:'duplicate'}); continue; }
       const sourceIds = [...new Set(candidate.proofs.filter(proof => lines.includes(proof.line)).flatMap(proof => proof.evidence.map(e => e.id)))];
-      const block = `〔${text(candidate.event.id, 180)}${candidate.shared && candidate.event.time ? `｜${text(candidate.event.time, 100)}` : ''}｜${candidate.shared ? 'confirmed' : '角色認知'}〕\n${lines.join('\n')}\n來源：${sourceIds.join('、')}`;
+      const block = `〔${text(candidate.event.id, 180)}${candidate.shared && candidate.event.time ? `｜${text(candidate.event.time, 100)}` : ''}｜${candidate.event.scene ? '場景摘要｜' : ''}${candidate.shared ? 'confirmed' : '角色認知'}〕\n${lines.join('\n')}\n來源：${sourceIds.join('、')}`;
       if (used + block.length > Math.min(2400, Math.max(0, maxChars)) || selected.length >= 4) { onDecision({id:candidate.event.id, reason:'budget',score:candidate.score,...(candidate.match ? {match:candidate.match} : {})}); continue; }
       selected.push({ id: candidate.event.id, block }); used += block.length; lines.forEach(line => seen.add(line));
       onDecision({id:candidate.event.id, reason:'included',score:candidate.score,...(candidate.match ? {match:candidate.match} : {})});
@@ -247,10 +292,13 @@
         knowledge: [...byActor.values()].map(({ seenAt, ...k }) => k) };
     }).reverse();
   }
-  const updateContext = (state,messages) => {
+  const updateContext = (state,messages,hybrid = false) => {
     const proof = messages === undefined ? null : evidenceProof(messages);
-    return (Array.isArray(state?.episodicMemory?.events) ? state.episodicMemory.events : [])
-      .filter(e => object(e) && (!proof || proof.valid(e.evidence))).slice(-8).map(e => ({ id:e.id,text:text(e.text,120) }));
+    const eligible = [...(Array.isArray(state?.episodicMemory?.events) ? state.episodicMemory.events : []),
+      ...(hybrid && Array.isArray(state?.episodicMemory?.scenes) ? state.episodicMemory.scenes.map(e => object(e) ? {...e, scene: true} : e) : [])]
+      .filter(e => object(e) && (!proof || (e.scene ? proof.scene(e.evidence) : proof.valid(e.evidence))));
+    if (hybrid && proof) eligible.sort((a,b) => proof.last(a.evidence)-proof.last(b.evidence));
+    return eligible.slice(-8).map(e => ({ id:e.id,text:text(e.text,120) }));
   };
-  window.BAOEpisodicMemory = { rules, schema, updateContext, ingest, recall, knowledgeMatrix, audience, canRead, resolveActor, terms, signature };
+  window.BAOEpisodicMemory = { rules, schema, sceneRules, sceneSchema, updateContext, ingest, recall, knowledgeMatrix, audience, canRead, resolveActor, terms, signature };
 })();

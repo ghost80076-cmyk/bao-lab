@@ -1,0 +1,35 @@
+# P3 scene summaries and optional local hybrid recall
+
+Baseline: main `8f70b89c86d97f952488d375ce302c31c3fcc818` (#926).
+
+## Scope and behavior
+
+P2 evidence, actor knowledge, directional-relationship instructions and rewind validation shipped in #924–#926. This P3 adds optional scene summaries and mixed event/scene retrieval. It retains the existing local story state, summary calls, role permissions and request assembly; no new memory service, embedding API, model route or schema migration.
+
+The Memory overview has a collapsed “場景回憶（選用）” setting. `config.memory.hybridRecall === true` opts in. Default and old saves retain ordinary event recall. Enabling the setting adds optional `scenes` to the next existing automatic summary request/schema, with at most two scenes (one on truncation retry), bounded text/claims and explicit cost copy. No background historical scan or additional normal request is started. Retrieval is local and never calls a model. Existing output truncation retries remain bounded and may still incur their original request cost; there is no claim of fixed total cost or provider cache improvement.
+
+Each generated scene uses the existing event permission/provenance shape: objective text, explicit time, entities/tags, certainty, visibility, per-actor claims/modes and signed source IDs. Scene extraction asks for one continuous time/location/action segment within the current chunk. The code expands endpoint IDs into the entire contiguous span, requires a player message at its beginning and a completed assistant response at its end, and caps the span at 24 messages. Missing, duplicate, rewritten or reordered evidence invalidates the scene. This proves source availability/ordering, not that the model correctly interpreted scene boundaries or claims. Uncertain segmentation should yield no scene. Small batches can create partial scene segments; no artificial cross-batch merger guesses a boundary.
+
+Scenes are stored additively under `state.episodicMemory.scenes` (max 300, same version-1 container) and travel through existing saves/snapshots/backups. Existing events (max 1,000) and unrelated state fields remain intact. Knowledge updates can reference scene IDs; later valid objective corrections may supersede either a scene or event. Re-extraction preserves later knowledge only when origin signatures match. Original history is never deleted. Older applications ignore the added scene collection and keep ordinary event recall.
+
+## Retrieval and knowledge boundary
+
+When enabled, scenes and events share the existing authorization, current-audience resolver, alias ambiguity handling, current-history proof, chronological belief selection, exact visible-line deduplication and total four-entry / 2,400-character budget. Private scenes expose only the current speakers' identical evidenced claim, its mode and actual knowledge sources, not the objective scene text/time. All speakers must be authorized. An unknown/ambiguous cast receives only explicitly public confirmed facts. Future knowledge disappears when its source is absent on a branch. Corrected public facts are hidden without magically correcting absent characters' old beliefs.
+
+Two local rankings are combined with reciprocal rank fusion (`1/(60+rank)`): existing substring/tag/relationship relevance and visible-claim full-text term rarity with length normalization. Only already authorized, relevant candidates enter either list. The second list cannot promote a denied entry or score private objective text. Deterministic source recency and ID break ties. This is lexical hybrid retrieval, **not** semantic vectors or a promise to understand arbitrary paraphrases. Existing abstract-metaphor diagnostic misses remain explicit. No network dependency, downloaded model, persistent vector/cache store or extra paid request is introduced.
+
+Both memory-off and full-history modes retain their existing no-recall behavior. Disabling the setting preserves stored scenes but stops their extraction, updates and recall. A changed story/config invalidates the old desk's setting handler; existing summary ownership/settings fingerprints reject late responses. Scenes use the final dynamic user block, leaving stable/memory prefixes intact.
+
+Existing raw history, free-text summaries, Context Packs, author data and other independently shared sources are still governed by their existing selection rules. This does not retroactively assign per-sentence audiences or establish global model secrecy. Players' explicitly selected AI maintenance tasks may read narrative data as data. No old summary is silently rewritten or paid-rebuilt.
+
+## Verification and connected domains
+
+- `tests/episodic-memory-scenes-core.cjs`: contiguous source expansion; middle-message rewrite/removal/duplicate/reorder; malformed/incomplete spans; private objective exclusion; aliases/mixed cast/unknown cast; knowledge updates, snapshot isolation, replay, branch rollback, JSON round trip; cross-level correction; deterministic mixed ranking, dedup and bounds; actual Chat summary schema/prompt and final dynamic request; opt-out/full mode; no extra retrieval calls; provider failure/block and stale story/settings.
+- Existing 53-case development and 8-case held-out recall reports refreshed for current source hashes. The 52 and 7 supported cases retain all expected entries with zero wrong entries, evidence errors or specified forbidden content. Each suite retains its one unsupported metaphor miss; these small synthetic fixtures do not establish real-world recall quality. Their runner still injects empty recall, wrong provenance and scope leaks to verify the gate fails.
+- Local regression-impact gate: all 38 selected suites pass; modified JS/browser tests pass syntax and whitespace checks. Core workflow and memory regression-impact group include the new suite. Connected checks cover summary truncation/ownership, Canon and manual notes, memory checkpoints, revision/rollback/branches/status, local durability and UI contracts.
+- Browser tests in the existing memory workbench suite cover 390/1280 widths, keyboard toggle/Escape, default-off, real prompt scope, mixed-cast denial, actual Storage payload/restore, disabling without deleting scenes, rewritten-source denial, stale-desk write rejection, geometry and screenshots. Existing four-theme tests remain.
+- CI/browser, merge, Pages deployment and production smoke are separate release evidence recorded in the PR. No paid provider request or physical-device keyboard validation is implied by mocks/viewport emulation.
+
+## Release and rollback
+
+Only Pages assets/cache versions change. No Worker/AWS/wallet/settlement/author/DB migration change. Reverting runtime files and loader versions restores prior event-only behavior; original messages and summaries remain. Added scene data is ignored by old versions. Standard truncation/failure behavior and local save warnings remain authoritative.

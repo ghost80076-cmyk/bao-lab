@@ -273,16 +273,17 @@ const Chat = {
           "保留已發生事件、已知資訊、明確關係、承諾、物品與目標。玩家偏好只能記錄玩家明說的內容；不得把 AI 推測的心理當作事實。",
           window.BAOHelperData.memoryRules,
           config?.memory?.episodicRecall === false ? "" : window.BAOEpisodicMemory?.rules,
-          config?.memory?.episodicRecall === false || !window.BAOEpisodicMemory ? "" : `【近期事件索引（僅供明確更正時引用 ID，不可當作本次新證據）】\n${JSON.stringify(window.BAOEpisodicMemory.updateContext(owner, this.messages))}`,
+          config?.memory?.episodicRecall !== false && config?.memory?.hybridRecall === true ? window.BAOEpisodicMemory?.sceneRules : "",
+          config?.memory?.episodicRecall === false || !window.BAOEpisodicMemory ? "" : `【近期事件索引（僅供明確更正時引用 ID，不可當作本次新證據）】\n${JSON.stringify(window.BAOEpisodicMemory.updateContext(owner, this.messages, config?.memory?.hybridRecall === true))}`,
           "刪除重複修辭、寒暄與不影響後續的細節。不要加入原文沒有的資訊，不要寫分析過程。",
-          `【本次完整 JSON 輸出預算】四類長期摘要各最多 ${attempt ? 6 : 8} 項、每項最多 80 字；episodes 與 knowledgeUpdates 各最多 ${attempt ? 2 : 4} 筆。每筆事件的 knowledge 最多 2 筆，每筆 text／claim 最多 60 字，entities／keywords／evidenceIds 各最多 3 項。無新證據可用空陣列。這些上限優先於前述格式的較寬上限；精簡重複內容，保留仍有效的重要事實，必須完成整個 JSON，不可只輸出開頭。`,
+          `【本次完整 JSON 輸出預算】四類長期摘要各最多 ${attempt ? 6 : 8} 項、每項最多 80 字；episodes 與 knowledgeUpdates 各最多 ${attempt ? 2 : 4} 筆。每筆事件的 knowledge 最多 2 筆，每筆 text／claim 最多 60 字，entities／keywords／evidenceIds 各最多 3 項。無新證據可用空陣列。${config?.memory?.hybridRecall === true ? `scenes 最多 ${attempt ? 1 : 2} 筆，每筆 text／claim 最多 ${attempt ? 100 : 180} 字，knowledge 最多 2 筆；場景 evidenceIds 只列起點與終點，不重抄整段來源。` : ""}這些上限優先於前述格式的較寬上限；精簡重複內容，保留仍有效的重要事實，必須完成整個 JSON，不可只輸出開頭。`,
           this.summary ? `【既有摘要】\n${this.summary}` : "",
           `【待整理舊對話】\n${transcript}`,
           force ? "目前 Context 使用率偏高，請進一步壓縮，輸出新的完整摘要，盡量控制在 600～1200 字。" : "請輸出新的完整長期記憶摘要，建議 800～1600 字以內。"
         ].filter(Boolean).join("\n\n");
         summaryConfig = { ...(window.BAOMemoryCore ? window.BAOMemoryCore.config(config, 'summary', App.modelPresets || []) : { ...memoryApi, __memoryTask: true, cacheEnabled: false, maxOutputTokens: 8192 }),
           __automaticPolicyTask: true,
-          ...(config?.memory?.episodicRecall !== false && window.BAOEpisodicMemory ? { __responseSchema: window.BAOEpisodicMemory.schema } : {}) };
+          ...(config?.memory?.episodicRecall !== false && window.BAOEpisodicMemory ? { __responseSchema: (config?.memory?.hybridRecall === true ? window.BAOEpisodicMemory.sceneSchema : window.BAOEpisodicMemory.schema) } : {}) };
         window.BAOCreditsPilot?.prepareAccountConfig?.(summaryConfig);
         const requestMessages = [{ role: "system", content: window.BAOMemoryCore?.taskSystem?.("長期記憶摘要", "你是 Observer，不是作者。只輸出記憶規格 JSON，不要續寫故事或模仿正文文風。") || "你是 Observer，不是作者。只輸出記憶規格 JSON，不要續寫故事或模仿正文文風。" }, { role: "user", content: prompt }];
         if (window.BAOMemoryCore && !window.BAOMemoryCore.fits(summaryConfig, requestMessages)) {
@@ -344,7 +345,8 @@ const Chat = {
       let episodeWarning = "";
       if (owner && !normalized.repaired && config?.memory?.episodicRecall !== false) {
         try {
-          window.BAOEpisodicMemory?.ingest(owner, window.BAOHelperData.parse(result?.text || ""), chunk, this.messages);
+          const indexed = window.BAOHelperData.parse(result?.text || "");
+          window.BAOEpisodicMemory?.ingest(owner, config?.memory?.hybridRecall === true ? indexed : { ...indexed, scenes: undefined, knowledgeUpdates: Array.isArray(indexed?.knowledgeUpdates) ? indexed.knowledgeUpdates.filter(k => !String(k?.eventId).startsWith("scene-")) : undefined }, chunk, this.messages);
         } catch (episodeError) {
           episodeWarning = "事件索引暫時未更新；長期摘要仍已保存。";
           console.warn("BAO/LAB episode indexing failed:", episodeError);

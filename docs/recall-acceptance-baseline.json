@@ -2,8 +2,8 @@
   "suiteVersion": 3,
   "scope": "合成、人工指定 oracle；測本地索引到實際 buildMessages 的輸出，不測 LLM 提取／生成品質。",
   "sourceHashes": {
-    "js/episodic-memory-core.js": "9f26bf49347b2414def3f11186edddaacd0d89f0c198c202c1e7b12adcd79a6f",
-    "js/episodic-memory.js": "328c2439f0e3bd8722a96c1e3d751a8d4bd4666a8b99c2d6da597c4e74f2071b",
+    "js/episodic-memory-core.js": "c739def23f8836530b040eee780f7d206bbeef1a1720fbf4d6e4405c449091da",
+    "js/episodic-memory.js": "ca9ca6bac801691b3317832806df44290c617794d441ed269d4911037d96fd3e",
     "tests/fixtures/recall-acceptance/v3.json": "b74c0a124725e3522c20fef2ff162d473e1f8c949bd071accb36a01a7a85a475",
     "scripts/evaluate-episodic-recall.cjs": "fadd74d4e4bfd8d5ac754f06ac90adc82efdcac20f842f23d418ba0d5544cb82"
   },

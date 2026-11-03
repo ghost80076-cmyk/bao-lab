@@ -154,3 +154,42 @@ for (const width of [390,1280]) {
   expect(await page.evaluate(()=>window.__noteSavesAfterSwitch)).toBe(0);
  });
 }
+
+for(const width of [390,1280]){
+ test(`optional scene recall uses current audience and survives save at ${width}px`,async({page},testInfo)=>{
+  await page.setViewportSize({width,height:844});await page.goto('/');
+  await page.waitForFunction(()=>window.BAOMemoryWorkbenchSimple&&window.BAOPromptCache&&window.BAOEpisodicMemory&&App.characters?.length&&Storage.status().ready);
+  await page.evaluate(()=>{
+   App.activeCharacter=CharacterEngine.normalize({id:'scene-memory-fixture',name:'艾琳',greeting:'燈還亮著。',system_prompt:'依角色知情延續故事。',character_status:{primary_character_name:'艾琳'}});
+   App.config={persona:{name:'旅人'},narrativeMode:'immersive',displayMode:'text',api:{model:'mock'},memory:{mode:'rounds',maxRounds:4,maxContext:32000}};
+   GameState.create(App.activeCharacter,App.config);Chat.reset();
+   Chat.messages=[{id:'scene-a',role:'user',content:'我在橋邊遞出信封。'},{id:'scene-b',role:'assistant',content:'艾琳答應明晚到港口等你。'},
+    ...Array.from({length:16},(_,i)=>({id:'scene-filler'+i,role:i%2?'assistant':'user',content:'日常對話'})),{id:'scene-query',role:'user',content:'港口約定'}];
+   GameState.current.npcs=[{npc_id:'a',name:'艾琳',aliases:['琳'],presence:'away'}];
+   BAOEpisodicMemory.ingest(GameState.current,{scenes:[{text:'不屬於角色認知的客觀秘密5512',evidenceIds:['scene-a','scene-b'],entities:['艾琳'],keywords:['港口','約定'],
+    knowledge:[{actor:'琳',mode:'witnessed',claim:'明晚在港口等旅人的約定7712',evidenceIds:['scene-b']}]}]},Chat.messages.slice(0,2),Chat.messages);
+   App.renderChatShell(false);App.showView('chat');BAOMemoryWorkbench.open();
+  });
+  const desk=page.getByRole('dialog',{name:'記憶工作台',exact:true}),details=desk.locator('[data-hybrid-memory-settings]');
+  await details.locator('summary').click();const toggle=details.locator('[data-hybrid-memory]');
+  await expect(toggle).not.toBeChecked();
+  const prompt=()=>page.evaluate(async()=>JSON.stringify(await App.buildMessages()));
+  expect(await prompt()).not.toContain('約定7712');
+  await toggle.focus();await page.keyboard.press('Space');await expect(toggle).toBeChecked();
+  expect(await prompt()).toContain('約定7712');expect(await prompt()).not.toContain('客觀秘密5512');
+  await page.evaluate(()=>GameState.current.npcs.push({name:'守衛',presence:'present'}));expect(await prompt()).not.toContain('約定7712');
+  await page.evaluate(()=>GameState.current.npcs.at(-1).presence='away');expect(await prompt()).toContain('約定7712');
+  await page.screenshot({path:testInfo.outputPath(`scene-recall-${width}.png`),fullPage:true});
+  expect(await desk.evaluate(n=>n.scrollWidth<=n.clientWidth+2)).toBe(true);
+  await toggle.focus();await page.keyboard.press('Escape');await expect(desk).toHaveCount(0);
+  expect(await page.evaluate(()=>{const payload=Storage.buildStoryPayload('場景回憶');Chat.reset();if(!Storage.restoreStory(payload))throw Error('restore failed');return App.config.memory.hybridRecall;})).toBe(true);
+  expect(await prompt()).toContain('約定7712');
+  await page.evaluate(()=>BAOMemoryWorkbench.open());await details.locator('summary').click();
+  await toggle.uncheck();expect(await prompt()).not.toContain('約定7712');
+  expect(await page.evaluate(()=>GameState.current.episodicMemory.scenes.length)).toBe(1,'turning off retains saved scenes');
+  await toggle.check();await page.evaluate(()=>{Chat.messages[0].content='原文已改寫';});expect(await prompt()).not.toContain('約定7712');
+  await page.evaluate(()=>{App.config={...App.config,memory:{...App.config.memory,hybridRecall:false}};GameState.current={...structuredClone(GameState.current)};window.__sceneMemorySaves=0;App.saveStory=()=>{window.__sceneMemorySaves++;return true;};});
+  await toggle.uncheck();await expect(toggle).toBeDisabled();
+  expect(await page.evaluate(()=>App.config.memory.hybridRecall)).toBe(false);expect(await page.evaluate(()=>window.__sceneMemorySaves)).toBe(0);
+ });
+}

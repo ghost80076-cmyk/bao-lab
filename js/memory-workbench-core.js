@@ -13,7 +13,7 @@
     if (document.querySelector('link[href^="css/memory-workbench.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/memory-workbench.css?v=6";
+    link.href = "css/memory-workbench.css?v=7";
     document.head.appendChild(link);
   };
   const read = () => {
@@ -103,6 +103,7 @@
       '模式：完整故事重建可以保存正式摘要，但故事模型不會引用該摘要；若要在後續遊玩使用，請改為「智慧整理」。不會自動變更玩家選擇。</p>';
     return `<section class="memory-pane active" data-pane="context"><div class="memory-pane-title"><div><h3>記憶總覽</h3><p>確認故事模型現在使用的近期原文、自動摘要與整理狀態。</p></div><span class="memory-pill">MEMORY HEALTH</span></div>
       <label class="memory-auto-row"><span><b>自動記憶（建議開啟）</b><br><small class="note">保留近期原文，必要時自動摘要較早劇情；整理會產生模型用量。</small></span><input type="checkbox" data-context-auto-summary ${Chat.summarizing || retryTask || App.__requestPending ? "disabled" : ""} ${App.config?.memory?.mode === "smart" ? "checked" : ""}></label>
+      <details class="memory-player-details" data-hybrid-memory-settings><summary>場景回憶（選用）</summary><label class="memory-auto-row"><span><b>混合搜尋事件與場景</b><br><small class="note">依用詞、人物線索與全文搜尋回憶，僅提供本輪角色已知的內容；不保證找回不同說法。</small></span><input type="checkbox" data-hybrid-memory ${App.config?.memory?.hybridRecall === true ? "checked" : ""} ${Chat.summarizing || retryTask || App.__requestPending ? "disabled" : ""}></label><p class="note">開啟後，下次智慧摘要會一併建立場景摘要，增加該次整理的輸入／輸出用量；搜尋在本機進行，不另發模型請求，也不重掃舊對話。關閉後保留場景紀錄但停止建立與召回。完整對話或事件回憶關閉時不額外召回；既有摘要仍依原設定提供。</p></details>
       <details class="memory-player-details" data-memory-guide><summary>記憶怎麼用？</summary><p>一般遊玩：開啟自動記憶即可，平常不用手動整理。</p><p>必記事項／長期筆記：只放重要約定、關係與規則。啟用的筆記每次都會占用上下文，避免貼入整段聊天或重複設定。</p><p>手動整理：產生草稿供你選擇寫入筆記，不會推進自動摘要進度，也不能取代「重試自動記憶整理」。</p><p>出現摘要失敗或內容過大時：先查看下方原因，再重試自動整理；完整故事紀錄仍保留。</p></details>
       <article class="memory-health-card" data-memory-health="${esc(health.phase || "idle")}"><b>${esc(memoryStateLabel(diag))}</b><p>${esc(statusText)}</p><div class="memory-health-meta"><span>摘要模型：${esc(diag.model || "沿用聊天模型")}</span><span>最後紀錄：${esc(timeText)}</span><span>格式修復：${health.repaired ? "曾自動修復" : "未使用"}</span>${health.lastFinishReason ? `<span>模型結束原因：${esc(health.lastFinishReason)}</span><span>摘要請求額度：${esc(health.lastRequestedOutputTokens || "未回報")} Token</span><span>實際送出額度：${esc(health.lastEffectiveOutputTokens ?? "未回報")} Token</span><span>額度來源：${esc(health.lastBudgetSource || "未回報")}</span><span>思考用量：${esc(health.lastReasoningTokens ?? "未回報")} Token</span>${health.lastRequestId ? `<span>診斷編號：${esc(health.lastRequestId)}</span>` : ""}<span>模型回報輸出：${esc(health.lastOutputTokens ?? "未回報")} Token</span><span>回傳文字：${esc(health.lastResponseChars ?? "未回報")} 字元</span><span>本批 ${esc(health.lastChunkTurns ?? "—")} 輪 · 第 ${esc(health.lastAttempt || 1)} 次嘗試</span>` : ""}</div></article>
       ${summaryUseNotice}
@@ -200,6 +201,17 @@
     const box = root.querySelector(".memory-desk-content");
     box.innerHTML = contextHTML()+notesHTML(slots)+refineShellHTML()+canonShellHTML();
     bindNotes(root); switchPane(root,active); stats(root);
+    const renderOwner = window.GameState?.current, renderConfig = App.config;
+    root.querySelector("[data-hybrid-memory]")?.addEventListener("change", event => {
+      if (window.GameState?.current !== renderOwner || App.config !== renderConfig) {
+        event.target.checked = renderConfig?.memory?.hybridRecall === true;
+        event.target.disabled = true;
+        return;
+      }
+      App.config.memory = App.config.memory || {};
+      App.config.memory.hybridRecall = event.target.checked;
+      App.saveStory?.(false);
+    });
     root.querySelector("[data-context-auto-summary]")?.addEventListener("change", event => {
       App.config.memory = App.config.memory || {};
       App.config.memory.mode = event.target.checked ? "smart" : "rounds";

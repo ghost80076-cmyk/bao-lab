@@ -20,7 +20,7 @@
     const sourceMessages = request.sourceMessages || Chat.messages;
     const input = [...sourceMessages].reverse().find(m => m.role === 'user')?.content || '';
     const decisions = [];
-    const selected = BAOEpisodicMemory.recall({ state, messages: sourceMessages, input, actors, exclude: messages.map(m => m.content).join('\n'), onDecision: item => decisions.push(item) });
+    const selected = BAOEpisodicMemory.recall({ state, messages: sourceMessages, input, actors, hybrid: config?.memory?.hybridRecall === true, exclude: messages.map(m => m.content).join('\n'), onDecision: item => decisions.push(item) });
     window.BAOContextInspector?.record?.('事件記憶', decisions);
     if (!selected.length) return messages;
     const latest = messages.length - 1;
