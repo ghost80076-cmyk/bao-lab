@@ -36,7 +36,7 @@ A WebKit Stage preview resize test passed visibility and then received `null` fr
 
 The newly expanded WebKit smoke also found one first-attempt failure in the pre-existing opener-focus test (the configured retry passed). Its trace places shell replacement between the separate focus command and workbench open. The synthetic API-open fixture now focuses the current launcher and opens synchronously in one browser task, asserting focus before open; the original trap/Escape/return-focus and state-equality checks remain. This removes an artificial inter-command hydration window rather than bypassing the return-focus contract.
 
-The next WebKit run exposed the same broader fixture-readiness issue in the unchanged four-theme state-equality test: the only added fields were late-installed quick-command/commentary/interpretation defaults. The suite now waits for the existing `BAOExtensionLoadHealth` story/world ready signals and Storage readiness before creating its synthetic story, then captures the full state. The full JSON equality assertion remains unchanged; no state fields are excluded and no fixed sleep replaces readiness.
+The next WebKit run exposed the same broader fixture-readiness issue in the unchanged four-theme state-equality test: the only added fields were late-installed quick-command/commentary/interpretation defaults. The suite now waits for the existing `BAOExtensionLoadHealth` story/world ready signals and Storage readiness before creating its synthetic story, then waits for the render hook’s quick-command/commentary/interpretation defaults before capturing the full state. The full JSON equality assertion remains unchanged; no state fields are excluded and no fixed sleep replaces readiness.
 
 ## Release and rollback
 

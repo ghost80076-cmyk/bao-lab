@@ -37,6 +37,8 @@ for (const width of [390, 1280]) {
       App.renderChatShell(false);
       App.showView('chat');
     });
+    await page.waitForFunction(() => Array.isArray(GameState.current?.quickCommands)
+      && GameState.current.commentaryMods?.version === 1 && GameState.current.interpretationMods?.version === 1);
     const before = await page.evaluate(() => JSON.stringify(GameState.current));
     for (const theme of ['mist','dawn','dusk','sunset']) {
       await page.evaluate(value => {
@@ -94,6 +96,8 @@ for(const width of [390,1280]){
    GameState.create(App.activeCharacter,App.config);Chat.reset();App.renderChatShell(false);App.showView('chat');
   });
   const opener=page.locator(width<=820?'#bao-mobile-composer-tools':'#bao-surface-mode-toggle');
+  await page.waitForFunction(() => Array.isArray(GameState.current?.quickCommands)
+    && GameState.current.commentaryMods?.version === 1 && GameState.current.interpretationMods?.version === 1);
   const before=await page.evaluate(()=>JSON.stringify({state:GameState.current,config:App.config}));
   // Focus and open in one browser task: late shell hydration can replace the
   // launcher between separate automation commands, before open captures it.
