@@ -189,7 +189,7 @@ for(const width of [390,1280]){
   expect(await page.evaluate(()=>GameState.current.episodicMemory.scenes.length)).toBe(1,'turning off retains saved scenes');
   await toggle.check();await page.evaluate(()=>{Chat.messages[0].content='原文已改寫';});expect(await prompt()).not.toContain('約定7712');
   await page.evaluate(()=>{App.config={...App.config,memory:{...App.config.memory,hybridRecall:false}};GameState.current={...structuredClone(GameState.current)};window.__sceneMemorySaves=0;App.saveStory=()=>{window.__sceneMemorySaves++;return true;};});
-  await toggle.uncheck();await expect(toggle).toBeDisabled();
+  await toggle.click();await expect(toggle).toBeDisabled();await expect(toggle).toBeChecked();
   expect(await page.evaluate(()=>App.config.memory.hybridRecall)).toBe(false);expect(await page.evaluate(()=>window.__sceneMemorySaves)).toBe(0);
  });
 }
