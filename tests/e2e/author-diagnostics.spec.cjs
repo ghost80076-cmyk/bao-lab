@@ -36,8 +36,8 @@ test('author can inspect JSON with field paths and safe errors on the real site'
 test('relay browser probe uses a fixed fake key, never the user key', async ({ page }) => {
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOAuthorDiagnostics && window.BAOProviderDiagnostics && App.characters?.length));
-  await page.evaluate(() => {
-    App.openCharacter(App.characters[0].id);
+  await page.evaluate(async () => {
+    await App.openCharacter(App.characters[0].id);
     App.openBuilder();
     App.setStep(4);
     document.getElementById('base-url').value = 'https://relay.example.test/v1/chat/completions';
