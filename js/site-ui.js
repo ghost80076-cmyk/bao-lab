@@ -235,7 +235,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOOptionalGroup("inspiration-copy", ["js/inspiration-copy.js?v=2"]))
     .then(() => loadBAOScript("js/story-revision-state.js?v=12"))
     .then(() => loadBAOScript("js/story-history.js?v=2"))
-    .then(() => loadBAOScript("js/story-branches.js?v=2"))
+    .then(() => loadBAOScript("js/story-branches.js?v=3"))
     .then(() => loadBAOScript("js/streaming-ui.js?v=8"))
     .then(() => loadBAOScript("js/request-lifecycle.js?v=7"))
     .then(() => loadBAOScript("js/chat-tool-navigation.js?v=17"))

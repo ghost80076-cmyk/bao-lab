@@ -166,6 +166,35 @@ test('rejects an out-of-range historical summary without changing the original s
   expect(await page.evaluate(() => Chat.messages.length)).toBe(4);
 });
 
+test('reader corrects a clipped native alignment in a long mobile story', async ({ page }) => {
+  await page.setViewportSize({ width:390, height:844 });
+  await openDemoStory(page);
+  await page.evaluate(async () => {
+    Chat.messages = [];
+    for (let round = 0; round < 30; round++) {
+      Chat.add('user', `選擇 ${round}`);
+      Chat.add('assistant', '長篇故事的歷史回覆。'.repeat(30));
+    }
+    App.renderChatShell(false);
+    const native = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = function(...args) {
+      native.apply(this, args);
+      if (this.matches('#chat-stream > .message.assistant')) this.parentElement.scrollTop = 0;
+    };
+    try { await BAOStoryBranches.positionReader(); }
+    finally { Element.prototype.scrollIntoView = native; }
+    // A late shell resize must not leave the restored endpoint behind the composer.
+    document.getElementById('chat-stream').style.setProperty('max-height', '350px', 'important');
+  });
+  await expect.poll(() => page.evaluate(() => {
+    const stream = document.getElementById('chat-stream');
+    const target = stream.querySelector('.message.assistant:last-child');
+    const box = target.getBoundingClientRect(), reader = stream.getBoundingClientRect();
+    return stream.scrollTop > 500 && document.activeElement === target
+      && box.bottom > Math.max(reader.top, 0) && box.bottom <= Math.min(reader.bottom, innerHeight) + 2;
+  })).toBe(true);
+});
+
 for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
   for (const action of ['branch', 'rewind']) {
     test(`${action} in a long story lands at the selected reply (${viewport.width}px)`, async ({ page }) => {
@@ -236,9 +265,12 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
         const stream = document.getElementById('chat-stream');
         const box = stream.querySelector('.message.assistant:last-child').getBoundingClientRect();
         const reader = stream.getBoundingClientRect();
-        return box.bottom > Math.max(reader.top, 0)
+        const visible = box.bottom > Math.max(reader.top, 0)
           && box.bottom <= Math.min(reader.bottom, innerHeight) + 2;
-      })).toBe(true);
+        return visible ? 'visible' : JSON.stringify({ bottom:box.bottom, readerTop:reader.top,
+          readerBottom:reader.bottom, viewport:innerHeight, scrollTop:stream.scrollTop,
+          scrollHeight:stream.scrollHeight, clientHeight:stream.clientHeight, pageTop:scrollY });
+      })).toBe('visible');
       if (action === 'branch') {
         // Refusing a branch must leave both the story and reading position alone.
         await page.evaluate(() => { document.getElementById('chat-stream').scrollTop = 600; });
