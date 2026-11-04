@@ -1,0 +1,27 @@
+# Full browser acceptance repair
+
+Baseline: main `25e1d889a79217f14b7863453bfe5b3357d6c9b8` (#930).
+
+The scheduled run 41734969642 exceeded the existing 20-minute limit in Chromium, Firefox and WebKit. It also reported failures before cancellation; timeout does not establish that the remaining cases passed.
+
+## Execution and test fixtures
+
+Each browser is split into four Playwright shards, using the same pinned 1.63.0 image as the existing Fast suite. The 20-minute job limit, retries, assertions and complete suite remain intact. Six matrix jobs run at once; a new commit cancels superseded work. `scripts/check-full-browser-shards.cjs` compares actual discovery for every browser to the disjoint union of all four shards and rejects missing, duplicated, empty or failed discovery. Per-shard reports have distinct artifact names. Changes to this workflow or its discovery script exercise the complete suite on PR and main push; the existing daily schedule/manual entry remains. Live Pages acceptance is production-only and is skipped on PRs, separately from local browser results.
+
+Two fixtures called the asynchronous `App.openCharacter` without waiting before `openBuilder`, causing a null active character. The auxiliary-request fixture now waits for the existing story/world extension readiness signals before seeding the request pipeline. The external-media fixture contained an IDAT CRC mismatch; it now serves a valid one-pixel PNG, retaining both the denial-before-permission and decoded-image-after-permission assertions.
+
+The Gemini SSE success fixture did not include a completion reason and was correctly rejected by the transport. It now ends with `finishReason: STOP`; the production incomplete-stream rejection remains unchanged. Cancellation compares the entire original history, including the saved greeting, rather than incorrectly requiring an empty story. Both scenarios run at 390px and 1440px.
+
+## Runtime finding: stored greeting versus transient feedback
+
+Current stories save a greeting as `Chat.messages[0].greeting`. Several readers retained compatibility with an older standalone greeting outside history. On cancellation or protocol error, the player turn is removed but the temporary assistant feedback can remain until the error handler moves it into system notices. Readers saw one extra DOM node and treated the already-saved greeting as an additional standalone greeting, repainting the feedback with duplicate opening text.
+
+The legacy offset is now allowed only when the first saved message is not a greeting. This preserves aligned stored histories and legacy standalone openings while leaving transient nodes for the existing feedback handler. The connected markup, scene, avatar, streaming and integrity adapters use the same distinction. No model request, error policy, committed history, memory, status, branch, wallet or save format changes. Loader versions advance together.
+
+`tests/greeting-render-alignment-core.cjs` executes the actual streaming and integrity adapters against stored-greeting/transient-feedback, stored-greeting/committed and legacy standalone histories. The baseline fails the transient-feedback assertion; the repaired adapters pass without mutating history. Core and the UI regression-impact group run this check. Browser cancellation reproduces the complete pipeline and retains the exact history, restored draft, single provider call and system-only notice assertions.
+
+## Release evidence and rollback
+
+PR #931 records actual final workflow, browser, merge, Pages deployment and live verification results. None are implied by this document. Local browser runs use a separately packaged Chromium 153 with fake API transport; definitive Chromium/Firefox/WebKit evidence comes from CI. No physical-device, real-provider or paid-wallet verification is claimed.
+
+Revert the runtime adapters and loader versions to undo the display repair, or revert the workflow/fixture changes to undo acceptance changes. There is no persistent-data migration. The baseline display bug would return after a runtime rollback; original story records remain intact.

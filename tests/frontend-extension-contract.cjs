@@ -14,7 +14,7 @@ assert(memoryWorkbenchSource.includes('data-summary-mode-notice'));
 assert(siteUI.includes('js/world-state-cost.js?v=13'));
 assert(siteUI.includes('js/provider-policy-guard.js?v=1'), 'policy circuit must load before hosted transport');
 assert(siteUI.indexOf('js/provider-policy-guard.js?v=1') < siteUI.indexOf('js/credits-pilot.js?v=2'));
-assert(index.includes('src="js/site-ui.js?v=181"'));
+assert(index.includes('src="js/site-ui.js?v=182"'));
 assert(siteUI.includes('js/full-story-memory-rebuild.js?v=5'));
 const appSource = read("js/app.js");
 const bridge = read("js/global-bridge.js");
@@ -54,7 +54,7 @@ increasing(index, [
   'src="js/chat.js',
   'src="js/character.js?v=11"',
   'src="js/app.js',
-  'src="js/chat-markup.js?v=6"',
+  'src="js/chat-markup.js?v=7"',
   'src="js/story-maintenance-lock.js?v=2"',
   'src="js/site-ui.js'
 ], "core script");
@@ -83,7 +83,7 @@ increasing(siteUI, [
   'then(() => worldModulesReady)',
   'loadBAOScript("js/three-realms-events.js?v=3")',
   'loadBAOScript("js/streaming-ui.js',
-  'loadBAOScript("js/request-lifecycle.js?v=6")'
+  'loadBAOScript("js/request-lifecycle.js?v=7")'
 ], "story extension");
 
 // Stage capability must resolve before Reader Context / Player Shell consume it.

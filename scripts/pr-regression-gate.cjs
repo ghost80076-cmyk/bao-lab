@@ -91,7 +91,8 @@ const GROUPS = [
     'tests/gameplay-ui-engine-core.cjs',
     'tests/experience-preferences-core.cjs',
     'tests/character-studio-gameplay-ui-core.cjs',
-    'tests/story-reader-core.cjs'
+    'tests/story-reader-core.cjs',
+    'tests/greeting-render-alignment-core.cjs'
   ] },
   { id: 'worker-billing', patterns: [
     /^workers\//,

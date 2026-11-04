@@ -94,7 +94,7 @@
     const nodes = [...(stream?.querySelectorAll(":scope > .message") || [])];
     const messages = Chat.messages || [];
     const first = nodes[0];
-    const standalone = nodes.length === messages.length + 1 && first?.classList.contains("assistant");
+    const standalone = !messages[0]?.greeting && nodes.length === messages.length + 1 && first?.classList.contains("assistant");
     const storedGreeting = nodes.length === messages.length && messages[0]?.role === "assistant" && messages[0]?.greeting;
     if ((!standalone && !storedGreeting) || !first?.classList.contains("assistant")) return false;
     const bubble = first.querySelector(".bubble");
@@ -141,7 +141,7 @@
   let sceneScript = document.querySelector('script[src^="js/scene-html-modes.js"]');
   if (!sceneScript) {
     const script = document.createElement('script');
-    script.src = 'js/scene-html-modes.js?v=6';
+    script.src = 'js/scene-html-modes.js?v=7';
     script.onerror = () => console.warn('BAO/LAB scene HTML controls failed to load');
     script.addEventListener('load', loadSceneStoryPreferences, { once: true });
     document.head.appendChild(script);

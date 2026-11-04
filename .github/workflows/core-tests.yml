@@ -615,6 +615,7 @@ jobs:
         run: |
           node --check js/streaming-ui.js
           node tests/streaming-ui-wrapper-core.cjs
+          node tests/greeting-render-alignment-core.cjs
       - name: Helper API connection diagnostics
         run: node tests/helper-api-diagnostics-core.cjs
       - name: Generation request lifecycle
