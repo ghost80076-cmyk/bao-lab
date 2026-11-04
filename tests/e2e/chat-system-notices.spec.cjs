@@ -15,6 +15,9 @@ async function startStory(page, mode = 'text') {
       .filter({ has: page.locator('input[name="display-mode"][value="ui"]') }).click();
   }
   for (let step = 1; step < 3; step++) await page.getByRole('button', { name: '下一步' }).click();
+  // The connection fields now live in an explicit advanced disclosure.
+  await page.locator('#api-advanced-settings > summary').click();
+  await expect(page.locator('#model-id')).toBeVisible();
   await page.locator('#model-id').fill('local-browser-test');
   await page.locator('#base-url').fill('https://main.invalid/v1');
   await page.locator('#api-key').fill('MAIN_UNSAVED_BROWSER_KEY');
