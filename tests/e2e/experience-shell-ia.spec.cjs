@@ -8,6 +8,8 @@ async function openExperienceStory(page, width) {
     window.BAOChatToolNavigation &&
     window.BAOStoryControlCenter &&
     window.BAOMobileReadingLayout &&
+    window.BAOExtensionLoadHealth?.snapshot().story === 'ready' &&
+    window.BAOExtensionLoadHealth?.snapshot().world === 'ready' &&
     App.characters?.length
   ));
   await page.evaluate(() => {
