@@ -4,9 +4,11 @@ const reply = '[SCENE:realistic]\n[NARRATION]\n她輕聲問：「可以嗎？」
 
 test('built-in general scene hides protocol regardless of status choice and story redraw', async ({ page }) => {
   await page.goto('/');
+  await page.waitForFunction(() => window.BAOExploreDiscovery && App.characters?.length);
   await page.waitForFunction(() => App.characters?.length && Storage.status().ready, null, { timeout: 15000 });
   await page.locator('#home-view [data-view="explore"]').click();
   await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
+  await page.getByRole('button', { name: '查看作品', exact: true }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
   await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let step = 0; step < 3; step++) await page.getByRole('button', { name: '下一步' }).click();

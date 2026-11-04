@@ -22,7 +22,7 @@ async function demo(page) {
 }
 
 async function openWorldManager(page) {
-  const group = page.locator('[data-chat-tool-group="world"]');
+  const group = page.locator('[data-chat-tool-group="world"]:visible');
   await expect(group).toBeAttached();
   if (!await group.evaluate(node => node.open)) await group.locator('summary').click();
   await group.locator('[data-open-world-manager]').click();

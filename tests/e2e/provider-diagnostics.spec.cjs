@@ -4,12 +4,14 @@ if (process.env.BAO_LIVE_URL) test.use({ baseURL: process.env.BAO_LIVE_URL });
 test('provider diagnostics validates buffered, streaming and key privacy', async ({ page }) => {
   await page.goto('./');
   await page.waitForFunction(() => window.BAOProviderDiagnostics && window.BAOProviderBrowserCompat && App.characters.length);
-  await page.evaluate(() => {
-    App.openCharacter(App.characters[0].id);
+  await page.evaluate(async () => {
+    await App.openCharacter(App.characters[0].id);
     App.openBuilder();
+    document.querySelector('#bao-setup-choice [data-bao-setup="advanced"]').click();
     App.setStep(4);
     const custom = App.modelPresets.findIndex(item => item.provider === 'custom' && item.protocol === 'openai');
     document.getElementById('api-type').value = 'custom';
+    document.getElementById('api-type').dispatchEvent(new Event('change', { bubbles: true }));
     App.populateModelOptions();
     document.getElementById('model-select').value = String(custom);
     App.syncSelectedPreset();

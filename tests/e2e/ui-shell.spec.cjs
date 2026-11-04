@@ -2,11 +2,13 @@ const { test, expect } = require("@playwright/test");
 
 const openModelStep = async page => {
   await page.goto("/");
+  await page.waitForFunction(() => window.BAOExploreDiscovery && App.characters?.length);
   await expect(page.locator('#home-view .brand-hero h1')).toBeVisible();
   await page.locator('#home-view [data-view="explore"]').click();
   const card = page.locator("article").filter({ hasText: "林沉風 - 見過黑暗的人" });
   await expect(card).toBeVisible();
   await card.click();
+  await page.getByRole('button', { name: '查看作品', exact: true }).click();
   await page.getByRole("button", { name: "開始故事" }).click();
   await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let step = 0; step < 3; step += 1) await page.getByRole("button", { name: "下一步" }).click();
@@ -21,29 +23,23 @@ const openDemoStory = async page => {
 };
 
 test.describe("Unified BAO/LAB app shell", () => {
-  test("mobile top navigation stays on one horizontally scrollable row without page overflow", async ({ page }) => {
+  test("mobile uses bottom navigation without horizontal page overflow", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
-    await expect(page.locator(".topbar nav")).toBeVisible();
-
-    const layout = await page.evaluate(() => {
-      const nav = document.querySelector(".topbar nav");
-      const style = getComputedStyle(nav);
-      return {
-        viewport: innerWidth,
-        documentWidth: document.documentElement.scrollWidth,
-        navClientWidth: nav.clientWidth,
-        navScrollWidth: nav.scrollWidth,
-        overflowX: style.overflowX,
-        childrenSingleLine: [...nav.children].every(node => getComputedStyle(node).whiteSpace === "nowrap")
-      };
-    });
-
+    const nav = page.locator('#bao-mobile-nav');
+    await expect(nav).toBeVisible();
+    await expect(page.locator('.topbar nav')).toBeHidden();
+    await expect(nav.locator('[data-player-nav]')).toHaveCount(4);
+    for (const name of ['首頁', '我的故事', '作者', '我的']) {
+      await expect(nav.getByRole(name === '作者' ? 'link' : 'button', { name, exact: true })).toBeVisible();
+    }
+    const layout = await nav.evaluate(node => ({
+      viewport: innerWidth, documentWidth: document.documentElement.scrollWidth,
+      boxes: [...node.children].map(child => { const r=child.getBoundingClientRect();return {top:r.top,left:r.left,right:r.right,bottom:r.bottom}; })
+    }));
     expect(layout.viewport).toBe(390);
     expect(layout.documentWidth).toBeLessThanOrEqual(390);
-    expect(["auto", "scroll"]).toContain(layout.overflowX);
-    expect(layout.navScrollWidth).toBeGreaterThanOrEqual(layout.navClientWidth);
-    expect(layout.childrenSingleLine).toBe(true);
+    expect(layout.boxes.every(box => Math.abs(box.top-layout.boxes[0].top)<=1 && box.left>=0 && box.right<=390 && box.bottom<=844)).toBe(true);
   });
 
   test("mobile story defaults to a player-first surface with tools on demand", async ({ page }) => {

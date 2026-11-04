@@ -3,7 +3,7 @@ const guide = page => page.locator('#bao-guide');
 const action = (page, id) => guide(page).locator(`[data-bao-journey="${id}"]`).first();
 const open = async page => {
   await page.goto('/');
-  await page.waitForFunction(() => window.BAOMascot && window.BAOGuidedOnboarding && window.BAOStoryStartReadiness && App.characters.length);
+  await page.waitForFunction(() => window.BAOExtensionLoadHealth?.snapshot().story === "ready" && BAOExtensionLoadHealth.snapshot().world === "ready" && window.BAOMascot && window.BAOGuidedOnboarding && window.BAOStoryStartReadiness && App.characters.length);
 };
 const builder = async page => page.evaluate(async () => {
   await App.openCharacter(App.characters.find(c => c.id !== 'autonomous-npc-world').id);
@@ -42,6 +42,8 @@ test('no-key help explains routes and returns to the original fields without req
   await expect(page.locator('#bao-guided-setup')).toBeVisible();
   await page.locator('[data-bao-guide="change-provider"]').click();
   await page.locator('[data-bao-guide="provider-gemini"]').click();
+  await expect(page.locator('#api-type')).toHaveValue('gemini');
+  await expect(page.locator('#bao-guided-setup')).toContainText('貼進金鑰欄');
   await page.locator('#api-key').fill('guide-private-key');
   await expect(page.locator('#bao-guided-setup')).toContainText('尚未測試連線');
   await expect(page.locator('[data-bao-guide="start-story"]')).toBeVisible();

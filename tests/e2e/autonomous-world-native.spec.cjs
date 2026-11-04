@@ -17,7 +17,7 @@ for (const width of [390, 1440]) {
     await expect(page.locator('input[name="narrative-mode"][value="world"]')).toBeChecked();
     await page.evaluate(() => { document.getElementById('bao-demo-mode').checked = true; App.startStory(); });
     await expect(page.locator('#chat-view')).toBeVisible();
-    await expect(page.locator('#chat-stream .message.assistant .bubble').first()).toHaveText(greeting);
+    await expect(page.locator('#chat-stream .message.assistant .bubble').first()).toHaveText(greeting, { useInnerText: true });
     await page.evaluate(() => {
       BAOMemoryWorkbench.writeSlots([{ id: 'world-note', title: '世界觀', text: '世界A獨有祕密：流星花園', enabled: true }]);
     });

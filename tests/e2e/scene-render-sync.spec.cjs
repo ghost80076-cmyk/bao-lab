@@ -2,9 +2,11 @@ const { test, expect } = require('@playwright/test');
 
 async function start(page, mode) {
   await page.goto('/');
+  await page.waitForFunction(() => window.BAOExploreDiscovery && App.characters?.length);
   await page.waitForFunction(() => App.characters?.length && Storage.status().ready, null, { timeout: 15000 });
   await page.locator('#home-view [data-view="explore"]').click();
   await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
+  await page.getByRole('button', { name: '查看作品', exact: true }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
   await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   await page.getByRole('button', { name: '下一步' }).click();

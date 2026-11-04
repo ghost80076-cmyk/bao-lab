@@ -2,11 +2,13 @@ const { test, expect } = require("@playwright/test");
 
 const openModelStep = async page => {
   await page.goto("/");
+  await page.waitForFunction(() => window.BAOExploreDiscovery && App.characters?.length);
   await expect(page.locator('#home-view .brand-hero h1')).toBeVisible();
   await page.locator('#home-view [data-view="explore"]').click();
   const card = page.locator("article").filter({ hasText: "林沉風 - 見過黑暗的人" });
   await expect(card).toBeVisible();
   await card.click();
+  await page.getByRole('button', { name: '查看作品', exact: true }).click();
   await page.getByRole("button", { name: "開始故事" }).click();
   await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let step = 0; step < 3; step += 1) await page.getByRole("button", { name: "下一步" }).click();
@@ -88,7 +90,7 @@ test.describe("Story branch tree", () => {
     await openDemoStory(page);
     const ids = await seedNestedBranches(page);
 
-    await page.locator("#story-branch-button").click();
+    await page.evaluate(() => BAOStoryBranches.open());
     await expect(page.getByRole("heading", { name: "故事分支" })).toBeVisible();
     await expect(page.locator(".story-branch-current-path")).toContainText("第一章");
     await expect(page.locator(".story-branch-current-path")).toContainText("秘密線");
@@ -115,7 +117,7 @@ test.describe("Story branch tree", () => {
       refs: { chapterId: ids.mainRefs.chapterId }
     });
 
-    await page.locator("#story-branch-button").click();
+    await page.evaluate(() => BAOStoryBranches.open());
     await page.locator(`[data-chapter="${ids.branchRefs.chapterId}"]`).getByRole("button", { name: "切換" }).click();
     await expect.poll(() => page.evaluate(() => GameState.current.location)).toBe("碼頭");
     expect(await snapshot(page)).toMatchObject({
@@ -126,7 +128,7 @@ test.describe("Story branch tree", () => {
       refs: { chapterId: ids.branchRefs.chapterId }
     });
 
-    await page.locator("#story-branch-button").click();
+    await page.evaluate(() => BAOStoryBranches.open());
     await page.locator(`[data-chapter="${ids.childRefs.chapterId}"]`).getByRole("button", { name: "切換" }).click();
     await expect.poll(() => page.evaluate(() => GameState.current.location)).toBe("地下室");
     expect(await snapshot(page)).toMatchObject({

@@ -1,5 +1,11 @@
 const { test, expect } = require('@playwright/test');
 
+async function openActors(page) {
+  await page.waitForFunction(() => window.BAOStoryControlCenter);
+  await page.evaluate(() => BAOStoryControlCenter.open());
+  await page.locator('[data-story-control-action="persona"]').click();
+}
+
 test('author prompt editor is absent and player-owned AI actors survive story save and restore', async ({ page }) => {
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOStoryActors && App.characters?.length));
@@ -17,7 +23,7 @@ test('author prompt editor is absent and player-owned AI actors survive story sa
     App.showView('chat');
     return {name:App.characters[0].name, id:App.characters[0].id};
   });
-  await page.locator('#bao-actor-entry').click();
+  await openActors(page);
   await expect(page.getByRole('dialog', {name:'本故事的人物設定'})).toBeVisible();
   await expect(page.locator('#bao-actor-target option')).toHaveCount(2);
   await expect(page.locator('#bao-actor-target option[value="card"]')).toHaveCount(0);
@@ -33,7 +39,7 @@ test('author prompt editor is absent and player-owned AI actors survive story sa
   expect(playerMessages.at(-1).content).toContain('玩家乙');
   expect(playerMessages.at(-1).content).toContain('銀髮、黑色外套');
 
-  await page.locator('#bao-actor-entry').click();
+  await openActors(page);
   await page.locator('#bao-actor-target').selectOption('host');
   await expect(page.locator('[data-open-roster]')).toHaveText('NPC 名冊／場景參與者');
   await page.locator('#bao-actor-form [name="name"]').fill('自創男主');
@@ -41,7 +47,7 @@ test('author prompt editor is absent and player-owned AI actors survive story sa
   await page.locator('[data-apply]').click();
   await expect(page.getByRole('dialog', {name:'本故事的人物設定'})).toBeHidden();
   await expect(page.locator('#chat-title')).toHaveText('自創男主');
-  await page.locator('#bao-actor-entry').click();
+  await openActors(page);
   await page.locator('#bao-actor-target').selectOption('host');
   await page.locator('#bao-actor-form [name="name"]').fill('旅館老闆');
   await page.locator('#bao-actor-form [name="role"]').selectOption('additional');
@@ -52,7 +58,7 @@ test('author prompt editor is absent and player-owned AI actors survive story sa
 
   // Regression: editing a previously added NPC must survive a normal story turn.
   const editedId = await page.evaluate(() => GameState.current.storyActors.hostedCharacters.find(actor => actor.name === '旅館老闆').id);
-  await page.locator('#bao-actor-entry').click();
+  await openActors(page);
   await page.locator('#bao-actor-target').selectOption('host');
   await page.locator('#bao-actor-existing').selectOption(editedId);
   await expect(page.locator('#bao-actor-form [name="name"]')).toHaveValue('旅館老闆');
@@ -83,7 +89,7 @@ test('author prompt editor is absent and player-owned AI actors survive story sa
   expect(await readEditedNpc()).toEqual(expectedNpcFields);
   // The report concerns reopening the actual editor in the next round,
   // not merely the in-memory state object.
-  await page.locator('#bao-actor-entry').click();
+  await openActors(page);
   await page.locator('#bao-actor-target').selectOption('host');
   await page.locator('#bao-actor-existing').selectOption(editedId);
   await expect(page.locator('#bao-actor-form [name="personality"]')).toHaveValue(expectedNpcFields.personality);
@@ -127,7 +133,7 @@ test('editing an existing NPC keeps the editor open when durable storage confirm
     App.saveStory(false);
   });
   await page.evaluate(async () => { await Storage.flush(); });
-  await page.locator('#bao-actor-entry').click();
+  await openActors(page);
   await page.locator('#bao-actor-target').selectOption('host');
   await page.locator('#bao-actor-existing').selectOption('npc-manual');
   await page.locator('#bao-actor-form [name="personality"]').fill('玩家修改的新個性');
@@ -157,7 +163,7 @@ test('editing an existing NPC keeps the editor open when durable storage confirm
 test('step three allows creating and editing AI characters and additional NPCs', async ({ page }) => {
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOStoryActors && App.characters?.length));
-  await page.evaluate(() => {App.openCharacter(App.characters[0].id); App.openBuilder(); App.setStep(3);});
+  await page.evaluate(async () => {await App.openCharacter(App.characters[0].id); App.openBuilder(); App.setStep(3);});
   await expect(page.locator('#bao-builder-actors')).toBeVisible();
   await page.locator('#bao-builder-actor-form [name="name"]').fill('玩家託管的 AI');
   await page.locator('#bao-builder-actor-form [name="role"]').selectOption('primary');
@@ -188,7 +194,7 @@ test('mobile story-persona footer keeps cancel and save actions on one aligned r
     App.renderChatShell(true);
     App.showView('chat');
   });
-  await page.locator('#bao-actor-entry').click();
+  await openActors(page);
   const dialog = page.getByRole('dialog', { name:'本故事的人物設定' });
   await expect(dialog).toBeVisible();
   const help = dialog.getByRole('button', { name:'人物設定說明' });

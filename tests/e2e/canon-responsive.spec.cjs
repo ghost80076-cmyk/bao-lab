@@ -211,6 +211,8 @@ test.describe("Canon workbench responsive UI", () => {
   test("only the latest AI reply exposes state-changing edit tools", async ({ page }) => {
     await openDemoStory(page);
     await page.evaluate(() => {
+      App.config.demoMode = false;
+      App.config.api.key = 'AVAILABILITY-ONLY-FAKE-KEY';
       Chat.messages = Chat.ensureMessageIds([
         { role: "user", content: "第一輪玩家" },
         { role: "assistant", content: "第一輪角色" },
@@ -256,6 +258,9 @@ test.describe("Canon workbench responsive UI", () => {
 
     page.on("dialog", dialog => dialog.type() === "prompt" ? dialog.accept("拒絕合作線") : dialog.accept());
     const firstReply = page.locator("#chat-stream > .message.assistant").first();
+    await expect(firstReply.locator('[data-create-branch]')).toBeAttached();
+    await page.evaluate(() => BAOMobileReadingLayout.sync());
+    await firstReply.locator('.bao-message-more > summary').click();
     await expect(firstReply.getByRole("button", { name: /從這裡分支/ })).toBeVisible();
     await firstReply.getByRole("button", { name: /從這裡分支/ }).click();
     await expect.poll(() => page.evaluate(() => BAOStoryLibrary.refs().parentChapterId)).toBe(ids.source.chapterId);
@@ -280,7 +285,7 @@ test.describe("Canon workbench responsive UI", () => {
       await BAOStoryLibrary.flush();
     });
 
-    await page.locator("#story-branch-button").click();
+    await page.evaluate(() => BAOStoryBranches.open());
     await expect(page.getByRole("heading", { name: "故事分支" })).toBeVisible();
     const mainRow = page.locator(`[data-chapter="${ids.source.chapterId}"]`);
     await mainRow.getByRole("button", { name: "切換" }).click();

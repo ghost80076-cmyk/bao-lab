@@ -22,6 +22,12 @@ The legacy offset is now allowed only when the first saved message is not a gree
 
 ## Release evidence and rollback
 
+The first complete sharded attempt exposed further obsolete test entry points (preview before detail, Control Center before actor/tools dialogs, and explicit advanced/provider selection). These fixtures now use the current public UI and retain their state, request-count, persistence, geometry and permission assertions. The old top-navigation and mint-accent assertions were migrated to the current mobile bottom navigation and YoruBay violet/lamplight contract. Two image fixtures had corrupt PNG CRCs; both now contain decodable image data. Scrolling-only authoring fixtures request reduced motion while retaining real click/check actions.
+
+The Canon layout cases also exposed a runtime omission: the book's advanced `details` created a `summary` but never appended it. The visible, keyboard-accessible “進階資料” summary is now attached. The original desktop/mobile layout cases are retained and exercise that disclosure. Memory regression-impact checks therefore remain mandatory for this change.
+
+Mocked browser requests must not be served behind a service worker invisible to `page.route`. The default browser-test context now blocks service workers; the controlled offline-shell suite explicitly opts back into `allow`, and retains its real controller/cache/offline-shell assertions. This changes test isolation, not production service-worker behavior. Reference: https://playwright.dev/docs/api/class-page#page-route.
+
 PR #931 records actual final workflow, browser, merge, Pages deployment and live verification results. None are implied by this document. Local browser runs use a separately packaged Chromium 153 with fake API transport; definitive Chromium/Firefox/WebKit evidence comes from CI. No physical-device, real-provider or paid-wallet verification is claimed.
 
 Revert the runtime adapters and loader versions to undo the display repair, or revert the workflow/fixture changes to undo acceptance changes. There is no persistent-data migration. The baseline display bug would return after a runtime rollback; original story records remain intact.

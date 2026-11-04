@@ -4,11 +4,13 @@ const targetURL = () => process.env.BAO_LIVE_URL || "/";
 
 const openDemoStory = async page => {
   await page.goto(targetURL(), { waitUntil: "domcontentloaded" });
+  await page.waitForFunction(() => window.BAOExploreDiscovery && App.characters?.length);
   await expect(page.locator('#home-view .brand-hero h1')).toBeVisible();
   await page.locator('#home-view [data-view="explore"]').click();
   const card = page.locator("article").filter({ hasText: "林沉風 - 見過黑暗的人" });
   await expect(card).toBeVisible();
   await card.click();
+  await page.getByRole('button', { name: '查看作品', exact: true }).click();
   await page.getByRole("button", { name: "開始故事" }).click();
   await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let step = 0; step < 3; step += 1) await page.getByRole("button", { name: "下一步" }).click();
@@ -68,7 +70,8 @@ test("1,000-round story survives save, reload, reconstruction and a 500-round br
   expect(seeded.branchPointId).toBe(seeded.ids[1]);
 
   await page.reload({ waitUntil: "domcontentloaded" });
-  await expect.poll(() => page.evaluate(() => App.characters?.length > 0 && Boolean(window.BAOStoryLibrary))).toBe(true);
+  await page.waitForFunction(() => window.BAOExtensionLoadHealth?.snapshot().story === "ready"
+    && App.characters?.length > 0 && window.BAOStoryLibrary && Storage.status().ready);
 
   const restored = await page.evaluate(async seeded => {
     await Storage.ready();

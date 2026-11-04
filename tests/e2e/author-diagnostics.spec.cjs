@@ -55,6 +55,12 @@ test('relay browser probe uses a fixed fake key, never the user key', async ({ p
       await route.fulfill({ status: 401, headers: { 'access-control-allow-origin': '*', 'content-type': 'application/json' }, body: '{"error":{"message":"invalid token"}}' });
     }
   });
+  await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
+  await page.evaluate(() => App.setStep(4));
+  await page.locator('#api-type').selectOption('custom');
+  await page.locator('#api-advanced-settings > summary').click();
+  await page.locator('#base-url').fill('https://relay.example.test/v1/chat/completions');
+  await page.locator('#api-key').fill('USER_SECRET_DO_NOT_TRANSMIT');
   await expect(page.locator('[data-relay-probe]')).toBeVisible();
   await page.locator('[data-relay-probe]').click();
   await expect(page.locator('[data-relay-probe-status]')).toContainText('HTTP 401');
