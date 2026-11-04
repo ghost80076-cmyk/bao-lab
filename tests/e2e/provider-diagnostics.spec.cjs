@@ -7,7 +7,12 @@ test('provider diagnostics validates buffered, streaming and key privacy', async
   await page.evaluate(async () => {
     await App.openCharacter(App.characters[0].id);
     App.openBuilder();
-    document.querySelector('#bao-setup-choice [data-bao-setup="advanced"]').click();
+  });
+  // Wait for the updated quick-setup choice before entering the advanced model form.
+  const advanced = page.locator('#bao-setup-choice [data-bao-setup="advanced"]');
+  await expect(advanced).toBeVisible();
+  await advanced.click();
+  await page.evaluate(() => {
     App.setStep(4);
     const custom = App.modelPresets.findIndex(item => item.provider === 'custom' && item.protocol === 'openai');
     document.getElementById('api-type').value = 'custom';
