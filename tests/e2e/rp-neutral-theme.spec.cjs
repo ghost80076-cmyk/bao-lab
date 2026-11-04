@@ -12,7 +12,7 @@ const waitForBrandTheme = page => page.waitForFunction(() => {
 });
 
 for (const width of [390, 1440]) {
-  test(`YoruBay violet and lamplight stay consistent on ${width}px RP UI`, async ({ page }) => {
+  test(`YoruBay night harbor and lamplight stay consistent on ${width}px RP UI`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('./');
     await page.waitForFunction(() => window.BAOQuickSetup && App.characters?.length);
@@ -20,9 +20,10 @@ for (const width of [390, 1440]) {
     await expect(page.locator('#home-view .brand-hero')).toBeVisible();
     await expect(page.locator('#home-view #bao-home-portrait')).toBeVisible();
 
-    // Current YoruBay foundation: violet identity, lamplight accents and dark tools.
-    expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--primary').trim())).toBe('#9c8cff');
-    expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--secondary').trim())).toBe('#d6aa73');
+    // Brand System 2.0 intentionally uses lamplight as the primary UI accent,
+    // retaining muted violet for the secondary atmosphere and dark tools.
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--primary').trim())).toBe('#d6aa73');
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--secondary').trim())).toBe('#efc77f');
     expect((await readBackground(page.locator('.brand-actions .brand-first-run'))).color).toBe('rgb(27, 26, 30)');
     expect((await readBackground(page.locator('#bao-home-portrait'))).color).toBe('rgb(29, 34, 48)');
 
