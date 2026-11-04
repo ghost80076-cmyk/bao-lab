@@ -14,6 +14,8 @@ async function openDemoStory(page) {
   await page.getByRole('button', { name: '開始故事' }).click();
   await expect.poll(() => page.evaluate(() => Boolean(window.BAOMobileReadingLayout))).toBe(true);
   await expect(page.locator('#user-input')).toBeVisible();
+  // The mobile header controls are inserted by the layout enhancer after the chat shell renders.
+  await expect(page.locator('#bao-mobile-tools-tab')).toBeAttached();
 }
 
 async function assertReadingGeometry(page) {
