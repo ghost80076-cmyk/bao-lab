@@ -16,6 +16,8 @@ async function start(page, mode) {
   }
   await page.getByRole('button', { name: '下一步' }).click();
   await page.getByRole('button', { name: '下一步' }).click();
+  await page.locator('#api-advanced-settings > summary').click();
+  await expect(page.locator('#model-id')).toBeVisible();
   await page.locator('#model-id').fill('local-browser-test');
   await page.locator('#base-url').fill('https://test.invalid/v1');
   await page.locator('#api-key').fill('TEMP_TEST_KEY');
