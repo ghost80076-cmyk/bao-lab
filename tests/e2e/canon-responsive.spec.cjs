@@ -253,9 +253,14 @@ test.describe("Canon workbench responsive UI", () => {
       App.renderChatShell(false);
       App.saveStory(false);
       await BAOStoryLibrary.flush();
-      return { firstAssistantId, source: BAOStoryLibrary.refs() };
+      const source = BAOStoryLibrary.refs();
+      const storedSource = await BAOStoryLibrary.reconstruct(source.storyId, source.chapterId);
+      return { firstAssistantId, source, savedSourceLocation: storedSource?.state?.location };
+
     });
 
+    // A branch must not inherit the older checkpoint as the saved mainline head.
+    expect(ids.savedSourceLocation).toBe("城門");
     page.on("dialog", dialog => dialog.type() === "prompt" ? dialog.accept("拒絕合作線") : dialog.accept());
     const firstReply = page.locator("#chat-stream > .message.assistant").first();
     await expect(firstReply.locator('[data-create-branch]')).toBeAttached();
@@ -284,6 +289,12 @@ test.describe("Canon workbench responsive UI", () => {
       App.saveStory(false);
       await BAOStoryLibrary.flush();
     });
+
+    const storedMainBeforeRestore = await page.evaluate(async source => {
+      const persisted = await BAOStoryLibrary.reconstruct(source.storyId, source.chapterId);
+      return persisted?.state?.location;
+    }, ids.source);
+    expect(storedMainBeforeRestore).toBe("城門");
 
     await page.evaluate(() => BAOStoryBranches.open());
     await expect(page.getByRole("heading", { name: "故事分支" })).toBeVisible();
