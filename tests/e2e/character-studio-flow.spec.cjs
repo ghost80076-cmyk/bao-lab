@@ -129,8 +129,8 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     await expect(page.locator('#studio-drafts')).toContainText('角色作品');
     await expect(page.locator('.topbar nav a')).toHaveCount(1);
     await page.locator('[name="name"]').fill('旅程驗收作品');
-    await page.locator('[name="name"]').blur();
     if (viewport.width <= 530) await page.getByRole('button', { name: '完成編輯' }).click();
+    else await page.locator('[name="name"]').blur();
     await flow.locator('[data-flow-step="finish"]').click();
     await expect(lifecycle).toBeVisible();
     await page.locator('#studio-preview-button').click();
@@ -140,8 +140,8 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     await expect(preview).toBeHidden();
     await expect(lifecycle).toBeHidden();
     await page.locator('[name="name"]').fill('修改後的作品');
-    await page.locator('[name="name"]').blur();
     if (viewport.width <= 530) await page.getByRole('button', { name: '完成編輯' }).click();
+    else await page.locator('[name="name"]').blur();
     await flow.locator('[data-flow-step="finish"]').click();
     await expect(preview).toBeHidden();
     await page.locator('#studio-preview-button').click();
@@ -150,8 +150,8 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     await expect(lifecycle).toBeVisible();
     await page.locator('[name="name"]').fill('全部欄位中的修改');
     await expect(preview).toBeHidden();
-    await page.locator('[name="name"]').blur();
     if (viewport.width <= 530) await page.getByRole('button', { name: '完成編輯' }).click();
+    else await page.locator('[name="name"]').blur();
     await flow.getByRole('button', { name: '專注模式', exact: true }).click();
     await expect(lifecycle).toBeHidden();
     const rail = await page.locator('.studio-flow-nav').boundingBox();
