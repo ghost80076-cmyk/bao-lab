@@ -24,6 +24,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Startup preserves player navigation
+        run: node tests/app-startup-navigation-core.cjs
       - name: Story discussion and reviewed import settings
         run: node tests/story-discussion-core.cjs
       - name: Minimal usage signals

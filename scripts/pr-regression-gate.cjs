@@ -7,6 +7,7 @@ const ROOT = path.resolve(__dirname, '..');
 const GROUPS = [
   { id: 'baseline', patterns: [], tests: [
     'tests/frontend-extension-contract.cjs',
+    'tests/app-startup-navigation-core.cjs',
     'tests/story-integrity-core.cjs'
   ] },
   { id: 'discussion-settings', patterns: [/^js\/story-discussion/, /^css\/story-discussion/, /^tests\/story-discussion/], tests: [

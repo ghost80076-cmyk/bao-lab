@@ -4,6 +4,7 @@
 (() => {
   'use strict';
   if (window.BAOInspirationCopy) return;
+  const resetTimers = new WeakMap();
 
   const legacyCopy = text => {
     const previousFocus = document.activeElement;
@@ -115,6 +116,9 @@
     const text = label.startsWith(prefix) ? label.slice(prefix.length) : label;
     if (!text.trim()) return;
 
+    const previousReset = resetTimers.get(button);
+    if (previousReset) clearTimeout(previousReset);
+    resetTimers.delete(button);
     button.disabled = true;
     const success = await copyText(text);
     if (!button.isConnected) return;
@@ -130,12 +134,19 @@
       button.title = '瀏覽器禁止自動複製，請手動選取';
       button.setAttribute('aria-label', '複製失敗，請手動選取');
     }
-    setTimeout(() => {
-      if (!button.isConnected) return;
-      button.textContent = '⧉';
-      button.title = '複製';
-      button.setAttribute('aria-label', '複製行動靈感');
-    }, 1100);
+    // Keep failure feedback while its manual-copy alternative is visible.
+    // An earlier successful copy must not reset a newer failed attempt.
+    if (success) {
+      const timer = setTimeout(() => {
+        if (resetTimers.get(button) !== timer) return;
+        resetTimers.delete(button);
+        if (!button.isConnected) return;
+        button.textContent = '⧉';
+        button.title = '複製';
+        button.setAttribute('aria-label', '複製行動靈感');
+      }, 1100);
+      resetTimers.set(button, timer);
+    }
   }, true);
 
   window.BAOInspirationCopy = { copyText, releaseInspirationBusy };

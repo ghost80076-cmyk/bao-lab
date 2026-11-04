@@ -232,7 +232,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/worldbook-library.js?v=14"))
     .then(() => loadBAOScript("js/story-reader.js?v=13"))
     .then(() => loadBAOOptionalGroup("conversation-search", ["js/conversation-search-core.js?v=4", "js/conversation-search.js?v=4"]))
-    .then(() => loadBAOOptionalGroup("inspiration-copy", ["js/inspiration-copy.js"]))
+    .then(() => loadBAOOptionalGroup("inspiration-copy", ["js/inspiration-copy.js?v=2"]))
     .then(() => loadBAOScript("js/story-revision-state.js?v=12"))
     .then(() => loadBAOScript("js/story-history.js?v=2"))
     .then(() => loadBAOScript("js/story-branches.js?v=2"))
