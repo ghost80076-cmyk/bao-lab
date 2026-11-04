@@ -261,12 +261,13 @@
       let bgMode = a.bgMode;
       let bubblePreset = a.bubblePreset || "custom";
       const tab = (group, value) => {
-        wrap.querySelectorAll(`[data-${group}-tab]`).forEach(button => {
+        const attribute = group === "bubbleRole" ? "bubble-role" : group;
+        wrap.querySelectorAll(`[data-${attribute}-tab]`).forEach(button => {
           const active = button.dataset[`${group}Tab`] === value;
           button.classList.toggle("active", active);
           button.setAttribute("aria-selected", active ? "true" : "false");
         });
-        wrap.querySelectorAll(`[data-${group}-panel]`).forEach(panel => {
+        wrap.querySelectorAll(`[data-${attribute}-panel]`).forEach(panel => {
           panel.hidden = panel.dataset[`${group}Panel`] !== value;
         });
       };
