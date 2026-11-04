@@ -19,7 +19,11 @@ for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: '
   test(`${viewport.name}: chat appearance previews, applies and restores bubble styling`, async ({ page }) => {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await openStory(page);
-    await page.locator('[data-bao-open="appearance"]:visible').click();
+    await page.evaluate(() => BAOChatToolNavigation.openDrawer());
+    const drawer = page.getByRole('dialog', { name: '故事功能選單' });
+    const sceneTools = drawer.locator('[data-chat-tool-group="scene"]');
+    if (!await sceneTools.evaluate(node => node.open)) await sceneTools.locator('summary').click();
+    await sceneTools.getByRole('button', { name: /聊天外觀/ }).click();
     const playerModal = page.getByRole('dialog', { name: '聊天外觀' });
     await expect(playerModal).toBeVisible();
     await expect(playerModal.locator('.bao-bubble-preview')).toBeVisible();
@@ -157,7 +161,11 @@ for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: '
     });
 
     await openStory(page);
-    await page.locator('[data-bao-open="appearance"]:visible').click();
+    await page.evaluate(() => BAOChatToolNavigation.openDrawer());
+    const drawer = page.getByRole('dialog', { name: '故事功能選單' });
+    const sceneTools = drawer.locator('[data-chat-tool-group="scene"]');
+    if (!await sceneTools.evaluate(node => node.open)) await sceneTools.locator('summary').click();
+    await sceneTools.getByRole('button', { name: /聊天外觀/ }).click();
     const reopened = page.getByRole('dialog', { name: '聊天外觀' });
     await reopened.locator('[data-appearance-tab="background"]').click();
     await reopened.locator('[data-bg-mode="solid"]').click();
