@@ -67,7 +67,7 @@ test('provider diagnostics validates buffered, streaming and key privacy', async
   await page.locator('.provider-diagnostics-advanced > summary').click();
   await page.locator('[data-run-provider-diagnostics]').click();
   await expect(page.locator('#provider-diagnostics-status')).toHaveText(/完整驗收通過/);
-  await expect(page.locator('#provider-diagnostics-result')).toContainText('SSE 已確認');
+  await expect(page.locator('#provider-diagnostics-result')).toContainText('即時輸出（Streaming）已確認');
   await expect(page.locator('#provider-diagnostics-result')).toContainText(/未發現.*持久化/);
   expect(requestCount).toBe(3);
 

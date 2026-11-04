@@ -24,8 +24,8 @@ for (const width of [390, 1440]) {
     // retaining muted violet for the secondary atmosphere and dark tools.
     expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--primary').trim())).toBe('#d6aa73');
     expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--secondary').trim())).toBe('#efc77f');
-    expect((await readBackground(page.locator('.brand-actions .brand-first-run'))).color).toBe('rgb(27, 26, 30)');
-    expect((await readBackground(page.locator('#bao-home-portrait'))).color).toBe('rgb(29, 34, 48)');
+    expect((await readBackground(page.locator('.brand-actions .brand-first-run'))).color).toBe('rgba(52, 38, 31, 0.58)');
+    expect((await readBackground(page.locator('#bao-home-portrait'))).color).toBe('rgba(0, 0, 0, 0)');
 
     // A character's category must not turn the 'start story' button pink or red.
     let categoryStart;
@@ -52,10 +52,14 @@ for (const width of [390, 1440]) {
     const builderStart = await readBackground(page.locator('#start-story'));
     expect(builderStart.image).not.toContain('rgb(199, 106, 184)');
     expect(builderStart.image).not.toContain('rgb(182, 59, 83)');
-    await page.locator('#api-key').fill('visual-only-not-a-real-api-key');
+    await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
+    for (let i = 0; i < 3; i++) await page.getByRole('button', { name: '下一步' }).click();
+    await page.locator('#bao-demo-mode').check();
+    await page.getByRole('button', { name: '下一步' }).click();
     await page.locator('#start-story').click();
     await expect(page.locator('#chat-view')).toHaveClass(/active/);
-    expect((await readBackground(page.locator('#chat-view .chat-stream'))).color).toBe('rgb(20, 19, 22)');
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--yoru-reading').trim())).toBe('#13161a');
+    expect((await readBackground(page.locator('#chat-view .chat-stream'))).color).toBe('rgba(0, 0, 0, 0)');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
   });
 }
@@ -65,7 +69,7 @@ test('Bao mascot controls are dark while the mascot image stays intact', async (
   await waitForBrandTheme(page);
   await expect(page.locator('#bao-home-portrait .bao-character')).toBeVisible();
   await expect(page.locator('.bao-mascot-launch')).toBeVisible();
-  expect((await readBackground(page.locator('.bao-mascot-launch'))).color).toBe('rgb(29, 34, 48)');
+  expect((await readBackground(page.locator('.bao-mascot-launch'))).color).toBe('rgba(0, 0, 0, 0)');
   await page.locator('.bao-mascot-launch').click();
   await expect(page.locator('.bao-mascot-panel')).toBeVisible();
   expect((await readBackground(page.locator('.bao-mascot-panel'))).color).toBe('rgb(17, 20, 27)');

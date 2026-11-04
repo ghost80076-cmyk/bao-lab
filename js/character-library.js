@@ -48,12 +48,16 @@
     objectUrls.delete(id);
   };
 
+  // Older records store a Blob. Byte-backed covers avoid WebKit IndexedDB's
+  // Blob preparation failure while preserving the same imported PNG bytes.
+  const recordCover = record => record.cover instanceof Blob ? record.cover
+    : record.coverBytes ? new Blob([record.coverBytes], { type: record.coverType || 'image/png' }) : null;
   const materialize = record => {
     const character = engine.normalize(clone(record.character || record));
     assetCollections.set(character.id, record.assets || []);
     attachments.set(character.id,record.packageFiles || {});
     resolveAssets(character);
-    const cover = record.cover instanceof Blob ? record.cover : null;
+    const cover = recordCover(record);
     if (cover && typeof URL?.createObjectURL === "function") {
       revoke(character.id);
       const url = URL.createObjectURL(cover);
@@ -171,7 +175,8 @@
     }
     if(String(storedCharacter.avatar||'').startsWith('blob:'))delete storedCharacter.avatar;
     // Commit character, media and attachments together; a quota failure leaves the previous card intact.
-    if(db && !fallback)await request("readwrite",store=>store.put({id:normalized.id,character:storedCharacter,cover,assets,packageFiles,updatedAt:new Date().toISOString()}));
+    const coverBytes = cover ? await cover.arrayBuffer() : null;
+    if(db && !fallback)await request("readwrite",store=>store.put({id:normalized.id,character:storedCharacter,cover:null,coverBytes,coverType:cover?.type || '',assets,packageFiles,updatedAt:new Date().toISOString()}));
     clearAssets(normalized.id);
     assetCollections.set(normalized.id,assets);attachments.set(normalized.id,packageFiles);
     const saved=upsertCache(resolveAssets(engine.normalize(storedCharacter)),cover || undefined);
@@ -203,11 +208,11 @@
       character: clone(record.character || record),
       packageFiles: Object.fromEntries(Object.entries(record.packageFiles || {}).map(([name,data])=>[name,Array.from(data)])),
       assets: await Promise.all((record.assets||[]).map(async asset=>({...asset,blob:undefined,base64:await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(asset.blob);})}))),
-      cover: record.cover instanceof Blob ? await new Promise((resolve, reject) => {
+      cover: recordCover(record) ? await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result);
         reader.onerror = () => reject(reader.error);
-        reader.readAsDataURL(record.cover);
+        reader.readAsDataURL(recordCover(record));
       }) : null
     })));
   };

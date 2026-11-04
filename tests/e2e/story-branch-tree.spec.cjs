@@ -144,7 +144,9 @@ test.describe("Story branch tree", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await openDemoStory(page);
     await seedNestedBranches(page);
-    await page.locator('[data-story-mobile-action="branches"]').click();
+    await page.getByRole('button', { name: '開啟控制中心', exact: true }).click();
+    await page.getByRole('searchbox', { name: '搜尋故事工具' }).fill('故事分支');
+    await page.getByRole('dialog', { name: '故事功能選單' }).getByRole('button', { name: /故事分支/ }).click();
     await expect(page.getByRole("heading", { name: "故事分支" })).toBeVisible();
     const modal = page.getByRole("dialog", { name: "故事分支" });
     await expect(modal.locator(".eyebrow")).toBeHidden();

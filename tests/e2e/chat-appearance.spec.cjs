@@ -13,6 +13,7 @@ async function openStory(page) {
   await page.getByRole('button', { name: '下一步' }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
   await expect(page.locator('#user-input')).toBeVisible();
+  await page.waitForFunction(() => BAOExtensionLoadHealth.snapshot().story === 'ready' && BAOExtensionLoadHealth.snapshot().world === 'ready');
 }
 
 async function openSettingFromControlCenter(page, label) {
@@ -20,7 +21,7 @@ async function openSettingFromControlCenter(page, label) {
   const drawer = page.getByRole('dialog', { name: '故事功能選單' });
   await expect(drawer).toBeVisible();
   await drawer.getByRole('searchbox', { name: '搜尋故事工具' }).fill(label);
-  const matching = drawer.locator('.bao-chat-tool-dialog-actions .bao-chat-tool-proxy').filter({ hasText: label });
+  const matching = drawer.locator('button:visible').filter({ hasText: label });
   await expect(matching.first()).toBeVisible();
   await matching.first().click();
 }
@@ -108,6 +109,7 @@ for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: '
     expect(appearance.fontFamily).toContain('Georgia');
 
     const rendered = await page.evaluate(() => {
+      Chat.add('assistant', '測試角色氣泡');
       Chat.add('user', '測試玩家氣泡');
       App.renderChatShell(false);
       const assistant = document.querySelector('#chat-stream .message.assistant .bubble:not(.authored-rich-message)');

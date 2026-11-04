@@ -206,7 +206,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .catch(err => console.warn("BAO/LAB cost, provider compatibility, model routing or Hosted credits controls failed to load:", err));
   loadBAOScript("js/storage-write-guard.js?v=3")
     .then(() => loadBAOScript("js/chat-shell-fix.js?v=3"))
-    .then(() => loadBAOScript("js/player-settings.js?v=16"))
+    .then(() => loadBAOScript("js/player-settings.js?v=17"))
     .then(() => loadBAOScript("js/player-text-replace-mod.js?v=2"))
     .then(() => loadBAOScript("js/narrative-settings.js?v=15"))
     .then(() => loadBAOScript("js/memory-workbench-core.js?v=15"))
@@ -233,7 +233,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/story-reader.js?v=13"))
     .then(() => loadBAOOptionalGroup("conversation-search", ["js/conversation-search-core.js?v=4", "js/conversation-search.js?v=4"]))
     .then(() => loadBAOOptionalGroup("inspiration-copy", ["js/inspiration-copy.js"]))
-    .then(() => loadBAOScript("js/story-revision-state.js?v=11"))
+    .then(() => loadBAOScript("js/story-revision-state.js?v=12"))
     .then(() => loadBAOScript("js/story-history.js?v=2"))
     .then(() => loadBAOScript("js/story-branches.js?v=2"))
     .then(() => loadBAOScript("js/streaming-ui.js?v=8"))
@@ -272,7 +272,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => { baoExtensionHealth.story = "ready"; })
     .catch(reportStoryFailure);
   loadBAOScript("js/work-package-core.js?v=2")
-    .then(() => loadBAOScript("js/character-library.js?v=3"))
+    .then(() => loadBAOScript("js/character-library.js?v=4"))
     .then(() => loadBAOScript("js/character-readiness.js"))
     .then(() => loadBAOScript("js/character-import-upgrade.js?v=3"))
     .then(() => loadBAOScript("js/work-package.js?v=2"))

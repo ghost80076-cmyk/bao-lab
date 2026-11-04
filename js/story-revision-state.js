@@ -6,7 +6,7 @@
   // story. Track that lineage without treating external story restores as it.
   const lineages = new WeakMap();
   const storyToken = () => {
-    const state = GameState.current;
+    const state = typeof GameState !== 'undefined' ? GameState.current : window.GameState?.current;
     if (!state || typeof state !== 'object') return state;
     if (!lineages.has(state)) lineages.set(state, {});
     return lineages.get(state);
@@ -203,7 +203,11 @@
   }
 
   let revisionQueue = Promise.resolve();
-  let lastSavedSignature = signatureOf(latestAssistant().message);
+  const savedReply = () => {
+    const { message } = latestAssistant();
+    return { token: storyToken(), id: message?.id, content: String(message?.content || ''), variant: activeVariant(message)?.id || '' };
+  };
+  let lastSavedReply = savedReply();
   const enqueue = task => {
     const run = () => Promise.resolve().then(task);
     revisionQueue = revisionQueue.then(run, run);
@@ -258,8 +262,12 @@
   const originalAppSave = App.saveStory.bind(App);
   App.saveStory = function(...args) {
     const { message } = latestAssistant();
-    const nextSignature = signatureOf(message);
-    const revised = Boolean(message?.id && lastSavedSignature && nextSignature && nextSignature !== lastSavedSignature && lastSavedSignature.startsWith(`${message.id}\n`));
+    const next = savedReply();
+    // Renderers may lazily attach the original variant to an unchanged reply.
+    // That metadata initialization is not a revision and must not rewind state.
+    // A restored story also starts a new lineage, even when message IDs match.
+    const revised = Boolean(next.id && next.token === lastSavedReply.token && next.id === lastSavedReply.id &&
+      (next.content !== lastSavedReply.content || (next.variant && lastSavedReply.variant && next.variant !== lastSavedReply.variant)));
     let cached = null;
     if (revised) {
       cached = activeVariant(message)?.derivedSnapshot || null;
@@ -267,7 +275,7 @@
       else if (message.revisionBase?.state) applySnapshot(message.revisionBase);
     }
     const result = originalAppSave(...args);
-    if (nextSignature) lastSavedSignature = nextSignature;
+    lastSavedReply = savedReply();
     if (revised) {
       const messageId = message.id;
       const expectedContent = String(message.content || "");

@@ -93,7 +93,7 @@
 
   const ensureStyles = () => {
     if (document.querySelector('link[href^="css/player-settings.css"]')) return;
-    const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "css/player-settings.css?v=9"; document.head.appendChild(link);
+    const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "css/player-settings.css?v=10"; document.head.appendChild(link);
   };
 
   const closeModal = () => document.querySelector(".bao-modal-backdrop")?.remove();
@@ -191,6 +191,8 @@
   const applyAppearance = () => {
     const view = document.getElementById("chat-view"); if (!view) return;
     const a = settings.appearance;
+    view.dataset.baoCustomBubbles = String(a.bubblePreset !== defaults.appearance.bubblePreset);
+    view.dataset.baoCustomType = String(a.fontSize !== defaults.appearance.fontSize || a.fontFamily !== defaults.appearance.fontFamily);
     view.style.setProperty("--chat-font-size", `${a.fontSize}px`);
     view.style.setProperty("--chat-font-family", chatFontStacks[a.fontFamily] || chatFontStacks.system);
     view.style.setProperty("--chat-assistant", a.assistantColor);

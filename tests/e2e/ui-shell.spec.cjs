@@ -49,9 +49,9 @@ test.describe("Unified BAO/LAB app shell", () => {
 
     await expect(page.locator("#chat-view")).toHaveAttribute("data-bao-surface", "play");
     await expect(page.locator(".story-mobile-tools")).toBeHidden();
-    await expect(page.locator("#bao-mobile-tools-tab")).toBeVisible();
+    await expect(page.locator("#bao-mobile-composer-tools")).toBeVisible();
     await expect(page.locator("#bao-play-status-toggle")).toBeVisible();
-    await expect(page.locator("#bao-surface-mode-toggle")).toBeVisible();
+    await expect(page.getByRole("button", { name: "開啟控制中心", exact: true })).toBeVisible();
     await expect(page.locator("#bao-scene-meta")).toBeVisible();
 
     const layout = await page.evaluate(() => {
