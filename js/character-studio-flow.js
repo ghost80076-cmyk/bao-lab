@@ -6,7 +6,8 @@
   if (!core || !form || !editor || window.BAOCharacterStudioFlow) return;
 
   const field = name => form.elements.namedItem(name);
-  const editable = node => node instanceof Element && node.matches("input,textarea,select");
+  const editable = node => node instanceof Element && node.matches("input,textarea")
+    && !node.matches('input:is([type="checkbox"],[type="radio"],[type="button"],[type="submit"],[type="file"],[type="range"],[type="color"])');
   const STEP_COPY = Object.freeze({
     basic: {
       kicker: "FOUNDATION",
@@ -422,15 +423,29 @@
 
   form.addEventListener("input", update);
   form.addEventListener("change", update);
+  // WebKit does not necessarily focus a clicked button. Revealing the sticky
+  // navigation on blur can move that button between pointerdown and click,
+  // swallowing Save/Preview/Apply. Keep the editing layout until the gesture
+  // completes; keyboard-only focus changes still settle on the next frame.
+  let pointerInForm = false;
+  const settleEditing = () => {
+    if (!pointerInForm && (!editable(document.activeElement) || !form.contains(document.activeElement)))
+      editor.classList.remove("studio-editing");
+  };
+  form.addEventListener("pointerdown", () => { pointerInForm = true; }, true);
+  const endPointer = () => window.setTimeout(() => {
+    pointerInForm = false;
+    settleEditing();
+  }, 0);
+  document.addEventListener("pointerup", endPointer, true);
+  document.addEventListener("pointercancel", endPointer, true);
   form.addEventListener("focusin", event => {
     const id = detectStep(event.target);
     if (id) setActive(id);
     if (editable(event.target)) editor.classList.add("studio-editing");
   });
   form.addEventListener("focusout", () => {
-    requestAnimationFrame(() => {
-      if (!editable(document.activeElement) || !form.contains(document.activeElement)) editor.classList.remove("studio-editing");
-    });
+    requestAnimationFrame(settleEditing);
   });
 
   const status = document.getElementById("studio-status");

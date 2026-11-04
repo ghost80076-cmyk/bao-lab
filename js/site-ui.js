@@ -172,7 +172,7 @@ window.addEventListener("DOMContentLoaded", () => {
   // Experience 3.0 is a presentation layer; load early for the landing page
   // without coupling it to the story/Provider initialization chain.
   loadBAOScript("js/experience-preferences-core.js?v=2")
-    .then(() => loadBAOScript("js/experience-preferences.js?v=4"))
+    .then(() => loadBAOScript("js/experience-preferences.js?v=5"))
     .catch(err => console.warn("YoruBay experience preferences unavailable:", err));
   loadBAOScript("js/chat-api-settings.js?v=4")
     .then(() => loadBAOScript("js/model-discovery.js?v=4"))
@@ -215,7 +215,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/memory-workbench-ai.js?v=7"))
     .then(() => loadBAOScript("js/canon-workbench.js?v=9"))
     .then(() => loadBAOScript("js/memory-workbench-simplify.js?v=6"))
-    .then(() => loadBAOScript("js/chat-markup.js?v=7"))
+    .then(() => loadBAOScript("js/chat-markup.js?v=8"))
     .then(() => loadBAOScript("js/story-tools.js?v=17"))
     .then(() => window.BAOEnsureStoryLibrary())
     .then(() => loadBAOScript("js/context-pack-resume.js?v=5"))
@@ -272,7 +272,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => { baoExtensionHealth.story = "ready"; })
     .catch(reportStoryFailure);
   loadBAOScript("js/work-package-core.js?v=2")
-    .then(() => loadBAOScript("js/character-library.js?v=4"))
+    .then(() => loadBAOScript("js/character-library.js?v=5"))
     .then(() => loadBAOScript("js/character-readiness.js"))
     .then(() => loadBAOScript("js/character-import-upgrade.js?v=3"))
     .then(() => loadBAOScript("js/work-package.js?v=2"))
@@ -286,7 +286,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/bao-mascot.js?v=6"))
     .then(() => loadBAOOptionalGroup("stage-capabilities", ["js/stage-capability-core.js?v=3", "js/stage-capability.js?v=3"]))
     .then(() => loadBAOScript("js/reader-context.js?v=7"))
-    .then(() => loadBAOScript("js/bao-visual-ui.js?v=19"))
+    .then(() => loadBAOScript("js/bao-visual-ui.js?v=20"))
     .then(() => loadBAOScript("js/player-shell-v2.js?v=15"))
     .then(() => loadBAOScript("js/player-builder-v2.js?v=9"))
     .then(() => loadBAOScript("js/quick-start-mode.js?v=3"))

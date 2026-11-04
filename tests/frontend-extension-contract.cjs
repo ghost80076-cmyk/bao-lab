@@ -14,7 +14,7 @@ assert(memoryWorkbenchSource.includes('data-summary-mode-notice'));
 assert(siteUI.includes('js/world-state-cost.js?v=13'));
 assert(siteUI.includes('js/provider-policy-guard.js?v=1'), 'policy circuit must load before hosted transport');
 assert(siteUI.indexOf('js/provider-policy-guard.js?v=1') < siteUI.indexOf('js/credits-pilot.js?v=2'));
-assert(index.includes('src="js/site-ui.js?v=184"'));
+assert(index.includes('src="js/site-ui.js?v=185"'));
 assert(siteUI.includes('js/full-story-memory-rebuild.js?v=5'));
 const appSource = read("js/app.js");
 const bridge = read("js/global-bridge.js");
@@ -54,7 +54,7 @@ increasing(index, [
   'src="js/chat.js',
   'src="js/character.js?v=11"',
   'src="js/app.js',
-  'src="js/chat-markup.js?v=7"',
+  'src="js/chat-markup.js?v=8"',
   'src="js/story-maintenance-lock.js?v=2"',
   'src="js/site-ui.js'
 ], "core script");
@@ -90,7 +90,7 @@ increasing(siteUI, [
 increasing(siteUI, [
   'loadBAOOptionalGroup("stage-capabilities", ["js/stage-capability-core.js?v=3", "js/stage-capability.js?v=3"])',
   'loadBAOScript("js/reader-context.js?v=7")',
-  'loadBAOScript("js/bao-visual-ui.js?v=19")',
+  'loadBAOScript("js/bao-visual-ui.js?v=20")',
   'loadBAOScript("js/player-shell-v2.js?v=15")'
 ], "stage capability extension");
 

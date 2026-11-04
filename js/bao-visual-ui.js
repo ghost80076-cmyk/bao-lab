@@ -68,7 +68,7 @@
     if (!document.querySelector('script[data-bao-scene-image]')) {
       const scenes = document.createElement('script');
       scenes.dataset.baoSceneImage = '1';
-      scenes.src = 'js/story-image-prompts.js?v=2';
+      scenes.src = 'js/story-image-prompts.js?v=3';
       document.head.appendChild(scenes);
     }
     if (!document.querySelector('script[data-bao-gallery-focus]')) {

@@ -52,9 +52,14 @@
   // Blob preparation failure while preserving the same imported PNG bytes.
   const recordCover = record => record.cover instanceof Blob ? record.cover
     : record.coverBytes ? new Blob([record.coverBytes], { type: record.coverType || 'image/png' }) : null;
+  const recordAssets = records => (records || []).map(record => {
+    const { bytes, ...asset } = record;
+    return asset.blob instanceof Blob || !bytes ? asset
+      : { ...asset, blob: new Blob([bytes], { type: asset.mime || 'application/octet-stream' }) };
+  });
   const materialize = record => {
     const character = engine.normalize(clone(record.character || record));
-    assetCollections.set(character.id, record.assets || []);
+    assetCollections.set(character.id, recordAssets(record.assets));
     attachments.set(character.id,record.packageFiles || {});
     resolveAssets(character);
     const cover = recordCover(record);
@@ -176,7 +181,9 @@
     if(String(storedCharacter.avatar||'').startsWith('blob:'))delete storedCharacter.avatar;
     // Commit character, media and attachments together; a quota failure leaves the previous card intact.
     const coverBytes = cover ? await cover.arrayBuffer() : null;
-    if(db && !fallback)await request("readwrite",store=>store.put({id:normalized.id,character:storedCharacter,cover:null,coverBytes,coverType:cover?.type || '',assets,packageFiles,updatedAt:new Date().toISOString()}));
+    const storedAssets = await Promise.all(assets.map(async asset => asset.blob instanceof Blob
+      ? { ...asset, blob: null, bytes: await asset.blob.arrayBuffer() } : asset));
+    if(db && !fallback)await request("readwrite",store=>store.put({id:normalized.id,character:storedCharacter,cover:null,coverBytes,coverType:cover?.type || '',assets:storedAssets,packageFiles,updatedAt:new Date().toISOString()}));
     clearAssets(normalized.id);
     assetCollections.set(normalized.id,assets);attachments.set(normalized.id,packageFiles);
     const saved=upsertCache(resolveAssets(engine.normalize(storedCharacter)),cover || undefined);
@@ -207,7 +214,7 @@
       id: record.id,
       character: clone(record.character || record),
       packageFiles: Object.fromEntries(Object.entries(record.packageFiles || {}).map(([name,data])=>[name,Array.from(data)])),
-      assets: await Promise.all((record.assets||[]).map(async asset=>({...asset,blob:undefined,base64:await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(asset.blob);})}))),
+      assets: await Promise.all(recordAssets(record.assets).map(async asset=>({...asset,blob:undefined,bytes:undefined,base64:await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(asset.blob);})}))),
       cover: recordCover(record) ? await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result);
@@ -247,7 +254,7 @@
     const record=db&&!fallback?await request('readonly',store=>store.get(id)):null;
     if(!record)throw new Error('找不到可匯出的本機作品。');
     const files=Object.assign(Object.create(null),record.packageFiles||{}),assets=record.character.asset_manifest?.assets||[];
-    for(const asset of record.assets||[])files[asset.path]=new Uint8Array(await asset.blob.arrayBuffer());
+    for(const asset of recordAssets(record.assets))files[asset.path]=new Uint8Array(await asset.blob.arrayBuffer());
     return window.BAOWorkPackageCore.build({character:record.character,assets,files,adaptation:record.character.import_metadata?.package_adaptation});
   };
   engine.characterLibraryStatus = () => ({ mode: db && !fallback ? "indexedDB" : "localStorage", count: cache.length });
