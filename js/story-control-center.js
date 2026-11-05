@@ -154,6 +154,10 @@
           </div>
         </section>
         ${window.BAOSettingsEffects?.render?.() || ""}
+        ${window.BAOWorldDirector ? `<details class="settings-effects" data-world-director-review>
+          <summary>世界事件與連續性審閱</summary>
+          <div class="settings-effects-body" data-world-director-result></div>
+        </details>` : ""}
         <details class="story-control-more">
           <summary>更多故事設定 <span>敘事、快捷指令與進階管理</span></summary>
           <div class="story-control-grid story-control-secondary">
@@ -173,6 +177,41 @@
         </footer>
       </section>`;
     host.appendChild(wrap);
+    const worldReview = wrap.querySelector("[data-world-director-review]");
+    worldReview?.addEventListener("toggle", () => {
+      const body = worldReview.querySelector("[data-world-director-result]");
+      body.replaceChildren();
+      if (!worldReview.open) return;
+      const review = window.BAOWorldDirector.review();
+      const intro = document.createElement("p");
+      intro.className = "settings-effects-intro";
+      intro.textContent = review ? "核對最近一個完整回合的世界時鐘與原文來源。展開審閱只會讀取資料。"
+        : "目前沒有可審閱的回合。完成一輪有世界時鐘的故事後，可在這裡查看。";
+      body.append(intro);
+      if (!review) return;
+      const reasons = {
+        "clock-regression": "世界時鐘往回移動，請核對本輪時間。",
+        "pending-event-removed": "待處理的事件從排程中消失。",
+        "closed-event-reopened": "已關閉的事件回到待處理。",
+        "event-due-changed": "事件的期限發生變動。",
+        "missing-completion-evidence": "排程已關閉，請核對原文是否交代結果。"
+      };
+      const rows = [
+        ...review.candidates.map(item => ({...item, note: "已到排程時間，可審閱是否適合在目前場景處理。"})),
+        ...review.warnings.map(item => ({...item, note: reasons[item.code]}))
+      ];
+      if (!rows.length) {
+        intro.textContent = "最近一輪沒有可顯示的到期事件或連續性提醒。";
+        return;
+      }
+      const list = document.createElement("ul");
+      for (const {label, note, sourceNumbers} of rows) {
+        const row = document.createElement("li");
+        row.textContent = [label, note, sourceNumbers && `原文第 ${sourceNumbers.join("、")} 則`].filter(Boolean).join(" · ");
+        list.append(row);
+      }
+      body.append(list);
+    });
     // Disclosure is only visual; tool handlers and story settings stay unchanged.
     const level = window.YoruExperience?.get?.().level || "easy";
     wrap.querySelector(".story-control-more").open = level === "standard" || level === "pro";

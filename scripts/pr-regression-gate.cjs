@@ -53,13 +53,14 @@ const GROUPS = [
     'tests/world-state-completion-core.cjs'
   ] },
   { id: 'story-state', patterns: [
-    /^js\/(?:story-(?:branches|rollback|revision|history|library|integrity|timeline|helper|persona|actor)|world-state|world-modules|state(?:\.|\/)|state-tracker|character-status|npc-|same-model-state-merge|global-bridge)/,
-    /^tests\/(?:story-(?:branch|rollback|revision|history|library|integrity|timeline|helper|persona|actor)|world-state|state-|character-status|npc-|same-model-state)/
+    /^js\/(?:story-(?:branches|rollback|revision|history|library|integrity|timeline|helper|persona|actor)|world-state|world-modules|world-director|state(?:\.|\/)|state-tracker|character-status|npc-|same-model-state-merge|global-bridge)/,
+    /^tests\/(?:story-(?:branch|rollback|revision|history|library|integrity|timeline|helper|persona|actor)|world-state|world-director|state-|character-status|npc-|same-model-state)/
   ], tests: [
     'tests/story-revision-state-core.cjs',
     'tests/story-branch-commit-core.cjs',
     'tests/story-rollback-core.cjs',
     'tests/state-snapshot-continuity-core.cjs',
+    'tests/world-director-core.cjs',
     'tests/status-revision-entry-ownership-core.cjs',
     'tests/memory-summary-ownership-core.cjs',
     'tests/world-state-completion-core.cjs'

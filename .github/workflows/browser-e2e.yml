@@ -250,6 +250,11 @@ jobs:
           tests/e2e/home-first-paint.spec.js
           tests/e2e/memory-workbench-theme.spec.cjs
           --project=${{ matrix.browser }}
+      - name: Verify optional world review on mobile and desktop
+        run: >-
+          npx playwright test tests/e2e/settings-effects.spec.cjs
+          --grep 'world review' --project=${{ matrix.browser }}
+          --reporter=line --output=test-results/world-director
       - name: Upload smoke report
         if: always()
         uses: actions/upload-artifact@v4

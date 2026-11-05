@@ -186,22 +186,60 @@
     if (Array.isArray(raw?.scenes) || updates.some(k => String(k?.eventId).startsWith('scene-')))
       ingestCollection(state, { episodes: raw?.scenes, knowledgeUpdates: updates.filter(k => String(k?.eventId).startsWith('scene-')) }, chunk, messages, true);
   }
-  function recall({ state, messages = [], input = '', actors = [], exclude = '', maxChars = 2400, hybrid = false, onDecision = () => {} }) {
-    const {sources,valid,knows,scene} = evidenceProof(messages);
-    const resolve = actorResolver(state), words = terms(input), audience = resolveCast(state,actors,resolve);
-    const excluded = String(exclude), seen = new Set(), candidates = [];
-    const events = [
+  const memoryEvents = (state, includeScenes) => [
       ...(Array.isArray(state?.episodicMemory?.events) ? state.episodicMemory.events : []).slice(-1000),
-      ...(hybrid && Array.isArray(state?.episodicMemory?.scenes) ? state.episodicMemory.scenes.slice(-300).map(e => object(e) ? {...e, scene: true} : e) : [])
+      ...(includeScenes && Array.isArray(state?.episodicMemory?.scenes) ? state.episodicMemory.scenes.slice(-300).map(e => object(e) ? {...e, scene: true} : e) : [])
     ];
+  function supersededEvents(events, {valid, scene, first, last}) {
     const superseded = new Set();
     for (const update of events) {
       if (!object(update) || !(update.scene ? scene(update.evidence) : valid(update.evidence)) || !['confirmed', 'retracted'].includes(update.certainty)) continue;
       for (const target of list(update.supersedes)) {
         const old = events.find(e => e?.id === target);
-        if (old && valid(old.evidence) && Math.min(...update.evidence.map(e => sources.get(e.id).index)) > Math.max(...old.evidence.map(e => sources.get(e.id).index))) superseded.add(target);
+        if (old && valid(old.evidence) && first(update.evidence) > last(old.evidence)) superseded.add(target);
       }
     }
+    return superseded;
+  }
+  function latestKnowledge(event, actor, resolve, {knows, last}) {
+    return (Array.isArray(event.knowledge) ? event.knowledge : []).filter(k =>
+      object(k) && resolve(k.actor) === actor && knows(k,event))
+      .sort((a,b) => last(a.evidence) - last(b.evidence)).at(-1);
+  }
+  function worldEventEvidence({state, messages, config, primary, labels}) {
+    const matches = new Map(), targets = new Set(labels);
+    if (!targets.size) return matches;
+    const proof = evidenceProof(messages), resolve = actorResolver(state);
+    const cast = audience({state, config, primary});
+    const events = memoryEvents(state, true), superseded = supersededEvents(events, proof);
+    const exactSource = (evidence, label) => evidence.map(e => proof.sources.get(e.id))
+      .filter(({message}) => {
+        const {content, context_content: context} = message;
+        // Require a literal plain-text line. Context-only text, markup,
+        // state appendices and rendered directives are outside this proof.
+        return (!context || context === content) && !/[<>`\[\]{}*_~|]/.test(content)
+          && content.split(/\r?\n/).some(line => line.trim() === label);
+      }).map(({message,index}) => ({id:message.id, index, signature:signature(message)}));
+    for (const event of events) {
+      const label = event?.text;
+      if (!targets.has(label) || matches.has(label) || event.certainty !== 'confirmed' || superseded.has(event.id)
+          || !(event.scene ? proof.scene(event.evidence) : proof.valid(event.evidence))) continue;
+      const anchors = exactSource(event.evidence, label);
+      if (!anchors.length) continue;
+      if (event.visibility !== 'public' && (!cast.length || !cast.every(actor => {
+        const knowledge = latestKnowledge(event, actor, resolve, proof);
+        return knowledge?.claim === label && ['witnessed', 'told'].includes(knowledge.mode)
+          && exactSource(knowledge.evidence, label).length;
+      }))) continue;
+      matches.set(label, anchors);
+    }
+    return matches;
+  }
+  function recall({ state, messages = [], input = '', actors = [], exclude = '', maxChars = 2400, hybrid = false, onDecision = () => {} }) {
+    const proof = evidenceProof(messages), {sources,valid,scene} = proof;
+    const resolve = actorResolver(state), words = terms(input), audience = resolveCast(state,actors,resolve);
+    const excluded = String(exclude), seen = new Set(), candidates = [];
+    const events = memoryEvents(state, hybrid), superseded = supersededEvents(events, proof);
     for (const event of events) {
       if (!object(event)) continue;
       const decision = reason => onDecision({id: event.id, reason});
@@ -210,11 +248,8 @@
       // A single shared request must not receive secrets inaccessible to any
       // current speaker. Unknown cast => only explicitly public facts.
       const knowledge = audience.map(actor => {
-        const history = (Array.isArray(event.knowledge) ? event.knowledge : []).filter(k =>
-          object(k) && resolve(k.actor) === actor && knows(k,event));
-        history.sort((a, b) => Math.max(...a.evidence.map(e => sources.get(e.id).index))
-          - Math.max(...b.evidence.map(e => sources.get(e.id).index)));
-        return history.length ? [history[history.length - 1]] : [];
+        const latest = latestKnowledge(event, actor, resolve, proof);
+        return latest ? [latest] : [];
       });
       // Correcting an objective fact does not make every character learn the
       // correction. Old, evidenced beliefs remain explicitly role knowledge.
@@ -300,5 +335,5 @@
     if (hybrid && proof) eligible.sort((a,b) => proof.last(a.evidence)-proof.last(b.evidence));
     return eligible.slice(-8).map(e => ({ id:e.id,text:text(e.text,120) }));
   };
-  window.BAOEpisodicMemory = { rules, schema, sceneRules, sceneSchema, updateContext, ingest, recall, knowledgeMatrix, audience, canRead, resolveActor, terms, signature };
+  window.BAOEpisodicMemory = { rules, schema, sceneRules, sceneSchema, updateContext, ingest, recall, knowledgeMatrix, audience, canRead, resolveActor, terms, signature, worldEventEvidence };
 })();

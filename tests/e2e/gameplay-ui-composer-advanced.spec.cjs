@@ -29,7 +29,11 @@ for(const width of [1440,390])test(`advanced sections and tabs are editable with
  await root.getByLabel('歷程模式').selectOption('round_diff');await root.getByRole('button',{name:'新增項目',exact:true}).click();
  await root.getByLabel('顯示名稱',{exact:true}).fill('本回合時間');
  await root.getByLabel('資料來源',{exact:true}).selectOption('time');
- await pane(root,'結構');await root.getByRole('button',{name:'選擇分頁：分頁 1'}).click();
+ await pane(root,'結構');
+ // The tab title can change when its ID is edited; keep selection semantic.
+ const tabChoice=root.getByRole('button',{name:/^選擇分頁：/});
+ await expect(tabChoice).toHaveCount(1);
+ await tabChoice.click();
  await root.getByLabel('加入組件',{exact:true}).selectOption('location_archive');await root.getByRole('button',{name:'新增區塊',exact:true}).click();
  await root.getByLabel('區域來源',{exact:true}).selectOption('modules');
  await root.getByLabel('區域來源的模組與欄位（例：player.hp）').fill('map.area');

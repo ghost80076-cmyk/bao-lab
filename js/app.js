@@ -188,6 +188,7 @@ const App = {
       const completedLength = Chat.messages.length, completedSignature = expected;
       return Object.freeze({
         kind: "bao:story-turn", owner, config,
+        complete: Boolean(result.text?.trim() && window.BAOMemoryCore?.completionError && !window.BAOMemoryCore.completionError(result)),
         playerId: pendingUser.id, assistantId: assistant.id,
         playerText: pendingUser.content, assistantText: assistant.content,
         isCurrent: () => GameState.current === owner && this.config === config

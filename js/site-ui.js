@@ -194,7 +194,8 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/world-module-manager.js?v=11"))
     .then(() => loadBAOScript("js/world-relevance.js?v=6"))
     .then(() => loadBAOScript("js/character-status-ui.js?v=12"))
-    .then(() => loadBAOScript("js/world-state-hook.js?v=7"))
+    .then(() => loadBAOOptionalGroup("worldDirector", ["js/world-director-core.js?v=1", "js/world-director.js?v=1"]))
+    .then(() => loadBAOScript("js/world-state-hook.js?v=8"))
     .then(() => { baoExtensionHealth.world = "ready"; })
     .catch(reportWorldFailure);
   loadBAOScript("js/cost-control.js?v=7")
@@ -266,7 +267,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/story-discussion-core.js?v=1"))
     .then(() => loadBAOScript("js/story-discussion.js?v=2"))
     .then(() => loadBAOScript("js/story-control-center-core.js?v=2"))
-    .then(() => loadBAOScript("js/story-control-center.js?v=14"))
+    .then(() => loadBAOScript("js/story-control-center.js?v=15"))
     .then(() => loadBAOScript("js/request-ledger.js?v=2"))
     .then(() => providerPolicyReady)
     .then(() => { baoExtensionHealth.story = "ready"; })

@@ -14,7 +14,7 @@ assert(memoryWorkbenchSource.includes('data-summary-mode-notice'));
 assert(siteUI.includes('js/world-state-cost.js?v=13'));
 assert(siteUI.includes('js/provider-policy-guard.js?v=1'), 'policy circuit must load before hosted transport');
 assert(siteUI.indexOf('js/provider-policy-guard.js?v=1') < siteUI.indexOf('js/credits-pilot.js?v=2'));
-assert(index.includes('src="js/site-ui.js?v=188"'));
+assert(index.includes('src="js/site-ui.js?v=189"'));
 assert(siteUI.includes('js/full-story-memory-rebuild.js?v=5'));
 const appSource = read("js/app.js");
 const bridge = read("js/global-bridge.js");
@@ -49,7 +49,7 @@ increasing(index, [
   'src="js/state.js?v=3"',
   'src="js/api.js',
   'src="js/helper-data.js?v=7"',
-  'src="js/episodic-memory-core.js?v=8"',
+  'src="js/episodic-memory-core.js?v=9"',
   'src="js/memory-core.js',
   'src="js/chat.js',
   'src="js/character.js?v=11"',
@@ -68,7 +68,7 @@ increasing(siteUI, [
   'loadBAOScript("js/three-realms-event-profiles.js?v=6")',
   'loadBAOScript("js/three-realms-events-core.js?v=6")',
   'loadBAOScript("js/world-modules.js?v=11")',
-  'loadBAOScript("js/world-state-hook.js?v=7")'
+  'loadBAOScript("js/world-state-hook.js?v=8")'
 ], "world-state extension");
 
 // Story chain: story-tools is installed before prompt/cache orchestration and request lifecycle.
