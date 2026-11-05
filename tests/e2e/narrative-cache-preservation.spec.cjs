@@ -344,6 +344,7 @@ for (const width of [390, 1440]) {
   test(`motivation pack is opt-in, story-local and cache-friendly at ${width}px`, async ({ page }) => {
     await setup(page, width);
     const before = await page.evaluate(() => preferenceSnapshot());
+    const originalExtras = await page.evaluate(() => [...App.config.narrative.storyExtras]);
     await page.evaluate(() => BAONarrativeSettings.open());
     const extra = page.locator('[data-story-extra="motivation"]');
     await expect(extra).toHaveCount(1);
@@ -361,7 +362,7 @@ for (const width of [390, 1440]) {
     expect(saved.defaults).toBe(before.defaults);
     expect(saved.messages).toContain('讓已有的長短期目標');
     expect(saved.messages).not.toBe(before.messages);
-    expect(await page.evaluate(() => App.config.narrative.storyExtras)).toEqual(['motivation']);
+    expect(await page.evaluate(() => App.config.narrative.storyExtras)).toEqual([...originalExtras, 'motivation']);
     await page.evaluate(() => BAONarrativeSettings.open());
     await expect(extra).toBeChecked();
     await page.locator('[data-narrative-save]').click();
