@@ -16,8 +16,7 @@
 
   const state = () => {
     if (!GameState.current) return [];
-    if (!Array.isArray(GameState.current.quickCommands)) GameState.current.quickCommands = [];
-    return GameState.current.quickCommands;
+    return Array.isArray(GameState.current.quickCommands) ? GameState.current.quickCommands : [];
   };
 
   const write = commands => {

@@ -2,6 +2,8 @@ const { test, expect } = require("@playwright/test");
 
 const openModelStep = async page => {
   await page.goto("/");
+  await page.waitForFunction(() => window.BAOExtensionLoadHealth?.snapshot().story === "ready"
+    && BAOExtensionLoadHealth.snapshot().world === "ready" && Storage.status().ready);
   await expect(page.locator('#home-view .brand-hero h1')).toBeVisible();
   await page.locator('#home-view [data-view="explore"]').click();
   const card = page.locator("article").filter({ hasText: "林沉風 - 見過黑暗的人" });
@@ -136,7 +138,9 @@ test.describe("Canon workbench responsive UI", () => {
     expect(accounting.lastStoryPromptTokens).toBe(0);
   });
 
-  test("a player can cancel one pending generation without duplicate sends or phantom history", async ({ page }) => {
+  for (const width of [390, 1440]) {
+  test(`a player can cancel one pending generation without duplicate sends or phantom history (${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
     let providerRequests = 0;
     await page.route("https://generativelanguage.googleapis.com/**", async route => {
       providerRequests += 1;
@@ -150,6 +154,7 @@ test.describe("Canon workbench responsive UI", () => {
     await page.locator("#api-key").fill("MAIN-TEST-KEY");
     await page.getByRole("button", { name: "下一步" }).click();
     await page.getByRole("button", { name: "開始故事" }).click();
+    const originalHistory = await page.evaluate(() => JSON.stringify(Chat.messages));
     const input = page.locator("#user-input");
     await input.fill("這句取消後要回到輸入框");
     const send = page.getByRole("button", { name: "送出訊息" });
@@ -164,12 +169,13 @@ test.describe("Canon workbench responsive UI", () => {
     await expect(input).toHaveValue("這句取消後要回到輸入框");
     await expect(page.locator("#bao-chat-system-notices")).toContainText("已取消本次生成");
     await expect(page.locator("#chat-stream")).not.toContainText("已取消本次生成");
-    const state = await page.evaluate(() => ({ messages: Chat.messages.length, pending: App.__requestPending }));
-    expect(state).toEqual({ messages: 0, pending: false });
+    const state = await page.evaluate(() => ({ history: JSON.stringify(Chat.messages), pending: App.__requestPending }));
+    expect(state).toEqual({ history: originalHistory, pending: false });
     expect(providerRequests).toBe(1);
   });
 
-  test("main story renders Gemini SSE deltas and keeps the final reply", async ({ page }) => {
+  test(`main story renders Gemini SSE deltas and keeps the final reply (${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
     let requestBody = null;
     let requestUrl = "";
     await page.route("https://generativelanguage.googleapis.com/**", async route => {
@@ -177,7 +183,7 @@ test.describe("Canon workbench responsive UI", () => {
       requestBody = route.request().postDataJSON();
       const events = [
         { candidates: [{ content: { parts: [{ text: "第一段故事" }] } }] },
-        { candidates: [{ content: { parts: [{ text: "，接著第二段。" }] } }], usageMetadata: { promptTokenCount: 9, candidatesTokenCount: 6, totalTokenCount: 15 } }
+        { candidates: [{ content: { parts: [{ text: "，接著第二段。" }] }, finishReason: "STOP" }], usageMetadata: { promptTokenCount: 9, candidatesTokenCount: 6, totalTokenCount: 15 } }
       ];
       await route.fulfill({ status: 200, contentType: "text/event-stream", body: events.map(data => `data: ${JSON.stringify(data)}\n\n`).join("") });
     });
@@ -200,9 +206,13 @@ test.describe("Canon workbench responsive UI", () => {
     expect(await page.evaluate(() => Chat.messages.at(-1).content)).toBe("第一段故事，接著第二段。");
   });
 
+  }
+
   test("only the latest AI reply exposes state-changing edit tools", async ({ page }) => {
     await openDemoStory(page);
     await page.evaluate(() => {
+      App.config.demoMode = false;
+      App.config.api.key = 'AVAILABILITY-ONLY-FAKE-KEY';
       Chat.messages = Chat.ensureMessageIds([
         { role: "user", content: "第一輪玩家" },
         { role: "assistant", content: "第一輪角色" },
@@ -243,11 +253,19 @@ test.describe("Canon workbench responsive UI", () => {
       App.renderChatShell(false);
       App.saveStory(false);
       await BAOStoryLibrary.flush();
-      return { firstAssistantId, source: BAOStoryLibrary.refs() };
+      const source = BAOStoryLibrary.refs();
+      const storedSource = await BAOStoryLibrary.reconstruct(source.storyId, source.chapterId);
+      return { firstAssistantId, source, savedSourceLocation: storedSource?.state?.location };
+
     });
 
+    // A branch must not inherit the older checkpoint as the saved mainline head.
+    expect(ids.savedSourceLocation).toBe("城門");
     page.on("dialog", dialog => dialog.type() === "prompt" ? dialog.accept("拒絕合作線") : dialog.accept());
     const firstReply = page.locator("#chat-stream > .message.assistant").first();
+    await expect(firstReply.locator('[data-create-branch]')).toBeAttached();
+    await page.evaluate(() => BAOMobileReadingLayout.sync());
+    await firstReply.locator('.bao-message-more > summary').click();
     await expect(firstReply.getByRole("button", { name: /從這裡分支/ })).toBeVisible();
     await firstReply.getByRole("button", { name: /從這裡分支/ }).click();
     await expect.poll(() => page.evaluate(() => BAOStoryLibrary.refs().parentChapterId)).toBe(ids.source.chapterId);
@@ -272,7 +290,13 @@ test.describe("Canon workbench responsive UI", () => {
       await BAOStoryLibrary.flush();
     });
 
-    await page.locator("#story-branch-button").click();
+    const storedMainBeforeRestore = await page.evaluate(async source => {
+      const persisted = await BAOStoryLibrary.reconstruct(source.storyId, source.chapterId);
+      return persisted?.state?.location;
+    }, ids.source);
+    expect(storedMainBeforeRestore).toBe("城門");
+
+    await page.evaluate(() => BAOStoryBranches.open());
     await expect(page.getByRole("heading", { name: "故事分支" })).toBeVisible();
     const mainRow = page.locator(`[data-chapter="${ids.source.chapterId}"]`);
     await mainRow.getByRole("button", { name: "切換" }).click();

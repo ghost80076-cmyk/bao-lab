@@ -213,11 +213,14 @@ for (const theme of ['mist','dusk']) {
     // Buttons animate background-color for 160ms. Assert the settled palette
     // rather than sampling the transition's old night-color first frame.
     await expect.poll(() => page.locator('#bao-mobile-composer-tools').evaluate(
-      element => getComputedStyle(element).backgroundColor
+      element => getComputedStyle(element).backgroundColor.replace(/^rgba\((.*), 1\)$/, 'rgb($1)')
     ), {timeout:3500}).toBe(theme === 'mist' ? 'rgb(240, 232, 223)' : 'rgb(81, 67, 90)');
     const current = await page.evaluate(() => {
-      const bg = selector => getComputedStyle(document.querySelector(selector)).backgroundColor;
-      const fg = selector => getComputedStyle(document.querySelector(selector)).color;
+      // Firefox may serialize an opaque animated color as rgba(..., 1).
+      // Compare the same channels/opacity, retaining all non-opaque values.
+      const color = value => value.replace(/^rgba\((.*), 1\)$/, 'rgb($1)');
+      const bg = selector => color(getComputedStyle(document.querySelector(selector)).backgroundColor);
+      const fg = selector => color(getComputedStyle(document.querySelector(selector)).color);
       return {
         header:bg('#chat-view .chat-topline'),
         composer:bg('#chat-view .composer'),
@@ -230,7 +233,7 @@ for (const theme of ['mist','dusk']) {
         // Do not force platform theme colors onto author-controlled markup.
         assistant:(() => {
           const plain = document.querySelector('#chat-view .message.assistant .bubble:not(.authored-rich-message)');
-          return plain ? getComputedStyle(plain).color : null;
+          return plain ? color(getComputedStyle(plain).color) : null;
         })(),
         horizontalOverflow:document.documentElement.scrollWidth-innerWidth
       };

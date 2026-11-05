@@ -91,7 +91,7 @@ test('searches every chapter and safely switches to an older result', async ({ p
   await dialog.getByRole('button', { name: '記憶更新' }).click();
   await expect(dialog.locator('[data-search-status]')).toHaveText('找到 1 則');
   await expect(dialog.locator('.conversation-search-result-meta')).toContainText('記憶更新');
-  await dialog.getByRole('button', { name: '狀態更新' }).click();
+  await dialog.getByRole('button', { name: '狀態更新', exact: true }).click();
   await expect(dialog.locator('[data-search-status]')).toHaveText('找到 1 則');
   await expect(dialog.locator('.conversation-search-result-meta')).toContainText('狀態更新');
   await dialog.getByRole('button', { name: '全部內容' }).click();

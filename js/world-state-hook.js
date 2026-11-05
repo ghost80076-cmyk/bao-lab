@@ -7,6 +7,8 @@
       const worldStateWrapper = async function(next, ...args) {
         const owner = GameState.current;
         const config = this.config;
+        const director = window.BAOWorldDirector;
+        const clockBefore = director?.snapshot(owner);
         const beforeCount = Chat.messages.length;
         const before = signature(Chat.messages);
         const receipt = await next(...args);
@@ -35,6 +37,7 @@
         seen.add(key);
         const changed = await WorldStateEngine.update(config, player.content, assistant.content);
         if (GameState.current !== owner || this.config !== config) return receipt;
+        director?.record(receipt, clockBefore);
         // The helper can fail or be waiting for its interval; show that rather
         // than silently leaving old status values looking authoritative.
         if (document.querySelector('.ui-tab[data-panel="npc"]')?.classList.contains('active')) {

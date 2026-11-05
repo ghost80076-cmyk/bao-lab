@@ -22,10 +22,15 @@ async function demo(page) {
 }
 
 async function openWorldManager(page) {
-  const group = page.locator('[data-chat-tool-group="world"]');
+  // The world tools live in the Control Center; Studio's side rail is not
+  // guaranteed to be visible at narrow widths or at the easy disclosure level.
+  await page.evaluate(() => BAOChatToolNavigation.openDrawer());
+  const drawer = page.getByRole('dialog', { name: '故事功能選單' });
+  await expect(drawer).toBeVisible();
+  const group = drawer.locator('[data-chat-tool-group="world"]');
   await expect(group).toBeAttached();
   if (!await group.evaluate(node => node.open)) await group.locator('summary').click();
-  await group.locator('[data-open-world-manager]').click();
+  await group.getByRole('button', { name: /世界模組管理/ }).click();
   await expect(page.locator('.world-manager-backdrop')).toBeVisible();
 }
 

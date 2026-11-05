@@ -13,8 +13,6 @@
     : Array.isArray(clock?.scheduled_events) ? clock.scheduled_events : [];
   const validTick = value => Number.isSafeInteger(value) && value >= 0;
   const validId = id => typeof id === 'string' && idPattern.test(id);
-  const hasEvidence = items => Array.isArray(items) && items.some(item =>
-    typeof item === 'string' && item.trim().length > 0);
   const report = (code, severity, id = '') => ({ code, severity, ...(id ? { eventId: id } : {}) });
 
   function plan(state, limit = 6) {
@@ -26,7 +24,7 @@
       if (!object(event) || !validId(event.id) || seen.has(event.id)) continue;
       seen.add(event.id);
       if (event.status !== 'pending' || !validTick(event.dueTickMinutes)
-          || event.dueTickMinutes > clock.tickMinutes || !String(event.label || '').trim()) continue;
+          || event.dueTickMinutes > clock.tickMinutes || typeof event.label !== 'string' || !event.label.trim()) continue;
       choices.push({
         kind: 'due-window', eventId: event.id, label: String(event.label).trim().slice(0, 160),
         dueTickMinutes: event.dueTickMinutes,
@@ -39,7 +37,7 @@
     return choices.slice(0, Math.max(0, Math.min(12, Number.isFinite(limit) ? Math.floor(limit) : 6)));
   }
 
-  function reviewClockPatch(state, rawPatch, options = {}) {
+  function reviewClockPatch(state, rawPatch) {
     const patch = object(rawPatch?.world_clock) ? rawPatch.world_clock : rawPatch;
     const issues = [];
     if (!object(patch)) return { safe: false, requiresReview: false, issues: [report('invalid-patch', 'error')] };
@@ -58,8 +56,10 @@
         else if (event.status !== 'pending') issues.push(report('already-closed', 'error', id));
       }
     }
-    if ((resolve.length || cancel.length) && !hasEvidence(options.evidenceIds))
-      issues.push(report('missing-completion-evidence', 'review'));
+    // A source reference or a verified mention alone cannot establish an outcome.
+    for (const id of requested.keys()) {
+      if (events.get(id)?.status === 'pending') issues.push(report('missing-completion-evidence', 'review', id));
+    }
     const advance = patch.advance_minutes ?? patch.advanceMinutes;
     if (advance !== undefined && (!Number.isSafeInteger(advance) || advance < 0))
       issues.push(report('invalid-clock-advance', 'error'));
@@ -83,11 +83,19 @@
       }
       if (['resolved', 'cancelled'].includes(old.status) && current.status === 'pending')
         issues.push(report('closed-event-reopened', 'error', old.id));
+      if (old.status === 'pending' && ['resolved', 'cancelled'].includes(current.status))
+        issues.push(report('missing-completion-evidence', 'review', old.id));
       if (validTick(old.dueTickMinutes) && validTick(current.dueTickMinutes)
           && old.dueTickMinutes !== current.dueTickMinutes)
         issues.push(report('event-due-changed', 'review', old.id));
     }
     return issues;
   }
-  return { plan, reviewClockPatch, compare };
+  function snapshot(state) {
+    const clock = clockOf(state);
+    if (!clock) return null;
+    return { worldClock: { tickMinutes: clock.tickMinutes, scheduledEvents: eventsOf(clock).filter(object)
+      .map(({id,label,status,dueTickMinutes}) => ({id,label,status,dueTickMinutes})) } };
+  }
+  return { plan, reviewClockPatch, compare, snapshot };
 });

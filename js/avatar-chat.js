@@ -70,7 +70,7 @@
     window.BAOSceneRenderIntegrity?.schedule?.();
     // User turns have no authored HTML renderer. Repaint only aligned, committed turns.
     const nodes = [...document.querySelectorAll('#chat-stream > .message')], messages = window.Chat?.messages || [];
-    const offset = nodes.length === messages.length + 1 && (nodes[0]?.dataset.storyGreeting === 'true' || nodes[0]?.querySelector('.bubble')?.dataset.authoredGreeting === 'true') ? 1 : 0;
+    const offset = !messages[0]?.greeting && nodes.length === messages.length + 1 && (nodes[0]?.dataset.storyGreeting === 'true' || nodes[0]?.querySelector('.bubble')?.dataset.authoredGreeting === 'true') ? 1 : 0;
     if (nodes.length !== messages.length + offset || !messages.every((m,i) => nodes[i+offset].classList.contains(m.role === 'user' ? 'user' : 'assistant'))) return;
     messages.forEach((m,i) => {
       if (m.role !== 'user') return;

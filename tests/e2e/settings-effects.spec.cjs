@@ -24,6 +24,67 @@ async function setup(page,width,legacy=false){
   await page.evaluate(async()=>{await App.buildMessages(App.config);});
 }
 const overview=page=>page.getByRole('dialog',{name:'故事總覽',exact:true});
+
+for (const width of [390,1440]) test(`world review reads a completed clock update at ${width}px`, async ({page}) => {
+  await setup(page,width);
+  await page.waitForFunction(() => window.BAOWorldDirector && App.__worldStateHooked);
+  await page.evaluate(() => {
+    App.config.api = {type:'lmstudio',route:'local',protocol:'openai',model:'mock',key:'BAO_LOCAL_NO_AUTH',baseUrl:'http://localhost:1234/v1'};
+    App.config.cost = {stateApiMode:'same', stateInterval:1};
+    App.config.stateTracking = true;
+    const owner = GameState.current;
+    owner.worldClock = {version:1,tickMinutes:40,nextEventSeq:4,scheduledEvents:[
+      {id:'wc-1',label:'港口交貨',status:'pending',dueTickMinutes:60},
+      {id:'wc-2',label:'幕後密約',status:'pending',dueTickMinutes:60},
+      {id:'wc-3',label:'離港查驗',status:'pending',dueTickMinutes:45}
+    ]};
+    const source = Chat.add('assistant','商人把兩張告示貼在門口。\n港口交貨\n離港查驗');
+    const evidence = [{id:source.id,signature:BAOEpisodicMemory.signature(source)}];
+    owner.episodicMemory = {events:['港口交貨','幕後密約','離港查驗'].map((text,i) => ({id:`episode-${i}`,text,
+      certainty:'confirmed',visibility:i === 1 ? 'restricted' : 'public',evidence,knowledge:[]}))};
+    window.worldReviewCalls = 0;
+    const fetchOriginal = window.fetch.bind(window);
+    window.fetch = (input, init) => {
+      if (!String(input?.url || input).startsWith('http://localhost:1234/v1')) return fetchOriginal(input, init);
+      window.worldReviewCalls++;
+      const content = '你在碼頭等候。<BAO_STATE>{"time":"16:00","location":"碼頭","world_clock":{"advance_minutes":30,"resolve":["wc-3"]}}</BAO_STATE>';
+      const finish_reason = window.worldReviewCalls === 1 ? 'stop' : 'length';
+      return Promise.resolve(new Response(JSON.stringify({choices:[{message:{content},finish_reason}]}),{headers:{'Content-Type':'application/json'}}));
+    };
+  });
+  await page.locator('#user-input').fill('我等在碼頭。');
+  await page.evaluate(() => App.sendMessage());
+  expect(await page.evaluate(() => GameState.current.worldClock.tickMinutes)).toBe(70);
+  await page.evaluate(() => BAOStoryControlCenter.open());
+  const panel = overview(page).locator('[data-world-director-review]');
+  const summary = panel.locator('summary');
+  const before = await page.evaluate(() => effectsSnapshot());
+  await expect(panel.locator('li')).toHaveCount(0);
+  await summary.focus();
+  await summary.press('Enter');
+  await expect(summary).toBeFocused();
+  await expect(panel).toContainText('港口交貨');
+  await expect(panel).toContainText('離港查驗');
+  await expect(panel).toContainText('請核對原文是否交代結果');
+  await expect(panel).toContainText('原文第 2 則');
+  await expect(panel).not.toContainText('幕後密約');
+  expect(await panel.evaluate(el => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
+  expect(await page.evaluate(() => effectsSnapshot())).toBe(before);
+  expect(await page.evaluate(() => worldReviewCalls)).toBe(1);
+  await panel.screenshot({path:test.info().outputPath(`world-review-${width}.png`)});
+
+  await summary.press('Enter');
+  await page.evaluate(() => {Chat.messages[1].content='已改寫的原文。';});
+  await summary.press('Enter');
+  await expect(panel).toContainText('目前沒有可審閱的回合');
+  await expect(panel).not.toContainText('港口交貨');
+  await overview(page).getByRole('button',{name:'關閉故事總覽',exact:true}).click();
+  await page.locator('#user-input').fill('繼續等待。');
+  await page.evaluate(() => App.sendMessage());
+  expect(await page.evaluate(() => ({review:BAOWorldDirector.review(),calls:worldReviewCalls,tick:GameState.current.worldClock.tickMinutes})))
+    .toEqual({review:null,calls:2,tick:70});
+});
+
 async function openEffects(page){
   await page.evaluate(()=>BAOStoryControlCenter.open());
   const panel=overview(page),effects=panel.locator('[data-settings-effects]');

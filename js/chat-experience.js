@@ -121,7 +121,7 @@
       }
       return;
     }
-    const offset = nodes.length === messages.length + 1 && greeting ? 1 : 0;
+    const offset = !messages[0]?.greeting && nodes.length === messages.length + 1 && greeting ? 1 : 0;
     if (nodes.length !== messages.length + offset ||
         !messages.every((m, i) => nodes[i + offset].classList.contains(m.role === 'user' ? 'user' : 'assistant'))) return;
     for (let i = 0; i < messages.length; i++) {

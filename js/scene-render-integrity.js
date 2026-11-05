@@ -22,7 +22,7 @@
       || greetingBubble?.dataset.authoredGreeting === 'true'
       || greetingBubble?.innerHTML === App.formatMessage(App.activeCharacter.greeting || '');
     const greetingOnly = !messages.length && nodes.length === 1 && greeting?.classList.contains('assistant') && knownGreeting;
-    const offset = !greetingOnly && nodes.length === messages.length + 1 && knownGreeting ? 1 : 0;
+    const offset = !greetingOnly && !messages[0]?.greeting && nodes.length === messages.length + 1 && knownGreeting ? 1 : 0;
     if (!greetingOnly && (nodes.length !== messages.length + offset ||
         !messages.every((message, index) => nodes[index + offset]?.classList.contains(message.role === 'user' ? 'user' : 'assistant')))) return;
     if (offset) greeting.dataset.storyGreeting = 'true';

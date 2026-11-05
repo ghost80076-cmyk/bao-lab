@@ -1,7 +1,7 @@
 const {test,expect}=require('@playwright/test');
 for(const width of [320,390,1440])test(`one player settings hub with no prompt disclosure at ${width}px`,async({page})=>{
   await page.setViewportSize({width,height:900});await page.goto('./');
-  await page.waitForFunction(()=>window.BAORequestLedger&&window.BAOStoryControlCenter&&window.BAOSettingsEffects&&window.BAOChatToolNavigation&&Storage.status().ready&&App.characters?.length);
+  await page.waitForFunction(()=>window.BAORequestLedger&&window.BAOStoryControlCenter&&window.BAOSettingsEffects&&window.BAOChatToolNavigation&&window.BAOExtensionLoadHealth?.snapshot().story==='ready'&&BAOExtensionLoadHealth.snapshot().world==='ready'&&Storage.status().ready&&App.characters?.length);
   let calls=0;const bodies=[];
   await page.route('https://player-hub.invalid/**',route=>{calls++;bodies.push(route.request().postDataJSON());return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({choices:[{message:{content:'回覆'}}]})});});
   await page.evaluate(async()=>{

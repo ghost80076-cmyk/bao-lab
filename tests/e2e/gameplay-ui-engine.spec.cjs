@@ -503,6 +503,7 @@ test('custom builder choices keep drafts and bind actual text to initial state',
 
 test('signed-cost survivor choices validate, keep drafts and initialize the selected world', async ({page}) => {
   test.setTimeout(90_000);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({width:390,height:844});
   await ready(page);
   await page.evaluate(async()=>{

@@ -167,15 +167,16 @@ for (const width of [390, 1280]) {
     });
     try {
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      await page.waitForFunction(() => !!document.querySelector('script[src="js/inspiration-copy.js"]') &&
+      await page.waitForFunction(() => !!document.querySelector('script[src^="js/inspiration-copy.js"]') &&
         window.BAOExtensionLoadHealth?.snapshot().optional['inspiration-copy'] === undefined,
       null, { timeout: 35000 });
       const pending = await page.evaluate(() => {
-        const a = loadBAOScript('js/inspiration-copy.js');
-        const b = loadBAOScript('js/inspiration-copy.js');
+        const source = document.querySelector('script[src^="js/inspiration-copy.js"]').getAttribute('src');
+        const a = loadBAOScript(source);
+        const b = loadBAOScript(source);
         return {
           shared: a === b,
-          elements: document.querySelectorAll('script[src="js/inspiration-copy.js"]').length,
+          elements: document.querySelectorAll('script[src^="js/inspiration-copy.js"]').length,
           copyReady: Boolean(window.BAOInspirationCopy),
           optional: window.BAOExtensionLoadHealth.snapshot().optional['inspiration-copy']
         };
@@ -189,7 +190,7 @@ for (const width of [390, 1280]) {
     }
     await ready(page);
     await page.waitForFunction(() => window.BAOExtensionLoadHealth.snapshot().optional['inspiration-copy'] === 'ready');
-    expect(await page.evaluate(() => document.querySelectorAll('script[src="js/inspiration-copy.js"]').length)).toBe(1);
+    expect(await page.evaluate(() => document.querySelectorAll('script[src^="js/inspiration-copy.js"]').length)).toBe(1);
     expect(await page.evaluate(() => window.BAOExtensionLoadHealth.snapshot().world)).toBe('ready');
     expect(posts).toEqual([]);
   });

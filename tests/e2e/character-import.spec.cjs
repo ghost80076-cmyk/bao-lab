@@ -45,17 +45,20 @@ test('Creator PNG retains 100 companion entries, disabled state and source Regex
   await expect(page.locator('#character-import-status')).toContainText('已匯入：配套世界書測試');
   await page.reload();
   await page.waitForFunction(() => Boolean(window.YoruWorldbookLibraryCore && CharacterEngine.loadCustom().some(item=>item.id==='creator-portable-worldbook')));
-  const result=await page.evaluate(()=>{
+  const result=await page.evaluate(async()=>{
     const imported=CharacterEngine.loadCustom().find(item=>item.id==='creator-portable-worldbook');
     GameState.create(imported,{});
     const library=GameState.current.worldbookLibrary;
     const picked=YoruWorldbookLibraryCore.select(library.installed,library.enabled,{latestUser:'碼頭98'});
     const disabled=YoruWorldbookLibraryCore.select(library.installed,library.enabled,{latestUser:'碼頭99'});
     const prompt=CharacterEngine.composeSystemPrompt(imported,{});
-    return {count:library.installed[0].entries.length,enabled:library.installed[0].entries[99].enabled,picked:picked.text,
+    const exported=(await CharacterEngine.exportCustomLibrary()).find(item=>item.id===imported.id);
+    return {cover:exported.cover, count:library.installed[0].entries.length,enabled:library.installed[0].entries[99].enabled,picked:picked.text,
       disabled:disabled.entries.map(entry=>entry.identity),regex:imported.import_metadata.preserved_source.data.extensions.regex_scripts[0].replaceString,
       archiveInPrompt:prompt.includes('embeded://')||prompt.includes('<b>$1</b>')};
   });
+  expect(result.cover).toMatch(/^data:image\/png;base64,/);
+  expect(Buffer.from(result.cover.split(',')[1], 'base64').includes(Buffer.from('chara\0'))).toBe(false);
   expect(result.count).toBe(100);
   expect(result.enabled).toBe(false);
   expect(result.picked).toContain('設定98');

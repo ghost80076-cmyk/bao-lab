@@ -2,8 +2,10 @@ const { test, expect } = require('@playwright/test');
 
 async function openStory(page) {
   await page.goto('/');
+  await page.waitForFunction(() => window.BAOExploreDiscovery && App.characters?.length);
   await page.locator('#home-view [data-view="explore"]').click();
   await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
+  await page.getByRole('button', { name: '查看作品', exact: true }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
   await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let i = 0; i < 3; i++) await page.getByRole('button', { name: '下一步' }).click();
@@ -11,13 +13,24 @@ async function openStory(page) {
   await page.getByRole('button', { name: '下一步' }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
   await expect(page.locator('#user-input')).toBeVisible();
+  await page.waitForFunction(() => BAOExtensionLoadHealth.snapshot().story === 'ready' && BAOExtensionLoadHealth.snapshot().world === 'ready');
+}
+
+async function openSettingFromControlCenter(page, label) {
+  await page.evaluate(() => BAOChatToolNavigation.openDrawer());
+  const drawer = page.getByRole('dialog', { name: '故事功能選單' });
+  await expect(drawer).toBeVisible();
+  await drawer.getByRole('searchbox', { name: '搜尋故事工具' }).fill(label);
+  const matching = drawer.locator('button:visible').filter({ hasText: label });
+  await expect(matching.first()).toBeVisible();
+  await matching.first().click();
 }
 
 for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: 'mobile', width: 390, height: 844 }]) {
   test(`${viewport.name}: chat appearance previews, applies and restores bubble styling`, async ({ page }) => {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await openStory(page);
-    await page.locator('[data-bao-open="appearance"]:visible').click();
+    await openSettingFromControlCenter(page, '聊天外觀');
     const playerModal = page.getByRole('dialog', { name: '聊天外觀' });
     await expect(playerModal).toBeVisible();
     await expect(playerModal.locator('.bao-bubble-preview')).toBeVisible();
@@ -26,12 +39,11 @@ for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: '
     await playerModal.locator('[data-bubble-preset="lamplight"]').click();
     await expect(playerModal.locator('#bao-assistant-color')).toHaveValue('#211b18');
     await expect(playerModal.locator('#bao-user-color')).toHaveValue('#3a2c24');
-    await playerModal.locator('[data-bubble-role-tab="user"]').click();
-    await expect(playerModal.locator('[data-bubble-role-panel="user"]')).toBeVisible();
-
     await playerModal.locator('#bao-assistant-color').fill('#123456');
     await playerModal.locator('#bao-assistant-text-color').fill('#abcdef');
     await playerModal.locator('#bao-assistant-opacity').fill('64');
+    await playerModal.locator('[data-bubble-role-tab="user"]').click();
+    await expect(playerModal.locator('[data-bubble-role-panel="user"]')).toBeVisible();
     await playerModal.locator('#bao-user-color').fill('#654321');
     await playerModal.locator('#bao-user-text-color').fill('#fedcba');
     await playerModal.locator('#bao-user-opacity').fill('86');
@@ -97,6 +109,7 @@ for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: '
     expect(appearance.fontFamily).toContain('Georgia');
 
     const rendered = await page.evaluate(() => {
+      Chat.add('assistant', '測試角色氣泡');
       Chat.add('user', '測試玩家氣泡');
       App.renderChatShell(false);
       const assistant = document.querySelector('#chat-stream .message.assistant .bubble:not(.authored-rich-message)');
@@ -155,7 +168,7 @@ for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: '
     });
 
     await openStory(page);
-    await page.locator('[data-bao-open="appearance"]:visible').click();
+    await openSettingFromControlCenter(page, '聊天外觀');
     const reopened = page.getByRole('dialog', { name: '聊天外觀' });
     await reopened.locator('[data-appearance-tab="background"]').click();
     await reopened.locator('[data-bg-mode="solid"]').click();
@@ -168,7 +181,7 @@ for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: '
 test('mobile: reply settings keeps choices ahead of explanatory copy', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openStory(page);
-  await page.locator('[data-bao-open="reply"]:visible').click();
+  await openSettingFromControlCenter(page, '回覆設定');
 
   const modal = page.getByRole('dialog', { name: '回覆設定' });
   await expect(modal).toBeVisible();

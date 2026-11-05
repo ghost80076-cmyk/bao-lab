@@ -36,8 +36,8 @@ test('author can inspect JSON with field paths and safe errors on the real site'
 test('relay browser probe uses a fixed fake key, never the user key', async ({ page }) => {
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOAuthorDiagnostics && window.BAOProviderDiagnostics && App.characters?.length));
-  await page.evaluate(() => {
-    App.openCharacter(App.characters[0].id);
+  await page.evaluate(async () => {
+    await App.openCharacter(App.characters[0].id);
     App.openBuilder();
     App.setStep(4);
     document.getElementById('base-url').value = 'https://relay.example.test/v1/chat/completions';
@@ -55,6 +55,12 @@ test('relay browser probe uses a fixed fake key, never the user key', async ({ p
       await route.fulfill({ status: 401, headers: { 'access-control-allow-origin': '*', 'content-type': 'application/json' }, body: '{"error":{"message":"invalid token"}}' });
     }
   });
+  await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
+  await page.evaluate(() => App.setStep(4));
+  await page.locator('#api-type').selectOption('custom');
+  await page.locator('#api-advanced-settings > summary').click();
+  await page.locator('#base-url').fill('https://relay.example.test/v1/chat/completions');
+  await page.locator('#api-key').fill('USER_SECRET_DO_NOT_TRANSMIT');
   await expect(page.locator('[data-relay-probe]')).toBeVisible();
   await page.locator('[data-relay-probe]').click();
   await expect(page.locator('[data-relay-probe-status]')).toContainText('HTTP 401');

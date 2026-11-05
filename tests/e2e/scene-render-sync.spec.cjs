@@ -2,9 +2,11 @@ const { test, expect } = require('@playwright/test');
 
 async function start(page, mode) {
   await page.goto('/');
+  await page.waitForFunction(() => window.BAOExploreDiscovery && App.characters?.length);
   await page.waitForFunction(() => App.characters?.length && Storage.status().ready, null, { timeout: 15000 });
   await page.locator('#home-view [data-view="explore"]').click();
   await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
+  await page.getByRole('button', { name: '查看作品', exact: true }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
   await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   await page.getByRole('button', { name: '下一步' }).click();
@@ -14,6 +16,8 @@ async function start(page, mode) {
   }
   await page.getByRole('button', { name: '下一步' }).click();
   await page.getByRole('button', { name: '下一步' }).click();
+  await page.locator('#api-advanced-settings > summary').click();
+  await expect(page.locator('#model-id')).toBeVisible();
   await page.locator('#model-id').fill('local-browser-test');
   await page.locator('#base-url').fill('https://test.invalid/v1');
   await page.locator('#api-key').fill('TEMP_TEST_KEY');

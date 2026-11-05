@@ -78,7 +78,7 @@ const App = {
     this.__buildMessagesWrapperIds.add(key);
     return true;
   },
-  async init(){ this.bindNavigation(); this.bindBuilder(); await Promise.all([this.loadCharacters(),this.loadPrompts(),this.loadModels()]); this.populateAPIControls(); this.showView("home"); setTimeout(()=>window.BAORefreshSaveUI?.(),0); },
+  async init(){ this.bindNavigation(); this.bindBuilder(); await Promise.all([this.loadCharacters(),this.loadPrompts(),this.loadModels()]); this.populateAPIControls(); const activeView=document.querySelector(".view.active"); if(!activeView||activeView.id==="home-view")this.showView("home"); setTimeout(()=>window.BAORefreshSaveUI?.(),0); },
   bindNavigation(){ document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>this.showView(b.dataset.view))); document.querySelectorAll(".filter").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");this.renderCharacters(b.dataset.filter)})); },
   bindBuilder(){ document.querySelectorAll('input[name="narrative-mode"],input[name="display-mode"]').forEach(r=>r.addEventListener("change",()=>{document.querySelectorAll(`input[name="${r.name}"]`).forEach(x=>x.closest(".choice-card").classList.remove("selected"));r.closest(".choice-card").classList.add("selected")})); document.querySelectorAll(".step").forEach(s=>s.addEventListener("click",()=>this.setStep(Number(s.dataset.step)))); document.querySelectorAll(".ui-tab").forEach(t=>t.addEventListener("click",()=>{document.querySelectorAll(".ui-tab").forEach(x=>x.classList.remove("active"));t.classList.add("active");this.renderUIPanel(t.dataset.panel)})); document.getElementById("api-type").addEventListener("change",()=>this.populateModelOptions()); document.getElementById("model-select").addEventListener("change",()=>this.syncSelectedPreset()); document.getElementById("user-input").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();this.sendMessage()}}); },
   catalogCharacter(item={}){const raw={...item,source:"built-in"},c=typeof CharacterEngine!=="undefined"?CharacterEngine.normalize(raw):raw;c.source="built-in";c.catalog_only=true;c.catalog_file=String(item.file||"");return c},
@@ -188,6 +188,7 @@ const App = {
       const completedLength = Chat.messages.length, completedSignature = expected;
       return Object.freeze({
         kind: "bao:story-turn", owner, config,
+        complete: Boolean(result.text?.trim() && window.BAOMemoryCore?.completionError && !window.BAOMemoryCore.completionError(result)),
         playerId: pendingUser.id, assistantId: assistant.id,
         playerText: pendingUser.content, assistantText: assistant.content,
         isCurrent: () => GameState.current === owner && this.config === config

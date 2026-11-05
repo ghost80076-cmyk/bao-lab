@@ -156,8 +156,18 @@
         tx.onabort = () => reject(tx.error || new Error('圖片資料庫寫入中止。'));
       });
     },
-    list: storyId => album.query('readonly', store => store.index('storyId').getAll(storyId)),
-    add: record => album.query('readwrite', store => store.put(record)),
+    async list(storyId) {
+      const records = await album.query('readonly', store => store.index('storyId').getAll(storyId));
+      return (records || []).map(record => record.file instanceof Blob || !record.fileBytes ? record
+        : { ...record, file: new Blob([record.fileBytes], { type: record.fileType || 'image/png' }) });
+    },
+    async add(record) {
+      // Complete Blob reads before opening the transaction. Byte-backed images
+      // also work in WebKit environments that cannot persist Blob/File values.
+      const stored = record.file instanceof Blob
+        ? { ...record, file: null, fileBytes: await record.file.arrayBuffer(), fileType: record.file.type } : record;
+      return album.query('readwrite', store => store.put(stored));
+    },
     delete: id => album.query('readwrite', store => store.delete(id))
   };
   const storyRefs = () => window.BAOStoryLibrary?.refs?.() || {};

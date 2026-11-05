@@ -24,6 +24,22 @@
   border-radius:var(--chat-bubble-radius);
   font-family:var(--chat-font-family);
 }
+/* Explicit player choices win over the cinematic reading defaults. Author HTML
+   keeps its own presentation and the default night preset stays unchanged. */
+#chat-view[data-bao-surface][data-bao-custom-bubbles="true"] .message.assistant .bubble:not(.authored-rich-message){
+  background:color-mix(in srgb,var(--chat-assistant) calc(var(--chat-assistant-opacity)*100%),transparent)!important;
+  color:var(--chat-assistant-text)!important;
+  border-radius:var(--chat-bubble-radius)!important;
+}
+#chat-view[data-bao-surface][data-bao-custom-bubbles="true"] .message.user .bubble{
+  background:color-mix(in srgb,var(--chat-user) calc(var(--chat-user-opacity)*100%),transparent)!important;
+  color:var(--chat-user-text)!important;
+  border-radius:var(--chat-bubble-radius)!important;
+}
+#chat-view[data-bao-surface][data-bao-custom-type="true"] .message .bubble:not(.authored-rich-message){
+  font-size:var(--chat-font-size)!important;
+  font-family:var(--chat-font-family)!important;
+}
 #chat-view .message.assistant .bubble.authored-rich-message{
   background:transparent!important;
   border-radius:0;

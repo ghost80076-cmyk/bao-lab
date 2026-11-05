@@ -93,7 +93,7 @@
 
   const ensureStyles = () => {
     if (document.querySelector('link[href^="css/player-settings.css"]')) return;
-    const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "css/player-settings.css?v=9"; document.head.appendChild(link);
+    const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "css/player-settings.css?v=10"; document.head.appendChild(link);
   };
 
   const closeModal = () => document.querySelector(".bao-modal-backdrop")?.remove();
@@ -191,6 +191,8 @@
   const applyAppearance = () => {
     const view = document.getElementById("chat-view"); if (!view) return;
     const a = settings.appearance;
+    view.dataset.baoCustomBubbles = String(a.bubblePreset !== defaults.appearance.bubblePreset);
+    view.dataset.baoCustomType = String(a.fontSize !== defaults.appearance.fontSize || a.fontFamily !== defaults.appearance.fontFamily);
     view.style.setProperty("--chat-font-size", `${a.fontSize}px`);
     view.style.setProperty("--chat-font-family", chatFontStacks[a.fontFamily] || chatFontStacks.system);
     view.style.setProperty("--chat-assistant", a.assistantColor);
@@ -261,12 +263,13 @@
       let bgMode = a.bgMode;
       let bubblePreset = a.bubblePreset || "custom";
       const tab = (group, value) => {
-        wrap.querySelectorAll(`[data-${group}-tab]`).forEach(button => {
+        const attribute = group === "bubbleRole" ? "bubble-role" : group;
+        wrap.querySelectorAll(`[data-${attribute}-tab]`).forEach(button => {
           const active = button.dataset[`${group}Tab`] === value;
           button.classList.toggle("active", active);
           button.setAttribute("aria-selected", active ? "true" : "false");
         });
-        wrap.querySelectorAll(`[data-${group}-panel]`).forEach(panel => {
+        wrap.querySelectorAll(`[data-${attribute}-panel]`).forEach(panel => {
           panel.hidden = panel.dataset[`${group}Panel`] !== value;
         });
       };

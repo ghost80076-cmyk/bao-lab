@@ -4,12 +4,19 @@ if (process.env.BAO_LIVE_URL) test.use({ baseURL: process.env.BAO_LIVE_URL });
 test('provider diagnostics validates buffered, streaming and key privacy', async ({ page }) => {
   await page.goto('./');
   await page.waitForFunction(() => window.BAOProviderDiagnostics && window.BAOProviderBrowserCompat && App.characters.length);
-  await page.evaluate(() => {
-    App.openCharacter(App.characters[0].id);
+  await page.evaluate(async () => {
+    await App.openCharacter(App.characters[0].id);
     App.openBuilder();
+  });
+  // Wait for the updated quick-setup choice before entering the advanced model form.
+  const advanced = page.locator('#bao-setup-choice [data-bao-setup="advanced"]');
+  await expect(advanced).toBeVisible();
+  await advanced.click();
+  await page.evaluate(() => {
     App.setStep(4);
     const custom = App.modelPresets.findIndex(item => item.provider === 'custom' && item.protocol === 'openai');
     document.getElementById('api-type').value = 'custom';
+    document.getElementById('api-type').dispatchEvent(new Event('change', { bubbles: true }));
     App.populateModelOptions();
     document.getElementById('model-select').value = String(custom);
     App.syncSelectedPreset();
@@ -60,7 +67,7 @@ test('provider diagnostics validates buffered, streaming and key privacy', async
   await page.locator('.provider-diagnostics-advanced > summary').click();
   await page.locator('[data-run-provider-diagnostics]').click();
   await expect(page.locator('#provider-diagnostics-status')).toHaveText(/完整驗收通過/);
-  await expect(page.locator('#provider-diagnostics-result')).toContainText('SSE 已確認');
+  await expect(page.locator('#provider-diagnostics-result')).toContainText('即時輸出（Streaming）已確認');
   await expect(page.locator('#provider-diagnostics-result')).toContainText(/未發現.*持久化/);
   expect(requestCount).toBe(3);
 

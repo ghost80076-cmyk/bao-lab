@@ -7,8 +7,8 @@ for (const width of [390, 1440]) {
     await page.goto('./');
     await page.waitForFunction(() => window.App?.characters?.some(c => c.id === 'autonomous-npc-world') && App.__nativeAutonomousWorldStart && window.BAOMemoryWorkbench && document.getElementById('bao-demo-mode'));
 
-    const greeting = await page.evaluate(() => {
-      App.openCharacter('autonomous-npc-world');
+    const greeting = await page.evaluate(async () => {
+      await App.openCharacter('autonomous-npc-world');
       App.openBuilder();
       return App.activeCharacter.greeting;
     });
@@ -17,7 +17,7 @@ for (const width of [390, 1440]) {
     await expect(page.locator('input[name="narrative-mode"][value="world"]')).toBeChecked();
     await page.evaluate(() => { document.getElementById('bao-demo-mode').checked = true; App.startStory(); });
     await expect(page.locator('#chat-view')).toBeVisible();
-    await expect(page.locator('#chat-stream .message.assistant .bubble').first()).toHaveText(greeting);
+    await expect(page.locator('#chat-stream .message.assistant .bubble').first()).toHaveText(greeting, { useInnerText: true });
     await page.evaluate(() => {
       BAOMemoryWorkbench.writeSlots([{ id: 'world-note', title: '世界觀', text: '世界A獨有祕密：流星花園', enabled: true }]);
     });
@@ -26,8 +26,8 @@ for (const width of [390, 1440]) {
     const slot = await page.evaluate(() => { Chat.messages.pop(); App.saveStory(false); return Storage.saveSlot('世界A'); });
     expect(slot.state.memorySlots[0].text).toContain('世界A獨有祕密');
 
-    await page.evaluate(() => {
-      App.openCharacter('linchenfeng');
+    await page.evaluate(async () => {
+      await App.openCharacter('linchenfeng');
       App.openBuilder();
       document.getElementById('bao-demo-mode').checked = true;
       App.startStory();

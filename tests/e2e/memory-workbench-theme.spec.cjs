@@ -2,12 +2,17 @@ const { test, expect } = require('@playwright/test');
 
 async function openReady(page) {
   await page.goto('/');
-  // A partially installed story pipeline can still normalize quick commands
-  // and MOD defaults after a fixture captures its supposedly immutable state.
+  // Wait for the full pipeline before capturing the fixture's immutable state.
   await page.waitForFunction(() => window.BAOExtensionLoadHealth?.snapshot().story === 'ready'
     && BAOExtensionLoadHealth.snapshot().world === 'ready' && window.YoruExperience
     && App.characters?.length && Storage.status().ready);
 }
+
+// Optional defaults are read projections; inspecting them must not create save fields.
+const defaultsReady = page => page.waitForFunction(() =>
+  Array.isArray(window.BAOStoryQuickCommands?.state?.()) &&
+  window.BAOCommentaryMods?.ensureState?.().version === 1 &&
+  window.BAOInterpretationMods?.ensureState?.().version === 1);
 
 for (const width of [390, 1280]) {
   test('memory workbench matches site themes and preserves story notes (' + width + 'px)', async ({ page }) => {
@@ -37,8 +42,7 @@ for (const width of [390, 1280]) {
       App.renderChatShell(false);
       App.showView('chat');
     });
-    await page.waitForFunction(() => Array.isArray(GameState.current?.quickCommands)
-      && GameState.current.commentaryMods?.version === 1 && GameState.current.interpretationMods?.version === 1);
+    await defaultsReady(page);
     const before = await page.evaluate(() => JSON.stringify(GameState.current));
     for (const theme of ['mist','dawn','dusk','sunset']) {
       await page.evaluate(value => {
@@ -98,8 +102,7 @@ for(const width of [390,1280]){
    GameState.create(App.activeCharacter,App.config);Chat.reset();App.renderChatShell(false);App.showView('chat');
   });
   const opener=page.locator(width<=820?'#bao-mobile-composer-tools':'#bao-surface-mode-toggle');
-  await page.waitForFunction(() => Array.isArray(GameState.current?.quickCommands)
-    && GameState.current.commentaryMods?.version === 1 && GameState.current.interpretationMods?.version === 1);
+  await defaultsReady(page);
   const before=await page.evaluate(()=>JSON.stringify({state:GameState.current,config:App.config}));
   // Focus and open in one browser task: late shell hydration can replace the
   // launcher between separate automation commands, before open captures it.
@@ -229,7 +232,7 @@ for(const width of [390,1280]){
    GameState.current.npcs=[{npc_id:'a',name:'艾琳',aliases:['琳'],presence:'away'}];
    App.renderChatShell(false);App.showView('chat');
   });
-  await page.waitForFunction(()=>Array.isArray(GameState.current?.quickCommands)&&GameState.current.commentaryMods?.version===1&&GameState.current.interpretationMods?.version===1);
+  await defaultsReady(page);
   const original=await page.evaluate(()=>({summary:Chat.summary,cursor:Chat.summarizedUntil}));
   const prompt=()=>page.evaluate(async()=>JSON.stringify(await App.buildMessages()));
   expect(await prompt()).toContain('排除事項9911');
