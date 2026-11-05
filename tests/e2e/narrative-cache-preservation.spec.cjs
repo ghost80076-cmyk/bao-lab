@@ -338,3 +338,43 @@ for (const width of [390, 1440]) {
     expect(await page.evaluate(() => preferenceCalls)).toBe(0);
   });
 }
+
+
+for (const width of [390, 1440]) {
+  test(`motivation pack is opt-in, story-local and cache-friendly at ${width}px`, async ({ page }) => {
+    await setup(page, width);
+    const before = await page.evaluate(() => preferenceSnapshot());
+    await page.evaluate(() => BAONarrativeSettings.open());
+    const extra = page.locator('[data-story-extra="motivation"]');
+    await expect(extra).toHaveCount(1);
+    await expect(extra).not.toBeChecked();
+    await extra.check();
+    await page.locator('.bao-modal-close').click();
+    expect(await page.evaluate(() => preferenceSnapshot())).toEqual(before);
+
+    await page.evaluate(() => BAONarrativeSettings.open());
+    await extra.check();
+    await page.locator('[data-narrative-save]').click();
+    const saved = await page.evaluate(() => preferenceSnapshot());
+    expect(saved.saves).toBe(1);
+    expect(saved.calls).toBe(0);
+    expect(saved.defaults).toBe(before.defaults);
+    expect(saved.messages).toContain('讓已有的長短期目標');
+    expect(saved.messages).not.toBe(before.messages);
+    expect(await page.evaluate(() => App.config.narrative.storyExtras)).toEqual(['motivation']);
+    await page.evaluate(() => BAONarrativeSettings.open());
+    await expect(extra).toBeChecked();
+    await page.locator('[data-narrative-save]').click();
+    expect((await page.evaluate(() => preferenceSnapshot())).saves).toBe(1);
+
+    await page.evaluate(() => BAONarrativeSettings.open());
+    await extra.uncheck();
+    await page.locator('[data-narrative-save]').click();
+    const off = await page.evaluate(() => preferenceSnapshot());
+    expect(off.saves).toBe(2);
+    expect(off.calls).toBe(0);
+    expect(off.messages).toBe(before.messages);
+    expect(off.defaults).toBe(before.defaults);
+    expect(await page.evaluate(() => GameState.current.storySessionId)).toBe('cache-test-fixed-session');
+  });
+}
