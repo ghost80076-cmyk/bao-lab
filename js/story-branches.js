@@ -12,6 +12,7 @@
   };
   let decorating = false;
   let creating = false;
+  let stopReaderPositioning = () => {};
 
   const ensureStyles = () => {
     if (document.querySelector('link[href^="css/story-branches.css"]')) return;
@@ -33,6 +34,7 @@
     pageTop: window.scrollY || 0
   });
   const positionReader = async (previous = null) => {
+    stopReaderPositioning();
     if (!document.querySelector("#chat-stream")) return;
     await new Promise(resolve => setTimeout(resolve, 0));
     await new Promise(resolve => window.requestAnimationFrame(() => window.requestAnimationFrame(resolve)));
@@ -48,6 +50,42 @@
     target.setAttribute("tabindex", "-1");
     target.focus({ preventScroll: true });
     target.scrollIntoView({ block: "end", inline: "nearest", behavior: "instant" });
+    // Native alignment can finish against a stale scrollport during mobile
+    // shell layout. Correct the actual clipped viewport after layout settles.
+    const owner = GameState.current;
+    const correct = () => {
+      if (GameState.current !== owner || !target.isConnected || !document.querySelector("#chat-view.active")) return false;
+      const reader = stream.getBoundingClientRect();
+      const bottom = Math.min(reader.bottom, window.innerHeight);
+      const targetBottom = target.getBoundingClientRect().bottom;
+      if (targetBottom > Math.max(reader.top, 0) && targetBottom <= bottom + 1) return true;
+      const delta = targetBottom - bottom;
+      stream.scrollTo({ top: stream.scrollTop + delta, behavior: "instant" });
+      const remaining = target.getBoundingClientRect().bottom - bottom;
+      if (Math.abs(remaining) > 1) window.scrollBy({ top: remaining, behavior: "instant" });
+      return true;
+    };
+    for (let pass = 0; pass < 2; pass++) {
+      await new Promise(resolve => window.requestAnimationFrame(resolve));
+      if (!correct()) return;
+    }
+    // Font/shell sizing may finish later. Follow those changes briefly, but
+    // release the anchor before any player gesture can move the reader.
+    if (typeof ResizeObserver === "function") {
+      const events = ["wheel", "touchstart", "pointerdown", "keydown"];
+      const observer = new ResizeObserver(() => { if (!correct()) cleanup(); });
+      const cleanup = () => {
+        observer.disconnect();
+        clearTimeout(timer);
+        events.forEach(type => document.removeEventListener(type, cleanup, true));
+        if (stopReaderPositioning === cleanup) stopReaderPositioning = () => {};
+      };
+      const timer = setTimeout(cleanup, 1500);
+      stopReaderPositioning = cleanup;
+      events.forEach(type => document.addEventListener(type, cleanup, { capture:true, passive:true }));
+      observer.observe(stream);
+      observer.observe(target);
+    }
   };
   const dateValue = chapter => Date.parse(chapter?.createdAt || chapter?.updatedAt || "") || 0;
   const compareChapters = (a, b) => dateValue(a) - dateValue(b)

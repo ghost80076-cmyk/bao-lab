@@ -281,7 +281,7 @@
         if (bubble && bubble.innerHTML !== html) bubble.innerHTML = html;
         bubble?.classList.toggle('authored-rich-message', Boolean(window.BAOChatMarkup.isRichMessage?.(App.activeCharacter.greeting, true)));
       } else if (messages.length) {
-        const offset = nodes.length === messages.length + 1 && nodes[0].dataset.storyGreeting === 'true' ? 1 : 0;
+        const offset = !messages[0]?.greeting && nodes.length === messages.length + 1 && nodes[0].dataset.storyGreeting === 'true' ? 1 : 0;
         const aligned = nodes.length === messages.length + offset
           && messages.every((msg, index) => nodes[index + offset].classList.contains(msg.role === 'user' ? 'user' : 'assistant'));
         if (aligned) {

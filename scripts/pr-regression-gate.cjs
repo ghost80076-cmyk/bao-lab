@@ -7,6 +7,7 @@ const ROOT = path.resolve(__dirname, '..');
 const GROUPS = [
   { id: 'baseline', patterns: [], tests: [
     'tests/frontend-extension-contract.cjs',
+    'tests/app-startup-navigation-core.cjs',
     'tests/story-integrity-core.cjs'
   ] },
   { id: 'discussion-settings', patterns: [/^js\/story-discussion/, /^css\/story-discussion/, /^tests\/story-discussion/], tests: [
@@ -91,7 +92,8 @@ const GROUPS = [
     'tests/gameplay-ui-engine-core.cjs',
     'tests/experience-preferences-core.cjs',
     'tests/character-studio-gameplay-ui-core.cjs',
-    'tests/story-reader-core.cjs'
+    'tests/story-reader-core.cjs',
+    'tests/greeting-render-alignment-core.cjs'
   ] },
   { id: 'worker-billing', patterns: [
     /^workers\//,

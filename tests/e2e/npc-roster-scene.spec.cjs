@@ -22,11 +22,12 @@ test('NPC roster edits the existing presence state and supports bulk registratio
     App.renderUIPanel('npc');
   });
 
-  await page.locator('[data-npc-roster-open]').click();
+  await page.evaluate(() => BAOCharacterStatusUI.openNpcRoster());
   await expect(page.getByRole('dialog', { name:'NPC 名冊／場景參與者' })).toBeVisible();
   await expect(page.locator('[data-roster-scene="阿青"]')).toBeChecked();
   await expect(page.locator('[data-roster-scene="小周"]')).not.toBeChecked();
 
+  await page.locator('.npc-roster-add-details > summary').click();
   await page.locator('[data-roster-bulk]').fill('瑪莉｜女僕\n威廉｜公爵');
   await page.locator('[data-roster-add]').click();
   await expect(page.locator('.npc-roster-row')).toHaveCount(4);

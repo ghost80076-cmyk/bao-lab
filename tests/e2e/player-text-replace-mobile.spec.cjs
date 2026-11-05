@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 test('mobile text replace keeps operations first and preserves story-scoped rules', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./');
-  await page.waitForFunction(() => Boolean(window.BAOPlayerTextReplace && App.characters?.length));
+  await page.waitForFunction(() => Boolean(window.BAOPlayerTextReplace && window.BAOStoryExtensionsCenter && window.BAOExtensionLoadHealth?.snapshot().story === "ready" && App.characters?.length));
 
   await page.evaluate(() => {
     App.activeCharacter = { ...App.characters[0], greeting: '港口的燈還亮著。' };
@@ -21,9 +21,13 @@ test('mobile text replace keeps operations first and preserves story-scoped rule
     App.showView('chat');
   });
 
-  const open = page.locator('[data-bao-open="text-replace"]');
-  await expect(open).toBeVisible();
-  await open.click();
+  const open = async () => {
+    await page.evaluate(() => BAOStoryExtensionsCenter.open());
+    const control = page.locator('[data-extension-action="replace"]');
+    await expect(control).toBeVisible();
+    await control.click();
+  };
+  await open();
 
   let dialog = page.getByRole('dialog', { name: '文字替換 MOD' });
   await expect(dialog).toBeVisible();
@@ -74,7 +78,7 @@ test('mobile text replace keeps operations first and preserves story-scoped rule
   expect(saved.chat).toBe('年齡保密');
   expect(saved.status).toBe('年齡保密');
 
-  await open.click();
+  await open();
   dialog = page.getByRole('dialog', { name: '文字替換 MOD' });
   await expect(dialog.locator('[data-rule-find]')).toHaveValue('二十歲');
   await expect(dialog.locator('[data-rule-replace]')).toHaveValue('年齡保密');

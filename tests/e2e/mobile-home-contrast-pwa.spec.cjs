@@ -83,6 +83,8 @@ test('native install opportunity is available only after opening the My menu ent
 });
 
 
+test.describe('controlled offline shell', () => {
+test.use({ serviceWorkers: 'allow' });
 test('a successful controlled navigation refreshes the cached offline HTML shell', async ({ page }) => {
   await readyHome(page);
   await page.evaluate(async () => { await navigator.serviceWorker.ready; });
@@ -109,4 +111,5 @@ test('a successful controlled navigation refreshes the cached offline HTML shell
   const refreshed = await page.evaluate(async () => (await caches.match('/index.html')).text());
   expect(refreshed).not.toContain('STALE_OFFLINE_SHELL');
   expect(refreshed).toContain('夜灣');
+});
 });

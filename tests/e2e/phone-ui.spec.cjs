@@ -133,6 +133,7 @@ test('studio simple phone fields and style advice survive draft reload and nativ
 
 
 test('studio phone builder works without JSON and expanded references stay inside the page',async({page})=>{
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({width:390,height:844});
   await page.goto('/character-studio.html');
   await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOCharacterStudioFlow && window.BAOCharacterStudioPhoneBuilder);
@@ -190,6 +191,7 @@ test('studio phone builder works without JSON and expanded references stay insid
 
 
 test('studio author can create a multi-contact group chat without editing JSON',async({page})=>{
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({width:390,height:844});
   await page.goto('/character-studio.html');
   await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOCharacterStudioFlow && window.BAOCharacterStudioPhoneBuilder);

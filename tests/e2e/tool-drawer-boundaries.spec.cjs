@@ -4,7 +4,7 @@ const fs = require('node:fs');
 test('story drawer keeps phone, tablet and desktop geometry across five themes', async ({ page }) => {
   await page.goto('/');
   await page.waitForFunction(() => Boolean(window.BAOChatToolNavigation && window.BAOMobileReadingLayout &&
-    window.BAOGalleryFocus && window.App?.characters?.length));
+    window.BAOGalleryFocus && window.YoruExperience && window.App?.characters?.length));
   await page.evaluate(async () => {
     await App.openCharacter(App.characters[0].id);
     App.config = {
@@ -24,7 +24,7 @@ test('story drawer keeps phone, tablet and desktop geometry across five themes',
     for (const theme of ['night', 'mist', 'dawn', 'dusk', 'sunset']) {
       await page.evaluate(theme => {
         BAOChatToolNavigation.closeDrawer();
-        document.documentElement.dataset.yoruTheme = theme;
+        YoruExperience.choose({ theme });
         BAOChatToolNavigation.openDrawer();
       }, theme);
       const drawer = page.getByRole('dialog', { name: '故事功能選單' });

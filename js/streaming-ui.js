@@ -34,13 +34,13 @@
 
   // A streaming bubble is temporary. After a request completes, restore the
   // committed source using the same selected reader mode as saved messages.
-  // In particular, the fresh-story greeting does not belong to Chat.messages.
+  // Legacy shells may show an unstored greeting; current stories store it.
   const paintCommitted = () => {
     const stream = document.getElementById("chat-stream");
     const messages = window.Chat?.messages;
     if (!stream || !Array.isArray(messages) || !messages.length) return;
     const nodes = [...stream.querySelectorAll(":scope > .message")];
-    const offset = nodes.length === messages.length + 1 && (
+    const offset = !messages[0]?.greeting && nodes.length === messages.length + 1 && (
       nodes[0]?.dataset.storyGreeting === "true" ||
       nodes[0]?.querySelector(".bubble")?.dataset.authoredGreeting === "true"
     ) ? 1 : 0;

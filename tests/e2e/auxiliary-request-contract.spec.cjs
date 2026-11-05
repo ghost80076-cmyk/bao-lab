@@ -1,5 +1,5 @@
 const {test,expect}=require('@playwright/test');
-const ready=page=>page.waitForFunction(()=>window.BAORequestLedger && window.BAOInterpretationMods && window.BAOCommentaryMods && window.BAOSameModelStateMerge && window.BAOContextInspector && window.BAOCostControl && App.__requestLifecyclePatched && App.__worldStateHooked && Storage.status().ready && App.characters?.length);
+const ready=page=>page.waitForFunction(()=>window.BAOExtensionLoadHealth?.snapshot().story==='ready' && BAOExtensionLoadHealth.snapshot().world==='ready' && window.BAORequestLedger && window.BAOInterpretationMods && window.BAOCommentaryMods && window.BAOSameModelStateMerge && window.BAOContextInspector && window.BAOCostControl && App.__requestLifecyclePatched && App.__worldStateHooked && Storage.status().ready && App.characters?.length);
 async function setup(page){await page.goto('./');await ready(page);}
 async function seed(page,options={}){
   await page.evaluate(options=>{

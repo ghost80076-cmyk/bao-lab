@@ -47,7 +47,12 @@ test('legacy and author regex run off the UI thread and preserve saved story', a
   await expect(bubble).toHaveText('NPC: 你好');
 });
 
-test('catastrophic author regex is terminated and leaves chat interactive', async ({ page }) => {
+test('an unresponsive author regex worker is terminated and leaves chat interactive', async ({ page }) => {
+  // JSC can reject/optimize a catastrophic pattern before the watchdog fires.
+  // Make this timeout contract deterministic; the other cases run real regex.
+  await page.route('**/js/regex-chat-worker.js', route => route.fulfill({
+    contentType: 'application/javascript', body: 'self.onmessage = () => { while (true) {} };'
+  }));
   const originalText = 'a'.repeat(8000) + '!';
   const bubble = await startStory(page, originalText);
   const original = await page.evaluate(() => JSON.stringify({ messages: Chat.messages, usage: Chat.usage }));

@@ -176,6 +176,23 @@ vm.runInThisContext(source, { filename: 'js/story-revision-state.js' });
   assert.equal(next.revisionBase.state.config, undefined);
   assert.equal(JSON.stringify(next.revisionBase).includes('TOP-SECRET'), false);
 
+  // Lazy UI version initialization must not replay the pre-turn state.
+  App.saveStory(false);
+  GameState.current.location = 'CURRENT-MAINLINE';
+  next.variants = [{ id: 'lazy-original', content: next.content }];
+  next.activeVariant = 0;
+  App.saveStory(false);
+  await BAOStoryRevisionState.whenIdle();
+  assert.equal(GameState.current.location, 'CURRENT-MAINLINE');
+  assert.equal(saves.at(-1).state.location, 'CURRENT-MAINLINE');
+
+  // Restoring another chapter may reuse message IDs and variant IDs.
+  GameState.current = { location: 'RESTORED-CHAPTER', pendingStateTurns: [] };
+  next.content = '另一條故事線的版本';
+  App.saveStory(false);
+  await BAOStoryRevisionState.whenIdle();
+  assert.equal(GameState.current.location, 'RESTORED-CHAPTER');
+
   assert.equal(BAOStoryLibrary.messageRecords, originalMessageRecords, 'revision UI must not replace the storage writer');
   libraryRecords.splice(0, libraryRecords.length, { kind: 'message', storyId: 'story-1', chapterId: 'chapter-1',
     seq: 0, messageId: next.id, role: 'assistant', messagePayload: clone(next) });

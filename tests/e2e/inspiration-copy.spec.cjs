@@ -39,9 +39,11 @@ for (const width of [390, 1440]) {
     }
     await expect(page.locator('#user-input')).toHaveValue('');
     // Permission-denied browsers must offer actual selectable text, not a fake ✓.
+    await page.clock.install();
     await page.evaluate(() => { navigator.clipboard.writeText = async () => { throw new Error('blocked'); }; });
     await buttons.first().click();
     await expect(message.locator('.story-copy-manual textarea')).toHaveValue('保持在陰影中觀察');
+    await page.clock.runFor(1200);
     await expect(buttons.first()).toHaveText('!');
   });
 }

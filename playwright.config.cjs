@@ -9,6 +9,8 @@ module.exports = defineConfig({
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
   use: {
     baseURL: "http://127.0.0.1:4173",
+    // Keep page.route fixtures authoritative; PWA cases explicitly opt in below.
+    serviceWorkers: "block",
     screenshot: "only-on-failure",
     trace: "retain-on-failure"
   },

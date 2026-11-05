@@ -234,11 +234,11 @@ test('explore search matches tags and does not change the current category gate'
   const visible = page.locator('#character-list [data-character-id]:visible');
   await expect.poll(() => visible.count()).toBeGreaterThan(0);
 
-  const ids = await visible.evaluateAll(nodes => nodes.map(node => node.dataset.characterId));
-  const categories = await page.evaluate(ids =>
-    ids.map(id => App.characters.find(item => item.id === id)?.category), ids
-  );
-  expect(categories.every(category => category === 'female')).toBe(true);
+  // Category/query state changes before the scheduled card paint. Wait for
+  // the actual visible result, collecting IDs and metadata in the same turn.
+  await expect.poll(() => visible.evaluateAll(nodes => nodes.length > 0 && nodes.every(node =>
+    App.characters.find(item => item.id === node.dataset.characterId)?.category === 'female'
+  ))).toBe(true);
 });
 
 

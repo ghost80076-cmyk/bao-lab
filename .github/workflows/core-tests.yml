@@ -24,6 +24,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Startup preserves player navigation
+        run: node tests/app-startup-navigation-core.cjs
       - name: Story discussion and reviewed import settings
         run: node tests/story-discussion-core.cjs
       - name: Minimal usage signals
@@ -615,6 +617,7 @@ jobs:
         run: |
           node --check js/streaming-ui.js
           node tests/streaming-ui-wrapper-core.cjs
+          node tests/greeting-render-alignment-core.cjs
       - name: Helper API connection diagnostics
         run: node tests/helper-api-diagnostics-core.cjs
       - name: Generation request lifecycle

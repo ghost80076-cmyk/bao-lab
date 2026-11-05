@@ -25,9 +25,7 @@
 
   const ensureState = () => {
     if (!window.GameState?.current) return core.normalizeState({});
-    const normalized = core.normalizeState(GameState.current.interpretationMods || {});
-    GameState.current.interpretationMods = normalized;
-    return normalized;
+    return core.normalizeState(GameState.current.interpretationMods || {});
   };
 
   const saveState = state => {

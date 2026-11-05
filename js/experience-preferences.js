@@ -15,6 +15,10 @@
   const apply = () => {
     document.documentElement.dataset.yoruTheme = current.theme;
     document.documentElement.dataset.yoruExperience = current.level;
+    // Resolve the themed parent before a dialog is created in this same turn.
+    // WebKit otherwise can give the new subtree the previous inherited tokens.
+    if (document.body && typeof getComputedStyle === 'function')
+      getComputedStyle(document.body).getPropertyValue('--yoru-surface');
     const themeMeta = document.querySelector('meta[name="theme-color"]');
     if (themeMeta) themeMeta.content =
       ({ night: '#15191d', mist: '#f5f0e9', dawn: '#edf3f5', dusk: '#302c3c', sunset: '#fff0df' })[current.theme];

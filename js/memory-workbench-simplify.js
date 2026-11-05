@@ -199,6 +199,7 @@
         details.className = "canon-book-advanced";
         const summary = document.createElement("summary");
         summary.textContent = "進階資料";
+        details.appendChild(summary);
         book.appendChild(details);
         details.appendChild(controls);
         if (evidence) {

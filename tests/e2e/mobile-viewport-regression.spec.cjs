@@ -2,8 +2,10 @@ const { test, expect } = require('@playwright/test');
 
 async function openDemoStory(page) {
   await page.goto('/');
+  await page.waitForFunction(() => window.BAOExploreDiscovery && App.characters?.length);
   await page.locator('#home-view [data-view="explore"]').click();
   await page.locator('article').filter({ hasText: '林沉風 - 見過黑暗的人' }).click();
+  await page.getByRole('button', { name: '查看作品', exact: true }).click();
   await page.getByRole('button', { name: '開始故事' }).click();
   await page.locator('#bao-setup-choice [data-bao-setup="advanced"]').click();
   for (let i = 0; i < 3; i += 1) await page.getByRole('button', { name: '下一步' }).click();
@@ -12,6 +14,8 @@ async function openDemoStory(page) {
   await page.getByRole('button', { name: '開始故事' }).click();
   await expect.poll(() => page.evaluate(() => Boolean(window.BAOMobileReadingLayout))).toBe(true);
   await expect(page.locator('#user-input')).toBeVisible();
+  // The mobile header controls are inserted by the layout enhancer after the chat shell renders.
+  await expect(page.locator('#bao-mobile-composer-tools')).toBeAttached();
 }
 
 async function assertReadingGeometry(page) {
@@ -22,9 +26,15 @@ async function assertReadingGeometry(page) {
     const main = rect('#chat-view .chat-main');
     const stream = rect('#chat-stream');
     const composer = rect('#chat-view .composer');
-    const tab = rect('#bao-mobile-tools-tab');
+    const tab = rect('#bao-mobile-composer-tools');
+    const statusNode = document.querySelector('#bao-inline-story-status');
+    const status = statusNode?.getBoundingClientRect();
+    const style = getComputedStyle(document.querySelector('#chat-view .chat-main'));
+    const composerStyle = getComputedStyle(document.querySelector('#chat-view .composer'));
+    const bottomInset = parseFloat(style.paddingBottom) + parseFloat(style.borderBottomWidth) + parseFloat(composerStyle.marginBottom);
+    const statusSpace = status?.height ? status.height + parseFloat(getComputedStyle(statusNode).marginTop) + parseFloat(getComputedStyle(statusNode).marginBottom) : 0;
     return {
-      screenHeight: innerHeight,
+      screenHeight: innerHeight, bottomInset, statusSpace,
       scrollWidth: document.documentElement.scrollWidth,
       screenWidth: innerWidth,
       viewTop: view.top, viewBottom: view.bottom,
@@ -39,8 +49,8 @@ async function assertReadingGeometry(page) {
   expect(Math.abs(boxes.viewBottom - boxes.screenHeight)).toBeLessThanOrEqual(4);
   expect(boxes.mainHeight).toBeGreaterThan(boxes.screenHeight * 0.5);
   expect(boxes.streamHeight).toBeGreaterThan(145);
-  expect(Math.abs(boxes.streamBottom - boxes.composerTop)).toBeLessThanOrEqual(4);
-  expect(Math.abs(boxes.composerBottom - boxes.screenHeight)).toBeLessThanOrEqual(4);
+  expect(Math.abs(boxes.streamBottom + boxes.statusSpace - boxes.composerTop)).toBeLessThanOrEqual(4);
+  expect(Math.abs(boxes.composerBottom + boxes.bottomInset - boxes.screenHeight)).toBeLessThanOrEqual(4);
   expect(boxes.tabTop).toBeGreaterThanOrEqual(0);
   expect(boxes.tabBottom).toBeLessThanOrEqual(boxes.screenHeight);
   expect(boxes.scrollWidth).toBeLessThanOrEqual(boxes.screenWidth + 1);
@@ -111,6 +121,7 @@ test('mobile keyboard follows a panned visual viewport instead of leaving dead s
       rootTop: root.getBoundingClientRect().top,
       rootBottom: root.getBoundingClientRect().bottom,
       composerBottom: composer.bottom,
+      bottomInset: ['paddingBottom','borderBottomWidth'].reduce((sum,key)=>sum+parseFloat(getComputedStyle(document.querySelector('#chat-view .chat-main'))[key]),0) + parseFloat(getComputedStyle(document.querySelector('#chat-view .composer')).marginBottom),
       scrollTop: document.getElementById('chat-stream').scrollTop
     };
   });
@@ -119,7 +130,7 @@ test('mobile keyboard follows a panned visual viewport instead of leaving dead s
   expect(state.width).toBe('390px');
   expect(Math.abs(state.rootTop - 318)).toBeLessThanOrEqual(2);
   expect(Math.abs(state.rootBottom - 748)).toBeLessThanOrEqual(3);
-  expect(Math.abs(state.composerBottom - 748)).toBeLessThanOrEqual(4);
+  expect(Math.abs(state.composerBottom + state.bottomInset - 748)).toBeLessThanOrEqual(4);
   expect(Math.abs(state.scrollTop - before)).toBeLessThanOrEqual(2);
 
   await page.locator('#user-input').blur();

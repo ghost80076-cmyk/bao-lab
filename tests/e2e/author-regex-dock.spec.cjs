@@ -143,7 +143,7 @@ test('external images are blocked until separate per-card permission is granted'
   let requests = 0;
   await page.route('https://assets.example.test/**', route => {
     requests++;
-    route.fulfill({ status: 200, contentType: 'image/png', body: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLttAAAAABJRU5ErkJggg==', 'base64') });
+    route.fulfill({ status: 200, contentType: 'image/png', body: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg==', 'base64') });
   });
   const panel = await story(page, media);
   await setLabeledCheckbox(panel, '保留互動介面', true);

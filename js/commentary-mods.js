@@ -60,9 +60,7 @@
 
   const ensureState = () => {
     if (!window.GameState?.current) return core.normalizeState({});
-    const normalized = core.normalizeState(GameState.current.commentaryMods || {});
-    GameState.current.commentaryMods = normalized;
-    return normalized;
+    return core.normalizeState(GameState.current.commentaryMods || {});
   };
 
   const saveState = state => {

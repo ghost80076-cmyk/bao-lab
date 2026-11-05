@@ -34,7 +34,7 @@
     // Only paint when the committed messages align exactly with the DOM.
     const greetingOnly = messages.length === 0 && nodes.length === 1;
     const offset = greetingOnly ? 0 : nodes.length === messages.length ? 0 :
-      nodes.length === messages.length + 1 && nodes[0]?.classList.contains('assistant') ? 1 : -1;
+      !messages[0]?.greeting && nodes.length === messages.length + 1 && nodes[0]?.classList.contains('assistant') ? 1 : -1;
     if (offset < 0) return;
     const entries = greetingOnly || offset === 1
       ? [{ role: 'assistant', content: App.activeCharacter.greeting || '', greeting: true }, ...messages] : messages;
