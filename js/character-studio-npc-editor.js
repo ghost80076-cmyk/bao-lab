@@ -60,6 +60,7 @@
     message('尚未編輯的內容不會寫入角色卡。');
   }
   function edit(npc = null) {
+    if (pending && !fields.hidden && !window.confirm('這位 NPC 的修改尚未按儲存。要放棄目前輸入並切換嗎？')) return;
     try {
       originalName = npc?.name || '';
       writeFields(npc ? core.inspect(npc, notesField.value) : {});

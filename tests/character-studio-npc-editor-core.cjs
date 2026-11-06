@@ -36,7 +36,7 @@ assert.equal(earlier.length, 2);
 assert.throws(() => core.upsert(earlier,{name:'曼姐',aliases:'Queen',presence:'unknown'}), /衝突/);
 assert.throws(() => core.upsert(earlier,{name:'霜',presence:'unknown'}), /衝突/);
 assert.throws(() => core.upsert(earlier,{name:'改名',presence:'unknown'},'林曼'), /更名/);
-assert.throws(() => core.upsert(earlier,{name:'林曼',presence:'unknown',goal:'x'},'不存在'), /找不到/);
+assert.throws(() => core.upsert(earlier,{name:'不存在',presence:'unknown',goal:'x'},'不存在'), /找不到/);
 assert.throws(() => core.upsert(earlier,{name:'新角',presence:'fake'}), /合法/);
 assert.throws(() => core.upsert(earlier,{name:'新角',aliases:Array.from({length:9},(_,i)=>'Alias'+i),presence:'unknown'}), /最多/);
 assert.throws(() => core.splitGoal('【夜灣 NPC 目標】未閉合'), /不完整/);
