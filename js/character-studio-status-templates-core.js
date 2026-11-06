@@ -13,12 +13,11 @@
   const FIELD_TYPES = ['meter', 'number', 'text', 'boolean', 'tags'];
   const CONTEXT_TYPES = ['core', 'relevant', 'ui_only'];
   const MAX_FIELDS = 24;
-  const PRESETS = Object.freeze({
-    affinity: Object.freeze({ key: 'affinity', label: '好感度', type: 'meter', min: 0, max: 100, default: 0, context: 'relevant', track: true, description: '只按明確事件調整；好感不代表同意，關係也不必雙向。' }),
-    trust: Object.freeze({ key: 'trust', label: '信任度', type: 'meter', min: 0, max: 100, default: 0, context: 'relevant', track: true, description: '依可確認的行為調整；A 信任 B 不等於 B 信任 A。' }),
-    hp: Object.freeze({ key: 'hp', label: 'HP／生命', type: 'meter', min: 0, max: 100, default: 100, context: 'core', track: true, description: '以故事中已發生的受傷、治療與恢復事件更新，不推測未發生的傷害。' }),
-    energy: Object.freeze({ key: 'energy', label: '能量', type: 'meter', min: 0, max: 100, default: 100, context: 'relevant', track: true, description: '根據有證據的消耗與補充更新，不依每輪對話任意增減。' })
-  });
+  const shared = typeof window !== 'undefined'
+    ? window.BAOCharacterStatusTemplates
+    : (typeof module === 'object' && module.exports ? require('./character-status-templates.js') : null);
+  if (!shared?.TEMPLATES) throw new Error('原生人物狀態模板未載入。');
+  const TEMPLATES = shared.TEMPLATES;
   function validData(data) {
     if (!plain(data) || !plain(data.initial_state || {}) || !plain(data.character_status || {})) error('作品狀態格式不正確。');
     if (!plain(data.initial_state.character_statuses || {})) error('初始人物狀態格式不正確。');
@@ -98,10 +97,19 @@
     return result;
   }
   function addPreset(data, presetId) {
-    const preset = PRESETS[presetId];
-    if (!preset) error('找不到數值模板。');
-    if (fields(data).some(f => f.key === preset.key)) error('這個欄位已經存在，不會重複新增。');
-    return upsertField(data, preset);
+    validData(data);
+    const template = TEMPLATES[presetId];
+    if (!template) error('找不到數值模板。');
+    const original = fields(data);
+    const keys = new Set(original.map(field => field.key));
+    // Same story-template field definitions; author fields have their original keys.
+    // Player custom fields continue using their independent custom_* ownership keys.
+    const additions = template.fields.filter(field => !keys.has(field.key)).map(field => define(field));
+    if (!additions.length) error('這組模板的欄位已經存在，不會重複新增。');
+    if (original.length + additions.length > MAX_FIELDS) error('作者原生狀態欄最多 24 個，模板不會只新增一部分。');
+    const result = clone(data);
+    result.character_status = { ...result.character_status, enabled: true, fields: [...original, ...additions] };
+    return result;
   }
   function removeField(data, key) {
     validData(data);
@@ -165,5 +173,5 @@
     result.initial_state.character_statuses = { ...result.initial_state.character_statuses, [subject]: next };
     return result;
   }
-  return { PRESETS, FIELD_TYPES, CONTEXT_TYPES, MAX_FIELDS, fields, define, upsertField, addPreset, removeField, subjects, initialValues, setInitialValues };
+  return { TEMPLATES, FIELD_TYPES, CONTEXT_TYPES, MAX_FIELDS, fields, define, upsertField, addPreset, removeField, subjects, initialValues, setInitialValues };
 });

@@ -11,7 +11,7 @@
   panel.className = 'studio-status-templates';
   panel.innerHTML = [
     '<summary>人物數值模板與初始值（選填）</summary>',
-    '<p class="note">使用夜灣原生人物狀態欄。模板只建立欄位定義，不會增加 AI 請求、修改已存在故事，或保證每輪一定變動數值。</p>',
+    '<p class="note">沿用故事內的七組原生狀態模板；作者設定的是作品起始欄位，玩家自訂仍只屬於個別故事。套用只新增缺少的欄位，不會改動既有數值或增加 AI 請求。</p>',
     '<div data-status-presets class="studio-status-presets"></div>',
     '<div data-status-field-list class="studio-status-field-list"></div>',
     '<button type="button" class="secondary" data-status-add>＋ 自訂欄位</button>',
@@ -113,7 +113,7 @@
     message(notice + '；請再儲存作品草稿或匯出 JSON。');
     render();
   }
-  Object.entries(core.PRESETS).forEach(([key, preset]) => {
+  Object.entries(core.TEMPLATES).forEach(([key, preset]) => {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'secondary';
@@ -121,7 +121,7 @@
     button.textContent = '＋ ' + preset.label;
     button.addEventListener('click', () => {
       if (!canChange()) return;
-      try { update(core.addPreset(read(), key), '已新增 ' + preset.label); }
+      try { update(core.addPreset(read(), key), '已套用 ' + preset.label + ' 模板'); }
       catch (error) { message('無法新增：' + error.message); }
     });
     presets.append(button);
@@ -163,9 +163,12 @@
       defsArea.append(text);
     }
     presets.querySelectorAll('[data-preset]').forEach(button => {
-      const template = core.PRESETS[button.dataset.preset];
-      button.disabled = items.length >= core.MAX_FIELDS || items.some(f => f.key === template.key);
-      button.title = button.disabled ? '欄位已存在或已達 24 個上限' : '';
+      const template = core.TEMPLATES[button.dataset.preset];
+      const known = new Set(items.map(field => field.key));
+      const missing = template.fields.filter(field => !known.has(field.key)).length;
+      button.disabled = missing === 0 || items.length + missing > core.MAX_FIELDS;
+      button.title = !missing ? '這組模板的欄位已全部存在' :
+        button.disabled ? '模板無法完整加入，已達 24 個欄位上限' : '將新增 ' + missing + ' 個缺少的原生欄位';
     });
   }
   function renderSubjects(data) {
