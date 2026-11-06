@@ -358,7 +358,7 @@
     );
     const states = core.stepStates(currentValues, {
       gameplayEnabled: !Boolean(field("gameplay_theme")?.disabled),
-      worldStructured
+      worldStructured: structuredWorld
     });
     const required = core.requiredProgress(currentValues);
     const progress = shell.querySelector("#studio-flow-progress");
