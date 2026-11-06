@@ -8,6 +8,9 @@ on:
       - scripts/verify-live-assets.sh
       - tests/live-assets-verifier.test.cjs
       - character-studio.html
+      - css/character-studio-creation-map.css
+      - js/character-studio-creation-map-core.js
+      - js/character-studio-creation-map.js
       - js/character-library-repair.js
       - js/global-bridge.js
   workflow_dispatch:
@@ -27,4 +30,4 @@ jobs:
           SITE_URL: https://ghost80076-cmyk.github.io/bao-lab/
           LIVE_VERIFY_ATTEMPTS: '40'
           LIVE_VERIFY_TIMEOUT: '12'
-        run: bash scripts/verify-live-assets.sh character-studio.html js/character-library-repair.js js/global-bridge.js
+        run: bash scripts/verify-live-assets.sh character-studio.html css/character-studio-creation-map.css js/character-studio-creation-map-core.js js/character-studio-creation-map.js js/character-library-repair.js js/global-bridge.js

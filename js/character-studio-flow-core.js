@@ -36,7 +36,7 @@
   function stepStates(values = {}, options = {}) {
     const required = requiredProgress(values);
     const basicDone = required.checks.name && required.checks.id;
-    const worldDone = optionalFilled(values);
+    const worldDone = optionalFilled(values) || Boolean(options.worldStructured);
     return {
       basic: {
         state: basicDone ? "complete" : "required",
