@@ -1,0 +1,13 @@
+.studio-rehearsal{margin:0 0 16px;padding:16px;border:1px solid var(--yoru-card-border,rgba(241,232,218,.075));border-radius:18px;background:radial-gradient(circle at 8% 0,rgba(117,223,206,.045),transparent 34%),rgba(20,19,22,.94)}
+.studio-rehearsal-head h2{margin:4px 0 6px;font-size:20px}.studio-rehearsal-head p{max-width:760px;margin:0;color:var(--muted);font-size:12px;line-height:1.7}
+.studio-rehearsal-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:14px}
+.studio-rehearsal-grid article{min-width:0;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:1fr auto;gap:10px;padding:13px;border:1px solid var(--yoru-card-border,rgba(241,232,218,.075));border-radius:14px;background:var(--yoru-card,#17161a)}
+.studio-rehearsal-grid article>span{display:inline-grid;place-items:center;width:27px;height:27px;border-radius:50%;background:#28252b;color:#aea8b1;font-size:10px;font-weight:800}
+.studio-rehearsal-grid article>div{min-width:0}.studio-rehearsal-grid small{color:var(--muted);font-size:10px}.studio-rehearsal-grid h3{margin:3px 0 5px;font-size:14px}.studio-rehearsal-grid b{display:block;font-size:12px;line-height:1.45}.studio-rehearsal-grid p{margin:4px 0 0;color:var(--muted);font-size:11px;line-height:1.55}
+.studio-rehearsal-grid button{grid-column:1/-1;width:100%;min-height:44px}
+.studio-rehearsal-grid article[data-tone="good"]{border-color:rgba(94,210,187,.20)}.studio-rehearsal-grid article[data-tone="good"]>span{background:rgba(94,210,187,.13);color:#98e5d6}
+.studio-rehearsal-grid article[data-tone="warn"]{border-color:rgba(229,184,112,.20)}.studio-rehearsal-grid article[data-tone="warn"]>span{background:rgba(229,184,112,.12);color:#e8c994}
+.studio-rehearsal-grid article[data-tone="bad"]{border-color:rgba(235,118,131,.24)}.studio-rehearsal-grid article[data-tone="bad"]>span{background:rgba(235,118,131,.12);color:#f0a3ad}
+.studio-rehearsal-status{margin:11px 0 0!important;padding:9px 10px;border-radius:10px;background:rgba(255,255,255,.025)}
+@media(max-width:800px){.studio-rehearsal-grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:530px){.studio-rehearsal{padding:13px}.studio-rehearsal-grid article{padding:11px}}

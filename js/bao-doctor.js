@@ -59,6 +59,105 @@
     return 'ok';
   }
 
+  function inspectStructuredPeople(card, findings) {
+    const initial = object(card.initial_state) ? card.initial_state : {};
+    const npcs = array(initial.npcs).filter(object);
+    const identities = new Map();
+    const personNames = new Set();
+    const identityKey = value => text(value).toLocaleLowerCase();
+
+    npcs.forEach((npc, index) => {
+      const name = text(npc.name);
+      if (!name) {
+        addFinding(findings, 'world', 'warning', '初始 NPC 缺少姓名。', `initial_state.npcs[${index}] 沒有可識別名稱。`, '補上唯一姓名，或移除這筆無法追蹤的人物資料。');
+        return;
+      }
+      personNames.add(name);
+      const labels = [name, ...array(npc.aliases)].map(text).filter(Boolean);
+      labels.forEach(label => {
+        const key = identityKey(label);
+        const owner = identities.get(key);
+        if (owner && owner !== name) {
+          addFinding(
+            findings,
+            'world',
+            'warning',
+            '初始 NPC 的姓名或別名互相衝突。',
+            `「${label}」同時指向「${owner}」與「${name}」。`,
+            '保留唯一稱呼，避免召回、人物知情與狀態更新把兩人合併。'
+          );
+        } else identities.set(key, name);
+      });
+    });
+
+    const config = object(card.character_status) ? card.character_status : {};
+    const fields = array(config.fields).filter(object);
+    const definitions = new Map(fields.map(field => [text(field.key), field]).filter(([key]) => key));
+    fields.filter(field => field.track !== false && !text(field.description)).forEach(field => {
+      addFinding(
+        findings,
+        'longplay',
+        'info',
+        `自動追蹤欄位「${text(field.label) || text(field.key)}」沒有更新依據。`,
+        `${text(field.key) || '未命名欄位'} 設為 track=true，但 description 為空。`,
+        '實際試演若出現數值亂跳，再補「只有哪些故事證據才能改變」；不追蹤就關閉自動追蹤。'
+      );
+    });
+
+    const configured = config.primary_character_name ?? config.primary_character ?? config.subject_name ?? [];
+    const primary = Array.isArray(configured) ? configured : [configured];
+    primary.map(text).filter(Boolean).forEach(name => personNames.add(name));
+    if (card.supported_modes?.world !== true && text(card.name)) personNames.add(text(card.name));
+
+    const statuses = object(initial.character_statuses) ? initial.character_statuses : {};
+    Object.entries(statuses).forEach(([subject, values]) => {
+      if (!personNames.has(subject)) {
+        addFinding(
+          findings,
+          'longplay',
+          'info',
+          `保留了未列於目前人物名冊的「${subject}」初始值。`,
+          '這可能是移除欄位或 NPC 後刻意保留的相容資料，目前不會自動建立人物。',
+          '若仍要追蹤此人，請在初始 NPC 或主要人物設定中明確加入；否則可以保留，無須為了診斷刪除。'
+        );
+      }
+      if (!object(values)) {
+        addFinding(findings, 'structure', 'blocker', `「${subject}」的初始人物狀態格式無效。`, 'initial_state.character_statuses 的人物值不是物件。', '回到人物數值編輯器重新儲存這位人物的初始值。');
+        return;
+      }
+      const inactive = Object.keys(values).filter(key => !definitions.has(key));
+      if (inactive.length) {
+        addFinding(
+          findings,
+          'longplay',
+          'info',
+          `「${subject}」保留 ${inactive.length} 個目前未啟用的欄位值。`,
+          `未啟用 key：${inactive.slice(0, 6).join('、')}${inactive.length > 6 ? '…' : ''}。`,
+          '這是可恢復的相容資料，不會自動重新啟用；需要時補回同 key 欄位即可。'
+        );
+      }
+      for (const [key, value] of Object.entries(values)) {
+        const field = definitions.get(key);
+        if (!field || !['meter', 'number'].includes(field.type)) continue;
+        const hasMin = field.min !== undefined && field.min !== null && field.min !== '';
+        const hasMax = field.max !== undefined && field.max !== null && field.max !== '';
+        const number = Number(value);
+        const below = hasMin && Number.isFinite(Number(field.min)) && number < Number(field.min);
+        const above = hasMax && Number.isFinite(Number(field.max)) && number > Number(field.max);
+        if (value === '' || value === null || value === undefined || !Number.isFinite(number) || below || above) {
+          addFinding(
+            findings,
+            'structure',
+            'blocker',
+            `「${subject}」的「${text(field.label) || key}」初始值超出欄位定義。`,
+            `目前值 ${JSON.stringify(value)}；允許範圍 ${field.min ?? '未限制'}～${field.max ?? '未限制'}。`,
+            '回到人物數值編輯器重新儲存合法初始值；不要依賴 Runtime 臨時修正。'
+          );
+        }
+      }
+    });
+  }
+
   function analyze(raw = {}) {
     const card = normalizedCard(raw);
     const readiness = readinessFor(raw);
@@ -213,6 +312,8 @@
         '若作品有固定鏡頭、節奏或資訊揭露方式再補；不要重複 system_prompt 已有規則。'
       );
     }
+
+    inspectStructuredPeople(card, findings);
 
     const layers = LAYERS.map(layer => ({
       ...layer,

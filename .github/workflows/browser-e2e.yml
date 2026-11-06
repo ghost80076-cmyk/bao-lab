@@ -82,6 +82,7 @@ jobs:
               tests/e2e/character-studio-npc-editor.spec.cjs
               tests/e2e/character-studio-status-templates.spec.cjs
               tests/e2e/character-studio-lifecycle.spec.cjs
+              tests/e2e/character-studio-rehearsal.spec.cjs
               tests/e2e/admin-workbench-navigation.spec.cjs
               tests/e2e/explore-discovery.spec.cjs
               tests/e2e/adult-content-visibility.spec.cjs

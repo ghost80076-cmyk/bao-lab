@@ -112,6 +112,18 @@
 
   let previewDialog = null;
 
+  const rehearsalTarget = id => {
+    const query = new URLSearchParams(location.search);
+    return query.get('rehearsal') === '1' && query.get('work') === String(id || '');
+  };
+
+  const returnToStudio = event => {
+    if (/\/character-studio\.html(?:$|[?#])/i.test(document.referrer || '') && history.length > 1) {
+      event.preventDefault();
+      history.back();
+    }
+  };
+
   const closePreview = () => {
     if (!previewDialog) return;
     if (typeof previewDialog.close === "function" && previewDialog.open) previewDialog.close();
@@ -134,12 +146,14 @@
       + '<div class="explore-work-preview-capabilities" data-explore-preview-capabilities></div>'
       + '<div class="tags explore-work-preview-tags" data-explore-preview-tags></div>'
       + '<div class="explore-work-preview-actions"><button type="button" class="secondary" data-explore-preview-close>繼續瀏覽</button>'
+      + '<a class="secondary" href="character-studio.html" data-explore-rehearsal-back hidden>返回創作室</a>'
       + '<button type="button" class="primary" data-explore-preview-open>查看作品</button></div>'
       + '</div></div>';
 
     dialog.querySelectorAll("[data-explore-preview-close]").forEach(button => {
       button.addEventListener("click", closePreview);
     });
+    dialog.querySelector('[data-explore-rehearsal-back]')?.addEventListener('click', returnToStudio);
     dialog.addEventListener("click", event => {
       if (event.target === dialog) closePreview();
     });
@@ -164,6 +178,7 @@
 
     const dialog = ensurePreview();
     const item = manifestEntry(character);
+    const rehearsal = rehearsalTarget(key);
     const publication = core.publicationMeta(item);
     const labels = core.capabilityLabels(character);
     const title = character.title || character.name || "未命名作品";
@@ -171,6 +186,7 @@
     const rating = core.isAdult(character) ? "成熟內容" : "一般展示";
     const meta = [];
     if (author) meta.push("作者 · " + author);
+    if (rehearsal && !item.id) meta.push('本機試演版本');
     meta.push(rating);
     if (publication.publishedVersion) meta.push("公開版本 v" + publication.publishedVersion);
     if (publication.activityAt) meta.push("更新於 " + formatActivityDate(publication.activityAt));
@@ -225,7 +241,12 @@
       tagNode.hidden = !(character.tags || []).length;
     }
     const openButton = dialog.querySelector("[data-explore-preview-open]");
-    if (openButton) openButton.dataset.characterId = key;
+    if (openButton) {
+      openButton.dataset.characterId = key;
+      openButton.textContent = rehearsal ? '進入試演設定' : '查看作品';
+    }
+    const rehearsalBack = dialog.querySelector('[data-explore-rehearsal-back]');
+    if (rehearsalBack) rehearsalBack.hidden = !rehearsal;
 
     if (!dialog.open) {
       if (typeof dialog.showModal === "function") dialog.showModal();
@@ -846,6 +867,19 @@
     const publication = core.publicationMeta(item);
     const result = await originalOpenCharacter(id);
     if (String(App.activeCharacter?.id || "") === String(id || "")) {
+      if (rehearsalTarget(id)) {
+        const actions = document.querySelector('#detail-view .detail-actions');
+        let back = document.getElementById('detail-rehearsal-back');
+        if (actions && !back) {
+          back = document.createElement('a');
+          back.id = 'detail-rehearsal-back';
+          back.className = 'secondary detail-rehearsal-back';
+          back.href = 'character-studio.html';
+          back.textContent = '返回創作室';
+          back.addEventListener('click', returnToStudio);
+          actions.append(back);
+        }
+      }
       decorateDetailVersion(item);
       writeLibrary(core.markViewed(
         library,
@@ -895,13 +929,15 @@
     if (!id) return;
 
     for (let attempt = 0; attempt < 50; attempt += 1) {
-      let exists = (App.characterManifest || []).some(item => String(item?.id || "") === id);
+      let exists = (App.characters || []).some(item => String(item?.id || "") === id)
+        || (App.characterManifest || []).some(item => String(item?.id || "") === id);
       if (!exists && App.hasMoreCharacterCatalog?.()) {
         try {
           const added = await App.loadMoreCharacters();
           if (added) App.renderCharacters("all");
         } catch {}
-        exists = (App.characterManifest || []).some(item => String(item?.id || "") === id);
+        exists = (App.characters || []).some(item => String(item?.id || "") === id)
+          || (App.characterManifest || []).some(item => String(item?.id || "") === id);
       }
       if (exists) {
         App.showView("explore");

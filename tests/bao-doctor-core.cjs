@@ -105,6 +105,24 @@ assert.ok(
   'missing world start state should be attributed to longplay'
 );
 
+const structured = structuredClone(basic);
+structured.gameplay = structured.gameplay || {};
+structured.gameplay.supported_modes = { immersive:true, world:true };
+structured.gameplay.initial_state = {
+  ...(structured.gameplay.initial_state || {}),
+  npcs:[{name:'林曼',aliases:['Queen']},{name:'霜',aliases:['Queen']}],
+  character_statuses:{林曼:{affinity:-101,preserved_old:'保留'},舊人物:{affinity:10}}
+};
+structured.gameplay.character_status = { enabled:true, fields:[{
+  key:'affinity',label:'好感',type:'meter',min:-100,max:100,default:0,context:'relevant',track:true,description:''
+}] };
+const structuredReport = BAODoctor.analyze(structured);
+assert.ok(structuredReport.findings.some(item => /姓名或別名互相衝突/.test(item.problem)));
+assert.ok(structuredReport.findings.some(item => item.severity === 'blocker' && /初始值超出/.test(item.problem)));
+assert.ok(structuredReport.findings.some(item => item.severity === 'info' && /未啟用的欄位值/.test(item.problem)));
+assert.ok(structuredReport.findings.some(item => item.severity === 'info' && /未列於目前人物名冊/.test(item.problem)));
+assert.ok(structuredReport.findings.some(item => item.severity === 'info' && /沒有更新依據/.test(item.problem)));
+
 const html = BAODoctor.reportHTML(baseline, '<img src=x onerror=alert(1)>');
 assert.doesNotMatch(html, /<img src=x/);
 assert.match(html, /&lt;img/);
