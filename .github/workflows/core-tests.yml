@@ -60,6 +60,11 @@ jobs:
           node --check js/character-studio-npc-editor-core.js
           node --check js/character-studio-npc-editor.js
           node tests/character-studio-npc-editor-core.cjs
+      - name: Creator status templates and initial values
+        run: |
+          node --check js/character-studio-status-templates-core.js
+          node --check js/character-studio-status-templates.js
+          node tests/character-studio-status-templates-core.cjs
       - name: State helper concurrency guard
         run: node tests/world-state-concurrency-core.cjs
       - name: State completion and source ownership
