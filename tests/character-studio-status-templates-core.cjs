@@ -38,7 +38,7 @@ assert.deepEqual(filled.initial_state.character_statuses['林曼'],{
 assert.deepEqual(filled.initial_state.character_statuses['霜'],{custom_note:'已離場'});
 assert.equal(added.initial_state.character_statuses['林曼'].affinity,undefined);
 assert.throws(()=>core.setInitialValues(filled,'林曼',{affinity:'101'}),/範圍/);
-assert.throws(()=>core.setInitialValues(filled,'林曼',{affinity:'not-a-number'}),/有效數字/);
+assert.throws(()=>core.setInitialValues(filled,'林曼',{affinity:'not-a-number'}),/有限數字/);
 assert.throws(()=>core.setInitialValues(filled,'假人物',{affinity:'50'}),/請先/);
 assert.throws(()=>core.setInitialValues(filled,'林曼',{unknown:'50'}),/欄位已變更/);
 const energy = core.addPreset(filled,'energy');
