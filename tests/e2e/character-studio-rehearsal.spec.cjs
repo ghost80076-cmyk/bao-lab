@@ -11,7 +11,9 @@ for (const width of [390, 1280]) {
     await page.locator('[name="name"]').fill('雨港試演作品');
     await page.locator('[name="id"]').fill('creator-rehearsal-' + width);
     await page.locator('[name="description"]').fill('驗證作者可從創作室精準前往本機作品。');
+    await page.evaluate(() => BAOCharacterStudioFlow.go('core'));
     await page.locator('[name="system_prompt"]').fill('角色依照自己的資訊、目標、關係和現場限制採取行動，不替玩家決定言語或選擇；每次改變都必須有故事證據。');
+    await page.evaluate(() => BAOCharacterStudioFlow.go('opening'));
     await page.locator('[name="greeting"]').fill('深夜的雨落在港邊玻璃上。櫃檯後的人放下擦到一半的杯子，抬眼等你先開口。');
     await page.evaluate(() => BAOCharacterStudioFlow.go('finish', true));
 
