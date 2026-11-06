@@ -18,7 +18,7 @@ for (const width of [390,1280]) {
     await expect(page.locator('[name="creator_notes"]')).not.toContainText('尚未揭露的作者備註');
     await page.evaluate(() => BAOCharacterStudioFlow.go('finish',true));
     await page.locator('#studio-save-draft').click();
-    await expect(page.locator('#studio-status')).toContainText('請先儲存或取消 NPC');
+    await expect(page.locator('#studio-status')).toContainText('請先儲存或取消編輯');
     await page.evaluate(() => BAOCharacterStudioFlow.go('world',true));
     await panel.locator('[data-npc-save]').click();
     await expect(panel.locator('[data-npc-list]')).toContainText('林曼');
