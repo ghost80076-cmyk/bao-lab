@@ -235,6 +235,7 @@
   }
   function readCard() {
     window.BAOStudioNPCEditor?.assertCommitted?.();
+    window.BAOStudioStatusTemplates?.assertCommitted?.();
     const name = text('name');
     const world = text('mode') === 'world';
     const profileText = text('profile');
@@ -509,6 +510,29 @@
       $('studio-preview').classList.add('hidden');
       status("初始 NPC 已修改，尚未儲存草稿。");
       window.dispatchEvent(new CustomEvent("bao:studio-npcs-changed"));
+    },
+    getAuthorStatusData: () => ({
+      name: text('name'),
+      world: text('mode') === 'world',
+      character_status: clone(base.character_status || {}),
+      initial_state: clone(base.initial_state || {})
+    }),
+    setAuthorStatusData: data => {
+      if (!data || !data.character_status || !data.initial_state || !window.BAOStudioStatusTemplatesCore) {
+        throw new Error('人物狀態資料格式無效。');
+      }
+      window.BAOStudioStatusTemplatesCore.fields(data);
+      const initial = data.initial_state.character_statuses || {};
+      if (typeof initial !== 'object' || Array.isArray(initial)) throw new Error('人物初始值格式無效。');
+      base = {
+        ...base,
+        character_status: clone(data.character_status),
+        initial_state: {...(base.initial_state || {}), character_statuses: clone(initial)}
+      };
+      dirty = true;
+      $('studio-preview').classList.add('hidden');
+      status('人物數值已修改，尚未儲存草稿。');
+      window.dispatchEvent(new CustomEvent('bao:studio-status-changed'));
     },
     getGameplayUI: () => clone(readGameplayUI()),
     getGameplayPreviewData: () => ({initial_state:clone(base.initial_state || {}),world_modules:clone(base.world_modules || [])}),

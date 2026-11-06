@@ -1,0 +1,23 @@
+/* P1 author-only status editor; no changes to player runtime styles. */
+.studio-status-templates{margin:14px 0;padding:14px;border:1px solid var(--border,#45434a);border-radius:14px;background:var(--panel,#17171c)}
+.studio-status-templates summary{cursor:pointer;font-weight:700;padding:4px 0}
+.studio-status-templates [hidden]{display:none!important}
+.studio-status-templates .studio-status-presets{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.studio-status-templates .studio-status-field-list{display:grid;gap:8px;margin-bottom:12px}
+.studio-status-field-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid var(--border,#45434a);border-radius:10px}
+.studio-status-field-row>div:first-child{display:grid;gap:4px;min-width:0}
+.studio-status-field-row strong,.studio-status-field-row small{overflow-wrap:anywhere}
+.studio-status-field-row>div:last-child,.studio-status-actions{display:flex;flex-wrap:wrap;gap:8px}
+.studio-status-templates button{min-height:44px}
+.studio-status-templates label{display:grid;gap:6px;min-width:0}
+.studio-status-templates input:not([type="checkbox"]),.studio-status-templates select,.studio-status-templates textarea{width:100%;box-sizing:border-box}
+.studio-status-templates input[type="checkbox"]{width:20px;height:20px}
+.studio-status-templates .studio-status-track{display:flex;align-items:center;gap:8px}
+.studio-status-templates [data-status-field-editor]{margin:12px 0;padding:12px;border:1px solid var(--border,#45434a);border-radius:10px;display:grid;gap:12px}
+.studio-status-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.studio-status-initial{border-top:1px solid var(--border,#45434a);margin-top:18px;padding-top:12px;display:grid;gap:12px}
+.studio-status-initial h4{margin:0}
+.studio-status-initial [data-status-values]{display:grid;gap:10px}
+.studio-status-value-row{padding:10px;border:1px solid var(--border,#45434a);border-radius:9px}
+.studio-status-value-row small{opacity:.75;overflow-wrap:anywhere}
+@media(max-width:650px){.studio-status-grid{grid-template-columns:1fr}.studio-status-field-row{align-items:flex-start;flex-direction:column}.studio-status-field-row>div:last-child{width:100%}}

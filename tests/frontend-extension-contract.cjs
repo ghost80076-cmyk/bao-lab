@@ -14,7 +14,7 @@ assert(memoryWorkbenchSource.includes('data-summary-mode-notice'));
 assert(siteUI.includes('js/world-state-cost.js?v=13'));
 assert(siteUI.includes('js/provider-policy-guard.js?v=1'), 'policy circuit must load before hosted transport');
 assert(siteUI.indexOf('js/provider-policy-guard.js?v=1') < siteUI.indexOf('js/credits-pilot.js?v=2'));
-assert(index.includes('src="js/site-ui.js?v=190"'));
+assert(index.includes('src="js/site-ui.js?v=191"'));
 assert(siteUI.includes('js/full-story-memory-rebuild.js?v=5'));
 const appSource = read("js/app.js");
 const bridge = read("js/global-bridge.js");
@@ -68,6 +68,8 @@ increasing(siteUI, [
   'loadBAOScript("js/three-realms-event-profiles.js?v=6")',
   'loadBAOScript("js/three-realms-events-core.js?v=6")',
   'loadBAOScript("js/world-modules.js?v=11")',
+  'loadBAOScript("js/character-status-templates.js?v=1")',
+  'loadBAOScript("js/character-status-ui.js?v=13")',
   'loadBAOScript("js/world-state-hook.js?v=8")'
 ], "world-state extension");
 
