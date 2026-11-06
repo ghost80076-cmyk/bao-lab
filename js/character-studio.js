@@ -408,16 +408,18 @@
   async function install() {
     const card = readCard();
     check(card);
-    if (!confirmGameplay(card)) return;
+    if (!confirmGameplay(card)) return false;
     if ((await builtinIds()).has(card.id)) throw new Error('角色 ID 與網站內建作品重複，請先更換 ID。');
     const existing = engine.loadCustom();
-    if (existing.some(x => x.id === card.id) && !window.confirm(`本機角色「${card.id}」已存在。確定更新角色設定嗎？已有的故事存檔不會被改寫。`)) return;
+    if (existing.some(x => x.id === card.id) && !window.confirm(`本機角色「${card.id}」已存在。確定更新角色設定嗎？已有的故事存檔不會被改寫。`)) return false;
     if (!existing.some(x => x.id === card.id) && existing.length >= 100) throw new Error('本機角色庫已達 100 張上限，請先備份並移除舊角色。');
     await saveDraft();
-    engine.saveCustom(card);
+    if (typeof engine.saveCustomAsync === 'function') await engine.saveCustomAsync(card);
+    else engine.saveCustom(card);
     const saved = engine.loadCustom().find(x => x.id === card.id);
     if (!saved || saved.system_prompt !== card.system_prompt || saved.greeting !== card.greeting) throw new Error('本機角色庫寫入未通過驗證，請先匯出備份。');
     status('✓ 已加入這台裝置的角色庫。回首頁 → 探索角色即可試玩；沒有公開到 GitHub。');
+    return saved;
   }
   function preview() {
     const c = readCard();
@@ -555,6 +557,7 @@
       window.dispatchEvent(new CustomEvent('bao:studio-gameplay-changed'));
     },
     toExport: card => toExport(card || readCard()),
+    installLocal: install,
     listDrafts: () => database('list'),
     createDraft,
     getState: () => ({ draftId, dirty, hasDraft: Boolean(draftId) })
