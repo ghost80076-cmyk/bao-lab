@@ -234,6 +234,7 @@
     return gameplayUI;
   }
   function readCard() {
+    window.BAOStudioNPCEditor?.assertCommitted?.();
     const name = text('name');
     const world = text('mode') === 'world';
     const profileText = text('profile');
@@ -500,6 +501,15 @@
   });
   window.BAOCharacterStudio = {
     readCard,
+    getInitialNPCs: () => clone(base.initial_state?.npcs || []),
+    setInitialNPCs: npcs => {
+      if (!Array.isArray(npcs) || npcs.length > 50) throw new Error("初始 NPC 名冊最多 50 人。");
+      base = {...base, initial_state:{...(base.initial_state || {}), npcs:clone(npcs)}};
+      dirty = true;
+      $('studio-preview').classList.add('hidden');
+      status("初始 NPC 已修改，尚未儲存草稿。");
+      window.dispatchEvent(new CustomEvent("bao:studio-npcs-changed"));
+    },
     getGameplayUI: () => clone(readGameplayUI()),
     getGameplayPreviewData: () => ({initial_state:clone(base.initial_state || {}),world_modules:clone(base.world_modules || [])}),
     getGameplayUIActivation: () => clone({supported_display:base.supported_display,play_info_surface:base.play_info_surface}),

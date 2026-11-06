@@ -55,6 +55,11 @@ jobs:
         run: node tests/character-status-core.cjs
       - name: Native mature status pack
         run: node tests/native-status-packs-core.cjs
+      - name: Creator initial NPC author editor
+        run: |
+          node --check js/character-studio-npc-editor-core.js
+          node --check js/character-studio-npc-editor.js
+          node tests/character-studio-npc-editor-core.cjs
       - name: State helper concurrency guard
         run: node tests/world-state-concurrency-core.cjs
       - name: State completion and source ownership
