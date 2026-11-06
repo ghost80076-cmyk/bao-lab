@@ -167,6 +167,11 @@ jobs:
           node --check js/character-studio-flow-core.js
           node --check js/character-studio-flow.js
           node tests/character-studio-flow-core.cjs
+      - name: Character studio P3 creation map
+        run: |
+          node --check js/character-studio-creation-map-core.js
+          node --check js/character-studio-creation-map.js
+          node tests/character-studio-creation-map-core.cjs
       - name: Creator and admin character roundtrip
         run: node tests/character-roundtrip-core.cjs
       - name: Creator NPC personality axes
