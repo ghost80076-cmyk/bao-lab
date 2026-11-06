@@ -192,3 +192,30 @@ assert.doesNotMatch(BAONarrativeSettings.playerPortrayalRule({}), /可選觀賞�
 BAONarrativeSettings.set({ observationMode: 'unrecognized' });
 assert.equal(BAONarrativeSettings.get().observationMode, 'off');
 assert.equal(BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()), '');
+
+// Optional NPC motivation continuity uses the existing extras contract; no new state schema.
+assert.deepEqual(BAONarrativeSettings.get().storyExtras, []);
+assert.doesNotMatch(BAONarrativeSettings.buildPrompt({}), /讓已有的長短期目標/);
+BAONarrativeSettings.set({ storyExtras: ['motivation', 'threads', 'motivation', 'unknown'] });
+const motives = BAONarrativeSettings.get();
+assert.deepEqual(motives.storyExtras, ['motivation', 'threads']);
+assert.match(BAONarrativeSettings.statusLabel(motives).title, /人物心理深度/);
+const motivesPrompt = BAONarrativeSettings.buildPrompt(motives);
+assert.match(motivesPrompt, /讓已有的長短期目標/);
+assert.match(motivesPrompt, /重大新資訊、明確拒絕/);
+assert.match(motivesPrompt, /不預設所有人都善於算計/);
+assert.match(motivesPrompt, /不強迫每輪出現心理博弈/);
+assert.match(motivesPrompt, /未執行的打算與猜測不視為既成事實/);
+assert.match(motivesPrompt, /缺少依據時不憑空捏造過往/);
+assert.equal((motivesPrompt.match(/讓已有的長短期目標/g) || []).length, 1);
+const noThoughtDisclosure = BAONarrativeSettings.buildPrompt({
+  playerPortrayal: 'coauthor', innerThoughts: 'none', storyExtras: ['motivation']
+});
+assert.match(noThoughtDisclosure, /不直接揭露 NPC 內心/);
+assert.match(noThoughtDisclosure, /心理呈現仍依既有視角與內心描寫設定/);
+assert.match(noThoughtDisclosure, /玩家選擇「小說共創」/);
+motives.storyExtras.push('tension');
+assert.deepEqual(BAONarrativeSettings.get().storyExtras, ['motivation', 'threads']);
+BAONarrativeSettings.set({ storyExtras: ['not-a-feature'] });
+assert.deepEqual(BAONarrativeSettings.get().storyExtras, []);
+assert.equal(BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()), '');

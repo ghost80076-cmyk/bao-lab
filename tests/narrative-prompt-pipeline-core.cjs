@@ -235,6 +235,24 @@ assert.equal(
   assert.doesNotMatch(JSON.stringify(await App.buildMessages(App.config)), /【本輪觀賞授權】|可選觀賞授權/);
   latestInput = "玩家最新輸入";
 
+
+  // Story-local, opt-in psychology pack shares the stable preference prefix.
+  for (const model of ["google/gemini-3.1-pro-preview", "anthropic/claude-sonnet-4.5"]) {
+    App.config = { api: { model }, narrative: {
+      storyExtras: ['motivation'], innerThoughts: 'none', playerPortrayal: 'coauthor'
+    } };
+    const enabled = await App.buildMessages(App.config);
+    assert.deepEqual(await App.buildMessages(App.config), enabled, "unchanged motivation pack preserves request bytes");
+    const system = enabled.filter(m => m.role === 'system').map(m => m.content).join('\n');
+    assert.equal((system.match(/讓已有的長短期目標/g) || []).length, 1);
+    assert.match(system, /不直接揭露 NPC 內心/);
+    assert.match(system, /玩家已授權小說共創/);
+    assert.doesNotMatch(enabled.at(-1).content, /讓已有的長短期目標/);
+    App.config.narrative = { playerPortrayal: 'coauthor', innerThoughts: 'none' };
+    const disabled = await App.buildMessages(App.config);
+    assert.doesNotMatch(JSON.stringify(disabled), /讓已有的長短期目標/);
+  }
+
   console.log("narrative prompt pipeline core test passed");
 })().catch(error => {
   console.error(error);
