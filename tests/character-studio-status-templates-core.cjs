@@ -49,8 +49,8 @@ const custom = core.upsertField(energy,{
 assert.equal(custom.character_status.fields.length,4);
 const morale = custom.character_status.fields.find(f=>f.key==='morale');
 assert.deepEqual([morale.min,morale.max,morale.default],[-10,10,2]);
-assert.throws(()=>core.upsertField(custom,{...morale,key:'changed'},'morale'),/不可直接改/);
-assert.throws(()=>core.upsertField(custom,{...morale,key:'affinity'}),/不可直接改/);
+assert.throws(()=>core.upsertField(custom,{...morale,key:'changed'},'morale'),/勿直接更名/);
+assert.throws(()=>core.upsertField(custom,{...morale,key:'affinity'}),/勿直接更名/);
 assert.throws(()=>core.upsertField(custom,{...morale,key:'affinity'},''),/已存在/);
 assert.throws(()=>core.upsertField(custom,{...morale,min:11,max:10},'morale'),/最小值/);
 assert.throws(()=>core.upsertField(custom,{...morale,default:999},'morale'),/預設值/);

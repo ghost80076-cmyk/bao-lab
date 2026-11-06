@@ -273,6 +273,17 @@
     if (!fieldPending && !valuesPending) render();
     else message('初始 NPC 名冊已更新；請先完成或取消目前數值編輯。');
   });
+  const studioForm = document.getElementById('studio-form');
+  const refreshSubject = () => {
+    if (fieldPending || valuesPending) return;
+    try {
+      const data = read();
+      renderSubjects(data);
+      renderValues(data);
+    } catch (error) { message('無法更新人物清單：' + error.message); }
+  };
+  studioForm?.elements.namedItem('name')?.addEventListener('input', refreshSubject);
+  studioForm?.elements.namedItem('mode')?.addEventListener('change', refreshSubject);
   window.BAOStudioStatusTemplates = Object.freeze({
     assertCommitted() {
       if (fieldPending && !editor.hidden || valuesPending)
