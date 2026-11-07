@@ -61,7 +61,6 @@ const resolver={resolveActor:(_state,name)=>name==='琳'?'艾琳':name};
   assert.equal(chapter.check(owner.chapterMemory.chapters[0],messages).ok,true,'full story reload keeps source-bound chapter');
   assert.equal(JSON.stringify(owner.chapterMemory.chapters),JSON.stringify(disk.state.chapterMemory));
   const previous=owner.chapterMemory;
-  assert.rejects; // Keep node test compatible with older assert interfaces.
   refuseSave=true;
   await assert.rejects(workflow.removeChapter({...params(),id:approved.id}),/尚未受理保存/);
   assert.equal(owner.chapterMemory,previous,'synchronous save rejection restores original archive');
@@ -79,7 +78,7 @@ const resolver={resolveActor:(_state,name)=>name==='琳'?'艾琳':name};
   assert.equal(owner.chapterMemory,previous,'story switch during flush cannot alter former owner');
   activeOwner=owner;onFlush=()=>{};
   const changed=clone(messages);
-  changed[11].content+='來源已改寫';
+  changed[52].content+='來源已改寫';
   await assert.rejects(workflow.saveChapter({...params(),messages,start:41,end:81,
     currentMessages:()=>changed,text:'另一章。',keywords:['舊信'],scope:'shared',knownBy:[]}),
     /來源已變更/,'editing selected messages before commit invalidates chapter');
@@ -90,7 +89,8 @@ const resolver={resolveActor:(_state,name)=>name==='琳'?'艾琳':name};
   const busyLock={...lock,start:()=>false};
   await assert.rejects(workflow.removeChapter({...params(),id:approved.id,lock:busyLock}),/正在整理或保存/);
   assert.equal(owner.chapterMemory,previous);
-  let audit=chapter.audit(owner.chapterMemory,changed);
+  const editedOld=clone(messages);editedOld[11].content+='較早章節已改寫';
+  let audit=chapter.audit(owner.chapterMemory,editedOld);
   assert.ok(audit.some(x=>!x.ok),'source rewrite makes old record invalid without deleting it');
   await workflow.removeChapter({...params(),id:approved.id});
   assert.equal(owner.chapterMemory.chapters.length,0);
