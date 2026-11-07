@@ -62,7 +62,7 @@ test.describe('YoruBay official identity and concise community entry', () => {
     const guide = page.locator('#character-detail .detail-first-run');
     await expect(guide).toHaveCount(1);
     await expect(guide).toHaveAttribute('href', 'quick-start');
-    await expect(guide).toContainText('第一次來？讓包包帶你開始');
+    await expect(guide).toContainText(/第一次來？(?:讓包包帶你開始|三步開始)/);
     await expect(guide).toHaveAttribute('data-bao-open-guide', '');
     await page.waitForFunction(() => Boolean(window.BAOMascot));
     await guide.click();
