@@ -216,9 +216,10 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOOptionalGroup("full-story-memory-rebuild", ["js/full-story-memory-rebuild-core.js?v=2", "js/full-story-memory-rebuild.js?v=5"]))
     .then(() => loadBAOScript("js/memory-workbench-ai.js?v=7"))
     .then(() => loadBAOScript("js/canon-workbench.js?v=9"))
-    .then(() => loadBAOScript("js/chapter-memory-core.js?v=1"))
-    .then(() => loadBAOScript("js/chapter-memory-workflow.js?v=1"))
-    .then(() => loadBAOScript("js/chapter-memory-workbench.js?v=1"))
+    .then(() => loadBAOOptionalGroup("chapter-memory", [
+      "js/chapter-memory-core.js?v=1", "js/chapter-memory-workflow.js?v=1",
+      "js/chapter-memory-workbench.js?v=1"
+    ]))
     .then(() => loadBAOScript("js/memory-workbench-simplify.js?v=7"))
     .then(() => loadBAOScript("js/chat-markup.js?v=8"))
     .then(() => loadBAOScript("js/story-tools.js?v=17"))
