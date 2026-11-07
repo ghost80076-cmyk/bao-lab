@@ -23,6 +23,7 @@ const GROUPS = [
     'tests/episodic-memory-scenes-core.cjs',
     'tests/chapter-memory-core.cjs',
     'tests/chapter-memory-workbench-core.cjs',
+    'tests/chapter-memory-recall-core.cjs',
     'tests/npc-timeline-sources-core.cjs',
     'tests/npc-timeline-resolution-core.cjs',
     'tests/actor-alias-core.cjs',
