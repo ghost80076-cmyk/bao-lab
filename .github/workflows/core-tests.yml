@@ -677,6 +677,11 @@ jobs:
           node tests/summary-knowledge-core.cjs
           node tests/summary-knowledge-longplay-core.cjs
           node tests/gemini-explicit-cache-core.cjs
+      - name: Opt-in chapter recall budget and cast isolation
+        run: |
+          node --check js/chapter-memory-recall-core.js
+          node --check js/chapter-memory-recall.js
+          node tests/chapter-memory-recall-core.cjs
       - name: Source-bound chapter workbench persistence
         run: |
           node --check js/chapter-memory-workflow.js
