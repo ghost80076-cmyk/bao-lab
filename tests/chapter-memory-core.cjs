@@ -36,8 +36,8 @@ let archive=core.upsert({},shared,messages);
 assert.deepEqual(archive.chapters.map(ch=>ch.id),[shared.id]);
 const same=core.upsert(archive,shared,messages);
 assert.equal(same.chapters.length,1,'idempotent ingestion must not duplicate source ranges');
-assert.equal(core.recall({archive,messages,query:'港口舊信',actors:['守衛'],state,resolver}).selected.length,1);
-assert.equal(core.recall({archive,messages,query:'今天天氣',actors:['艾琳'],state,resolver}).selected.length,0);
+assert.equal(core.recall({archive,messages,query:'港口舊信',state,config:{narrativeMode:'world'},resolver}).selected.length,1);
+assert.equal(core.recall({archive,messages,query:'今天天氣',state,config:{narrativeMode:'immersive'},primary:'艾琳',resolver}).selected.length,0);
 
 const privateDraft=core.createDraft({messages,start:40,end:80,
   text:'艾琳從此得知一段只有她能辨認的秘密暗號。',keywords:['秘密','暗號']});
@@ -46,12 +46,12 @@ assert.throws(()=>core.approve(privateDraft,{messages,knowledge_scope:'shared',k
 const privateEntry=core.approve(privateDraft,{messages,knowledge_scope:'actors',known_by:['琳'],state,resolver});
 assert.deepEqual(privateEntry.known_by,['艾琳']);
 archive=core.upsert(archive,privateEntry,messages);
-assert.equal(core.recall({archive,messages,query:'秘密暗號',actors:['守衛'],state,resolver}).selected.length,0,
+assert.equal(core.recall({archive,messages,query:'秘密暗號',state,config:{narrativeMode:'world'},resolver}).selected.length,0,
   'private chapter cannot become shared knowledge');
-assert.equal(core.recall({archive,messages,query:'秘密暗號',actors:['艾琳','守衛'],state,resolver}).selected.length,0,
+assert.equal(core.recall({archive,messages,query:'秘密暗號',state:{...state,npcs:state.npcs.map(n=>({...n,presence:'present'}))},config:{narrativeMode:'immersive'},primary:'艾琳',resolver}).selected.length,0,
   'mixed cast must not inherit private chapter');
-assert.deepEqual(core.recall({archive,messages,query:'秘密暗號',actors:['艾琳'],state,resolver}).selected.map(e=>e.id),[privateEntry.id]);
-assert.equal(core.recall({archive,messages,query:'秘密暗號',actors:['艾琳'],state}).selected.length,0,
+assert.deepEqual(core.recall({archive,messages,query:'秘密暗號',state,config:{narrativeMode:'immersive'},primary:'艾琳',resolver}).selected.map(e=>e.id),[privateEntry.id]);
+assert.equal(core.recall({archive,messages,query:'秘密暗號',state,config:{narrativeMode:'immersive'},primary:'艾琳'}).selected.length,0,
   'missing knowledge resolver must fail closed');
 const ambiguous={npcs:[
   {name:'甲',aliases:['姐']}, {name:'乙',aliases:['姐']}
@@ -62,7 +62,7 @@ const excludedDraft=core.createDraft({messages,start:80,end:120,
   text:'這段章節應禁止作為角色可見的記憶。',keywords:['排除']});
 const excluded=core.approve(excludedDraft,{messages,knowledge_scope:'exclude'});
 archive=core.upsert(archive,excluded,messages);
-assert.equal(core.recall({archive,messages,query:'排除',actors:['艾琳'],state,resolver}).selected.length,0);
+assert.equal(core.recall({archive,messages,query:'排除',state,config:{narrativeMode:'immersive'},primary:'艾琳',resolver}).selected.length,0);
 assert.throws(()=>core.upsert(archive,core.approve(core.createDraft({messages,start:20,end:60,text:'重疊的章節摘要。',keywords:['重疊']}),{messages,knowledge_scope:'shared'}),messages),/重疊/);
 
 const rewritten=messages.map((m,i)=>i===11?{...m,content:m.content+'已改寫'}:m);
