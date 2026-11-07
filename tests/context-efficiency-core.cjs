@@ -13,6 +13,20 @@ const messages = [
 const report = core.analyze(messages);
 const actualTotal = messages.reduce((n,m) => n + m.content.length, 0);
 assert.equal(report.totalChars, actualTotal);
+const actualBytes = messages.reduce((n,m) => n + Buffer.byteLength(m.content, 'utf8'), 0);
+assert.equal(report.totalUtf8Bytes, actualBytes, 'UTF-8 bytes match the final message content');
+assert.equal(report.layers.reduce((n,x) => n + x.bytes, 0), actualBytes, 'all bytes are attributed exactly once');
+assert.ok(report.layers.find(x=>x.id==='worldbook').bytePercent > 0);
+assert.ok(report.layers.find(x=>x.id==='platform').bytePercent > 0);
+const calibrated = core.calibrate(report, 5400);
+assert.equal(calibrated.providerInputTokens, 5400);
+assert.ok(calibrated.layers.find(x=>x.id==='memory').tokenApprox > 0);
+assert.equal(report.providerInputTokens, undefined, 'source analysis remains usage-independent');
+assert.equal(core.calibrate(report, null).providerInputTokens, undefined, 'no provider usage means no invented Token');
+assert.equal(core.calibrate(report, 0).providerInputTokens, undefined);
+assert.equal(core.calibrate(core.analyze([]), 100).providerInputTokens, undefined, 'empty content has no meaningful allocation');
+assert.equal(core.analyze([{role:'user',content:'漢字😀'}]).totalUtf8Bytes, Buffer.byteLength('漢字😀', 'utf8'));
+
 assert.equal(report.layers.reduce((n,x) => n + x.chars, 0), actualTotal, 'all characters are attributed exactly once');
 assert.ok(report.layers.find(x=>x.id==='world').chars > 0);
 assert.ok(report.layers.find(x=>x.id==='worldbook').chars > 0);

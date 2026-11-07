@@ -25,19 +25,33 @@
   const contentOf = message => typeof message?.content === "string"
     ? message.content : JSON.stringify(message?.content ?? "");
   const numeric = value => value !== null && value !== undefined && Number.isFinite(Number(value)) ? Number(value) : null;
+  // Deterministic UTF-8 byte weight, not a provider tokenizer. Handles astral
+  // code points and unpaired surrogates without requiring a browser encoder.
+  const utf8Bytes = value => {
+    const content = String(value ?? "");
+    let length = 0;
+    for (let i = 0; i < content.length; i++) {
+      const point = content.codePointAt(i);
+      if (point > 0xFFFF) i++;
+      length += point < 0x80 ? 1 : point < 0x800 ? 2 : point < 0x10000 ? 3 : 4;
+    }
+    return length;
+  };
 
   function analyze(messages = [], previous = null) {
     const list = Array.isArray(messages) ? messages : [];
     const totals = Object.fromEntries(TYPES.map(type => [type.id, 0]));
+    const byteTotals = Object.fromEntries(TYPES.map(type => [type.id, 0]));
     const lastUser = list.reduce((index, message, i) => message?.role === "user" ? i : index, -1);
     const seen = new Set();
     let duplicateCount = 0, duplicateChars = 0, inspectedBlocks = 0;
-    let totalChars = 0;
+    let totalChars = 0, totalUtf8Bytes = 0;
 
     for (let i = 0; i < list.length; i++) {
       const message = list[i] || {};
       const value = contentOf(message);
       totalChars += value.length;
+      totalUtf8Bytes += utf8Bytes(value);
       let category = message.role === "system" ? "platform"
         : i === lastUser && message.role === "user" ? "turn" : "history";
       let cursor = 0;
@@ -47,10 +61,12 @@
         const next = typeForHeading(match[1]);
         if (!next) continue;
         totals[category] += match.index - cursor;
+        byteTotals[category] += utf8Bytes(value.slice(cursor, match.index));
         category = next;
         cursor = match.index;
       }
       totals[category] += value.length - cursor;
+      byteTotals[category] += utf8Bytes(value.slice(cursor));
 
       // Exact repeated long paragraphs only; no fuzzy deletion or inspection of old dialogue.
       if (message.role !== "system" && i !== lastUser) continue;
@@ -68,17 +84,35 @@
     const knownPrevious = numeric(previous?.totalChars);
     return {
       totalChars,
+      totalUtf8Bytes,
       layers: TYPES.map(type => ({
         id: type.id, label: type.label, chars: totals[type.id],
-        percent: totalChars ? Number((totals[type.id] * 100 / totalChars).toFixed(1)) : 0
+        bytes: byteTotals[type.id],
+        percent: totalChars ? Number((totals[type.id] * 100 / totalChars).toFixed(1)) : 0,
+        bytePercent: totalUtf8Bytes ? Number((byteTotals[type.id] * 100 / totalUtf8Bytes).toFixed(1)) : 0
       })),
       duplicates: { count: duplicateCount, chars: duplicateChars },
       previousChars: knownPrevious,
       deltaChars: knownPrevious === null ? null : totalChars - knownPrevious,
       basis: "utf16-chars",
-      note: "依已知段落標題與訊息位置分類；字元佔比不是模型 Token 佔比，疑似重複只比對相同長段落。"
+      note: "依已知段落標題與訊息位置分類；UTF-8 位元組權重是粗略比例，不是模型 tokenizer、各層實際 Token 或帳單。"
     };
   }
 
-  return Object.freeze({ analyze, typeForHeading, TYPES });
+  function calibrate(report, providerInputTokens) {
+    const input = numeric(providerInputTokens);
+    if (!report || input === null || input <= 0 || !(report.totalUtf8Bytes > 0)) return report;
+    // Provider's aggregate is real when reported; this proportional allocation
+    // is ONLY a directional estimate, including any unseen serialization overhead.
+    return {
+      ...report,
+      providerInputTokens: input,
+      layers: report.layers.map(layer => ({
+        ...layer,
+        tokenApprox: Math.round(input * layer.bytes / report.totalUtf8Bytes)
+      }))
+    };
+  }
+
+  return Object.freeze({ analyze, calibrate, typeForHeading, TYPES });
 });
