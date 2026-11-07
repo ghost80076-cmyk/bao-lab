@@ -45,8 +45,10 @@
     const entries=archive.chapters.slice(0,core.MAX_CHAPTERS),checks=core.audit(archive,messages);
     area.innerHTML=
       '<p class="chapter-memory-guide">這裡只保存你核對過的章節摘要，內容隨目前故事備份。'+
-      '<strong>不會自動傳送給故事 AI，也不額外呼叫模型。</strong></p>'+
-      '<div class="chapter-memory-stats"><span data-chapter-count></span><span data-chapter-valid></span></div>'+
+      '<strong>預設只在本地保存；只有明確啟用下方章節檢索，才會在符合條件時提供少量舊章節給故事模型。不另呼叫模型。</strong></p>'+
+      '<div class="chapter-memory-stats"><span data-chapter-count></span><span data-chapter-valid></span></div>'+ 
+      '<label class="chapter-recall-toggle"><input type="checkbox" data-chapter-recall-toggle><span><b>使用章節回憶（選用，預設關閉）</b><small>只有智慧整理已覆蓋的舊章節，且來源、NPC 知情、關鍵詞與預算都通過才載入。每輪最多 1 章、粗估增加上限 450 Token；可能增加費用，不保證比較省。完整對話與固定輪數模式不適用。</small></span></label>'+ 
+      '<p class="chapter-recall-diagnostic" data-chapter-recall-diagnostic></p>'+
       '<div class="chapter-memory-list" data-chapter-list></div>'+
       '<form class="chapter-memory-form" data-chapter-form>'+
       '<h4>建立並審閱章節</h4>'+
@@ -61,6 +63,33 @@
       '<p class="chapter-memory-status" data-chapter-status role="status" aria-live="polite"></p>';
     area.querySelector('[data-chapter-count]').textContent='已保存 '+entries.length+' 章';
     area.querySelector('[data-chapter-valid]').textContent='有效 '+checks.filter(x=>x.ok).length+' 章 · 來源失效 '+checks.filter(x=>!x.ok).length+' 章';
+    const toggle=area.querySelector('[data-chapter-recall-toggle]');
+    const enabled=owner.chapterMemorySettings?.version===1 && owner.chapterMemorySettings.recallEnabled===true;
+    toggle.checked=enabled;
+    toggle.disabled=!enabled && !checks.some(result=>result.ok);
+    const last=window.BAOChapterMemoryRecall?.snapshot?.(owner);
+    area.querySelector('[data-chapter-recall-diagnostic]').textContent=last
+      ? (last.chapters ? '上一輪使用 '+last.chapters+' 章 · 額外輸入粗估約 '+last.estimatedExtraTokens+' Token；非服務商計費值。'
+        : '上一輪沒有注入章節（'+last.reason+'）。')
+      : '尚無本次遊玩召回紀錄；未啟用時每輪不增加章節內容。';
+    toggle.addEventListener('change',async()=>{
+      if(active.has(owner))return;
+      const target=toggle.checked;
+      if(!same(owner,config,character)||busy()){
+        toggle.checked=!target;notice(area,'故事正在生成或已切換，沒有變更章節檢索。',true);return;
+      }
+      toggle.disabled=true;active.add(owner);notice(area,'正在儲存章節召回設定…');
+      try{
+        await flow.setRecallEnabled({
+          ...dependencies(owner,config,character),messages:Chat.messages,enabled:target,
+          sourceValid:()=>!target || core.audit(flow.archiveOf(owner),Chat.messages).some(result=>result.ok)
+        });
+        notices.set(owner,target?'已啟用選用章節召回；只在相關且預算允許時提供舊章節。':'已關閉章節召回；章節仍保存在目前故事。');
+        if(same(owner,config,character)&&root.isConnected)window.BAOMemoryWorkbench.refresh(root,'chapters');
+      }catch(error){
+        toggle.checked=!target;notice(area,String(error?.message||error),true);
+      }finally{active.delete(owner);toggle.disabled=false;}
+    });
     const listing=area.querySelector('[data-chapter-list]');
     if(!entries.length)listing.append(textNode('p','尚未保存章節。既有智慧摘要與完整對話都保持不變。','note'));
     const permissionLabel=entry=>entry.knowledge_scope==='shared'?'共用已核准':
@@ -125,7 +154,7 @@
           scope:scope.value,knownBy:names(actors.value),
           state:owner,resolver:window.BAOEpisodicMemory
         });
-        notices.set(owner,'章節 '+saved.id+' 已確認保存；不會自動加入 Prompt。');
+        notices.set(owner,'章節 '+saved.id+' 已保存；僅在玩家啟用召回且本輪符合來源與預算條件時才會使用。');
         if(same(owner,config,character)&&root.isConnected)window.BAOMemoryWorkbench.refresh(root,'chapters');
       }catch(error){notice(area,String(error?.message||error),true);}
       finally{active.delete(owner);submit.disabled=false;}
