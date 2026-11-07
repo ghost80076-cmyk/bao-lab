@@ -61,6 +61,36 @@ test('shows player-facing context health without pretending per-layer token prec
   await expect(dialog).toContainText('32,000 tok');
   await expect(dialog).toContainText('64,000 tok');
   await expect(dialog.locator('.context-efficiency')).toContainText('完成一輪故事請求後');
+  // Local-only token allocation is visible only when a provider supplied
+  // actual aggregate input usage; unknown usage never becomes a fake number.
+  await page.evaluate(() => {
+    const messages = [
+      {role:'system', content:'【角色核心】\\n人物設定與人格。'},
+      {role:'system', content:'【長期記憶摘要】\\n早期約定與重要事件。'},
+      {role:'user', content:'【玩家最新輸入】\\n現在回去找他。'}
+    ];
+    window.__p0OriginalInspector = window.BAOContextInspector;
+    const raw = window.BAOContextEfficiencyCore.analyze(messages);
+    window.__p0Report = raw;
+    window.BAOContextInspector = {...window.__p0OriginalInspector, snapshot:()=>({efficiency:raw})};
+    window.BAOContextHealth.open();
+  });
+  await expect(dialog.locator('.context-efficiency')).toContainText('服務商輸入 Token 未回報');
+  await expect(dialog.locator('.context-efficiency')).not.toContainText('Token（粗估）');
+  await page.evaluate(() => {
+    const estimate = window.BAOContextEfficiencyCore.calibrate(window.__p0Report, 3200);
+    window.BAOContextInspector = {...window.__p0OriginalInspector, snapshot:()=>({efficiency:estimate})};
+    window.BAOContextHealth.open();
+  });
+  await expect(dialog.locator('.context-efficiency')).toContainText('服務商回報 3,200 輸入 Token');
+  await dialog.locator('.context-efficiency-detail summary').click();
+  await expect(dialog.locator('.context-efficiency-rows')).toContainText('Token（粗估）');
+  expect(await dialog.locator('.context-efficiency').evaluate(node => node.scrollWidth <= node.clientWidth + 2)).toBe(true);
+  await page.evaluate(() => {
+    window.BAOContextInspector = window.__p0OriginalInspector;
+    window.BAOContextHealth.open();
+  });
+
   await expect(dialog).toContainText('目前故事層');
   await expect(dialog).toContainText('不假裝估算每一層的精確 Token 佔比');
   await expect(dialog).toContainText('Prompt Cache');
