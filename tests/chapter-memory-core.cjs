@@ -46,7 +46,7 @@ assert.throws(()=>core.approve(privateDraft,{messages,knowledge_scope:'shared',k
 const privateEntry=core.approve(privateDraft,{messages,knowledge_scope:'actors',known_by:['琳'],state,resolver});
 assert.deepEqual(privateEntry.known_by,['艾琳']);
 archive=core.upsert(archive,privateEntry,messages);
-assert.equal(core.recall({archive,messages,query:'秘密暗號',state,config:{narrativeMode:'world'},resolver}).selected.length,0,
+assert.equal(core.recall({archive,messages,query:'秘密暗號',state:{...state,npcs:state.npcs.map(n=>({...n,presence:n.name==='守衛'?'present':'away'}))},config:{narrativeMode:'world'},resolver}).selected.length,0,
   'private chapter cannot become shared knowledge');
 assert.equal(core.recall({archive,messages,query:'秘密暗號',state:{...state,npcs:state.npcs.map(n=>({...n,presence:'present'}))},config:{narrativeMode:'immersive'},primary:'艾琳',resolver}).selected.length,0,
   'mixed cast must not inherit private chapter');
