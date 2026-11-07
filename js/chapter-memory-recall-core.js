@@ -18,7 +18,7 @@
   const MAX_EXTRA_TOKENS_ESTIMATE=450;
   const MAX_CHARS=900;
   function plan({state,config,request={},chat,primary='',baseMessages,resolver,chapterCore}={}){
-    if(config?.memory?.chapterRecall!==true)return no('disabled');
+    if(state?.chapterMemorySettings?.version!==1||state.chapterMemorySettings.recallEnabled!==true)return no('disabled');
     if(config?.memory?.mode!=='smart'||config?.memory?.episodicRecall===false)return no('memory-mode');
     if(!chapterCore?.recall||!resolver?.audience||!resolver?.canRead)return no('dependencies');
     if(!state||!Array.isArray(chat?.messages)||!Array.isArray(baseMessages)||!baseMessages.length)return no('no-source');
