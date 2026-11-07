@@ -42,10 +42,11 @@
     }
     return output;
   };
-  const write = async ({owner,next,sourceValid=()=>true,currentOwner=()=>owner,
+  const write = async ({owner,next,key='chapterMemory',sourceValid=()=>true,currentOwner=()=>owner,
     currentConfig=()=>null,currentCharacter=()=>null,config=null,character=null,
     isBusy=()=>false,save,flush,load,verify,lock}={}) => {
     const core=memoryCore();
+    if (!['chapterMemory','chapterMemorySettings'].includes(key)) throw Error('章節資料類型不允許寫入。');
     if (!core?.commitState || !owner || !lock?.start || !lock?.end ||
         typeof save !== 'function' || typeof flush !== 'function' ||
         typeof load !== 'function' || typeof verify !== 'function') {
@@ -55,17 +56,17 @@
         currentCharacter()!==character || !sourceValid()) {
       throw Error('故事或章節來源已改變，請重新開啟章節工作台。');
     }
-    const previous=owner.chapterMemory;
+    const previous=owner[key];
     const token={};
     if (!lock.start(owner,{token,label:'章節記憶保存中'})) {
       throw Error('故事目前正在整理或保存資料，請完成後再試。');
     }
     const isCurrent=()=> !isBusy() && currentOwner()===owner && currentConfig()===config &&
       currentCharacter()===character && sourceValid() &&
-      (owner.chapterMemory===previous || owner.chapterMemory===next);
+      (owner[key]===previous || owner[key]===next);
     try {
       await core.commitState({
-        owner,changes:{chapterMemory:next},isCurrent,
+        owner,changes:{[key]:next},isCurrent,
         save,flush,load,verify:async saved=>{
           const persisted=await verify(saved);
           return persisted?.ok===true ? {ok:true} : {ok:false};
@@ -101,5 +102,16 @@
     await write({...options,next,sourceValid:()=>owner.chapterMemory===archive || owner.chapterMemory===next});
     return next;
   };
-  return Object.freeze({ranges,archiveOf,saveChapter,removeChapter});
+  const setRecallEnabled = async (options={}) => {
+    const {owner,enabled,messages} = options;
+    if(!owner || typeof enabled!=='boolean') throw Error('章節檢索開關參數不正確。');
+    if(enabled && (!Array.isArray(messages) ||
+      !archiveOf(owner).chapters.some(item=>chapterCore()?.check?.(item,messages)?.ok))) {
+      throw Error('沒有來源有效且經過審閱的章節，無法開啟檢索。');
+    }
+    const next={version:1,recallEnabled:enabled};
+    await write({...options,key:'chapterMemorySettings',next});
+    return next;
+  };
+  return Object.freeze({ranges,archiveOf,saveChapter,removeChapter,setRecallEnabled});
 });
