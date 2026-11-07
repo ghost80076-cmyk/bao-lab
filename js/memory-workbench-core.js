@@ -202,6 +202,10 @@
     const slots = read();
     const box = root.querySelector(".memory-desk-content");
     box.innerHTML = contextHTML()+notesHTML(slots)+refineShellHTML()+chapterShellHTML()+canonShellHTML();
+    if (!window.BAOChapterMemoryWorkbench) {
+      root.querySelector('[data-tab="chapters"]')?.setAttribute('hidden','');
+      if (active === 'chapters') active = 'context';
+    }
     bindNotes(root); switchPane(root,active); stats(root);
     const renderOwner = window.GameState?.current, renderConfig = App.config;
     root.querySelector("[data-hybrid-memory]")?.addEventListener("change", event => {
