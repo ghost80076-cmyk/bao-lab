@@ -9,7 +9,9 @@
   const signature=messages=>JSON.stringify((messages||[]).map(m=>
     [m?.id,m?.role,m?.content,m?.context_content||'']));
   App.wrapBuildMessages('chapter-memory:optional-recall',async function(next,config=this.config,request={}){
-    const state=window.GameState?.current,character=this.activeCharacter,activeConfig=this.config;
+    const state=window.GameState?.current;
+    if(state?.chapterMemorySettings?.recallEnabled!==true)return next(config,request);
+    const character=this.activeCharacter,activeConfig=this.config;
     const transcript=window.Chat?.messages;
     const stamp=signature(transcript);
     const messages=await next(config,request);
