@@ -677,6 +677,10 @@ jobs:
           node tests/summary-knowledge-core.cjs
           node tests/summary-knowledge-longplay-core.cjs
           node tests/gemini-explicit-cache-core.cjs
+      - name: Source-bound chapter archive and permissions
+        run: |
+          node --check js/chapter-memory-core.js
+          node tests/chapter-memory-core.cjs
       - name: P4 read-only world director and continuity guard
         run: |
           node --check js/world-director-core.js
