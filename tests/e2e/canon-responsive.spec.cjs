@@ -77,7 +77,7 @@ test.describe("Canon workbench responsive UI", () => {
     await expect(desk.locator(".memory-desk-head p")).toBeVisible();
     await memoryHelp.click();
     await expect(desk.locator(".memory-desk-head p")).toBeHidden();
-    await expect(desk.locator(".memory-desk-tab:not([hidden])")).toHaveCount(3);
+    await expect(desk.locator(".memory-desk-tab:not([hidden])")).toHaveCount(4);
     await expect(desk.getByRole("button", { name: "記憶狀態" })).toBeVisible();
     await expect(desk.getByRole("button", { name: "必記事項" })).toBeVisible();
     await expect(desk.getByRole("button", { name: "劇情檔案" })).toBeVisible();
