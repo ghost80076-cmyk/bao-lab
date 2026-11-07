@@ -10,7 +10,7 @@
     if (document.querySelector('link[href^="css/context-health.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/context-health.css?v=6";
+    link.href = "css/context-health.css?v=7";
     document.head.appendChild(link);
   };
 
