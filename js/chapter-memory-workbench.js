@@ -66,16 +66,18 @@
     const permissionLabel=entry=>entry.knowledge_scope==='shared'?'共用已核准':
       entry.knowledge_scope==='actors'?'限定角色':'不提供模型';
     for(let index=0;index<entries.length;index++){
-      const item=entries[index],status=checks[index];
-      const card=textNode('article','','chapter-memory-record');card.dataset.chapterId=item.id;
+      const item=entries[index]||{},status=checks[index];
+      const card=textNode('article','','chapter-memory-record');card.dataset.chapterId=String(item.id||'');
       const head=textNode('div','','chapter-memory-record-top');
-      head.append(textNode('b','第 '+(item.source.start+1)+'–'+item.source.end+' 則原文'),
+      const from=Number.isInteger(item.source?.start)?item.source.start+1:'?';
+      const to=Number.isInteger(item.source?.end)?item.source.end:'?';
+      head.append(textNode('b','第 '+from+'–'+to+' 則原文'),
         textNode('small',(status?.ok?'來源已核對':'來源失效，需重建')+' · '+permissionLabel(item)));
       const footer=textNode('div','','chapter-memory-record-bottom');
       const remove=textNode('button','移除此章','secondary');
       remove.type='button';remove.dataset.chapterRemove='';
-      footer.append(textNode('span',(item.keywords||[]).join('、')||'無關鍵詞'),remove);
-      card.append(head,textNode('p',item.text),footer);listing.append(card);
+      footer.append(textNode('span',Array.isArray(item.keywords)?item.keywords.join('、')||'無關鍵詞':'關鍵詞格式異常'),remove);
+      card.append(head,textNode('p',item.text||''),footer);listing.append(card);
     }
     const form=area.querySelector('[data-chapter-form]');
     const range=form.querySelector('[data-chapter-range]');
