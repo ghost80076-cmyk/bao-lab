@@ -9,7 +9,8 @@
   const approximate=value=>{
     if(root?.BAOMemoryCore?.tokens)return root.BAOMemoryCore.tokens(value);
     // Same conservative UTF-8 bytes / 2 fallback as the shared memory core.
-    let bytes=0;for(const ch of String(value||'')){
+    const serial=typeof value==='string'?value:JSON.stringify(value??'');
+    let bytes=0;for(const ch of serial){
       const p=ch.codePointAt(0);
       bytes+=p<128?1:p<2048?2:p<65536?3:4;
     }
