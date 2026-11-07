@@ -66,12 +66,13 @@
     const toggle=area.querySelector('[data-chapter-recall-toggle]');
     const enabled=owner.chapterMemorySettings?.version===1 && owner.chapterMemorySettings.recallEnabled===true;
     toggle.checked=enabled;
-    toggle.disabled=!enabled && !checks.some(result=>result.ok);
+    const recallReady=Boolean(window.BAOChapterMemoryRecall?.snapshot);
+    toggle.disabled=!recallReady || (!enabled && !checks.some(result=>result.ok));
     const last=window.BAOChapterMemoryRecall?.snapshot?.(owner);
     area.querySelector('[data-chapter-recall-diagnostic]').textContent=last
       ? (last.chapters ? '上一輪使用 '+last.chapters+' 章 · 額外輸入粗估約 '+last.estimatedExtraTokens+' Token；非服務商計費值。'
         : '上一輪沒有注入章節（'+last.reason+'）。')
-      : '尚無本次遊玩召回紀錄；未啟用時每輪不增加章節內容。';
+      : (recallReady?'尚無本次遊玩召回紀錄；未啟用時每輪不增加章節內容。':'選用召回模組尚未就緒，本故事的章節資料仍完整保留。');
     toggle.addEventListener('change',async()=>{
       if(active.has(owner))return;
       const target=toggle.checked;
