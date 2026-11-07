@@ -65,9 +65,9 @@ test('shows player-facing context health without pretending per-layer token prec
   // actual aggregate input usage; unknown usage never becomes a fake number.
   await page.evaluate(() => {
     const messages = [
-      {role:'system', content:'【角色核心】\\n人物設定與人格。'},
-      {role:'system', content:'【長期記憶摘要】\\n早期約定與重要事件。'},
-      {role:'user', content:'【玩家最新輸入】\\n現在回去找他。'}
+      {role:'system', content:'【角色核心】\n人物設定與人格。'},
+      {role:'system', content:'【長期記憶摘要】\n早期約定與重要事件。'},
+      {role:'user', content:'【玩家最新輸入】\n現在回去找他。'}
     ];
     window.__p0OriginalInspector = window.BAOContextInspector;
     const raw = window.BAOContextEfficiencyCore.analyze(messages);
