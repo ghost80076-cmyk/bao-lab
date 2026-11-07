@@ -40,6 +40,7 @@ const GROUPS = [
     'tests/memory-prompt-sections-core.cjs',
     'tests/summary-knowledge-core.cjs',
     'tests/summary-knowledge-longplay-core.cjs',
+    'tests/memory-tier-cost-lab-core.cjs',
     'tests/full-story-memory-rebuild-core.cjs',
     'tests/storage-fallback-integrity-core.cjs',
     'tests/story-backup-recovery-core.cjs',
