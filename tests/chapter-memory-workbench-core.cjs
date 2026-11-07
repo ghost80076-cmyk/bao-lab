@@ -59,7 +59,7 @@ const resolver={resolveActor:(_state,name)=>name==='琳'?'艾琳':name};
   assert.equal(lockOwner,null);
   owner=clone(disk.state);activeOwner=owner;
   assert.equal(chapter.check(owner.chapterMemory.chapters[0],messages).ok,true,'full story reload keeps source-bound chapter');
-  assert.equal(JSON.stringify(owner.chapterMemory.chapters),JSON.stringify(disk.state.chapterMemory));
+  assert.equal(JSON.stringify(owner.chapterMemory.chapters),JSON.stringify(disk.state.chapterMemory.chapters));
   const previous=owner.chapterMemory;
   refuseSave=true;
   await assert.rejects(workflow.removeChapter({...params(),id:approved.id}),/尚未受理保存/);
