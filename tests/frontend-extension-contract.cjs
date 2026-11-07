@@ -15,6 +15,8 @@ assert(siteUI.includes('js/world-state-cost.js?v=13'));
 assert(siteUI.includes('js/provider-policy-guard.js?v=1'), 'policy circuit must load before hosted transport');
 assert(siteUI.indexOf('js/provider-policy-guard.js?v=1') < siteUI.indexOf('js/credits-pilot.js?v=2'));
 assert(index.includes('src="js/site-ui.js?v=193"'));
+assert(siteUI.includes('loadBAOOptionalGroup("chapter-memory"'), 'chapter workbench must not block story sends');
+assert(siteUI.indexOf('js/chapter-memory-core.js?v=1') < siteUI.indexOf('js/memory-workbench-simplify.js?v=7'), 'chapter dependency must load before simplified workbench');
 assert(siteUI.includes('js/full-story-memory-rebuild.js?v=5'));
 const appSource = read("js/app.js");
 const bridge = read("js/global-bridge.js");
