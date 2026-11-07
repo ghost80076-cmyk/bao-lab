@@ -148,20 +148,23 @@
     }
     return [...new Set(words)].slice(0,120);
   };
-  const recall = ({archive,messages,query='',actors=[],state,resolver,maxChars=1600,maxEntries=2}={}) => {
+  const recall = ({archive,messages,query='',state,config,primary='',resolver,maxChars=1600,maxEntries=2}={}) => {
     const chapters = Array.isArray(archive?.chapters) ? archive.chapters : [];
     const queryTerms = tokens(query);
     if (!queryTerms.length || !Array.isArray(messages)) return {text:'',selected:[],invalid:0};
     const limit = Math.max(200,Math.min(4000,Math.floor(Number(maxChars)||1600)));
     const entriesLimit = Math.max(1,Math.min(3,Math.floor(Number(maxEntries)||2)));
+    // Derive the real scene audience from the same resolver as episodic memory;
+    // callers must not claim a smaller cast to bypass private NPC knowledge.
+    const audience = resolver?.audience?.({state,config,primary}) || [];
     let invalid = 0;
     const scored=[];
     for(const chapter of chapters.slice(0,MAX_CHAPTERS)){
       if(!check(chapter,messages).ok){invalid++;continue;}
       if(chapter.knowledge_scope === 'exclude') continue;
       if(chapter.knowledge_scope === 'actors' &&
-          (!resolver?.canRead || !Array.isArray(actors) || !actors.length ||
-           !resolver.canRead(chapter,actors,state))) continue;
+          (!resolver?.canRead || !Array.isArray(audience) || !audience.length ||
+           !resolver.canRead(chapter,audience,state))) continue;
       const key = chapter.keywords.join(' ').toLowerCase();
       const body = chapter.text.toLowerCase();
       const score = queryTerms.reduce((total,word) =>
