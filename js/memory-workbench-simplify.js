@@ -294,7 +294,8 @@
     const tabs = {
       context: ["記憶狀態", "看 AI 現在怎麼記"],
       notes: ["必記事項", "指定不能忘記的內容"],
-      canon: ["劇情檔案", "長篇故事的重要事實"]
+      canon: ["劇情檔案", "長篇故事的重要事實"],
+      chapters: ["章節回憶", "核對並保存長篇章節"]
     };
     desk.querySelectorAll(".memory-desk-tab").forEach(button => {
       const key = button.dataset.tab;
