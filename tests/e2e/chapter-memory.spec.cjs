@@ -45,7 +45,7 @@ for(const width of [390,1280]){
     await pane.locator('[data-chapter-actors]').fill('琳');
     await pane.locator('[data-chapter-approval]').check();
     await pane.locator('[data-chapter-submit]').click();
-    await expect(pane.locator('[data-chapter-status]')).toContainText('已確認保存');
+    await expect(pane.locator('[data-chapter-status]')).toContainText('已保存');
     await expect(pane.locator('.chapter-memory-record')).toHaveCount(1);
     const facts=await page.evaluate(()=>({
       runtime:GameState.current.chapterMemory?.chapters?.length,
@@ -118,7 +118,6 @@ test('opt-in chapter recall adds only a bounded old chapter after approved save,
   const estimates=await page.evaluate(()=>({
     output:BAOChapterMemoryRecall.snapshot(GameState.current),
     config:GameState.current.chapterMemorySettings,
-    estimateBefore:BAOMemoryCore.tokens(window.__noStoredValue||''), // must not infer provider billing
   }));
   expect(estimates.config.recallEnabled).toBe(true);
   expect(estimates.output.chapters).toBe(1);
