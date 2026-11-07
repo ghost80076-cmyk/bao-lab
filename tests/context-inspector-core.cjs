@@ -26,6 +26,11 @@ vm.runInContext(fs.readFileSync('js/context-inspector.js','utf8'),ctx);
   assert.equal(snap.layers['事件回憶'][0].match,'trust-tag');
   assert.equal(snap.layers['事件回憶'][0].score,1);
   assert.equal(snap.usage.cached_tokens,0);
+  assert.equal(snap.efficiency.providerInputTokens, 100, 'uses only the returned provider input count');
+  assert.ok(snap.efficiency.totalUtf8Bytes > 0);
+  assert.ok(snap.efficiency.layers.some(layer => layer.tokenApprox > 0));
+  assert.ok(snap.efficiency.layers.every(layer => Number.isFinite(layer.bytePercent)));
+
   assert.doesNotMatch(JSON.stringify(snap),/PRIVATE_KEY|reply/);
   snap.messages[0].chars=999;assert.equal(ctx.BAOContextInspector.snapshot().messages[0].chars,'system'.length);
   await ctx.API.send({...config,__stateTask:true},[{role:'user',content:'helper'}]);
