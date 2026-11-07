@@ -677,6 +677,10 @@ jobs:
           node tests/summary-knowledge-core.cjs
           node tests/summary-knowledge-longplay-core.cjs
           node tests/gemini-explicit-cache-core.cjs
+      - name: P1 long-memory synthetic tier cost acceptance
+        run: |
+          node --check scripts/memory-tier-cost-lab.cjs
+          node tests/memory-tier-cost-lab-core.cjs
       - name: Opt-in chapter recall budget and cast isolation
         run: |
           node --check js/chapter-memory-recall-core.js
