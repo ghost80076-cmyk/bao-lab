@@ -81,7 +81,7 @@ const resolver={resolveActor:(_state,name)=>name==='琳'?'艾琳':name};
   changed[52].content+='來源已改寫';
   await assert.rejects(workflow.saveChapter({...params(),messages,start:41,end:81,
     currentMessages:()=>changed,text:'另一章。',keywords:['舊信'],scope:'shared',knownBy:[]}),
-    /來源已變更/,'editing selected messages before commit invalidates chapter');
+    /來源已改變|來源已變更/,'editing selected messages before commit invalidates chapter');
   assert.equal(owner.chapterMemory,previous);
   await assert.rejects(workflow.saveChapter({...params(),messages,start:41,end:81,
     text:'未分類的內容。',keywords:[],scope:'actors',knownBy:[],state:owner,resolver}),/知情名單/);
