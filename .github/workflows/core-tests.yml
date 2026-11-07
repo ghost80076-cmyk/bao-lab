@@ -681,6 +681,11 @@ jobs:
         run: |
           node --check scripts/memory-tier-cost-lab.cjs
           node tests/memory-tier-cost-lab-core.cjs
+      - name: Opt-in chapter recall budget and cast isolation
+        run: |
+          node --check js/chapter-memory-recall-core.js
+          node --check js/chapter-memory-recall.js
+          node tests/chapter-memory-recall-core.cjs
       - name: Source-bound chapter workbench persistence
         run: |
           node --check js/chapter-memory-workflow.js

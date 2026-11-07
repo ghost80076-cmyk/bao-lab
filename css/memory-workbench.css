@@ -289,3 +289,11 @@ html:is([data-yoru-theme="mist"],[data-yoru-theme="dawn"],[data-yoru-theme="dusk
  .memory-simple .memory-desk-tab b{font-size:11px}
  .chapter-memory-form,.chapter-memory-record{padding:12px}
 }
+
+/* Explicit per-story opt-in for local, bounded chapter recall. */
+.chapter-recall-toggle{display:flex;align-items:flex-start;gap:12px;padding:14px;margin:8px 0 10px;border:1px solid var(--yoru-card-border,var(--border));border-radius:13px;background:var(--yoru-card,#17161a);line-height:1.6}
+.chapter-recall-toggle>input{flex:none;width:19px;height:19px;min-height:19px;margin:2px 0 0}
+.chapter-recall-toggle span{display:grid;gap:5px;min-width:0}
+.chapter-recall-toggle b{font-size:13px;color:var(--yoru-text,var(--text))}
+.chapter-recall-toggle small,.chapter-recall-diagnostic{font-size:11px;color:var(--yoru-muted,var(--muted));line-height:1.65;overflow-wrap:anywhere}
+.chapter-recall-diagnostic{margin:3px 0 15px}

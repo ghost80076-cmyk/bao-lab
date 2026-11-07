@@ -45,7 +45,7 @@ for(const width of [390,1280]){
     await pane.locator('[data-chapter-actors]').fill('琳');
     await pane.locator('[data-chapter-approval]').check();
     await pane.locator('[data-chapter-submit]').click();
-    await expect(pane.locator('[data-chapter-status]')).toContainText('已確認保存');
+    await expect(pane.locator('[data-chapter-status]')).toContainText('已保存');
     await expect(pane.locator('.chapter-memory-record')).toHaveCount(1);
     const facts=await page.evaluate(()=>({
       runtime:GameState.current.chapterMemory?.chapters?.length,
@@ -81,3 +81,51 @@ for(const width of [390,1280]){
     await expect(desk).toHaveCount(0);
   });
 }
+
+
+test('opt-in chapter recall adds only a bounded old chapter after approved save, and opting out restores the baseline',async({page})=>{
+  await prepare(page,390);
+  await page.waitForFunction(()=>window.BAOChapterMemoryRecall&&window.BAOChapterMemoryRecallCore);
+  const desk=page.getByRole('dialog',{name:'記憶工作台'});
+  await desk.locator('.memory-desk-tab[data-tab="chapters"]').click();
+  const pane=desk.locator('[data-pane="chapters"]');
+  await expect(pane.locator('[data-chapter-recall-toggle]')).not.toBeChecked();
+  await pane.locator('[data-chapter-range]').selectOption('1:41');
+  await pane.locator('.chapter-memory-source summary').click();
+  await pane.locator('[data-chapter-text]').fill('在港口，艾琳向旅人提供了舊信秘密的線索；守衛未曾得知。');
+  await pane.locator('[data-chapter-keywords]').fill('港口、舊信、秘密');
+  await pane.locator('[data-chapter-scope]').selectOption('actors');
+  await pane.locator('[data-chapter-actors]').fill('艾琳');
+  await pane.locator('[data-chapter-approval]').check();
+  await pane.locator('[data-chapter-submit]').click();
+  await expect(pane.locator('.chapter-memory-record')).toHaveCount(1);
+  await page.evaluate(()=>{
+    Chat.summary='港口以前曾交換過信件，來源仍待查證。';
+    Chat.summarizedUntil=80;
+    App.config.memory.maxContext=128000;
+    Chat.add('user','你記得港口舊信的秘密嗎？');
+  });
+  const before=await page.evaluate(async()=>await App.buildMessages(App.config));
+  expect(before.at(-1).content).not.toContain('【選用章節回憶');
+  await pane.locator('[data-chapter-recall-toggle]').check();
+  await expect(pane.locator('[data-chapter-recall-toggle]')).toBeChecked();
+  await page.waitForFunction(()=>Storage.loadStory()?.state?.chapterMemorySettings?.recallEnabled===true);
+  const after=await page.evaluate(async()=>await App.buildMessages(App.config));
+  expect(after).toHaveLength(before.length);
+  expect(after[0].content).toBe(before[0].content);
+  expect(after.at(-1).content).toContain('【選用章節回憶');
+  expect(after.at(-1).content).toContain(before.at(-1).content);
+  const estimates=await page.evaluate(()=>({
+    output:BAOChapterMemoryRecall.snapshot(GameState.current),
+    config:GameState.current.chapterMemorySettings,
+  }));
+  expect(estimates.config.recallEnabled).toBe(true);
+  expect(estimates.output.chapters).toBe(1);
+  expect(estimates.output.estimatedExtraTokens).toBeLessThanOrEqual(450);
+  await pane.locator('[data-chapter-recall-toggle]').uncheck();
+  await page.waitForFunction(()=>Storage.loadStory()?.state?.chapterMemorySettings?.recallEnabled===false);
+  const off=await page.evaluate(async()=>await App.buildMessages(App.config));
+  expect(off.at(-1).content).not.toContain('【選用章節回憶');
+  expect(off.at(-1).content).toBe(before.at(-1).content);
+  await desk.locator('.memory-desk-close').click();
+});
