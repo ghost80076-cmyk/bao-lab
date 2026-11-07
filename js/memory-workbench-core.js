@@ -13,7 +13,7 @@
     if (document.querySelector('link[href^="css/memory-workbench.css"]')) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/memory-workbench.css?v=8";
+    link.href = "css/memory-workbench.css?v=9";
     document.head.appendChild(link);
   };
   const read = () => {
@@ -116,6 +116,7 @@
   };
   const notesHTML = slots => `<section class="memory-pane" data-pane="notes"><div class="memory-pane-title"><div><h3>長期筆記</h3><p>筆記會依啟用狀態與知情範圍提供給故事模型。可手動新增、修改或停用，不同故事互不混用。</p></div><span class="memory-pill">STORY LOCAL</span></div><div class="memory-note-grid">${slots.map(s=>`<article class="memory-note-card" data-slot="${attr(s.id)}"><div class="memory-note-top"><input type="checkbox" data-slot-enabled ${s.enabled?"checked":""}><input type="text" data-slot-title maxlength="60" value="${attr(s.title)}"><button type="button" class="memory-note-delete" data-slot-delete>刪除</button></div><textarea data-slot-text maxlength="20000" placeholder="世界觀、NPC、角色關係、重要事件與承諾…">${esc(s.text||"")}</textarea>${scopeHTML(s)}<div class="memory-note-meta"><span>本故事長期筆記</span><span data-slot-count>${String(s.text||"").length.toLocaleString()} / 20,000</span></div></article>`).join("")}</div><button type="button" class="memory-add-note" data-add-note>＋ 新增長期筆記</button></section>`;
   const refineShellHTML = () => `<section class="memory-pane" data-pane="refine"><div class="memory-pane-title"><div><h3>AI 整理</h3><p>選擇資料範圍與整理模型，先產生草稿，再決定是否寫入長期筆記。</p></div><span class="memory-pill">MODEL ASSIST</span></div><div id="memory-ai-area"></div></section>`;
+  const chapterShellHTML = () => '<section class="memory-pane" data-pane="chapters"><div class="memory-pane-title"><div><h3>章節回憶</h3><p>核對完整原文後保存；目前只建立本地章節索引，不自動加入故事 Prompt。</p></div><span class="memory-pill">REVIEWED ONLY</span></div><div id="chapter-memory-area"></div></section>';
   const canonShellHTML = () => `<section class="memory-pane" data-pane="canon"><div class="memory-pane-title"><div><h3>Canon 資料庫</h3><p>從歷史對話建立可校驗、可修改、由玩家確認的劇情基準。</p></div><span class="memory-pill">PLAYER CONFIRMED</span></div><div id="canon-workbench-area"></div></section>`;
   const switchPane = (root,name) => {
     root.querySelectorAll(".memory-desk-tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===name));
@@ -200,7 +201,7 @@
     if(root.dataset)delete root.dataset.memoryNotesStale;
     const slots = read();
     const box = root.querySelector(".memory-desk-content");
-    box.innerHTML = contextHTML()+notesHTML(slots)+refineShellHTML()+canonShellHTML();
+    box.innerHTML = contextHTML()+notesHTML(slots)+refineShellHTML()+chapterShellHTML()+canonShellHTML();
     bindNotes(root); switchPane(root,active); stats(root);
     const renderOwner = window.GameState?.current, renderConfig = App.config;
     root.querySelector("[data-hybrid-memory]")?.addEventListener("change", event => {
@@ -226,12 +227,13 @@
     window.BAOMemoryAI?.mount?.(root,slots);
     window.BAOFullStoryMemoryRebuild?.mount?.(root);
     window.BAOCanonWorkbench?.mount?.(root);
+    window.BAOChapterMemoryWorkbench?.mount?.(root);
   };
   const open = () => {
     close(); ensureStyles();
     returnFocus = document.activeElement;
     const wrap=document.createElement("div"); wrap.className="memory-desk-backdrop";
-    wrap.innerHTML=`<section class="memory-desk"><header class="memory-desk-head"><div class="memory-desk-kicker">MEMORY DESK · YORUBAY</div><h2>記憶工作台</h2><p>把「近期脈絡」「長期筆記」「AI 整理」「正式劇情資料庫（Canon）」拆開管理。</p></div><button type="button" class="memory-desk-close">關閉</button></header><div class="memory-desk-stats"><div class="memory-desk-stat"><span>對話輪數</span><b data-stat="rounds">—</b></div><div class="memory-desk-stat"><span>自動記憶</span><b data-stat="auto">—</b></div><div class="memory-desk-stat"><span>摘要已覆蓋</span><b data-stat="covered">—</b></div><div class="memory-desk-stat"><span>待整理</span><b data-stat="pending">—</b></div><div class="memory-desk-stat"><span>固定筆記</span><b data-stat="notes">—</b></div><div class="memory-desk-stat"><span>整理模型</span><b data-stat="api">—</b></div></div><div class="memory-desk-main"><nav class="memory-desk-nav"><button class="memory-desk-tab active" data-tab="context"><b>記憶總覽</b><span>狀態、摘要與近期預覽</span></button><button class="memory-desk-tab" data-tab="notes"><b>長期筆記</b><span>管理本故事固定記憶</span></button><button class="memory-desk-tab" data-tab="refine"><b>AI 整理</b><span>指定模型整理</span></button><button class="memory-desk-tab" data-tab="canon"><b>正式劇情資料庫（Canon）</b><span>重建與校驗劇情</span></button></nav><div class="memory-desk-content"></div></div></section>`;
+    wrap.innerHTML=`<section class="memory-desk"><header class="memory-desk-head"><div class="memory-desk-kicker">MEMORY DESK · YORUBAY</div><h2>記憶工作台</h2><p>把「近期脈絡」「長期筆記」「AI 整理」「正式劇情資料庫（Canon）」拆開管理。</p></div><button type="button" class="memory-desk-close">關閉</button></header><div class="memory-desk-stats"><div class="memory-desk-stat"><span>對話輪數</span><b data-stat="rounds">—</b></div><div class="memory-desk-stat"><span>自動記憶</span><b data-stat="auto">—</b></div><div class="memory-desk-stat"><span>摘要已覆蓋</span><b data-stat="covered">—</b></div><div class="memory-desk-stat"><span>待整理</span><b data-stat="pending">—</b></div><div class="memory-desk-stat"><span>固定筆記</span><b data-stat="notes">—</b></div><div class="memory-desk-stat"><span>整理模型</span><b data-stat="api">—</b></div></div><div class="memory-desk-main"><nav class="memory-desk-nav"><button class="memory-desk-tab active" data-tab="context"><b>記憶總覽</b><span>狀態、摘要與近期預覽</span></button><button class="memory-desk-tab" data-tab="notes"><b>長期筆記</b><span>管理本故事固定記憶</span></button><button class="memory-desk-tab" data-tab="refine"><b>AI 整理</b><span>指定模型整理</span></button><button class="memory-desk-tab" data-tab="chapters"><b>章節回憶</b><span>手動核對與保存長篇章節</span></button><button class="memory-desk-tab" data-tab="canon"><b>正式劇情資料庫（Canon）</b><span>重建與校驗劇情</span></button></nav><div class="memory-desk-content"></div></div></section>`;
     const dialog = wrap.querySelector('.memory-desk');
     dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');dialog.setAttribute('aria-label','記憶工作台');
     document.body.appendChild(wrap); render(wrap);
