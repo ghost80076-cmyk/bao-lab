@@ -217,8 +217,8 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/memory-workbench-ai.js?v=7"))
     .then(() => loadBAOScript("js/canon-workbench.js?v=9"))
     .then(() => loadBAOOptionalGroup("chapter-memory", [
-      "js/chapter-memory-core.js?v=1", "js/chapter-memory-workflow.js?v=1",
-      "js/chapter-memory-workbench.js?v=1"
+      "js/chapter-memory-core.js?v=1", "js/chapter-memory-workflow.js?v=2",
+      "js/chapter-memory-workbench.js?v=2"
     ]))
     .then(() => loadBAOScript("js/memory-workbench-simplify.js?v=7"))
     .then(() => loadBAOScript("js/chat-markup.js?v=8"))
@@ -230,6 +230,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/prompt-cache.js?v=12"))
     .then(() => loadBAOScript("js/prompt-orchestrator.js?v=8"))
     .then(() => loadBAOScript("js/episodic-memory.js?v=5"))
+    .then(() => loadBAOOptionalGroup("chapter-recall", ["js/chapter-memory-recall-core.js?v=1", "js/chapter-memory-recall.js?v=1"]))
     .then(() => worldModulesReady)
     .then(() => loadBAOScript("js/story-timeline.js?v=2"))
     .then(() => loadBAOScript("js/npc-timeline.js?v=5"))
