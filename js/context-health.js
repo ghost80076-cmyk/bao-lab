@@ -93,7 +93,7 @@
     <details class="context-efficiency-detail">
       <summary>查看各層占比與重複分析</summary>
       <div class="context-efficiency-rows">
-        ${layers.map(item => `<div class="context-efficiency-row"><span class="context-efficiency-swatch context-efficiency-color-${esc(item.id)}"></span><span>${esc(weightPercent(item).toFixed(1))}%</b><small>${fmt(item.chars)} 字元${esc(tokenLabel(item))}</small></div>`).join("")}
+        ${layers.map(item => `<div class="context-efficiency-row"><span class="context-efficiency-swatch context-efficiency-color-${esc(item.id)}"></span><span>${esc(item.label)}</span><b>${esc(weightPercent(item).toFixed(1))}%</b><small>${fmt(item.chars)} 字元${esc(tokenLabel(item))}</small></div>`).join("")}
       </div>
       <p>疑似重複：${fmt(report.duplicates?.count)} 段長文字（約 ${fmt(report.duplicates?.chars)} 字元）。只比對固定與本輪內容中的完全相同長段落；可能是刻意保留的必要資訊，不會自動刪除。</p>
       <p>占比按 UTF-8 位元組權重粗估；若服務商有回報總輸入 Token，才依相同比例分攤成「約 Token」。各層數值不是模型 tokenizer 結果，也無法反映各類內容的實際計費、快取折抵或隱藏序列化開銷。未回報就不推算。原始內容只供玩家本機分析，不另行上傳或保存此報告。</p>
