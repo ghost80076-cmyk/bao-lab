@@ -60,7 +60,7 @@ function select(chapters, messages, query, max = 2) {
   return chapters.filter(c => c.id === wanted[0] && validChapter(c, messages)).slice(0, max);
 }
 function chatRuntime() {
-  const runtime = { console, GameState: { current: {} }, BAOHelperData: { narrativeMemoryRules: '' } };
+  const runtime = { console, addEventListener() {}, GameState: { current: {} }, BAOHelperData: { narrativeMemoryRules: '' } };
   runtime.window = runtime;
   vm.createContext(runtime);
   const source = fs.readFileSync(path.resolve(__dirname, '../js/chat.js'), 'utf8');
