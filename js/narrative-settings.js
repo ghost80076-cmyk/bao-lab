@@ -206,7 +206,7 @@
     if (!document.querySelector('link[href^="css/narrative-settings.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "css/narrative-settings.css?v=10";
+      link.href = "css/narrative-settings.css?v=11";
       document.head.appendChild(link);
     }
   };
@@ -350,6 +350,15 @@
     });
   };
 
+  const responseLengthSource = (value, storyLocal) => {
+    if (value !== "card") {
+      return storyLocal ? "本故事篇幅優先於瀏覽器預設" : "此篇幅將作為新故事的起始偏好";
+    }
+    const browserLength = window.BAOPlayerSettings?.get?.().replyLength;
+    const label = { short: "短", long: "長", auto: "自動" }[browserLength];
+    return label ? `沿用瀏覽器回覆長度（${label}）` : "沿用瀏覽器回覆長度";
+  };
+
   const openModal = ({ focusInstructions = false, draft = null } = {}) => {
     close();
     const prefs = draft ? normalizePrefs(draft) : activePrefs();
@@ -384,12 +393,12 @@
               </select><small class="narrative-observer-hint">開放後，單獨送出「繼續」「然後呢」或「【觀賞一輪】」，本輪可讓 AI 依人設代演日常言行。下輪由你說話或行動就恢復原本模式；重大決策仍由你決定。「繼續描寫」快捷指令不會啟動觀賞。</small>
             </label>
             <label>每輪篇幅
-              <select data-pref="responseLength">
+              <select data-pref="responseLength" aria-describedby="narrative-length-source">
                 <option value="card" ${prefs.responseLength === "card" ? "selected" : ""}>沿用回覆設定</option>
                 <option value="short" ${prefs.responseLength === "short" ? "selected" : ""}>精簡 · 約 300–600 字</option>
                 <option value="medium" ${prefs.responseLength === "medium" ? "selected" : ""}>適中 · 約 600–1000 字</option>
                 <option value="long" ${prefs.responseLength === "long" ? "selected" : ""}>詳細 · 約 900–1400 字</option>
-              </select><small>指定篇幅優先；未指定時沿用「回覆設定」的預設。</small>
+              </select><small id="narrative-length-source" class="narrative-length-source" role="status">${responseLengthSource(prefs.responseLength, storyLocal)}</small>
             </label>
             <label>對話與描寫
               <select data-pref="dialogueBalance">
@@ -559,6 +568,9 @@
     }));
     wrap.querySelectorAll("[data-pref]").forEach(select => select.addEventListener("change", () => {
       wrap.querySelectorAll(`[data-pref="${select.dataset.pref}"]`).forEach(other => { other.value = select.value; });
+      if (select.dataset.pref === "responseLength") {
+        wrap.querySelector("#narrative-length-source").textContent = responseLengthSource(select.value, storyLocal);
+      }
       refreshInstructionCards(wrap);
     }));
     refreshNight();
@@ -811,6 +823,7 @@
       ["short", "medium", "long"].includes(normalizePrefs(config?.narrative || settings).responseLength),
     classifyInstruction,
     effectiveCustomInstructions: prefs => [...effectiveCustomInstructions(normalizePrefs(prefs).customInstructions, normalizePrefs(prefs))],
+    storyExtraLabel: key => extras[key]?.[0],
     summaryItems: prefs => [...summaryItems(prefs)],
     statusLabel: prefs => ({ ...statusLabel(prefs), items: [...statusLabel(prefs).items] })
   };
