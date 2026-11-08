@@ -22,6 +22,7 @@ for (const width of [390, 1280]) {
     });
     const retry = page.locator('[data-retry-auto-memory]');
     await expect(retry).toBeVisible();
+    await expect(page.locator('[data-memory-recovery-hint]')).toContainText('重試自動記憶整理');
     await retry.click();
     await expect(page.locator('.memory-health-card')).toContainText('已整理');
     await expect(page.locator('.memory-diagnostics')).toContainText('模型結束原因：STOP');
@@ -69,6 +70,25 @@ for (const width of [390, 1280]) {
     await desk.locator('[data-memory-ai-helper]').click();
     await expect(desk.locator('[data-pane="refine"]')).toContainText('不會推進自動摘要進度');
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
+  });
+
+  test(`memory status separates full history from smart-summary backlog (${width}px)`, async ({ page }) => {
+    await prepare(page,'full');
+    await page.evaluate(() => {
+      Chat.summary = '已整理的舊劇情';
+      Chat.summarizedUntil = 10;
+      BAOMemoryWorkbench.open();
+    });
+    const desk = page.locator('.memory-desk');
+    const status = desk.locator('.memory-health-card');
+    await expect(status).toContainText('完整對話：故事模型使用完整對話紀錄');
+    await expect(status).not.toContainText('固定輪數');
+    await expect(desk.locator('[data-retry-auto-memory]')).toBeDisabled();
+
+    await desk.locator('[data-context-auto-summary]').check();
+    await expect(status).toContainText('智慧整理：已整理 5 輪，待整理 5 輪');
+    await expect(desk.locator('[data-memory-recovery-hint]')).toBeHidden();
+    expect(await page.evaluate(() => Chat.summarizedUntil)).toBe(10);
   });
 
   test(`AI notes reject truncated valid JSON through the real request pipeline (${width}px)`, async ({ page }) => {
