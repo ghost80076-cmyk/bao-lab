@@ -15,12 +15,15 @@ const GROUPS = [
     'tests/story-backup-core.cjs', 'tests/context-pack-resume-core.cjs', 'tests/request-lifecycle-core.cjs'
   ] },
   { id: 'memory', patterns: [
-    /^js\/(?:memory-|summary-knowledge|context-|canon-|episodic-memory|full-story-memory|story-tools|story-maintenance|story-data-task|helper-context|helper-data|reader-context|prompt-cache\.js|player-settings\.js|chat\.js)/,
-    /^tests\/(?:memory-|summary-knowledge|context-|canon-|manual-memory|episodic-memory|full-story-memory|story-maintenance|story-data-task|helper-context|episodic-recall-ownership|worldbook-recall-ownership)/
+    /^js\/(?:chapter-|memory-|summary-knowledge|context-|canon-|episodic-memory|full-story-memory|story-tools|story-maintenance|story-data-task|helper-context|helper-data|reader-context|prompt-cache\.js|player-settings\.js|chat\.js)/,
+    /^tests\/(?:chapter-|memory-|summary-knowledge|context-|canon-|manual-memory|episodic-memory|full-story-memory|story-maintenance|story-data-task|helper-context|episodic-recall-ownership|worldbook-recall-ownership)/
   ], tests: [
     'tests/episodic-memory-core.cjs',
     'tests/episodic-memory-permissions-core.cjs',
     'tests/episodic-memory-scenes-core.cjs',
+    'tests/chapter-memory-core.cjs',
+    'tests/chapter-memory-workbench-core.cjs',
+    'tests/chapter-memory-recall-core.cjs',
     'tests/npc-timeline-sources-core.cjs',
     'tests/npc-timeline-resolution-core.cjs',
     'tests/actor-alias-core.cjs',
@@ -40,6 +43,7 @@ const GROUPS = [
     'tests/memory-prompt-sections-core.cjs',
     'tests/summary-knowledge-core.cjs',
     'tests/summary-knowledge-longplay-core.cjs',
+    'tests/memory-tier-cost-lab-core.cjs',
     'tests/full-story-memory-rebuild-core.cjs',
     'tests/storage-fallback-integrity-core.cjs',
     'tests/story-backup-recovery-core.cjs',

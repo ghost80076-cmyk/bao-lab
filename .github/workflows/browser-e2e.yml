@@ -81,6 +81,7 @@ jobs:
               tests/e2e/character-studio-flow.spec.cjs
               tests/e2e/character-studio-npc-editor.spec.cjs
               tests/e2e/character-studio-status-templates.spec.cjs
+              tests/e2e/character-studio-creation-map.spec.cjs
               tests/e2e/character-studio-lifecycle.spec.cjs
               tests/e2e/character-studio-rehearsal.spec.cjs
               tests/e2e/admin-workbench-navigation.spec.cjs
@@ -197,6 +198,7 @@ jobs:
           tests/e2e/story-history.spec.cjs
           tests/e2e/story-tool-navigation-intent.spec.cjs
           tests/e2e/memory-workbench-theme.spec.cjs
+          tests/e2e/chapter-memory.spec.cjs
           tests/e2e/memory-recovery.spec.cjs
           tests/e2e/full-story-memory-rebuild.spec.cjs
           tests/e2e/memory-preferences.spec.cjs

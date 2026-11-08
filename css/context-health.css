@@ -83,7 +83,7 @@
 .context-efficiency-detail summary{cursor:pointer;font-size:12px;font-weight:700}
 .context-efficiency-rows{display:grid;gap:8px;margin-top:13px}
 .context-efficiency-row{display:grid;grid-template-columns:9px minmax(0,1fr) 50px 90px;gap:8px;align-items:center;font-size:12px}
-.context-efficiency-row small{text-align:right;color:var(--yoru-muted,var(--muted))}
+.context-efficiency-row small{text-align:right;color:var(--yoru-muted,var(--muted));min-width:0;overflow-wrap:anywhere;line-height:1.45}
 .context-efficiency-row b{text-align:right}
 .context-efficiency-swatch{display:inline-block;width:9px;height:9px;border-radius:3px}
 

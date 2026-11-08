@@ -350,8 +350,15 @@
   const update = () => {
     const shell = makeShell();
     const currentValues = values();
+    const authorStatus = window.BAOCharacterStudio?.getAuthorStatusData?.() || {};
+    const structuredWorld = Boolean(
+      window.BAOCharacterStudio?.getInitialNPCs?.().length
+      || authorStatus.character_status?.fields?.length
+      || Object.keys(authorStatus.initial_state?.character_statuses || {}).length
+    );
     const states = core.stepStates(currentValues, {
-      gameplayEnabled: !Boolean(field("gameplay_theme")?.disabled)
+      gameplayEnabled: !Boolean(field("gameplay_theme")?.disabled),
+      worldStructured: structuredWorld
     });
     const required = core.requiredProgress(currentValues);
     const progress = shell.querySelector("#studio-flow-progress");
@@ -423,6 +430,8 @@
 
   form.addEventListener("input", update);
   form.addEventListener("change", update);
+  window.addEventListener("bao:studio-npcs-changed", update);
+  window.addEventListener("bao:studio-status-changed", update);
   // WebKit does not necessarily focus a clicked button. Revealing the sticky
   // navigation on blur can move that button between pointerdown and click,
   // swallowing Save/Preview/Apply. Keep the editing layout until the gesture

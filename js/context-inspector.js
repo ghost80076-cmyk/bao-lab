@@ -52,6 +52,9 @@
       // Copy numeric provider usage only; never retain config, keys or response text.
       entry.usage = Object.fromEntries(['input_tokens','cached_tokens','output_tokens'].map(key =>
         [key, typeof result?.usage?.[key] === 'number' ? result.usage[key] : null]));
+      // Allocate the already-reported total proportionally for a local planning
+      // hint only. Never mistake a layer estimate for provider-billed tokens.
+      if (efficiency) entry.efficiency = window.BAOContextEfficiencyCore?.calibrate?.(efficiency, entry.usage.input_tokens) || efficiency;
       return result;
     } catch (error) { entry.status = 'failed'; throw error; }
   });

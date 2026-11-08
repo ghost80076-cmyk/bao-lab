@@ -55,4 +55,10 @@ assert.equal(core.validId("bad id"), false);
   assert.equal(states.finish.state, "ready");
 }
 
+{
+  const states = core.stepStates({}, { worldStructured: true });
+  assert.equal(states.world.state, "complete");
+  assert.equal(states.world.label, "已填寫");
+}
+
 console.log("character studio flow core test passed");

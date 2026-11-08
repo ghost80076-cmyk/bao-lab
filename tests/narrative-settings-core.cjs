@@ -219,3 +219,35 @@ assert.deepEqual(BAONarrativeSettings.get().storyExtras, ['motivation', 'threads
 BAONarrativeSettings.set({ storyExtras: ['not-a-feature'] });
 assert.deepEqual(BAONarrativeSettings.get().storyExtras, []);
 assert.equal(BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()), '');
+
+
+// Optional narrative flexibility is a prose-only story extra, not a new core rule.
+assert.equal(BAONarrativeSettings.buildPrompt({}), '');
+assert.doesNotMatch(BAONarrativeSettings.buildPrompt({ storyExtras: ['unknown'] }), /讓句式、描寫焦點/);
+BAONarrativeSettings.set({ storyExtras: ['flexibility', 'motivation', 'flexibility', 'unknown'] });
+const flexible = BAONarrativeSettings.get();
+assert.deepEqual(flexible.storyExtras, ['flexibility', 'motivation']);
+assert.match(BAONarrativeSettings.statusLabel(flexible).title, /敘事靈活性/);
+assert.match(BAONarrativeSettings.statusLabel(flexible).title, /人物心理深度/);
+const flexiblePrompt = BAONarrativeSettings.buildPrompt(flexible);
+assert.match(flexiblePrompt, /讓句式、描寫焦點、對話節奏/);
+assert.match(flexiblePrompt, /不把例子當成固定輪替清單/);
+assert.match(flexiblePrompt, /符合目前內心揭露設定/);
+assert.match(flexiblePrompt, /不為避免冷場強塞轉折/);
+assert.match(flexiblePrompt, /讓已有的長短期目標/);
+assert.equal((flexiblePrompt.match(/讓句式、描寫焦點、對話節奏/g) || []).length, 1);
+const withoutInnerThoughts = BAONarrativeSettings.buildPrompt({
+  storyExtras: ['flexibility'], innerThoughts: 'none'
+});
+assert.match(withoutInnerThoughts, /不直接揭露 NPC 內心/);
+assert.match(withoutInnerThoughts, /符合目前內心揭露設定/);
+const withInnerThoughts = BAONarrativeSettings.buildPrompt({
+  storyExtras: ['flexibility'], innerThoughts: 'clear'
+});
+assert.match(withInnerThoughts, /可明確描寫 NPC 的內在想法/);
+assert.match(withInnerThoughts, /符合目前內心揭露設定/);
+flexible.storyExtras.push('daily');
+assert.deepEqual(BAONarrativeSettings.get().storyExtras, ['flexibility', 'motivation']);
+BAONarrativeSettings.set({ storyExtras: ['not-a-feature'] });
+assert.deepEqual(BAONarrativeSettings.get().storyExtras, []);
+assert.equal(BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()), '');
