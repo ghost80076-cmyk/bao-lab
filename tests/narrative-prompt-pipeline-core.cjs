@@ -253,6 +253,32 @@ assert.equal(
     assert.doesNotMatch(JSON.stringify(disabled), /讓已有的長短期目標/);
   }
 
+
+  // Narrative flexibility uses the existing stable story-preference layer.
+  // Gemini and Claude request assembly must be identical across unchanged turns.
+  for (const model of ["google/gemini-3.1-pro-preview", "anthropic/claude-sonnet-4.5"]) {
+    App.config = { api: { model }, narrative: {
+      storyExtras: ['flexibility', 'motivation'], innerThoughts: 'clear', playerPortrayal: 'strict'
+    } };
+    const first = await App.buildMessages(App.config);
+    assert.deepEqual(await App.buildMessages(App.config), first, "unchanged flexibility must preserve cached prefix");
+    const system = first.filter(m => m.role === 'system').map(m => m.content).join('\n');
+    assert.equal((system.match(/讓句式、描寫焦點、對話節奏/g) || []).length, 1);
+    assert.equal((system.match(/讓已有的長短期目標/g) || []).length, 1);
+    assert.match(system, /可明確描寫 NPC 的內在想法/);
+    assert.match(system, /玩家角色演繹授權｜玩家主控/);
+    assert.doesNotMatch(first.at(-1).content, /讓句式、描寫焦點、對話節奏/);
+
+    App.config.narrative = { storyExtras: ['flexibility'], innerThoughts: 'none' };
+    const noThoughts = (await App.buildMessages(App.config)).filter(m => m.role === 'system').map(m => m.content).join('\n');
+    assert.match(noThoughts, /不直接揭露 NPC 內心/);
+    assert.match(noThoughts, /符合目前內心揭露設定/);
+
+    App.config.narrative = { innerThoughts: 'none' };
+    const disabled = await App.buildMessages(App.config);
+    assert.doesNotMatch(JSON.stringify(disabled), /讓句式、描寫焦點、對話節奏/);
+  }
+
   console.log("narrative prompt pipeline core test passed");
 })().catch(error => {
   console.error(error);
