@@ -279,6 +279,26 @@ assert.equal(
     assert.doesNotMatch(JSON.stringify(disabled), /讓句式、描寫焦點、對話節奏/);
   }
 
+  const storyConfig = { api: { model: "google/gemini-3.1-pro-preview" }, narrative: {} };
+  App.config = storyConfig;
+  latestInput = "我用陰影之手試著拿走櫃檯上的商品。";
+  const causalRule = /對符合設定的虛構行動/g;
+  const baseline = await App.buildMessages(storyConfig);
+  assert.doesNotMatch(JSON.stringify(baseline), causalRule);
+
+  storyConfig.narrative = { storyExtras: ["world_causality", "threads", "world_causality"] };
+  const enabled = await App.buildMessages(storyConfig);
+  assert.equal((enabled[0].content.match(causalRule) || []).length, 1);
+  assert.match(enabled[0].content, /尚未解決的伏筆/);
+  assert.doesNotMatch(enabled.at(-1).content, causalRule);
+  assert.doesNotMatch(enabled[0].content, /面向成年讀者的成熟文學取向/);
+  latestInput = "我看看店長有沒有發現。";
+  assert.equal((await App.buildMessages(storyConfig))[0].content, enabled[0].content);
+
+  storyConfig.narrative = {};
+  latestInput = "我用陰影之手試著拿走櫃檯上的商品。";
+  assert.deepEqual(await App.buildMessages(storyConfig), baseline);
+
   console.log("narrative prompt pipeline core test passed");
 })().catch(error => {
   console.error(error);
