@@ -190,6 +190,9 @@ test('female-oriented filtering follows the work label even when the lead charac
 
 test('poster cards keep audience/update badges compact and the title in the lower half', async ({ page }) => {
   await page.addInitScript(() => localStorage.removeItem('yorubay:explore-continuity:v1'));
+  // Freeze near the catalog's 2026-10-08 publication fixture so NEW/UPDATED assertions
+  // remain meaningful after the real 30-day freshness window expires.
+  await page.clock.setFixedTime(new Date('2026-10-15T12:00:00Z'));
   await page.setViewportSize({ width: 1180, height: 820 });
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOExploreDiscovery && App.characters?.length));
@@ -289,6 +292,9 @@ test('explore keeps favorites and recently viewed works on this device', async (
 
 test('explore surfaces player-relative NEW and UPDATED from explicit published versions', async ({ page }) => {
   await page.addInitScript(() => localStorage.removeItem('yorubay:explore-continuity:v1'));
+  // Freeze near the catalog's 2026-10-08 publication fixture so NEW/UPDATED assertions
+  // remain meaningful after the real 30-day freshness window expires.
+  await page.clock.setFixedTime(new Date('2026-10-15T12:00:00Z'));
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./');
   await page.waitForFunction(() => Boolean(window.BAOExploreDiscovery && App.characters?.length));
