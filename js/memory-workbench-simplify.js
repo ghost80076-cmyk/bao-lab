@@ -10,20 +10,46 @@
     model: App.config?.api?.model || ""
   };
 
+  const memoryMode = () => App.config?.memory?.mode || "rounds";
+  const organizing = data => Chat.summarizing || data.health?.phase === "running";
+
   const playerLabel = data => {
-    if (Chat.summarizing || data.health?.phase === "running") return "正在整理";
+    if (memoryMode() !== "smart") return "自動記憶已關閉";
+    if (organizing(data)) return "正在整理";
     if (data.health?.phase === "failed") return "需要注意";
-    if (App.config?.memory?.mode !== "smart") return "自動記憶已關閉";
+    if (data.pendingRounds > 0) return "有舊劇情待整理";
     return "記憶正常";
   };
 
   const playerText = data => {
-    if (Chat.summarizing || data.health?.phase === "running") return "AI 正在整理較早的劇情；原始對話仍會保留。";
-    if (data.health?.phase === "failed") return data.health?.message || "這次整理沒有成功，但原始對話仍完整保留。";
-    if (App.config?.memory?.mode !== "smart") return "自動記憶已關閉，目前只提供設定輪數內的原文。建議開啟下方自動記憶，讓較早劇情持續保留摘要。";
-    if (data.hasSummary) return "較早的 " + data.coveredRounds + " 輪已整理成長期記憶；最近劇情仍保留原文。";
-    if (data.pendingRounds > 0) return "有 " + data.pendingRounds + " 輪較早內容等待整理；成功整理前不會移除原文。";
-    return "目前 " + data.totalRounds + " 輪仍由近期原文直接保留，尚未需要整理舊劇情。";
+    const mode = memoryMode();
+    if (mode === "full") return "完整對話：故事模型使用完整對話紀錄，不引用長期摘要。";
+    if (mode !== "smart") return "固定輪數：故事模型使用最近設定輪數內的原文，不引用長期摘要。";
+    if (organizing(data)) return "智慧整理：AI 正在整理較早的劇情，原始對話仍會保留。";
+    if (data.health?.phase === "failed") {
+      return "智慧整理：" + (data.health?.message || "這次整理沒有成功，原始對話仍完整保留。");
+    }
+    if (data.hasSummary) return "智慧整理：已整理 " + data.coveredRounds + " 輪，待整理 " + data.pendingRounds + " 輪。";
+    if (data.pendingRounds > 0) return "智慧整理：已整理 0 輪，待整理 " + data.pendingRounds + " 輪。";
+    return "智慧整理：目前 " + data.totalRounds + " 輪仍由近期原文直接保留，尚未需要整理舊劇情。";
+  };
+
+  const recoveryHint = data => {
+    if (memoryMode() !== "smart" || organizing(data) || data.health?.phase !== "failed") return "";
+    const guard = window.BAOProviderPolicyGuard;
+    const memory = window.BAOMemoryCore;
+    if (guard && memory) {
+      try {
+        if (guard.isPaused(window.GameState?.current, memory.resolve(App.config))) {
+          return "請先確認或切換整理模型，再決定是否繼續整理。原始對話與已整理進度仍保留。";
+        }
+      } catch (_) {
+        return "請先確認整理模型設定，再重試自動記憶整理。";
+      }
+    }
+    return data.pendingRounds > 0
+      ? "要接著處理未完成的舊劇情，請用「重試自動記憶整理」。若既有摘要本身有誤，再使用下方的完整故事重建。"
+      : "";
   };
 
   const relabelButton = (button, label, note) => {
@@ -64,6 +90,11 @@
         const fixed = document.createElement("span");
         fixed.textContent = "必記事項 " + notes + " 筆";
         facts.append(round, fixed);
+        if (memoryMode() === "smart" && (organizing(data) || data.health?.phase === "failed")) {
+          const coverage = document.createElement("span");
+          coverage.textContent = "已整理 " + data.coveredRounds + " 輪，待整理 " + data.pendingRounds + " 輪";
+          facts.append(coverage);
+        }
         health.appendChild(facts);
       }
 
@@ -76,6 +107,12 @@
         details.append(summary, meta);
         health.insertAdjacentElement("afterend", details);
       }
+    }
+
+    const next = pane.querySelector("[data-memory-recovery-hint]");
+    if (next) {
+      next.textContent = recoveryHint(data);
+      next.hidden = !next.textContent;
     }
 
     const summaryPreview = pane.querySelector(".memory-summary-preview summary");
