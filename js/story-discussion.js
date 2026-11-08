@@ -133,7 +133,7 @@
       if (job()?.complete) { showDraft(); return; }
       try { await locked(view,'正在拆分匯入設定',async signal=>{
         if(job()?.applied)throw new Error('此來源已套用，請重新匯入其他來源。');
-        const memory=window.BAOMemoryCore, config=App.config, cfg=memory.config(config,'notes',App.modelPresets||[],{signal});
+        const memory=window.BAOMemoryCore, config=App.config, cfg=memory.config(config,'notes',App.modelPresets||[],{signal,__diagnosticTask:'setting-split'});
         window.BAOCreditsPilot?.prepareAccountConfig?.(cfg);
         if(!cfg.key&&!window.BAOCreditsPilot?.isAccountReady?.(cfg))throw new Error('請先連接記憶整理模型。');
         const settings=JSON.stringify(config);

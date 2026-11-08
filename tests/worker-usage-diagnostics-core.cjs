@@ -64,6 +64,9 @@ assert.match(adminHtml, /rate_limit_scope/);
       }
     ),
     {
+      request_task: null,
+      failure_type: "api_error",
+      safety_ratings: null,
       failure_code: "provider_rate_limited",
       upstream_http_status: 429,
       provider_status: "RESOURCE_EXHAUSTED",
@@ -78,6 +81,7 @@ assert.match(adminHtml, /rate_limit_scope/);
       prompt_block_reason: null,
       response_shape: null,
       candidate_count: null,
+      estimated_input_tokens: null,
       observed_input_tokens: null,
       observed_output_tokens: null,
     }
@@ -97,6 +101,7 @@ assert.match(adminHtml, /rate_limit_scope/);
       transportTimeoutMs: 0,
     }
   );
+  assert.equal(normalizeUsageDiagnostic("provider_empty_text", { requestTask: "sensitive story" }).request_task, null);
   assert.equal(sanitized.failure_code, "provider_request_failed");
   assert.equal(sanitized.upstream_http_status, null);
   assert.equal(sanitized.provider_status, null);
@@ -111,7 +116,7 @@ assert.match(adminHtml, /rate_limit_scope/);
   assert.equal(sanitized.response_shape, null);
   assert.equal(sanitized.observed_output_tokens, null);
   const empty = normalizeUsageDiagnostic("provider_empty_text", {
-    finishReason: "MAX_TOKENS", promptBlockReason: "SAFETY",
+    finishReason: "MAX_TOKENS", candidateFinishReason: "MAX_TOKENS", promptBlockReason: "SAFETY",
     responseShape: "thought_only", candidateCount: 1, input: 128, output: 64,
     rawProviderResponse: "never persist",
   });
@@ -121,6 +126,10 @@ assert.match(adminHtml, /rate_limit_scope/);
   assert.equal(empty.candidate_count, 1);
   assert.equal(empty.observed_input_tokens, 128);
   assert.equal(empty.observed_output_tokens, 64);
+  assert.equal(empty.failure_type, "policy_block", "input policy has priority over a length signal");
+  assert.equal(normalizeUsageDiagnostic("provider_empty_text", { finishReason: "LENGTH" }).failure_type, "output_truncated");
+  assert.equal(normalizeUsageDiagnostic("provider_empty_text").failure_type, "empty_response");
+  assert.equal(normalizeUsageDiagnostic("provider_http_error", { upstreamStatus: 403 }).failure_type, "api_error");
 
   const queries = [];
   const binds = [];
@@ -158,15 +167,21 @@ assert.match(adminHtml, /rate_limit_scope/);
         route: "aws_relay",
         rateLimitScope: "unknown",
         requestBytes: 4567,
+        requestTask: "state-evidence-scan",
+        estimatedInputTokens: 1488,
+        safetyRatings: { prompt: [
+          {category: "HARM_CATEGORY_HARASSMENT", probability: "HIGH", blocked: false, note: "private narrative"},
+          {category: "PRIVATE_CATEGORY", probability: "HIGH"},
+        ] },
       }
     ),
     true
   );
-  assert.equal(queries.length, 9, "old D1 tables get six additive migrations");
+  assert.equal(queries.length, 13, "old D1 tables get ten additive migrations");
   assert.match(queries[0], /CREATE TABLE IF NOT EXISTS api_usage_diagnostics/);
   assert.match(queries[1], /PRAGMA table_info/);
-  assert.equal(queries.filter(q => /ALTER TABLE api_usage_diagnostics ADD COLUMN/.test(q)).length, 6);
-  assert.match(queries[8], /INSERT INTO api_usage_diagnostics/);
+  assert.equal(queries.filter(q => /ALTER TABLE api_usage_diagnostics ADD COLUMN/.test(q)).length, 10);
+  assert.match(queries[12], /INSERT INTO api_usage_diagnostics/);
   assert.deepEqual(
     binds[0],
     [
@@ -181,10 +196,14 @@ assert.match(adminHtml, /rate_limit_scope/);
       4567,
       null,
       null,
+      "state-evidence-scan",
+      "api_error",
+      '{"prompt":[{"category":"HARM_CATEGORY_HARASSMENT","probability":"HIGH","blocked":false}],"candidate":[]}',
       null,
       null,
       null,
       null,
+      1488,
       null,
       null,
     ]

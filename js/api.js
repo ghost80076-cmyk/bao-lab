@@ -38,6 +38,57 @@ const API = {
     };
   },
 
+  requestTask(config = {}) {
+    if (['state', 'full-memory-rebuild', 'setting-split', 'state-evidence-scan', 'visual-prompt', 'world-draft'].includes(config.__diagnosticTask))
+      return config.__diagnosticTask;
+    if (config.__connectionTest) return "connection";
+    if (config.__memoryTask) {
+      const kind = config.__memoryTaskKind;
+      if (['notes', 'canon-extract', 'canon-merge', 'canon-final', 'context-pack'].includes(kind)) return kind;
+      return kind === 'repair' || config.__memoryRepairTask ? 'memory-repair' : 'auto-summary';
+    }
+    if (config.__stateTask) return config.__stateRebuild ? "state-rebuild" : "state";
+    if (config.__inspirationTask) return "inspiration";
+    if (config.__discussionTask) return "discussion";
+    if (['advisor', 'observer'].includes(config.__interpretationTask)) return config.__interpretationTask;
+    if (config.__commentaryTask) return "commentary";
+    if (['regenerate', 'rewrite'].includes(config.__storyRevision)) return config.__storyRevision;
+    return config.__storyTool || config.__auxiliaryTask ? "auxiliary" : "story";
+  },
+
+  safeSafetyRatings(ratings) {
+    if (!Array.isArray(ratings)) return [];
+    return ratings.slice(0, 12).filter(item =>
+      typeof item?.category === "string" && /^HARM_CATEGORY_(?:HARASSMENT|HATE_SPEECH|SEXUALLY_EXPLICIT|DANGEROUS_CONTENT|CIVIC_INTEGRITY|UNSPECIFIED|DEROGATORY|TOXICITY|VIOLENCE|SEXUAL|MEDICAL|DANGEROUS)$/.test(item?.category)
+    ).map(item => ({
+      category: item.category,
+      ...(typeof item.probability === "string" && /^(?:NEGLIGIBLE|LOW|MEDIUM|HIGH|HARM_PROBABILITY_UNSPECIFIED)$/.test(item.probability) ? { probability: item.probability } : {}),
+      ...(typeof item.blocked === "boolean" ? { blocked: item.blocked } : {})
+    }));
+  },
+
+  geminiResponseMeta(data) {
+    const candidate = data?.candidates?.[0];
+    const blockReason = data?.promptFeedback?.blockReason;
+    return {
+      finishReason: candidate?.finishReason || null,
+      blockReason: blockReason === "BLOCK_REASON_UNSPECIFIED" ? null : blockReason || null,
+      promptSafetyRatings: this.safeSafetyRatings(data?.promptFeedback?.safetyRatings),
+      safetyRatings: this.safeSafetyRatings(candidate?.safetyRatings)
+    };
+  },
+
+  geminiVisibleText(data, separator = "\n") {
+    return (data?.candidates?.[0]?.content?.parts || [])
+      .filter(part => part?.thought !== true && typeof part?.text === "string")
+      .map(part => part.text).filter(Boolean).join(separator);
+  },
+
+  openRouterErrorType(data) {
+    const type = data?.error?.metadata?.error_type;
+    return ['content_policy_violation', 'refusal'].includes(type) ? type : null;
+  },
+
   isOpenRouter(config = {}) {
     return config.type === "openrouter" || /(^|\.)openrouter\.ai$/i.test((() => { try { return new URL(config.baseUrl).hostname; } catch { return ""; } })());
   },
@@ -279,7 +330,12 @@ const API = {
     } catch (err) { throw this.networkError(err); }
     if (streaming && response.ok && this.isEventStream(response)) return this.readOpenAIStream(response, config);
     const data = await this.readJSON(response);
-    if (!response.ok) throw new Error(this.friendlyError(response.status, data, "OpenAI-compatible API"));
+    if (!response.ok || data?.error) {
+      const error = new Error(this.friendlyError(response.status, data, "OpenAI-compatible API"));
+      if (this.isOpenRouter(config)) error.providerErrorType = this.openRouterErrorType(data);
+      error.usage = this.normalizeUsage(data?.usage || {}, "openai");
+      throw error;
+    }
     return { text: this.contentToText(data?.choices?.[0]?.message?.content) || "模型沒有回傳內容。", finishReason: data?.choices?.[0]?.finish_reason || null, usage: this.normalizeUsage(data?.usage || {}, "openai") };
   },
 
@@ -345,8 +401,8 @@ const API = {
     if (streaming && response.ok && this.isEventStream(response)) return this.readGeminiStream(response, config);
     const data = await this.readJSON(response);
     if (!response.ok) throw new Error(this.friendlyError(response.status, data, "Gemini API"));
-    const text = (data?.candidates?.[0]?.content?.parts || []).map(p => typeof p?.text === "string" ? p.text : "").filter(Boolean).join("\n");
-    return { text: text || this.geminiEmptyResponseMessage(data), finishReason: data?.candidates?.[0]?.finishReason || null, blockReason: data?.promptFeedback?.blockReason || null, outputBudget: { requested: limit || null, effective: limit || null, source: 'gemini-direct' }, usage: this.normalizeUsage(data?.usageMetadata || {}, "gemini") };
+    const text = this.geminiVisibleText(data);
+    return { text: text.trim() ? text : this.geminiEmptyResponseMessage(data), ...this.geminiResponseMeta(data), outputBudget: { requested: limit || null, effective: limit || null, source: 'gemini-direct' }, usage: this.normalizeUsage(data?.usageMetadata || {}, "gemini") };
   },
 
   networkError(err) {
@@ -419,7 +475,13 @@ const API = {
     await this.readSSE(response, ({ data: raw }) => {
       if (raw.trim() === "[DONE]") { done = true; return; }
       const data = this.parseStreamJSON(raw, "OpenAI-compatible API");
-      if (data?.error) throw this.streamEventError(data, "OpenAI-compatible API");
+      if (data?.error) {
+        const error = this.streamEventError(data, "OpenAI-compatible API");
+        error.finishReason = data?.choices?.[0]?.finish_reason;
+        error.usage = this.normalizeUsage(data?.usage || usage, "openai");
+        if (this.isOpenRouter(config)) error.providerErrorType = this.openRouterErrorType(data);
+        throw error;
+      }
       const delta = this.contentToText(data?.choices?.[0]?.delta?.content);
       if (delta) { text += delta; this.emitDelta(config, delta, text); }
       if (data?.usage) usage = data.usage;
@@ -448,19 +510,26 @@ const API = {
     return { text: text || "模型沒有回傳內容。", finishReason, usage: this.normalizeUsage(usage, "anthropic") };
   },
   async readGeminiStream(response, config) {
-    let text = "", usage = {}, lastData = null, finishReason = null, blockReason = null;
+    let text = "", usage = {}, finishReason = null, blockReason = null;
+    let safetyRatings = [], promptSafetyRatings = [];
     await this.readSSE(response, ({ data: raw }) => {
       const data = this.parseStreamJSON(raw, "Gemini API");
       if (data?.error) throw this.streamEventError(data, "Gemini API");
-      lastData = data;
-      finishReason = data?.candidates?.[0]?.finishReason || finishReason;
-      blockReason = data?.promptFeedback?.blockReason || blockReason;
-      const delta = (data?.candidates?.[0]?.content?.parts || []).map(part => typeof part?.text === "string" ? part.text : "").filter(Boolean).join("");
+      const meta = this.geminiResponseMeta(data);
+      finishReason = meta.finishReason || finishReason;
+      blockReason = meta.blockReason || blockReason;
+      if (meta.safetyRatings.length) safetyRatings = meta.safetyRatings;
+      if (meta.promptSafetyRatings.length) promptSafetyRatings = meta.promptSafetyRatings;
+      const delta = this.geminiVisibleText(data, "");
       if (delta) { text += delta; this.emitDelta(config, delta, text); }
       if (data?.usageMetadata) usage = data.usageMetadata;
     });
     this.assertStreamComplete(Boolean(finishReason || blockReason), "Gemini API");
-    return { text: text || this.geminiEmptyResponseMessage(lastData || {}), finishReason, blockReason, usage: this.normalizeUsage(usage, "gemini") };
+    const emptyMessage = () => this.geminiEmptyResponseMessage({
+      candidates: [{ finishReason }], promptFeedback: { blockReason }
+    });
+    return { text: text.trim() ? text : emptyMessage(), finishReason, blockReason, safetyRatings, promptSafetyRatings,
+      usage: this.normalizeUsage(usage, "gemini") };
   },
   contentToText(content) { if (typeof content === "string") return content; if (Array.isArray(content)) return content.map(p => typeof p === "string" ? p : (p?.text || "")).filter(Boolean).join("\n"); return content == null ? "" : String(content); },
   geminiEmptyResponseMessage(data) { const finishReason = data?.candidates?.[0]?.finishReason; const blockReason = data?.promptFeedback?.blockReason; if (blockReason) return `Gemini 未產生內容（${blockReason}）。`; if (finishReason) return `Gemini 未產生文字內容（${finishReason}）。`; return "Gemini 沒有回傳文字內容。"; },

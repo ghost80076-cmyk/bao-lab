@@ -11,15 +11,15 @@ const memoryWorkbenchSource = read("js/memory-workbench-core.js");
 assert(adminHTML.includes('src="js/character.js?v=12"'));
 assert(adminHTML.includes('src="js/admin-character-publish.js?v=4"'));
 assert(memoryWorkbenchSource.includes('data-summary-mode-notice'));
-assert(siteUI.includes('js/world-state-cost.js?v=13'));
+assert(siteUI.includes('js/world-state-cost.js?v=14'));
 assert(siteUI.includes('js/provider-policy-guard.js?v=1'), 'policy circuit must load before hosted transport');
-assert(siteUI.indexOf('js/provider-policy-guard.js?v=1') < siteUI.indexOf('js/credits-pilot.js?v=2'));
-assert(index.includes('src="js/site-ui.js?v=196"'));
+assert(siteUI.indexOf('js/provider-policy-guard.js?v=1') < siteUI.indexOf('js/credits-pilot.js?v=9'));
+assert(index.includes('src="js/site-ui.js?v=197"'));
 assert(siteUI.includes('loadBAOOptionalGroup("chapter-memory"'), 'chapter workbench must not block story sends');
 assert(siteUI.includes('loadBAOOptionalGroup("chapter-recall"'), 'optional recall must not block story sends');
 assert(siteUI.indexOf('js/episodic-memory.js?v=5') < siteUI.indexOf('js/chapter-memory-recall.js?v=1'), 'chapter recall must follow knowledge resolver');
 assert(siteUI.indexOf('js/chapter-memory-core.js?v=1') < siteUI.indexOf('js/memory-workbench-simplify.js?v=8'), 'chapter dependency must load before simplified workbench');
-assert(siteUI.includes('js/full-story-memory-rebuild.js?v=5'));
+assert(siteUI.includes('js/full-story-memory-rebuild.js?v=6'));
 const appSource = read("js/app.js");
 const bridge = read("js/global-bridge.js");
 const helper = read("js/helper-api-routing.js");
@@ -58,20 +58,20 @@ increasing(index, [
   'src="js/chat.js',
   'src="js/character.js?v=11"',
   'src="js/app.js',
-  'src="js/chat-markup.js?v=8"',
+  'src="js/chat-markup.js?v=9"',
   'src="js/story-maintenance-lock.js?v=2"',
   'src="js/site-ui.js'
 ], "core script");
 
 // World-state chain: the bridge must install its guards before world modules.
 increasing(siteUI, [
-  'loadBAOScript("js/global-bridge.js?v=8")',
-  'loadBAOScript("js/world-state.js?v=6")',
+  'loadBAOScript("js/global-bridge.js?v=9")',
+  'loadBAOScript("js/world-state.js?v=7")',
   'loadBAOScript("js/character-status.js?v=5")',
   'loadBAOScript("js/three-realms-cultivation-core.js?v=1")',
   'loadBAOScript("js/three-realms-event-profiles.js?v=6")',
   'loadBAOScript("js/three-realms-events-core.js?v=6")',
-  'loadBAOScript("js/world-modules.js?v=11")',
+  'loadBAOScript("js/world-modules.js?v=12")',
   'loadBAOScript("js/character-status-templates.js?v=1")',
   'loadBAOScript("js/character-status-ui.js?v=13")',
   'loadBAOScript("js/world-state-hook.js?v=8")'
@@ -96,7 +96,7 @@ increasing(siteUI, [
 increasing(siteUI, [
   'loadBAOOptionalGroup("stage-capabilities", ["js/stage-capability-core.js?v=3", "js/stage-capability.js?v=3"])',
   'loadBAOScript("js/reader-context.js?v=7")',
-  'loadBAOScript("js/bao-visual-ui.js?v=20")',
+  'loadBAOScript("js/bao-visual-ui.js?v=21")',
   'loadBAOScript("js/player-shell-v2.js?v=15")'
 ], "stage capability extension");
 
@@ -119,7 +119,7 @@ assert.match(siteUI, /window\.BAOEnsureStoryLibrary = \(\) =>/);
 // Modules without their own global idempotency guard currently rely on the loader;
 // protect against accidentally adding a second loader while the wrapper design is unchanged.
 assert.equal(
-  siteUI.split('loadBAOScript("js/world-modules.js?v=11")').length - 1,
+  siteUI.split('loadBAOScript("js/world-modules.js?v=12")').length - 1,
   1,
   "world-modules must be loaded exactly once by site-ui"
 );
@@ -259,6 +259,6 @@ assert.ok(siteUI.indexOf("three-realms-story-actor-pack.js") < siteUI.indexOf("s
 
 console.log("frontend-extension-contract: load order and wrapper guards ok");
 
-assert.ok(siteUI.indexOf('js/request-ledger.js?v=2') > siteUI.indexOf('js/story-control-center.js?v='), 'ledger scopes wrap the completed story-control chain');
+assert.ok(siteUI.indexOf('js/request-ledger.js?v=3') > siteUI.indexOf('js/story-control-center.js?v='), 'ledger scopes wrap the completed story-control chain');
 assert.match(read("js/api.js"), /request-ledger:lifecycle/);
 assert.match(read("js/api.js"), /request-ledger:dispatch/);

@@ -17,13 +17,13 @@ for (const width of [390, 1440]) test(`selected story features survive regenerat
   await page.goto('./');
   await page.waitForFunction(() => window.BAOSettingsEffects && window.BAOContextInspector && window.BAOMobileReadingLayout && window.BAOStoryRevisionState && window.BAOActorMode && window.BAOStoryControlCenter && window.BAOPhoneStoryBridge && App.characters?.length && Storage.status().ready);
   await page.evaluate(() => {
-    App.activeCharacter = { ...App.characters[0], id: 'feature-audit', name: '測試角色', system_prompt: 'AUDIT_CHARACTER', world_modules: [], character_status: { fields: [] }, gameplay: {} };
+    App.activeCharacter = { ...App.characters[0], id: 'feature-audit', name: '測試角色', system_prompt: 'AUDIT_CHARACTER\n\n【本次任務】AUDIT_AUTHOR_TASK。角色 28 歲，成年。', world_modules: [], character_status: { fields: [] }, gameplay: {} };
     App.config = { persona: { name: '旅人' }, narrativeMode: 'immersive', displayMode: 'text', stateTracking: false,
       narrative: {}, api: { type: 'custom', protocol: 'openai', model: 'audit', key: 'local-test',
         baseUrl: 'https://feature-audit.invalid/v1/chat/completions', stream: false, retryEnabled: false },
       memory: { mode: 'full', maxRounds: 20, maxContext: 64000 } };
     Chat.reset(); GameState.create(App.activeCharacter, App.config);
-    Chat.add('user', 'AUDIT_QUERY');
+    Chat.add('user', 'AUDIT_QUERY：我陪 16 歲的旅人回家。');
     Chat.add('assistant', 'AUDIT_REJECTED_REPLY');
     // Toggle controls AFTER the original reply: revision rewind must keep them.
     GameState.current.actorMode = { enabled: true, roleActive: true, role: { label: 'AUDIT_IDENTITY' } };
@@ -31,7 +31,7 @@ for (const width of [390, 1440]) test(`selected story features survive regenerat
     GameState.current.worldbookLibrary = { version: 1, enabled: ['audit-pack'], pinned: {}, installed: [
       YoruWorldbookLibraryCore.normalizePack({ schema: YoruWorldbookLibraryCore.SCHEMA, version: 1,
         meta: { id: 'audit-pack', name: 'Audit', world: 'general' }, entries: [
-          { id: 'fixed', mode: 'constant', content: 'AUDIT_FIXED' },
+          { id: 'fixed', mode: 'constant', content: 'AUDIT_FIXED：未成年旅人需有導師陪同。' },
           { id: 'dynamic', mode: 'keyword', keywords: ['AUDIT_QUERY'], content: 'AUDIT_DYNAMIC' }
         ] })
     ] };
@@ -58,6 +58,12 @@ for (const width of [390, 1440]) test(`selected story features survive regenerat
   const serialized = JSON.stringify(bodies[0]);
   for (const expected of ['AUDIT_CHARACTER', '玩家已授權小說共創', '300–600', 'AUDIT_IDENTITY', 'AUDIT_PHONE_OWNER', 'AUDIT_FIXED', 'AUDIT_DYNAMIC', '【本輪】']) expect(serialized).toContain(expected);
   expect(serialized).not.toContain('AUDIT_REJECTED_REPLY');
+  const expectAgeSources = body => {
+    expect(body.match(/AUDIT_AUTHOR_TASK/g)).toHaveLength(1);
+    for (const source of ['角色 28 歲，成年。', '未成年旅人需有導師陪同。', '我陪 16 歲的旅人回家。'])
+      expect(body).toContain(source);
+  };
+  expectAgeSources(serialized);
   await expect.poll(() => page.evaluate(() => GameState.current.actorMode?.role?.label)).toBe('AUDIT_IDENTITY');
   const checkEvidence = async kind => {
     await page.evaluate(()=>BAOStoryRevisionState.whenIdle());
@@ -77,7 +83,8 @@ for (const width of [390, 1440]) test(`selected story features survive regenerat
   await expect(page.locator('[data-rewrite]').last()).toBeEnabled();
   await page.locator('[data-rewrite]').last().click();
   await expect.poll(() => bodies.length).toBe(2);
-  expect(JSON.stringify(bodies[1])).toContain('【本次任務】');
+  expect(JSON.stringify(bodies[1])).toContain('【本次任務】只改寫');
+  expectAgeSources(JSON.stringify(bodies[1]));
   expect(JSON.stringify(bodies[1])).toContain('AUDIT_IDENTITY');
   expect(JSON.stringify(bodies[1])).toContain('保留結果，調整語氣。');
   await checkEvidence('rewrite');

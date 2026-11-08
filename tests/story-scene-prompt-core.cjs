@@ -18,7 +18,7 @@ assert.match(prompt, /__storyTool:true/, 'scene prompt requests must be marked a
 assert.match(prompt, /maxOutputTokens/, 'scene prompt helper output must remain bounded');
 assert.match(prompt, /provider-neutral/, 'prompt compiler must remain provider-neutral');
 assert.match(prompt, /不會直接呼叫圖片／影片生成服務/, 'UI must not imply YoruBay renders the media');
-assert.match(markup, /story-image-prompts\.js\?v=3/, 'chat loader must fetch the consolidated implementation');
+assert.match(markup, /story-image-prompts\.js\?v=4/, 'chat loader must fetch the consolidated implementation');
 assert.ok(!fs.existsSync('js/story-image-moments.js'), 'duplicate legacy scene-image implementation must stay removed');
 
 console.log('story-scene-prompt-core: ok');

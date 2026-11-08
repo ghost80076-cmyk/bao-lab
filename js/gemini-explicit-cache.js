@@ -123,14 +123,21 @@
     const body = { cachedContent: record.name, contents };
     if (Number(cfg.maxOutputTokens) > 0) body.generationConfig = { maxOutputTokens: Math.floor(Number(cfg.maxOutputTokens)) };
     let response;
-    try { response = await fetch(url, { method: 'POST', headers: { 'x-goog-api-key': cfg.key, 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: cfg.signal || API.activeSignal }); }
-    catch (error) { throw API.networkError(error); }
+    try {
+      API.observeRequest?.(cfg, 'attempt');
+      response = await fetch(url, { method: 'POST', headers: { 'x-goog-api-key': cfg.key, 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: cfg.signal || API.activeSignal });
+      API.observeRequest?.(cfg, 'http', { status: response.status });
+    } catch (error) {
+      API.observeRequest?.(cfg, 'network', { aborted: error?.name === 'AbortError' });
+      throw API.networkError(error);
+    }
     if (response.status === 404) { records.delete(s); status('Google 快取已失效，改用一般請求。'); refresh(); return original(cfg, messages); }
     if (stream && response.ok && API.isEventStream(response)) return API.readGeminiStream(response, cfg);
     const data = await API.readJSON(response);
     if (!response.ok) throw new Error(API.friendlyError(response.status, data, 'Gemini 快取'));
-    const text = (data?.candidates?.[0]?.content?.parts || []).map(p => typeof p?.text === 'string' ? p.text : '').filter(Boolean).join('\n');
-    return { text: text || API.geminiEmptyResponseMessage(data), finishReason: data?.candidates?.[0]?.finishReason || null, blockReason: data?.promptFeedback?.blockReason || null, usage: API.normalizeUsage(data?.usageMetadata || {}, 'gemini') };
+    const text = API.geminiVisibleText(data);
+    return { text: text.trim() ? text : API.geminiEmptyResponseMessage(data),
+      ...API.geminiResponseMeta(data), usage: API.normalizeUsage(data?.usageMetadata || {}, 'gemini') };
   };
   const open = () => {
     status(configNow() ? description(current()) : '僅支援玩家自己的 Google 官方 Gemini API，不支援中轉。');

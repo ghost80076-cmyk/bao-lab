@@ -20,18 +20,22 @@ const ctx = {
     requests.push({ url, body: JSON.parse(options.body) });
     if (url.endsWith(':countTokens')) return { ok: true, json: async () => ({ totalTokens: 5000 }) };
     if (url.endsWith('/cachedContents')) return { ok: true, json: async () => ({ name: 'cachedContents/test', expireTime: new Date(Date.now() + 60000).toISOString() }) };
-    return { ok: true, json: async () => ({ candidates: [{ content: { parts: [{ text: 'Partial' }] }, finishReason: 'MAX_TOKENS' }], promptFeedback: { blockReason: 'SAFETY' }, usageMetadata: { totalTokenCount: 6000 } }) };
+    return { ok: true, json: async () => ({ candidates: [{ content: { parts: [{ thought: true, text: 'Private thought' }, { text: 'Partial' }] }, finishReason: 'MAX_TOKENS' }], promptFeedback: { blockReason: 'SAFETY' }, usageMetadata: { totalTokenCount: 6000 } }) };
   }
 };
 ctx.window = ctx;
 vm.createContext(ctx);
-vm.runInContext(fs.readFileSync(require('node:path').join(__dirname, '../js/gemini-explicit-cache.js'), 'utf8'), ctx);
+const script = name => fs.readFileSync(require('node:path').join(__dirname, '../js', name), 'utf8');
+const shared = vm.runInNewContext(script('api.js') + '\nAPI;', {});
+for (const key of ['geminiVisibleText', 'geminiResponseMeta', 'safeSafetyRatings']) ctx.API[key] = shared[key];
+vm.runInContext(script('gemini-explicit-cache.js'), ctx);
 (async () => {
   await ctx.BAOGeminiExplicitCache.inspect();
   await ctx.BAOGeminiExplicitCache.create();
   assert.equal(requests.length, 2);
   const result = await ctx.API.sendGemini(cfg, messages);
   assert.equal(requests.at(-1).body.cachedContent, 'cachedContents/test');
+  assert.equal(result.text, 'Partial');
   assert.equal(result.finishReason, 'MAX_TOKENS');
   assert.equal(result.blockReason, 'SAFETY');
   const before = requests.length;

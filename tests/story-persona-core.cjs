@@ -8,7 +8,7 @@ new vm.Script(source, { filename: 'story-persona-manager.js' });
 assert.ok(!source.includes('<option value="card">'), 'author-card editor must not be selectable');
 assert.ok(!source.includes('CARD_FIELDS.map'), 'author prompts must never be rendered into an editor');
 const browserStorage = new Map();
-const originalCard = { id: 'world', name: '原角色', system_prompt: '原角色設定', profile: {}, world: '原世界' };
+const originalCard = { id: 'world', name: '原角色', system_prompt: '原角色設定：28 歲，成年。未成年旅人不可獨自出城。', profile: {}, world: '原世界' };
 const App = {
   characters: [originalCard], activeCharacter: originalCard, config: {},
   escapeHTML: text => String(text),
@@ -60,13 +60,16 @@ assert.notStrictEqual(App.activeCharacter, originalCard, 'story owns an independ
 assert.equal(state.current.storyActors.basePersona.name, '玩家甲');
 assert.deepEqual(Array.from(state.current.storyActors.hostedCharacters), []);
 App.config.persona.name = '玩家乙';
+App.config.persona.age = '16 歲';
 assert.equal(originalCard.name, '原角色');
-assert.equal(originalCard.system_prompt, '原角色設定');
+assert.equal(originalCard.system_prompt, '原角色設定：28 歲，成年。未成年旅人不可獨自出城。');
 
 (async () => {
   const playerMessages = await App.buildMessages();
   assert.ok(!playerMessages[0].content.includes('本輪人物覆寫'), 'dynamic override must not enter system prompt');
   assert.match(playerMessages.at(-1).content, /玩家乙/);
+  assert.match(playerMessages.at(-1).content, /年齡：16 歲/);
+  assert.ok(playerMessages[0].content.includes(originalCard.system_prompt));
   assert.match(playerMessages.at(-1).content, /controlled_by=user/, 'player override keeps explicit user control');
   const actors = state.current.storyActors.hostedCharacters;
   actors.push({ id:'one', name:'自創男主', role:'primary', personality:'冷靜', relationship:'玩家的競爭對手' });

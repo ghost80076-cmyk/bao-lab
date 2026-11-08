@@ -94,6 +94,9 @@ const jsonResponse = (body, status = 200) =>
       }
 
       if (String(url) === "https://openrouter.ai/api/v1/chat/completions") {
+        if (body?.model === "openai/error-envelope") {
+          return jsonResponse({ error: { message: "private provider detail", metadata: { error_type: "content_policy_violation" } } });
+        }
         if (body?.model === "openai/content-filter") {
           return jsonResponse({
             choices: [{ message: { content: null }, finish_reason: "content_filter" }],
@@ -147,7 +150,10 @@ const jsonResponse = (body, status = 200) =>
           });
         }
         if (body?.model === "gemini-blocked") {
-          return jsonResponse({responseId: "gemini-block-1", promptFeedback: {blockReason: "SAFETY"}});
+          return jsonResponse({responseId: "gemini-block-1", promptFeedback: {
+            blockReason: "SAFETY",
+            safetyRatings: [{category: "HARM_CATEGORY_HATE_SPEECH", probability: "HIGH", blocked: true, details: "private provider detail"}],
+          }});
         }
         if (body?.model === "gemini-mixed") {
           return jsonResponse({
@@ -249,6 +255,16 @@ const jsonResponse = (body, status = 200) =>
     const filteredBody = await providerFailureResponse(filtered, "request-or-filtered").json();
     assert.equal(filteredBody.finish_reason, "CONTENT_FILTER");
     assert.equal(filteredBody.blocked_stage, "output");
+    assert.equal(filteredBody.failure_type, "policy_block");
+    const envelope = await providerCall({
+      OPENROUTER_API_KEY: "or-secret",
+      MODELS_JSON: JSON.stringify([{ provider: "openrouter", model: "openai/error-envelope",
+        input_microusd_per_million: 100000, output_microusd_per_million: 200000 }])
+    }, "openrouter", "openai/error-envelope", messages, 512);
+    const envelopeBody = await providerFailureResponse(envelope, "request-or-error").json();
+    assert.equal(envelopeBody.failure_type, "policy_block");
+    assert.doesNotMatch(JSON.stringify(envelopeBody), /private provider detail/);
+
 
     const recoveredUsage = await providerCall(
       {
@@ -558,6 +574,7 @@ const jsonResponse = (body, status = 200) =>
     assert.equal(http500Body.request_bytes, relayHttp500.requestBytes);
     assert.ok(Number.isInteger(http500Body.elapsed_ms));
     assert.equal(http500Body.error, "provider_http_error");
+    assert.equal(http500Body.failure_type, "api_error");
 
     const noCandidates = await providerCall(geminiEnv, "gemini", "gemini-no-candidates", messages, 8192);
     assert.equal(noCandidates.ok, false);
@@ -568,6 +585,7 @@ const jsonResponse = (body, status = 200) =>
     assert.equal(noCandidates.generationId, "gemini-empty-1");
     const noCandidatesBody = await providerFailureResponse(noCandidates, "request-empty").json();
     assert.equal(noCandidatesBody.response_shape, "no_candidates");
+    assert.equal(noCandidatesBody.failure_type, "empty_response");
     assert.equal(noCandidatesBody.candidate_count, 0);
     assert.equal(noCandidatesBody.observed_input_tokens, 100);
     assert.equal(noCandidatesBody.observed_output_tokens, 0);
@@ -580,6 +598,7 @@ const jsonResponse = (body, status = 200) =>
     assert.equal(thoughtOnly.text, "");
     const thoughtOnlyBody = await providerFailureResponse(thoughtOnly, "request-thought").json();
     assert.equal(thoughtOnlyBody.finish_reason, "MAX_TOKENS");
+    assert.equal(thoughtOnlyBody.failure_type, "output_truncated");
     assert.equal(thoughtOnlyBody.response_shape, "thought_only");
     assert.equal(JSON.stringify(thoughtOnlyBody).includes("private reasoning"), false);
 
@@ -590,6 +609,12 @@ const jsonResponse = (body, status = 200) =>
     const blockedBody = await providerFailureResponse(blocked, "request-block").json();
     assert.equal(blockedBody.prompt_block_reason, "SAFETY");
     assert.equal(blockedBody.blocked_stage, "input");
+    assert.equal(blockedBody.candidate_finish_reason, undefined);
+    assert.equal(blockedBody.failure_type, "policy_block");
+    assert.deepEqual(blockedBody.safety_ratings, { prompt: [
+      {category: "HARM_CATEGORY_HATE_SPEECH", probability: "HIGH", blocked: true},
+    ], candidate: [] });
+    assert.doesNotMatch(JSON.stringify(blockedBody), /private provider detail/);
 
     const mixed = await providerCall(geminiEnv, "gemini", "gemini-mixed", messages, 8192);
     assert.equal(mixed.ok, true);

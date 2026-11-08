@@ -37,6 +37,7 @@ import {
 
 import {
   recordUsageFailure,
+  usageFailureType,
 } from "./usage-diagnostics.js";
 
 const LEGACY_CREDIT_TOKEN_UNIT = 100;
@@ -135,15 +136,14 @@ async function legacyChatRoute(
   const maxOutput = Math.min(requestedMaxOutput, maxOutputForRequest(provider, kind));
 
   // Legacy 模式也不再直接拿 UTF-8 bytes 當 token。
+  const estimatedInputTokens = estimatedPromptTokens(messages);
   const reserve =
     Math.max(
       1,
 
       Math.ceil(
         (
-          estimatedPromptTokens(
-            messages
-          ) +
+          estimatedInputTokens +
           maxOutput +
           256
         ) /
@@ -307,6 +307,8 @@ async function legacyChatRoute(
       kind
     );
 
+  result.requestTask = body?.request_task;
+  result.estimatedInputTokens = estimatedInputTokens;
   await recordRequestTrace(db, requestId, result);
 
   if (
@@ -363,7 +365,8 @@ async function legacyChatRoute(
 
     return providerFailureResponse(
       result,
-      requestId
+      requestId,
+      { provider, model }
     );
   }
 
@@ -693,6 +696,11 @@ async function legacyChatRoute(
       "usage_metadata_unverified",
       result
     );
+  }
+
+  const incompleteType = usageFailureType("usage_metadata_unverified", result);
+  if (verified && ["policy_block", "output_truncated"].includes(incompleteType)) {
+    await recordUsageFailure(db, requestId, "provider_incomplete_output", result);
   }
 
   return json({

@@ -265,7 +265,7 @@
     ].filter(Boolean).join("\n\n");
 
     try {
-      const result = await API.send({ ...config.api, maxOutputTokens: Math.min(Number(config.api.maxOutputTokens || 1200), 1200) }, [
+      const result = await API.send({ ...config.api, __diagnosticTask: "state", maxOutputTokens: Math.min(Number(config.api.maxOutputTokens || 1200), 1200) }, [
         { role: "system", content: window.BAOMemoryCore?.taskSystem?.("世界模組與人物狀態增量核對", "只進行狀態追蹤，只輸出合法 JSON。") || "只進行狀態追蹤，只輸出合法 JSON。" },
         { role: "user", content: prompt }
       ]);
