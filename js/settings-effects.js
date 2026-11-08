@@ -26,7 +26,6 @@
     sceneFocus:'card',storyExpectation:'',dialogueBalance:'card'};
   const styleLabels = {female_kfilm:'女性向 · 韓式電影感',male_visual:'男性向 · 視覺凝視',male_blunt:'男性向 · 直白粗獷',
     cinematic:'電影鏡頭',action_realism:'動作寫實',natural:'自然口語',tender:'細膩情感',suspense:'懸疑氛圍',literary:'文學留白',realist_subtext:'寫實留白'};
-  const extraLabels = {daily:'配角日常',surroundings:'環境插曲',tension:'關係暗流',threads:'伏筆回聲'};
   // Difference against the production preference builder avoids duplicating its
   // rules here; evidence is matched only in system messages, never old dialogue.
   function contribution(prefs, key) {
@@ -58,7 +57,7 @@
         const value = prefs[key];
         const expected = contribution(prefs,key);
         let selected = Array.isArray(value) ? value.length > 0 : value !== empty[key];
-        let display = labelMap[key]?.[value] || (Array.isArray(value) ? value.map(x => (key==='stylePacks'?styleLabels:extraLabels)[x] || x).join('、') || '依作品' : typeof value==='boolean' ? (value?'開啟':'關閉') : value || '未設定');
+        let display = labelMap[key]?.[value] || (Array.isArray(value) ? value.map(x => (key==='stylePacks'?styleLabels[x]:window.BAONarrativeSettings.storyExtraLabel?.(x)) || x).join('、') || '依作品' : typeof value==='boolean' ? (value?'開啟':'關閉') : value || '未設定');
         let status = selected?'ready':'inherited', detail = selected?'作為之後故事回覆的偏好；不重寫已存在的訊息。':'不額外加入這項要求，保留作品安排。';
         if (key==='intimacy' && prefs.intimacyDetailMod) { status='replaced'; detail='親密場景加強已開啟，使用加強規則；關閉加強後恢復這個選擇。'; }
         const source = info.source==='story' && !Object.hasOwn(config.narrative,key) ? '作品／平台預設（此項未另設）' : narrativeSource;

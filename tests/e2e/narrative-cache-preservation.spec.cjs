@@ -42,6 +42,24 @@ async function setup(page, width, legacy = false) {
 }
 
 for (const width of [390, 1440]) {
+  test(`story length shows its source while editing at ${width}px`, async ({ page }) => {
+    await setup(page, width);
+    await page.evaluate(() => BAONarrativeSettings.open());
+    const length = page.locator('[data-pref="responseLength"]');
+    const source = page.locator('#narrative-length-source');
+    const browserLength = await page.evaluate(() => BAOPlayerSettings.get().replyLength);
+    expect(browserLength).toBe('auto');
+    await expect(source).toBeVisible();
+    await expect(source).toHaveText('本故事篇幅優先於瀏覽器預設');
+    await length.selectOption('card');
+    await expect(source).toHaveText('沿用瀏覽器回覆長度（自動）');
+    expect(await page.evaluate(() => App.config.narrative.responseLength)).toBe('long');
+    await page.locator('[data-narrative-save]').click();
+    expect(await page.evaluate(() => App.config.narrative.responseLength)).toBe('card');
+    await page.evaluate(() => BAONarrativeSettings.open());
+    await expect(source).toHaveText('沿用瀏覽器回覆長度（自動）');
+  });
+
   test(`author styles stay advisory until explicit story save at ${width}px`, async ({ page }) => {
     await setup(page, width);
     await page.evaluate(() => {
