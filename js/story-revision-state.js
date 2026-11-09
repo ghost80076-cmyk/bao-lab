@@ -126,13 +126,15 @@
     return null;
   };
 
-  const rebuildStoryToolMessages = async messages => {
+  const rebuildStoryToolMessages = async (config, messages) => {
     const list = (Array.isArray(messages) ? messages : []).map(item => ({ ...item }));
     const systemIndex = list.findIndex(item => item?.role === "system");
     if (systemIndex < 0) return list;
     const previous = String(list[systemIndex].content || "");
     const marker = "【本次任務】";
-    const taskIndex = previous.indexOf(marker);
+    // Only the rewrite tool appends a task. A card or worldbook may contain
+    // the same heading, so read the appended suffix and ignore it for regeneration.
+    const taskIndex = config.__storyRevision === 'regenerate' ? -1 : previous.lastIndexOf(marker);
     if (typeof App.buildMessages === "function") {
       const { index } = latestAssistant();
       const sourceMessages = Chat.messages.slice(0, index);
@@ -179,7 +181,7 @@
     const base = await resolveBase(message);
     if (!current()) throw Object.assign(new Error('故事已切換或修訂來源已變更。'), { code: 'BAO_ABORTED' });
     if (!base) {
-      const prepared = typeof App.buildMessages === "function" ? await rebuildStoryToolMessages(messages) : messages;
+      const prepared = typeof App.buildMessages === "function" ? await rebuildStoryToolMessages(config, messages) : messages;
       if (!current()) throw Object.assign(new Error('故事已切換或修訂來源已變更。'), { code: 'BAO_ABORTED' });
       return receive(prepared, actions());
     }
@@ -187,7 +189,7 @@
     applySnapshot(base);
     const baseline = actions();
     try {
-      const prepared = await rebuildStoryToolMessages(messages);
+      const prepared = await rebuildStoryToolMessages(config, messages);
       if (!current()) throw Object.assign(new Error('故事已切換或修訂來源已變更。'), { code: 'BAO_ABORTED' });
       return await receive(prepared, baseline);
     } finally {

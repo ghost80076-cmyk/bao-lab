@@ -163,7 +163,7 @@
   }
   if (!document.querySelector('script[src^="js/story-image-prompts.js"]')) {
     const script = document.createElement('script');
-    script.src = 'js/story-image-prompts.js?v=3';
+    script.src = 'js/story-image-prompts.js?v=4';
     script.onerror = () => console.warn('BAO/LAB story image prompt controls failed to load');
     document.head.appendChild(script);
   }

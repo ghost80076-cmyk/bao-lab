@@ -26,18 +26,24 @@
 
     let response;
     try {
+      this.observeRequest?.(config, "attempt");
       response = await fetch(config.baseUrl, {
         method: "POST",
         headers,
         body: JSON.stringify({ model: config.model, max_tokens: limit, system, messages: chat, ...(this.shouldStream(config) ? { stream: true } : {}) }),
         signal: config.signal || this.activeSignal
       });
-    } catch (err) { throw this.networkError(err); }
+      this.observeRequest?.(config, "http", { status: response.status });
+    } catch (err) {
+      this.observeRequest?.(config, "network", { aborted: err?.name === "AbortError" });
+      throw this.networkError(err);
+    }
     if (this.shouldStream(config) && response.ok && this.isEventStream(response)) return this.readAnthropicStream(response, config);
     const data = await this.readJSON(response);
     if (!response.ok) throw new Error(this.friendlyError(response.status, data, "Anthropic-compatible API"));
     return {
       text: (data?.content || []).map(x => x?.type === "text" ? x.text : "").filter(Boolean).join("\n") || "模型沒有回傳內容。",
+      finishReason: data?.stop_reason || null,
       usage: this.normalizeUsage(data?.usage || {}, "anthropic")
     };
   };

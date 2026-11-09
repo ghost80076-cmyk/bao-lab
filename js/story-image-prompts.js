@@ -294,7 +294,7 @@
       }
       generate.disabled = true; status.textContent = '正在把這一幕整理成畫面提示詞……';
       try {
-        const response = await API.send(config, buildVisualMessages({
+        const response = await API.send({ ...config, __diagnosticTask: "visual-prompt" }, buildVisualMessages({
           card, profile:profile.field.value, scene,
           mode:mode.field.value, style:style.field.value, composition:composition.field.value,
           instruction:instruction.field.value

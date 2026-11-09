@@ -18,6 +18,16 @@ import {
   playerUsesAwsOpenRouter,
 } from "./runtime-config.js";
 
+import {
+  diagnosticSafetyRatings,
+  usageFailureType,
+} from "./usage-diagnostics.js";
+
+function openRouterErrorType(data) {
+  const type = data?.error?.metadata?.error_type;
+  return ["content_policy_violation", "refusal"].includes(type) ? type : null;
+}
+
 const enc = new TextEncoder();
 
 // Internal provider network-transport boundary. It owns provider payloads,
@@ -1402,6 +1412,9 @@ const WorkerProviderTransport = (() => {
     if (
       !response.ok
     ) {
+      const providerErrorType = provider === "openrouter" && response.status === 403
+        ? openRouterErrorType(await response.clone().json().catch(() => null))
+        : null;
       const rateLimit =
         response.status ===
           429
@@ -1448,6 +1461,7 @@ const WorkerProviderTransport = (() => {
           false,
   
         category,
+        providerErrorType,
   
         upstreamStatus:
           response.status,
@@ -1491,6 +1505,15 @@ const WorkerProviderTransport = (() => {
       provider ===
       "openrouter"
     ) {
+      if (data?.error) {
+        return {
+          ok: false, route, attemptCount, elapsedMs: Math.max(0, Date.now() - transportStartedAt),
+          requestBytes, transportTimeoutMs, category: "provider_request_failed",
+          providerErrorType: openRouterErrorType(data),
+          input: usageInt(data.usage?.prompt_tokens),
+          output: usageInt(data.usage?.completion_tokens),
+        };
+      }
       const text =
         data.choices?.[0]
           ?.message
@@ -1739,8 +1762,10 @@ const WorkerProviderTransport = (() => {
     const text = visibleParts.map((part) => part.text).join("");
     const candidateFinishReason = String(candidate?.finishReason || "")
       .replace(/[^A-Z_]/g, "").slice(0, 32);
-    const promptBlockReason = String(data.promptFeedback?.blockReason || "")
+    const promptBlockCode = String(data.promptFeedback?.blockReason || "")
       .replace(/[^A-Z_]/g, "").slice(0, 32);
+    const promptBlockReason = promptBlockCode === "BLOCK_REASON_UNSPECIFIED" ? "" : promptBlockCode;
+    const safetyRatings = diagnosticSafetyRatings(data.promptFeedback?.safetyRatings, candidate?.safetyRatings);
     const responseShape = candidates.length === 0
       ? "no_candidates"
       : !Array.isArray(candidate?.content?.parts)
@@ -1841,6 +1866,7 @@ const WorkerProviderTransport = (() => {
       candidateCount: candidates.length,
       candidateFinishReason,
       promptBlockReason,
+      safetyRatings,
       blockedStage: /^(SAFETY|BLOCKLIST|PROHIBITED_CONTENT|SPII|IMAGE_SAFETY|CONTENT_FILTER)$/.test(candidateFinishReason)
         ? "output"
         : promptBlockReason
@@ -1868,7 +1894,8 @@ const WorkerProviderTransport = (() => {
 
   function providerFailureResponse(
     result,
-    requestId
+    requestId,
+    identity = {}
   ) {
     const extra = {
       request_id:
@@ -1952,9 +1979,12 @@ const WorkerProviderTransport = (() => {
           .retryAfterSeconds;
     }
   
-    if (result.finishReason) {
-      extra.finish_reason = result.finishReason;
-    }
+    extra.failure_type = usageFailureType(providerFailureCode(result), result);
+    if (identity.provider) extra.provider = identity.provider;
+    if (identity.model) extra.model = identity.model;
+    if (result.finishReason) extra.finish_reason = result.finishReason;
+    if (result.candidateFinishReason) extra.candidate_finish_reason = result.candidateFinishReason;
+    if (result.safetyRatings) extra.safety_ratings = result.safetyRatings;
     if (Number.isInteger(result.elapsedMs) && result.elapsedMs >= 0 && result.elapsedMs <= 600_000) {
       extra.elapsed_ms = result.elapsedMs;
     }

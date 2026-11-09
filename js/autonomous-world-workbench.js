@@ -51,7 +51,7 @@
     const key=name==='world'?'worldText':name==='persona'?'personaText':name,input=document.getElementById('aw-'+key);
     const request=name==='world'?'請建立可編輯的完整純文字世界觀與背景，列出融合規則、衝突待確認事項。':name==='npcs'?'請依世界觀建立多位自主 NPC 的純文字人物資料、彼此關係、各自目標與知識界線。':'請依世界觀提供可編輯的玩家角色個人資料草案，不要替玩家決定最終人設。';
     btn.disabled=true;message.textContent='正在使用你的 API 生成草稿……';
-    try {const result=await API.send(api,[{role:'system',content:'你是世界設定草稿助手。只輸出純文字草稿，不要開始角色扮演，不要輸出 HTML。參考作品名稱不代表已獲得原作全文；不確定的設定應標明待核對。'},{role:'user',content:[request,'世界類型：'+draft.world,'玩法：'+draft.mode,'參考作品：'+draft.references,'風格：'+draft.tone,'現有世界觀：'+draft.worldText,'現有 NPC：'+draft.npcs,'現有玩家資料：'+draft.personaText].join('\n')}]);input.value=result.text||'';draft[key]=input.value;draft.confirmed[name]=false;saveDraft();document.getElementById('aw-'+name+'-status').textContent='草稿已生成；請檢查、修改後按「記住」';message.textContent='生成完成。草稿尚未記住，請先確認。';}
+    try {const result=await API.send({...api,__diagnosticTask:"world-draft"},[{role:'system',content:'你是世界設定草稿助手。只輸出純文字草稿，不要開始角色扮演，不要輸出 HTML。參考作品名稱不代表已獲得原作全文；不確定的設定應標明待核對。'},{role:'user',content:[request,'世界類型：'+draft.world,'玩法：'+draft.mode,'參考作品：'+draft.references,'風格：'+draft.tone,'現有世界觀：'+draft.worldText,'現有 NPC：'+draft.npcs,'現有玩家資料：'+draft.personaText].join('\n')}]);input.value=result.text||'';draft[key]=input.value;draft.confirmed[name]=false;saveDraft();document.getElementById('aw-'+name+'-status').textContent='草稿已生成；請檢查、修改後按「記住」';message.textContent='生成完成。草稿尚未記住，請先確認。';}
     catch(err){message.textContent='生成失敗：'+(err.message||'請檢查 API 設定');}finally{btn.disabled=false;}
   }
   App.openBuilder=function(){originalOpen();if(this.activeCharacter?.id!==ID)return;draft=loadDraft();render();};

@@ -10,7 +10,7 @@
   const escape = s => App.escapeHTML(String(s ?? ''));
   const current = () => story()?.fullMemoryRebuild || null;
   const routeConfig = () => {
-    const cfg = memory.config(App.config, 'summary', App.modelPresets || [], { __responseSchema: false });
+    const cfg = memory.config(App.config, 'summary', App.modelPresets || [], { __responseSchema: false, __diagnosticTask: "full-memory-rebuild" });
     window.BAOCreditsPilot?.prepareAccountConfig?.(cfg);
     if (App.config?.demoMode || (!cfg.key && !cfg.local && !window.BAOCreditsPilot?.isAccountReady?.(cfg)))
       throw new Error('請先連接整理模型的 API；本機預覽不會呼叫付費整理。');

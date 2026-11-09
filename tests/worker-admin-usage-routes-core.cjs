@@ -122,6 +122,7 @@ assert.doesNotMatch(
       }
       if (/PRAGMA table_info\(api_usage_diagnostics\)/.test(query)) {
         return {all: async () => ({results: [
+          "request_task", "failure_type", "safety_ratings", "estimated_input_tokens",
           "finish_reason", "prompt_block_reason", "response_shape", "candidate_count",
           "observed_input_tokens", "observed_output_tokens",
         ].map(name => ({name}))})};
@@ -144,6 +145,9 @@ assert.doesNotMatch(
   assert.ok(usageSql);
   assert.match(usageSql, /ORDER BY\s+u\.created_at DESC,\s+u\.request_id DESC/);
   assert.match(usageSql, /d\.response_shape/);
+  assert.match(usageSql, /d\.request_task/);
+  assert.match(usageSql, /d\.failure_type/);
+  assert.match(usageSql, /d\.safety_ratings/);
   assert.match(usageSql, /d\.observed_input_tokens/);
   assert.equal(body.usage.length, 100);
   assert.equal(body.has_more, true);

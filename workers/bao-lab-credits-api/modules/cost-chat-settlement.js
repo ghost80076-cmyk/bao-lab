@@ -47,6 +47,7 @@ import {
 
 import {
   recordUsageFailure,
+  usageFailureType,
 } from "./usage-diagnostics.js";
 
 // USD wallet reservation and settlement are kept separate from legacy credits,
@@ -303,6 +304,8 @@ async function costUsdChatRoute(
       kind
     );
 
+  result.requestTask = body?.request_task;
+  result.estimatedInputTokens = plan.estimatedInputTokens;
   await recordRequestTrace(db, requestId, result);
 
   if (
@@ -403,7 +406,8 @@ async function costUsdChatRoute(
 
     return providerFailureResponse(
       result,
-      requestId
+      requestId,
+      { provider, model }
     );
   }
 
@@ -574,6 +578,11 @@ async function costUsdChatRoute(
   const charged = settlement.charged_microusd;
   const settlementStatus = settlement.settlement_status;
   const balanceAfter = settlement.balance_after_microusd;
+
+  const incompleteType = usageFailureType("usage_metadata_unverified", result);
+  if (verified && ["policy_block", "output_truncated"].includes(incompleteType)) {
+    await recordUsageFailure(db, requestId, "provider_incomplete_output", result);
+  }
 
   return json({
     request_id:

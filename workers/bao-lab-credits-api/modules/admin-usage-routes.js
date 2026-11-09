@@ -95,6 +95,9 @@ async function adminUsageRoute(
             (SELECT SUM(l.amount_microusd) FROM wallet_ledger l WHERE l.request_id = u.request_id
               AND l.player_id = u.player_id AND l.entry_type = 'usage') AS ledger_amount_microusd,
             d.failure_code,
+            d.request_task,
+            d.failure_type,
+            d.safety_ratings,
             d.upstream_http_status,
             d.provider_status,
             d.route,
@@ -108,6 +111,7 @@ async function adminUsageRoute(
             d.prompt_block_reason,
             d.response_shape,
             d.candidate_count,
+            d.estimated_input_tokens,
             d.observed_input_tokens,
             d.observed_output_tokens
 

@@ -6,7 +6,7 @@ const path = require('node:path');
 const code = fs.readFileSync(path.join(__dirname, '../js/credits-pilot.js'), 'utf8');
 const siteLoader = fs.readFileSync(path.join(__dirname, '../js/site-ui.js'), 'utf8');
 const siteHtml = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8');
-assert.match(siteLoader, /loadBAOScript\("js\/credits-pilot\.js\?v=2"\)/,
+assert.match(siteLoader, /loadBAOScript\("js\/credits-pilot\.js\?v=9"\)/,
   "Hosted credits must actually load before relying on its production error handler");
 const lazyLoaderVersion = siteHtml.match(/js\/site-ui\.js\?v=(\d+)/);
 assert(lazyLoaderVersion && Number(lazyLoaderVersion[1]) >= 166,

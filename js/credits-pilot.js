@@ -215,13 +215,13 @@
   const emptyTextMessage = (name, data) => {
     const reason = String(data?.finish_reason || "").trim().toUpperCase();
     const blockedStage = providerBlockedStage(data);
-    if (data?.response_shape === "thought_only") {
+    if (data?.response_shape === "thought_only" && data?.failure_type !== "policy_block") {
       return `${name} 僅回傳思考內容、沒有可顯示正文（原因：${reason || '未提供'}）。請回報診斷編號，並可在記憶設定改用其他整理模型；不要連續重送相同請求。`;
     }
-    if (reason === "MAX_TOKENS" || reason === "LENGTH") {
+    if (data?.failure_type === "output_truncated" || /^(?:MAX_TOKENS|LENGTH|MAX_OUTPUT_TOKENS|MAX_COMPLETION_TOKENS)$/.test(reason)) {
       return `${name} 未產生文字（原因：${reason}）。本次輸出預算可能不足，請提高「回覆輸出上限」後重試。`;
     }
-    if (providerBlockReasons.has(reason)) {
+    if (data?.failure_type === "policy_block" || providerBlockReasons.has(reason)) {
       if (blockedStage === "input") {
         return `${name} 未接受本次內容（原因：${reason}；階段：輸入內容）。Google 在讀取本次故事脈絡時停止請求；可修改最近內容或故事脈絡後重新生成。`;
       }
@@ -370,6 +370,7 @@
           provider: upstreamProvider,
           model: config.model,
           request_kind: kind,
+          request_task: API.requestTask?.(config),
           messages: cleaned,
           max_output_tokens: maxOutput,
           ...(sessionId ? { session_id: sessionId } : {})
@@ -491,13 +492,28 @@
             timeoutMs ? `Worker 逾時設定：${(timeoutMs / 1000).toFixed(0)} 秒` : ''
           ].filter(Boolean).join('；')}）`
         : '';
-      const upstreamError = new Error(`${detail}${upstreamTiming}${transportDiagnostic}${sizeDiagnostic}${rateDiagnostic}${googleStatus}${diagnosticId}`);
+      const diagnosticDetail = data?.failure_type === "policy_block" && data?.error !== "provider_empty_text"
+        ? `${name} 回報內容政策阻擋。`
+        : data?.failure_type === "provider_refusal" ? `${name} 回報模型拒絕回覆。` : detail;
+      const upstreamError = new Error(`${diagnosticDetail}${upstreamTiming}${transportDiagnostic}${sizeDiagnostic}${rateDiagnostic}${googleStatus}${diagnosticId}`);
       const finishReason = String(data?.finish_reason || "").trim().toUpperCase();
-      if (data?.error === "provider_empty_text" && providerBlockReasons.has(finishReason)) {
+      const blockReason = data?.prompt_block_reason || null;
+      const isBlocked = data?.failure_type === "policy_block" || (data?.error === "provider_empty_text" && providerBlockReasons.has(finishReason));
+      if (isBlocked) {
         upstreamError.code = "BAO_PROVIDER_BLOCKED";
         upstreamError.blockedStage = providerBlockedStage(data) || null;
-        upstreamError.finishReason = finishReason || null;
-      }
+      } else if (data?.error === "provider_empty_text") upstreamError.code = "BAO_PROVIDER_EMPTY";
+      Object.assign(upstreamError, {
+        provider: data?.provider || upstreamProvider,
+        model: data?.model || config.model,
+        finishReason: finishReason || null,
+        candidateFinishReason: data?.candidate_finish_reason ?? (blockReason ? null : finishReason || null),
+        blockReason,
+        providerErrorType: data?.failure_type === "provider_refusal" ? "refusal" : null,
+        promptSafetyRatings: data?.safety_ratings?.prompt,
+        safetyRatings: data?.safety_ratings?.candidate,
+        usage: { input_tokens: data?.observed_input_tokens ?? null }
+      });
       throw upstreamError;
     }
     if (typeof data?.content !== "string" || !data.content.trim()) throw new Error("夜灣模型服務沒有回傳可顯示的文字內容。");
@@ -507,6 +523,8 @@
     const cacheWrite = Number.isInteger(data.usage?.cache_write_tokens) ? data.usage.cache_write_tokens : null;
     const result = {
       text: data.content,
+      provider: data.provider || upstreamProvider,
+      model: data.model || config.model,
       finishReason: data.finish_reason || null,
       outputBudget: {
         requested: Number.isInteger(data.usage?.requested_max_output_tokens) ? data.usage.requested_max_output_tokens : maxOutput,

@@ -11,6 +11,9 @@ for (const purpose of ['長期記憶摘要', '世界狀態重建', 'Context Pack
   assert.match(prompt, /不要求忽略安全保護/);
   assert.match(prompt, new RegExp(purpose));
   assert.match(prompt, /只輸出 JSON/);
+  assert.match(prompt, /不扮演角色、不續寫、不補造玩家行動/);
+  assert.match(prompt, /已確認的事實、人物知情、因果與狀態變化/);
+  assert.match(prompt, /證據不足標為未確認/);
 }
 const events = [];
 const sandbox = { console, window: null };

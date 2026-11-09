@@ -25,6 +25,44 @@ const messages=[{role:'system',content:'PRIVATE_SYSTEM'},{role:'user',content:'P
     const snap=c.BAORequestLedger.snapshot();assert.equal(snap.logicalRequests,1);assert.equal(snap.transportAttempts,1);assert.equal(snap.calls[0].status,'success');
     assert.doesNotMatch(JSON.stringify(snap),/PRIVATE_|private-endpoint|__requestTrace|key|baseUrl|authorization/);
   }
+  const safeRating={category:'HARM_CATEGORY_HARASSMENT',probability:'HIGH',blocked:true};
+  const unsafeRating={...safeRating,source:'PRIVATE_PROMPT'};
+  responder=()=>new Response(JSON.stringify({
+    promptFeedback:{blockReason:'PROHIBITED_CONTENT',safetyRatings:[unsafeRating]},
+    usageMetadata:{promptTokenCount:31123}
+  }));
+  await c.API.send({...config('gemini'),__memoryTask:true,__memoryTaskKind:'context-pack'},messages);
+  let diagnostic=c.BAORequestLedger.snapshot().calls[0];
+  assert.equal(diagnostic.task,'context-pack');
+  assert.equal(diagnostic.provider,'gemini');
+  assert.equal(diagnostic.diagnostic.outcome,'policy_block');
+  assert.equal(diagnostic.diagnostic.finishReason,null);
+  assert.equal(diagnostic.diagnostic.promptBlockReason,'PROHIBITED_CONTENT');
+  assert.equal(diagnostic.diagnostic.observedInputTokens,31123);
+  assert.deepEqual(JSON.parse(JSON.stringify(diagnostic.diagnostic.promptSafetyRatings)),[safeRating]);
+  assert.doesNotMatch(JSON.stringify(diagnostic),/PRIVATE_/);
+
+  responder=()=>new Response(JSON.stringify({candidates:[{
+    finishReason:'MAX_TOKENS',content:{parts:[{thought:true,text:'PRIVATE_THOUGHT'}]}
+  }]}));
+  const truncated=await c.API.send({...config('gemini'),__stateTask:true,__stateRebuild:true},messages);
+  assert.doesNotMatch(truncated.text,/PRIVATE_THOUGHT/);
+  diagnostic=c.BAORequestLedger.snapshot().calls[0];
+  assert.equal(diagnostic.task,'state-rebuild');
+  assert.equal(diagnostic.diagnostic.outcome,'output_truncated');
+
+  responder=()=>new Response(JSON.stringify({choices:[{message:{content:''},finish_reason:'stop'}]}));
+  await c.API.send({...config('openai'),__storyRevision:'regenerate'},messages);
+  assert.equal(c.BAORequestLedger.snapshot().calls[0].diagnostic.outcome,'empty_response');
+
+  responder=()=>new Response(JSON.stringify({error:{message:'PRIVATE_ERROR'}}),{status:403});
+  await assert.rejects(c.API.send({...config('openai'),type:'openrouter'},messages));
+  assert.equal(c.BAORequestLedger.snapshot().calls[0].diagnostic.outcome,'api_error');
+  responder=()=>new Response(JSON.stringify({error:{message:'PRIVATE_ERROR',metadata:{error_type:'content_policy_violation'}}}));
+  await assert.rejects(c.API.send({...config('openai'),type:'openrouter'},messages));
+  assert.equal(c.BAORequestLedger.snapshot().calls[0].diagnostic.outcome,'policy_block');
+  assert.doesNotMatch(JSON.stringify(c.BAORequestLedger.snapshot()),/PRIVATE_/);
+
   let attempts=0;const callbacks=[];
   responder=()=>++attempts<3?new Response('{}',{status:503}):new Response(JSON.stringify({choices:[{message:{content:'OK'}}],usage:{prompt_tokens:7,completion_tokens:3}}));
   await c.API.send({...config('openai'),retryEnabled:true,onRetry:e=>callbacks.push(e)},messages);
@@ -54,6 +92,18 @@ const messages=[{role:'system',content:'PRIVATE_SYSTEM'},{role:'user',content:'P
   responder=()=>{throw Object.assign(new Error('PRIVATE_ABORT'),{name:'AbortError'});};
   await assert.rejects(c.API.send(config('openai'),messages));assert.equal(c.BAORequestLedger.snapshot().calls[0].status,'cancelled');
   assert.equal(c.BAORequestLedger.snapshot().retries,0);
+
+  // Gemini emits safety metadata and usage in separate SSE events.
+  responder=()=>new Response([
+    {candidates:[{finishReason:'SAFETY',safetyRatings:[unsafeRating]}]},
+    {usageMetadata:{promptTokenCount:234}}
+  ].map(item=>'data: '+JSON.stringify(item)+'\n\n').join(''),{headers:{'content-type':'text/event-stream'}});
+  await c.API.send({...config('gemini'),stream:true,onDelta:()=>assert.fail('thought/block must not produce a delta')},messages);
+  diagnostic=c.BAORequestLedger.snapshot().calls[0].diagnostic;
+  assert.equal(diagnostic.outcome,'policy_block');
+  assert.equal(diagnostic.finishReason,'SAFETY');
+  assert.equal(diagnostic.observedInputTokens,234);
+  assert.deepEqual(JSON.parse(JSON.stringify(diagnostic.safetyRatings)),[safeRating]);
 
   // Streaming callbacks and bytes are unaffected.
   responder=()=>new Response('data: {"choices":[{"delta":{"content":"STREAM"}}]}\n\ndata: [DONE]\n\n',{headers:{'content-type':'text/event-stream'}});

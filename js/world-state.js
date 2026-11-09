@@ -78,7 +78,7 @@ const WorldStateEngine = {
     ].join("\n\n");
 
     try {
-      const result = await API.send(config.api, [
+      const result = await API.send({ ...config.api, __diagnosticTask: "state" }, [
         { role: "system", content: window.BAOMemoryCore?.taskSystem?.("世界狀態增量核對", "只輸出合法 JSON 世界狀態 PATCH。") || "只輸出合法 JSON 世界狀態。" },
         { role: "user", content: prompt }
       ]);

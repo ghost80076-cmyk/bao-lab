@@ -77,6 +77,36 @@
       if(event==='http' && Number.isInteger(data.status))item.httpStatus=data.status;
     }
   };
+  const enumCode=value=>typeof value==='string' && /^[a-z][a-z0-9_]{0,63}$/i.test(value)?value.toUpperCase():null;
+  const policy=/^(?:SAFETY|BLOCKLIST|PROHIBITED_CONTENT|SPII|IMAGE_SAFETY|CONTENT_FILTER|RECITATION|IMAGE_PROHIBITED_CONTENT|IMAGE_RECITATION|MODEL_ARMOR|JAILBREAK)$/;
+  const cutoff=/^(?:LENGTH|MAX_TOKENS|MAX_OUTPUT_TOKENS|MAX_COMPLETION_TOKENS)$/;
+  const providerResult=(call,result,error)=>{
+    const data=result || error;
+    const finishReason=enumCode(data && Object.hasOwn(data,'candidateFinishReason')?data.candidateFinishReason:data?.finishReason);
+    const blockReason=enumCode(data?.blockReason || data?.promptBlockReason);
+    const promptBlockReason=blockReason==='BLOCK_REASON_UNSPECIFIED'?null:blockReason;
+    const reportedProvider=data?.provider;
+    if(['gemini','openrouter','anthropic'].includes(reportedProvider))call.provider=reportedProvider;
+    if(call.route==='hosted' && typeof data?.model==='string' && /^[a-z0-9._:/+@-]{1,120}$/i.test(data.model))call.model=data.model.slice(0,120);
+    const text=result?.text;
+    const empty=typeof text!=='string' || !text.trim() ||
+      /^(?:模型沒有回傳內容|Gemini (?:沒有回傳文字內容|未產生(?:文字)?內容（[A-Z0-9_]+）))。$/.test(text.trim());
+    let outcome='success';
+    if(promptBlockReason || policy.test(finishReason || '') || error?.code==='BAO_PROVIDER_BLOCKED' ||
+       data?.providerErrorType==='content_policy_violation')outcome='policy_block';
+    else if(data?.providerErrorType==='refusal')outcome='provider_refusal';
+    else if(cutoff.test(finishReason || ''))outcome='output_truncated';
+    else if(error?.name==='AbortError' || error?.code==='BAO_ABORTED')outcome='cancelled';
+    else if(finishReason==='ERROR' || (error && error?.code!=='BAO_PROVIDER_EMPTY'))outcome='api_error';
+    else if(empty)outcome='empty_response';
+    const safetyRatings=API.safeSafetyRatings(data?.safetyRatings);
+    const promptSafetyRatings=API.safeSafetyRatings(data?.promptSafetyRatings);
+    const input=data?.usage?.input_tokens;
+    call.diagnostic={outcome,finishReason,promptBlockReason,
+      observedInputTokens:Number.isSafeInteger(input) && input>=0?input:null,
+      ...(safetyRatings.length?{safetyRatings}:{}),
+      ...(promptSafetyRatings.length?{promptSafetyRatings}:{})};
+  };
   const recordResult=(call,result)=>{
     call.usage={};
     for(const key of ['input_tokens','cached_tokens','output_tokens']){
@@ -89,7 +119,7 @@
     let run=safely(()=>active.get(owner())),standalone=false;
     if(!run){run=safely(()=>begin(classify(config)));standalone=!!run;}
     if(!run)return next(config,messages,...rest);
-    const token={},call={kind:classify(config),status:'pending',model:'',route:'unknown',attemptCount:0,retries:0,attempts:[]};
+    const token={},call={kind:classify(config),task:API.requestTask(config),status:'pending',model:'',route:'unknown',attemptCount:0,retries:0,attempts:[]};
     safely(()=>{
       run.logicalRequests++;
       if(run.calls.length===100){run.calls.shift();run.truncated=true;}
@@ -108,9 +138,31 @@
       safely(()=>{call.status=status;});throw error;
     }finally{if(standalone)safely(()=>finish(run,status));}
   });
-  API.wrapSend('request-ledger:dispatch',(next,config,messages,...rest)=>{
-    safely(()=>{const found=tokens.get(config?.__requestTrace);if(found){found.call.model=String(config.model || '').slice(0,120);found.call.route=route(config);}});
-    return next(config,messages,...rest);
+  API.wrapSend('request-ledger:dispatch',async(next,config,messages,...rest)=>{
+    const call=tokens.get(config?.__requestTrace)?.call;
+    if(!call)return next(config,messages,...rest);
+    safely(()=>{
+      call.model=String(config.model || '').slice(0,120);
+      call.route=route(config);
+      if(call.route==='local')call.provider='lmstudio';
+      else if(API.isOpenRouter(config))call.provider='openrouter';
+      else if(['gemini','anthropic'].includes(config.protocol))call.provider=config.protocol;
+      else call.provider=String(config.type || config.protocol || 'openai').slice(0,48);
+    });
+    // Observe the transport result before policy and memory wrappers handle it.
+    const record=(result,error)=>{
+      providerResult(call,result,error);
+      if(call.diagnostic.outcome!=='success' && call.diagnostic.observedInputTokens===null && call.attemptCount)
+        call.diagnostic.estimatedInputTokens=window.BAOMemoryCore?.tokens?.(messages) ?? null;
+    };
+    try{
+      const result=await next(config,messages,...rest);
+      safely(()=>record(result,null));
+      return result;
+    }catch(error){
+      safely(()=>record(null,error));
+      throw error;
+    }
   });
   const scope=async(type,next,args)=>{
     if(safely(()=>active.has(owner()),false))return next(...args);
@@ -146,13 +198,15 @@
   const render=()=>{
     const run=snapshot();if(!run)return '<p data-request-ledger-empty>送出故事回覆後，這裡會顯示最近一輪的處理狀態。</p>';
     const statuses={pending:'處理中',success:'已完成',failed:'未完成，請檢查連線後重試',cancelled:'已取消',stale:'設定或故事已變更','not-committed':'回覆未採用'};
+    const outcomes={policy_block:'供應商內容阻擋',provider_refusal:'模型拒絕回覆',output_truncated:'供應商輸出截斷',empty_response:'供應商未回傳文字',api_error:'API 回應異常'};
     const items=[],publicReasons={merged:'隨故事回覆一併處理','merged-invalid':'這輪沒有可用的狀態資料，未更新狀態','invalid-output':'整理結果無法使用，原始對話仍保留'};
     for(const kind of Object.keys(kinds).filter(kind=>kind!=='memory-repair')){
       const calls=run.calls.filter(c=>c.kind===kind),decisions=run.decisions.filter(d=>d.kind===kind);
       if(!calls.length && !decisions.length)continue;
       const failed=calls.find(c=>c.status!=='success');
       const unusable=decisions.findLast(d=>['invalid-output','merged-invalid'].includes(d.reason));
-      const result=unusable?publicReasons[unusable.reason]:calls.length?statuses[failed?.status || 'success']:(publicReasons[decisions.at(-1).reason] || reasons[decisions.at(-1).reason]);
+      const diagnostic=calls.findLast(c=>outcomes[c.diagnostic?.outcome])?.diagnostic;
+      const result=outcomes[diagnostic?.outcome] || (unusable?publicReasons[unusable.reason]:calls.length?statuses[failed?.status || 'success']:(publicReasons[decisions.at(-1).reason] || reasons[decisions.at(-1).reason]));
       items.push(`<p data-execution-kind="${esc(kind)}"><b>${esc(kinds[kind])}</b> · ${esc(result)}</p>`);
     }
     return `<section data-settings-execution style="overflow-wrap:anywhere"><h4>最近回覆狀態</h4><p>${esc(statuses[run.status])}</p>${items.join('')}</section>`;

@@ -14,11 +14,50 @@ const RESPONSE_SHAPES = new Set([
   "no_candidates", "no_parts", "empty_parts",
   "thought_only", "no_text_parts", "blank_text",
 ]);
+const REQUEST_TASKS = new Set([
+  "story", "regenerate", "rewrite", "auto-summary", "memory-repair", "notes",
+  "canon-extract", "canon-merge", "canon-final", "context-pack", "full-memory-rebuild",
+  "setting-split", "state", "state-rebuild", "state-evidence-scan", "inspiration",
+  "discussion", "advisor", "observer", "commentary", "connection", "auxiliary",
+  "visual-prompt", "world-draft",
+]);
+const POLICY_REASONS = /^(?:SAFETY|BLOCKLIST|PROHIBITED_CONTENT|SPII|IMAGE_SAFETY|CONTENT_FILTER|RECITATION|IMAGE_PROHIBITED_CONTENT|IMAGE_RECITATION|MODEL_ARMOR|JAILBREAK)$/;
+const CUTOFF_REASONS = /^(?:LENGTH|MAX_TOKENS|MAX_OUTPUT_TOKENS|MAX_COMPLETION_TOKENS)$/;
+function usageFailureType(code, result) {
+  const finish = String(result.finishReason || "").toUpperCase();
+  if (result.promptBlockReason || POLICY_REASONS.test(finish) ||
+      result.providerErrorType === "content_policy_violation") return "policy_block";
+  if (result.providerErrorType === "refusal") return "provider_refusal";
+  if (CUTOFF_REASONS.test(finish)) return "output_truncated";
+  if (code === "provider_empty_text" && finish !== "ERROR") return "empty_response";
+  return code === "usage_metadata_unverified" ? "usage_unverified" : "api_error";
+}
+
+function safeSafetyRatings(ratings) {
+  if (!Array.isArray(ratings)) return [];
+  return ratings.slice(0, 12).filter(item =>
+    typeof item?.category === "string" && /^HARM_CATEGORY_(?:HARASSMENT|HATE_SPEECH|SEXUALLY_EXPLICIT|DANGEROUS_CONTENT|CIVIC_INTEGRITY|UNSPECIFIED|DEROGATORY|TOXICITY|VIOLENCE|SEXUAL|MEDICAL|DANGEROUS)$/.test(item?.category)
+  ).map(item => ({
+    category: item.category,
+    ...(typeof item.probability === "string" && /^(?:NEGLIGIBLE|LOW|MEDIUM|HIGH|HARM_PROBABILITY_UNSPECIFIED)$/.test(item.probability) ? { probability: item.probability } : {}),
+    ...(typeof item.blocked === "boolean" ? { blocked: item.blocked } : {}),
+  }));
+}
+function diagnosticSafetyRatings(promptRatings, candidateRatings) {
+  const prompt = safeSafetyRatings(promptRatings);
+  const candidate = safeSafetyRatings(candidateRatings);
+  return prompt.length || candidate.length ? { prompt, candidate } : null;
+}
+
 const EXTRA_COLUMNS = Object.freeze({
+  request_task: "TEXT",
+  failure_type: "TEXT",
+  safety_ratings: "TEXT",
   finish_reason: "TEXT",
   prompt_block_reason: "TEXT",
   response_shape: "TEXT",
   candidate_count: "INTEGER",
+  estimated_input_tokens: "INTEGER",
   observed_input_tokens: "INTEGER",
   observed_output_tokens: "INTEGER",
 });
@@ -88,7 +127,11 @@ function normalizeUsageDiagnostic(
       ? result.rateLimitScope
       : null;
 
+  const safetyRatings = diagnosticSafetyRatings(result.safetyRatings?.prompt, result.safetyRatings?.candidate);
   return {
+    request_task: REQUEST_TASKS.has(result.requestTask) ? result.requestTask : null,
+    failure_type: usageFailureType(normalizedFailureCode, result),
+    safety_ratings: safetyRatings ? JSON.stringify(safetyRatings) : null,
     failure_code:
       normalizedFailureCode,
 
@@ -138,10 +181,11 @@ function normalizeUsageDiagnostic(
         600_000
       ),
 
-    finish_reason: safeCode(result.finishReason, /^[A-Z][A-Z0-9_]*$/, 32),
+    finish_reason: safeCode(String(result.candidateFinishReason ?? (result.promptBlockReason ? "" : result.finishReason || "")).toUpperCase(), /^[A-Z][A-Z0-9_]*$/, 32),
     prompt_block_reason: safeCode(result.promptBlockReason, /^[A-Z][A-Z0-9_]*$/, 32),
     response_shape: RESPONSE_SHAPES.has(result.responseShape) ? result.responseShape : null,
     candidate_count: boundedInteger(result.candidateCount, 0, 100),
+    estimated_input_tokens: boundedInteger(result.estimatedInputTokens, 0, 1_000_000_000),
     observed_input_tokens: boundedInteger(result.input, 0, 1_000_000_000),
     observed_output_tokens: boundedInteger(result.output, 0, 1_000_000_000),
   };
@@ -166,10 +210,14 @@ async function ensureUsageDiagnostics(
         request_bytes INTEGER,
         elapsed_ms INTEGER,
         timeout_ms INTEGER,
+        request_task TEXT,
+        failure_type TEXT,
+        safety_ratings TEXT,
         finish_reason TEXT,
         prompt_block_reason TEXT,
         response_shape TEXT,
         candidate_count INTEGER,
+        estimated_input_tokens INTEGER,
         observed_input_tokens INTEGER,
         observed_output_tokens INTEGER,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -228,16 +276,20 @@ async function recordUsageFailure(
           request_bytes,
           elapsed_ms,
           timeout_ms,
+          request_task,
+          failure_type,
+          safety_ratings,
           finish_reason,
           prompt_block_reason,
           response_shape,
           candidate_count,
+          estimated_input_tokens,
           observed_input_tokens,
           observed_output_tokens
         )
 
         VALUES (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
 
         ON CONFLICT(request_id) DO UPDATE SET
@@ -251,10 +303,14 @@ async function recordUsageFailure(
           request_bytes = excluded.request_bytes,
           elapsed_ms = excluded.elapsed_ms,
           timeout_ms = excluded.timeout_ms,
+          request_task = excluded.request_task,
+          failure_type = excluded.failure_type,
+          safety_ratings = excluded.safety_ratings,
           finish_reason = excluded.finish_reason,
           prompt_block_reason = excluded.prompt_block_reason,
           response_shape = excluded.response_shape,
           candidate_count = excluded.candidate_count,
+          estimated_input_tokens = excluded.estimated_input_tokens,
           observed_input_tokens = excluded.observed_input_tokens,
           observed_output_tokens = excluded.observed_output_tokens,
           updated_at = CURRENT_TIMESTAMP
@@ -272,10 +328,14 @@ async function recordUsageFailure(
         diagnostic.request_bytes,
         diagnostic.elapsed_ms,
         diagnostic.timeout_ms,
+        diagnostic.request_task,
+        diagnostic.failure_type,
+        diagnostic.safety_ratings,
         diagnostic.finish_reason,
         diagnostic.prompt_block_reason,
         diagnostic.response_shape,
         diagnostic.candidate_count,
+        diagnostic.estimated_input_tokens,
         diagnostic.observed_input_tokens,
         diagnostic.observed_output_tokens
       )
@@ -304,4 +364,6 @@ export {
   ensureUsageDiagnostics,
   normalizeUsageDiagnostic,
   recordUsageFailure,
+  diagnosticSafetyRatings,
+  usageFailureType,
 };

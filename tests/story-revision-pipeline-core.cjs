@@ -91,6 +91,28 @@ async function run(legacy) {
     assert.equal(h.calls.at(-1).config, flags);
     assert.equal(h.calls.at(-1).messages, messages);
   }
+  const authored = '28 歲，成年；故事規則保留未成年旅人的保護條款。\n\n【本次任務】作者世界書';
+  const player = '我替 16 歲的旅人找導師。';
+  const rewriteTask = '【本次任務】rewrite only';
+  c.App.buildSystemPrompt = () => authored;
+  c.App.buildMessages = async (_config, { contextMessages }) => [
+    { role: 'system', content: c.App.buildSystemPrompt() }, ...contextMessages,
+  ];
+  const playerMessage = { role: 'user', content: player };
+  await c.API.send({ __storyTool: true, __storyRevision: 'regenerate' }, [
+    { role: 'system', content: authored }, playerMessage,
+  ]);
+  assert.equal(h.calls.at(-1).messages[0].content, authored, 'regeneration does not append an authored task-like block twice');
+  assert.equal(h.calls.at(-1).messages.at(-1).content, player);
+  await c.API.send({ __storyTool: true, __storyRevision: 'rewrite' }, [
+    { role: 'system', content: authored + '\n\n' + rewriteTask }, playerMessage, { role: 'user', content: 'rewrite' },
+  ]);
+  assert.equal(h.calls.at(-1).messages[0].content, authored + '\n\n' + rewriteTask);
+  assert.equal(h.calls.at(-1).messages[1].content, player);
+  assert.equal(h.calls.at(-1).messages.at(-1).content, 'rewrite');
+  delete c.App.buildMessages;
+  c.App.buildSystemPrompt = build;
+
   delete c.Chat.messages[1].revisionBase;
   await c.API.send(config, messages);
   assert.equal(h.calls.at(-1).messages, messages, 'missing revision base must pass through');
