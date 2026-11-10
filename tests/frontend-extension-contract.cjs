@@ -14,7 +14,7 @@ assert(memoryWorkbenchSource.includes('data-summary-mode-notice'));
 assert(siteUI.includes('js/world-state-cost.js?v=14'));
 assert(siteUI.includes('js/provider-policy-guard.js?v=1'), 'policy circuit must load before hosted transport');
 assert(siteUI.indexOf('js/provider-policy-guard.js?v=1') < siteUI.indexOf('js/credits-pilot.js?v=9'));
-assert(index.includes('src="js/site-ui.js?v=197"'));
+assert(index.includes('src="js/site-ui.js?v=198"'));
 assert(siteUI.includes('loadBAOOptionalGroup("chapter-memory"'), 'chapter workbench must not block story sends');
 assert(siteUI.includes('loadBAOOptionalGroup("chapter-recall"'), 'optional recall must not block story sends');
 assert(siteUI.indexOf('js/episodic-memory.js?v=5') < siteUI.indexOf('js/chapter-memory-recall.js?v=1'), 'chapter recall must follow knowledge resolver');
@@ -58,7 +58,7 @@ increasing(index, [
   'src="js/chat.js',
   'src="js/character.js?v=11"',
   'src="js/app.js',
-  'src="js/chat-markup.js?v=9"',
+  'src="js/chat-markup.js?v=10"',
   'src="js/story-maintenance-lock.js?v=2"',
   'src="js/site-ui.js'
 ], "core script");
@@ -96,7 +96,7 @@ increasing(siteUI, [
 increasing(siteUI, [
   'loadBAOOptionalGroup("stage-capabilities", ["js/stage-capability-core.js?v=3", "js/stage-capability.js?v=3"])',
   'loadBAOScript("js/reader-context.js?v=7")',
-  'loadBAOScript("js/bao-visual-ui.js?v=21")',
+  'loadBAOScript("js/bao-visual-ui.js?v=22")',
   'loadBAOScript("js/player-shell-v2.js?v=15")'
 ], "stage capability extension");
 

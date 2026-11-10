@@ -95,6 +95,34 @@ global.fetch = async (url, options) => {
     `data: ${JSON.stringify({ usageMetadata: { totalTokenCount: 2 } })}`
   ].join('\n\n') + '\n\n'), {});
   assert.equal(blocked.blockReason, 'PROHIBITED_CONTENT');
+  // A later SSE error/EOF must not erase metadata already received. Errors
+  // retain structured diagnostics only, never previously streamed text.
+  const metadataCases = [
+    ['readOpenAIStream', { choices: [{ delta: { content: 'PRIVATE_PARTIAL' } }], usage: { prompt_tokens: 42 } }],
+    ['readAnthropicStream', { type: 'message_start', message: { usage: { input_tokens: 42 } } }],
+    ['readGeminiStream', { usageMetadata: { promptTokenCount: 42 } }],
+  ];
+  for (const [method, first] of metadataCases) {
+    for (const tail of ['', event({ error: { message: 'provider unavailable' } })]) {
+      await assert.rejects(API[method](sseResponse(event(first) + tail), {}), error => {
+        assert.equal(error.code, 'BAO_STREAM_PROTOCOL');
+        assert.equal(error.usage?.input_tokens, 42, method + ' must retain observed usage on failure');
+        assert.doesNotMatch(JSON.stringify(error), /PRIVATE_PARTIAL/);
+        return true;
+      });
+    }
+  }
+  const rating = { category: 'HARM_CATEGORY_HARASSMENT', probability: 'HIGH', blocked: true };
+  await assert.rejects(API.readGeminiStream(sseResponse(
+    event({ promptFeedback: { blockReason: 'SAFETY', safetyRatings: [{ ...rating, raw: 'PRIVATE_DETAIL' }] }, usageMetadata: { promptTokenCount: 52 } }) +
+    event({ error: { message: 'connection ended' } })
+  ), {}), error => {
+    assert.equal(error.blockReason, 'SAFETY');
+    assert.deepEqual(error.promptSafetyRatings, [rating]);
+    assert.equal(error.usage.input_tokens, 52);
+    assert.doesNotMatch(JSON.stringify(error), /PRIVATE_DETAIL/);
+    return true;
+  });
   const originalFetch = global.fetch;
   global.fetch = async () => new Response(JSON.stringify({ promptFeedback: { blockReason: 'SAFETY' } }), { status: 200, headers: { 'content-type': 'application/json' } });
   const blockedJSON = await API.sendGemini({ protocol: 'gemini', model: 'gemini-test', key: 'test' }, messages);

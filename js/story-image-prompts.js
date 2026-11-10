@@ -90,7 +90,7 @@
     const hostedReady = Boolean(window.BAOCreditsPilot?.isAccountReady?.(source));
     if (!source.model || !source.baseUrl || (!source.key && !hostedReady)) return null;
     const requested = Number(source.maxOutputTokens || 2200);
-    const config = { ...source, __storyTool:true, maxOutputTokens:Number.isFinite(requested) ? Math.min(requested, 2200) : 2200 };
+    const config = { ...source, __storyTool:true, __auxiliaryTask:true, maxOutputTokens:Number.isFinite(requested) ? Math.min(requested, 2200) : 2200 };
     return typeof App.applyProviderContext === 'function' ? App.applyProviderContext(config) : config;
   };
   const buildVisualMessages = ({ card, profile, scene, mode, style, composition, instruction }) => [
