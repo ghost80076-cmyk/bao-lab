@@ -88,6 +88,24 @@ for (const width of [390, 1440]) test(`selected story features survive regenerat
   expect(JSON.stringify(bodies[1])).toContain('AUDIT_IDENTITY');
   expect(JSON.stringify(bodies[1])).toContain('保留結果，調整語氣。');
   await checkEvidence('rewrite');
+  // The visual helper shares the main text-model route, but owns its JSON
+  // prompt and must not enter the revision rewind/buildMessages path.
+  await page.waitForFunction(() => window.BAOStoryImagePrompts);
+  // Opening the scene album lazily creates the normal story identity.
+  await page.evaluate(() => BAOPromptCache.storySessionId());
+  const sourceBeforeVisual = await page.evaluate(() => JSON.stringify({ state: GameState.current, messages: Chat.messages, summary: Chat.summary }));
+  await page.evaluate(() => BAOStoryImagePrompts.openPlayer());
+  const visual = page.getByRole('dialog', { name: '將此刻化成畫面', exact: true });
+  await visual.getByRole('button', { name: '生成畫面提示詞', exact: true }).click();
+  await expect.poll(() => bodies.length).toBe(3);
+  const visualBody = JSON.stringify(bodies[2]);
+  expect(visualBody).toContain('Visual Director');
+  expect(visualBody).toContain('image_prompt');
+  expect(visualBody).toContain('AUDIT_NEW_REPLY');
+  expect(visualBody).not.toContain('AUDIT_AUTHOR_TASK');
+  await expect(visual.getByRole('button', { name: '生成畫面提示詞', exact: true })).toBeEnabled();
+  expect(await page.evaluate(() => JSON.stringify({ state: GameState.current, messages: Chat.messages, summary: Chat.summary }))).toBe(sourceBeforeVisual);
+  await visual.getByRole('button', { name: '關閉', exact: true }).click();
   await page.evaluate(()=>{Chat.messages.at(-1).content='AUDIT_DIFFERENT_VARIANT';});
   expect(await page.evaluate(()=>BAOContextInspector.snapshot())).toBeNull();
   expect(alerts).toEqual([]);

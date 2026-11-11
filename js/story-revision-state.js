@@ -159,7 +159,7 @@
   };
 
   const revisionSnapshotWrapper = async (next, config, messages) => {
-    if (!config?.__storyTool || config?.__inspirationTask || config?.__discussionTask) return next(config, messages);
+    if (!config?.__storyTool || config?.__auxiliaryTask || config?.__inspirationTask || config?.__discussionTask) return next(config, messages);
     const token = storyToken(), appConfig = App.config, character = App.activeCharacter;
     const { message } = latestAssistant();
     if (!message) return next(config, messages);

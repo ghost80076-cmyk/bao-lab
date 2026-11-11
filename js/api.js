@@ -472,59 +472,80 @@ const API = {
   },
   async readOpenAIStream(response, config) {
     let text = "", usage = {}, finishReason = null, done = false;
-    await this.readSSE(response, ({ data: raw }) => {
-      if (raw.trim() === "[DONE]") { done = true; return; }
-      const data = this.parseStreamJSON(raw, "OpenAI-compatible API");
-      if (data?.error) {
-        const error = this.streamEventError(data, "OpenAI-compatible API");
-        error.finishReason = data?.choices?.[0]?.finish_reason;
-        error.usage = this.normalizeUsage(data?.usage || usage, "openai");
-        if (this.isOpenRouter(config)) error.providerErrorType = this.openRouterErrorType(data);
-        throw error;
-      }
-      const delta = this.contentToText(data?.choices?.[0]?.delta?.content);
-      if (delta) { text += delta; this.emitDelta(config, delta, text); }
-      if (data?.usage) usage = data.usage;
-      finishReason = data?.choices?.[0]?.finish_reason || finishReason;
-    });
-    // Compatible gateways may send either finish_reason or [DONE].
-    this.assertStreamComplete(done || Boolean(finishReason), "OpenAI-compatible API");
+    try {
+      await this.readSSE(response, ({ data: raw }) => {
+        if (raw.trim() === "[DONE]") { done = true; return; }
+        const data = this.parseStreamJSON(raw, "OpenAI-compatible API");
+        if (data?.error) {
+          const error = this.streamEventError(data, "OpenAI-compatible API");
+          error.finishReason = data?.choices?.[0]?.finish_reason;
+          error.usage = this.normalizeUsage(data?.usage || usage, "openai");
+          if (this.isOpenRouter(config)) error.providerErrorType = this.openRouterErrorType(data);
+          throw error;
+        }
+        const delta = this.contentToText(data?.choices?.[0]?.delta?.content);
+        if (delta) { text += delta; this.emitDelta(config, delta, text); }
+        if (data?.usage) usage = data.usage;
+        finishReason = data?.choices?.[0]?.finish_reason || finishReason;
+      });
+      // Compatible gateways may send either finish_reason or [DONE].
+      this.assertStreamComplete(done || Boolean(finishReason), "OpenAI-compatible API");
+    } catch (error) {
+      error.finishReason ??= finishReason;
+      error.usage ??= this.normalizeUsage(usage, "openai");
+      throw error;
+    }
     return { text: text || "模型沒有回傳內容。", finishReason, usage: this.normalizeUsage(usage, "openai") };
   },
   async readAnthropicStream(response, config) {
     let text = "", finishReason = null, stopped = false;
     const usage = {};
-    await this.readSSE(response, ({ data: raw }) => {
-      const data = this.parseStreamJSON(raw, "Anthropic-compatible API");
-      if (data?.type === "error" || data?.error) throw this.streamEventError(data, "Anthropic-compatible API");
-      if (data?.type === "message_stop") stopped = true;
-      if (data?.type === "message_start") Object.assign(usage, data.message?.usage || {});
-      if (data?.type === "message_delta") {
-        Object.assign(usage, data.usage || {});
-        finishReason = data?.delta?.stop_reason || finishReason;
-      }
-      const delta = data?.type === "content_block_delta" && data?.delta?.type === "text_delta" ? data.delta.text : "";
-      if (delta) { text += delta; this.emitDelta(config, delta, text); }
-    });
-    this.assertStreamComplete(stopped, "Anthropic-compatible API");
+    try {
+      await this.readSSE(response, ({ data: raw }) => {
+        const data = this.parseStreamJSON(raw, "Anthropic-compatible API");
+        if (data?.type === "error" || data?.error) throw this.streamEventError(data, "Anthropic-compatible API");
+        if (data?.type === "message_stop") stopped = true;
+        if (data?.type === "message_start") Object.assign(usage, data.message?.usage || {});
+        if (data?.type === "message_delta") {
+          Object.assign(usage, data.usage || {});
+          finishReason = data?.delta?.stop_reason || finishReason;
+        }
+        const delta = data?.type === "content_block_delta" && data?.delta?.type === "text_delta" ? data.delta.text : "";
+        if (delta) { text += delta; this.emitDelta(config, delta, text); }
+      });
+      this.assertStreamComplete(stopped, "Anthropic-compatible API");
+    } catch (error) {
+      error.finishReason ??= finishReason;
+      error.usage ??= this.normalizeUsage(usage, "anthropic");
+      throw error;
+    }
     return { text: text || "模型沒有回傳內容。", finishReason, usage: this.normalizeUsage(usage, "anthropic") };
   },
   async readGeminiStream(response, config) {
     let text = "", usage = {}, finishReason = null, blockReason = null;
     let safetyRatings = [], promptSafetyRatings = [];
-    await this.readSSE(response, ({ data: raw }) => {
-      const data = this.parseStreamJSON(raw, "Gemini API");
-      if (data?.error) throw this.streamEventError(data, "Gemini API");
-      const meta = this.geminiResponseMeta(data);
-      finishReason = meta.finishReason || finishReason;
-      blockReason = meta.blockReason || blockReason;
-      if (meta.safetyRatings.length) safetyRatings = meta.safetyRatings;
-      if (meta.promptSafetyRatings.length) promptSafetyRatings = meta.promptSafetyRatings;
-      const delta = this.geminiVisibleText(data, "");
-      if (delta) { text += delta; this.emitDelta(config, delta, text); }
-      if (data?.usageMetadata) usage = data.usageMetadata;
-    });
-    this.assertStreamComplete(Boolean(finishReason || blockReason), "Gemini API");
+    try {
+      await this.readSSE(response, ({ data: raw }) => {
+        const data = this.parseStreamJSON(raw, "Gemini API");
+        if (data?.error) throw this.streamEventError(data, "Gemini API");
+        const meta = this.geminiResponseMeta(data);
+        finishReason = meta.finishReason || finishReason;
+        blockReason = meta.blockReason || blockReason;
+        if (meta.safetyRatings.length) safetyRatings = meta.safetyRatings;
+        if (meta.promptSafetyRatings.length) promptSafetyRatings = meta.promptSafetyRatings;
+        const delta = this.geminiVisibleText(data, "");
+        if (delta) { text += delta; this.emitDelta(config, delta, text); }
+        if (data?.usageMetadata) usage = data.usageMetadata;
+      });
+      this.assertStreamComplete(Boolean(finishReason || blockReason), "Gemini API");
+    } catch (error) {
+      error.finishReason ??= finishReason;
+      error.blockReason ??= blockReason;
+      error.safetyRatings = safetyRatings;
+      error.promptSafetyRatings = promptSafetyRatings;
+      error.usage ??= this.normalizeUsage(usage, "gemini");
+      throw error;
+    }
     const emptyMessage = () => this.geminiEmptyResponseMessage({
       candidates: [{ finishReason }], promptFeedback: { blockReason }
     });

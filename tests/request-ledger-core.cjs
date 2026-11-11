@@ -105,6 +105,22 @@ const messages=[{role:'system',content:'PRIVATE_SYSTEM'},{role:'user',content:'P
   assert.equal(diagnostic.observedInputTokens,234);
   assert.deepEqual(JSON.parse(JSON.stringify(diagnostic.safetyRatings)),[safeRating]);
 
+  // Failed streams must keep already-observed usage and safety metadata in
+  // the ledger without retaining emitted story text or provider explanations.
+  for (const [protocol, first] of [
+    ['openai', {choices:[{delta:{content:'PRIVATE_PARTIAL'}}],usage:{prompt_tokens:42}}],
+    ['anthropic', {type:'message_start',message:{usage:{input_tokens:42}}}],
+    ['gemini', {promptFeedback:{blockReason:'SAFETY',safetyRatings:[unsafeRating]},usageMetadata:{promptTokenCount:42}}],
+  ]) {
+    responder=()=>new Response([first,{error:{message:'PRIVATE_ERROR'}}]
+      .map(item=>'data: '+JSON.stringify(item)+'\n\n').join(''),{headers:{'content-type':'text/event-stream'}});
+    await assert.rejects(c.API.send({...config(protocol),stream:true,onDelta:()=>{}},messages));
+    diagnostic=c.BAORequestLedger.snapshot().calls[0].diagnostic;
+    assert.equal(diagnostic.observedInputTokens,42);
+    assert.equal(diagnostic.outcome,protocol==='gemini'?'policy_block':'api_error');
+    assert.doesNotMatch(JSON.stringify(c.BAORequestLedger.snapshot()),/PRIVATE_/);
+  }
+
   // Streaming callbacks and bytes are unaffected.
   responder=()=>new Response('data: {"choices":[{"delta":{"content":"STREAM"}}]}\n\ndata: [DONE]\n\n',{headers:{'content-type':'text/event-stream'}});
   const deltas=[];const stream=await c.API.send({...config('openai'),stream:true,onDelta:d=>deltas.push(d)},messages);

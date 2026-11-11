@@ -67,6 +67,15 @@ async function run(legacy) {
   assert.equal(messages[0].content, 'STALE\n\n【本次任務】rewrite only');
   restored(c);
 
+  const visualMessages = [
+    { role: 'system', content: 'Visual Director: only return image_prompt JSON.' },
+    { role: 'user', content: 'Scene AFTER, character age 28; preserve this scene.' },
+  ];
+  await c.API.send({ __storyTool: true, __auxiliaryTask: true, __diagnosticTask: 'visual-prompt' }, visualMessages);
+  assert.equal(h.calls.at(-1).messages, visualMessages, 'visual helper prompt must not be rebuilt as story narration');
+  assert.equal(h.calls.at(-1).location, 'AFTER', 'visual helper must not rewind the current scene');
+  restored(c);
+
   for (const code of ['BAO_ABORTED', 'PROVIDER_FAILURE']) {
     const error = Object.assign(new Error(code), { code });
     h.transport(async () => { throw error; });
