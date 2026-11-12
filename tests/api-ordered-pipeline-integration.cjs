@@ -30,7 +30,11 @@ function harness(order) {
       requests.push({ url, init, body: JSON.parse(init.body) });
       const body = url === 'https://api.yorubay.com/chat'
         ? { content: 'hosted result', request_id: 'hosted-1', usage: { input_tokens: 10, output_tokens: 2, charged_microusd: 1000 } }
-        : { choices: [{ message: { content: 'provider result' } }], usage: { prompt_tokens: 10, completion_tokens: 2, total_tokens: 12 } };
+        : String(url).includes(':generateContent')
+          ? { candidates: [{ content: { parts: [{ text: 'provider result' }] } }], usageMetadata: { promptTokenCount: 10, candidatesTokenCount: 2 } }
+          : init.headers['anthropic-version']
+            ? { content: [{ type: 'text', text: 'provider result' }], usage: { input_tokens: 10, output_tokens: 2 } }
+            : { choices: [{ message: { content: 'provider result' } }], usage: { prompt_tokens: 10, completion_tokens: 2, total_tokens: 12 } };
       return new Response(JSON.stringify(body), { headers: { 'content-type': 'application/json' } });
     }
   };

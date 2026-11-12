@@ -77,6 +77,7 @@ const GROUPS = [
     'tests/api-provider-contracts.cjs',
     'tests/api-failure-contracts.cjs',
     'tests/request-ledger-core.cjs',
+    'tests/api-ordered-pipeline-integration.cjs',
     'tests/api-streaming-contracts.cjs',
     'tests/credits-pilot.test.cjs',
     'tests/request-lifecycle-core.cjs',
