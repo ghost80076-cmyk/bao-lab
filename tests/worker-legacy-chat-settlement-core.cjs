@@ -62,6 +62,14 @@ const errorCode = async response => (await response.json()).error;
   assert.equal(invalidSession.status, 400);
   assert.equal(await errorCode(invalidSession), "invalid_session_id");
 
+  const invalidFormat = await legacyChatRoute(
+    new Request("https://worker.test/v1/chat", { method: "POST" }),
+    env, { prepare() { throw new Error('invalid format must not reserve money'); } }, player,
+    { ...requestBody, response_format: { text: { mimeType: 'text/plain' } } }
+  );
+  assert.equal(invalidFormat.status, 400);
+  assert.equal(await errorCode(invalidFormat), 'invalid_response_format');
+
   const invalidOutput = await legacyChatRoute(
     new Request("https://worker.test/v1/chat", { method: "POST" }),
     env,

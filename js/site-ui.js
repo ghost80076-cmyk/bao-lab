@@ -204,7 +204,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/model-routing.js?v=11"))
     .then(() => providerPolicyReady)
     .then(() => loadBAOScript("js/provider-diagnostics.js"))
-    .then(() => loadBAOScript("js/credits-pilot.js?v=9"))
+    .then(() => loadBAOScript("js/credits-pilot.js?v=10"))
     .catch(err => console.warn("BAO/LAB cost, provider compatibility, model routing or Hosted credits controls failed to load:", err));
   loadBAOScript("js/storage-write-guard.js?v=3")
     .then(() => loadBAOScript("js/chat-shell-fix.js?v=3"))

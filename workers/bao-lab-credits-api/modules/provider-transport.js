@@ -775,7 +775,8 @@ const WorkerProviderTransport = (() => {
     maxOutput,
     player = null,
     sessionId = "",
-    requestKind = "chat"
+    requestKind = "chat",
+    responseFormat = undefined
   ) {
     let attemptCount = 0;
     const fetchGeneration = (...args) => { attemptCount += 1; return fetch(...args); };
@@ -1093,6 +1094,8 @@ const WorkerProviderTransport = (() => {
         },
       };
   
+      if (responseFormat) payload.generationConfig.responseFormat = responseFormat;
+
       // Bounded JSON helpers share output space with reasoning. Keep their
       // thinking low so summary/status text can finish; story defaults stay intact.
       if ((requestKind === "status" || requestKind === "summary") && /^gemini-3(?:[.-])/.test(model)) {

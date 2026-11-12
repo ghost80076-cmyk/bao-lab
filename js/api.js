@@ -336,7 +336,7 @@ const API = {
       error.usage = this.normalizeUsage(data?.usage || {}, "openai");
       throw error;
     }
-    return { text: this.contentToText(data?.choices?.[0]?.message?.content) || "模型沒有回傳內容。", finishReason: data?.choices?.[0]?.finish_reason || null, usage: this.normalizeUsage(data?.usage || {}, "openai") };
+    return this.requireVisibleResult({ text: this.contentToText(data?.choices?.[0]?.message?.content), finishReason: data?.choices?.[0]?.finish_reason || null, usage: this.normalizeUsage(data?.usage || {}, "openai") });
   },
 
   async sendAnthropic(config, messages) {
@@ -354,7 +354,43 @@ const API = {
     if (this.shouldStream(config) && response.ok && this.isEventStream(response)) return this.readAnthropicStream(response, config);
     const data = await this.readJSON(response);
     if (!response.ok) throw new Error(this.friendlyError(response.status, data, "Anthropic-compatible API"));
-    return { text: (data?.content || []).map(x => x?.type === "text" ? x.text : "").filter(Boolean).join("\n") || "模型沒有回傳內容。", finishReason: data?.stop_reason || null, usage: this.normalizeUsage(data?.usage || {}, "anthropic") };
+    return this.requireVisibleResult({ text: (data?.content || []).map(x => x?.type === "text" ? x.text : "").filter(Boolean).join("\n"), finishReason: data?.stop_reason || null, usage: this.normalizeUsage(data?.usage || {}, "anthropic") });
+  },
+
+  requireVisibleResult(result) {
+    if (typeof result.text === "string" && result.text.trim()) return result;
+    const reason = String(result.blockReason || result.finishReason || "").toUpperCase();
+    const blocked = ["SAFETY", "BLOCKLIST", "PROHIBITED_CONTENT", "SPII", "IMAGE_SAFETY", "CONTENT_FILTER"].includes(reason);
+    const error = new Error(blocked
+      ? `供應商已拒絕此次內容（${reason}），未儲存故事回覆。`
+      : "模型沒有回傳可顯示的文字內容，未儲存故事回覆；請重新送出。");
+    const { text, ...diagnostics } = result;
+    Object.assign(error, diagnostics, { code: blocked ? "BAO_PROVIDER_BLOCKED" : "BAO_PROVIDER_EMPTY" });
+    throw error;
+  },
+
+  memoryResponseFormat(config = {}) {
+    if (config.__memoryTask || Object.prototype.hasOwnProperty.call(config, "__responseSchema")) {
+      const legacyMemorySchema = {
+        type: "object",
+        properties: {
+          events: { type: "array", items: { type: "string" } },
+          knownFacts: { type: "array", items: { type: "string" } },
+          relationships: { type: "array", items: { type: "string" } },
+          openThreads: { type: "array", items: { type: "string" } }
+        },
+        required: ["events", "knownFacts", "relationships", "openThreads"]
+      };
+      const requestedSchema = Object.prototype.hasOwnProperty.call(config, "__responseSchema")
+        ? config.__responseSchema
+        : legacyMemorySchema;
+      const format = { text: { mimeType: "application/json" } };
+      if (requestedSchema && typeof requestedSchema === "object") {
+        format.text.schema = requestedSchema;
+      }
+      return format;
+    }
+    return undefined;
   },
 
   async sendGemini(config, messages) {
@@ -374,25 +410,8 @@ const API = {
     } else if ((config.__stateTask || config.__inspirationTask) && /^gemini-3(?:[.-])/.test(config.model || "")) {
       generationConfig.thinkingConfig = { thinkingLevel: "low" };
     }
-    if (config.__memoryTask || Object.prototype.hasOwnProperty.call(config, "__responseSchema")) {
-      const legacyMemorySchema = {
-        type: "object",
-        properties: {
-          events: { type: "array", items: { type: "string" } },
-          knownFacts: { type: "array", items: { type: "string" } },
-          relationships: { type: "array", items: { type: "string" } },
-          openThreads: { type: "array", items: { type: "string" } }
-        },
-        required: ["events", "knownFacts", "relationships", "openThreads"]
-      };
-      const requestedSchema = Object.prototype.hasOwnProperty.call(config, "__responseSchema")
-        ? config.__responseSchema
-        : legacyMemorySchema;
-      generationConfig.responseFormat = { text: { mimeType: "application/json" } };
-      if (requestedSchema && typeof requestedSchema === "object") {
-        generationConfig.responseFormat.text.schema = requestedSchema;
-      }
-    }
+    const responseFormat = this.memoryResponseFormat(config);
+    if (responseFormat) generationConfig.responseFormat = responseFormat;
     if (Object.keys(generationConfig).length) payload.generationConfig = generationConfig;
     let response;
     try {
@@ -402,7 +421,7 @@ const API = {
     const data = await this.readJSON(response);
     if (!response.ok) throw new Error(this.friendlyError(response.status, data, "Gemini API"));
     const text = this.geminiVisibleText(data);
-    return { text: text.trim() ? text : this.geminiEmptyResponseMessage(data), ...this.geminiResponseMeta(data), outputBudget: { requested: limit || null, effective: limit || null, source: 'gemini-direct' }, usage: this.normalizeUsage(data?.usageMetadata || {}, "gemini") };
+    return this.requireVisibleResult({ text, ...this.geminiResponseMeta(data), outputBudget: { requested: limit || null, effective: limit || null, source: 'gemini-direct' }, usage: this.normalizeUsage(data?.usageMetadata || {}, "gemini") });
   },
 
   networkError(err) {
@@ -495,7 +514,7 @@ const API = {
       error.usage ??= this.normalizeUsage(usage, "openai");
       throw error;
     }
-    return { text: text || "模型沒有回傳內容。", finishReason, usage: this.normalizeUsage(usage, "openai") };
+    return this.requireVisibleResult({ text, finishReason, usage: this.normalizeUsage(usage, "openai") });
   },
   async readAnthropicStream(response, config) {
     let text = "", finishReason = null, stopped = false;
@@ -519,7 +538,7 @@ const API = {
       error.usage ??= this.normalizeUsage(usage, "anthropic");
       throw error;
     }
-    return { text: text || "模型沒有回傳內容。", finishReason, usage: this.normalizeUsage(usage, "anthropic") };
+    return this.requireVisibleResult({ text, finishReason, usage: this.normalizeUsage(usage, "anthropic") });
   },
   async readGeminiStream(response, config) {
     let text = "", usage = {}, finishReason = null, blockReason = null;
@@ -546,11 +565,8 @@ const API = {
       error.usage ??= this.normalizeUsage(usage, "gemini");
       throw error;
     }
-    const emptyMessage = () => this.geminiEmptyResponseMessage({
-      candidates: [{ finishReason }], promptFeedback: { blockReason }
-    });
-    return { text: text.trim() ? text : emptyMessage(), finishReason, blockReason, safetyRatings, promptSafetyRatings,
-      usage: this.normalizeUsage(usage, "gemini") };
+    return this.requireVisibleResult({ text, finishReason, blockReason, safetyRatings, promptSafetyRatings,
+      usage: this.normalizeUsage(usage, "gemini") });
   },
   contentToText(content) { if (typeof content === "string") return content; if (Array.isArray(content)) return content.map(p => typeof p === "string" ? p : (p?.text || "")).filter(Boolean).join("\n"); return content == null ? "" : String(content); },
   geminiEmptyResponseMessage(data) { const finishReason = data?.candidates?.[0]?.finishReason; const blockReason = data?.promptFeedback?.blockReason; if (blockReason) return `Gemini 未產生內容（${blockReason}）。`; if (finishReason) return `Gemini 未產生文字內容（${finishReason}）。`; return "Gemini 沒有回傳文字內容。"; },
