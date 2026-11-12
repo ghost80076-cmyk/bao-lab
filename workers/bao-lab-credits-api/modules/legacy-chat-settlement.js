@@ -8,6 +8,7 @@ import {
   maxOutputForRequest,
   normalizeHostedSessionId,
   normalizeMessages,
+  normalizeResponseFormat,
 } from "./chat-input.js";
 
 import {
@@ -56,6 +57,9 @@ async function legacyChatRoute(
   const kind =
     body?.request_kind ||
     "chat";
+
+  const responseFormat = normalizeResponseFormat(body?.response_format);
+  if (responseFormat === null) return fail("invalid_response_format");
 
   const requestedProvider =
     body?.provider;
@@ -304,7 +308,8 @@ async function legacyChatRoute(
       maxOutput,
       player,
       sessionId,
-      kind
+      kind,
+      responseFormat
     );
 
   result.requestTask = body?.request_task;

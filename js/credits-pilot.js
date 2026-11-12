@@ -357,6 +357,7 @@
     // pass their own smaller maxOutputTokens values, so this is only a hard cap.
     const outputCap = kind === 'summary' && upstreamProvider === 'gemini' ? 16384 : 8192;
     const maxOutput = Number.isFinite(requested) ? Math.max(1, Math.min(outputCap, Math.floor(requested))) : Math.min(6144, outputCap);
+    const responseFormat = upstreamProvider === "gemini" ? API.memoryResponseFormat?.(config) : undefined;
     let response;
     try {
       const headers = { "Content-Type": "application/json" };
@@ -373,6 +374,7 @@
           request_task: API.requestTask?.(config),
           messages: cleaned,
           max_output_tokens: maxOutput,
+          ...(responseFormat ? { response_format: responseFormat } : {}),
           ...(sessionId ? { session_id: sessionId } : {})
         }),
         signal: config.signal || API.activeSignal

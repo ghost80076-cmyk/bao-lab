@@ -75,6 +75,11 @@ const GROUPS = [
   ], tests: [
     'tests/api-send-pipeline-core.cjs',
     'tests/api-provider-contracts.cjs',
+    'tests/api-failure-contracts.cjs',
+    'tests/request-ledger-core.cjs',
+    'tests/api-ordered-pipeline-integration.cjs',
+    'tests/api-streaming-contracts.cjs',
+    'tests/credits-pilot.test.cjs',
     'tests/request-lifecycle-core.cjs',
     'tests/provider-policy-guard-core.cjs',
     'tests/memory-request-guard-core.cjs'
@@ -107,6 +112,9 @@ const GROUPS = [
   ], tests: [
     'tests/worker-wallet-reservations-core.cjs',
     'tests/worker-cost-chat-settlement-core.cjs',
+    'tests/worker-legacy-chat-settlement-core.cjs',
+    'tests/worker-chat-input-core.cjs',
+    'tests/credits-pilot.test.cjs',
     'tests/worker-usage-diagnostics-core.cjs',
     'tests/worker-provider-transport-core.cjs',
     'tests/provider-policy-guard-core.cjs'

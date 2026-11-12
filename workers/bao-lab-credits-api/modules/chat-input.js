@@ -118,8 +118,30 @@ function normalizeHostedSessionId(
   return normalized;
 }
 
+// Only a bounded JSON response contract crosses the client/Worker boundary.
+// Omitted means legacy behavior; null means invalid, rejected before reservation.
+function normalizeResponseFormat(value) {
+  if (value === undefined) return undefined;
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  if (Object.keys(value).some(key => key !== "text")) return null;
+  const text = value.text;
+  if (!text || typeof text !== "object" || Array.isArray(text) ||
+      text.mimeType !== "application/json" ||
+      Object.keys(text).some(key => !["mimeType", "schema"].includes(key))) return null;
+  if (text.schema !== undefined && (!text.schema || typeof text.schema !== "object" || Array.isArray(text.schema))) return null;
+  try {
+    const encoded = JSON.stringify(value);
+    if (chatInputEncoder.encode(encoded).length > 16_384) return null;
+    const bounded = (node, depth = 0) => depth <= 20 &&
+      (!node || typeof node !== "object" || Object.values(node).every(child => bounded(child, depth + 1)));
+    if (!bounded(value)) return null;
+    return JSON.parse(encoded);
+  } catch { return null; }
+}
+
 const WorkerChatInput = Object.freeze({
   MAX_OUTPUT,
+  normalizeResponseFormat,
   maxOutputForRequest,
   normalizeMessages,
   normalizeHostedSessionId,
@@ -127,6 +149,7 @@ const WorkerChatInput = Object.freeze({
 
 export {
   MAX_OUTPUT,
+  normalizeResponseFormat,
   maxOutputForRequest,
   WorkerChatInput,
   normalizeHostedSessionId,

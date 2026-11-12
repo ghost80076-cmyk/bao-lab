@@ -31,8 +31,9 @@ const messages=[{role:'system',content:'PRIVATE_SYSTEM'},{role:'user',content:'P
     promptFeedback:{blockReason:'PROHIBITED_CONTENT',safetyRatings:[unsafeRating]},
     usageMetadata:{promptTokenCount:31123}
   }));
-  await c.API.send({...config('gemini'),__memoryTask:true,__memoryTaskKind:'context-pack'},messages);
+  await assert.rejects(c.API.send({...config('gemini'),__memoryTask:true,__memoryTaskKind:'context-pack'},messages),{code:'BAO_PROVIDER_BLOCKED'});
   let diagnostic=c.BAORequestLedger.snapshot().calls[0];
+  assert.equal(diagnostic.status,'failed');
   assert.equal(diagnostic.task,'context-pack');
   assert.equal(diagnostic.provider,'gemini');
   assert.equal(diagnostic.diagnostic.outcome,'policy_block');
@@ -45,14 +46,17 @@ const messages=[{role:'system',content:'PRIVATE_SYSTEM'},{role:'user',content:'P
   responder=()=>new Response(JSON.stringify({candidates:[{
     finishReason:'MAX_TOKENS',content:{parts:[{thought:true,text:'PRIVATE_THOUGHT'}]}
   }]}));
-  const truncated=await c.API.send({...config('gemini'),__stateTask:true,__stateRebuild:true},messages);
-  assert.doesNotMatch(truncated.text,/PRIVATE_THOUGHT/);
+  await assert.rejects(c.API.send({...config('gemini'),__stateTask:true,__stateRebuild:true},messages),error=>{
+    assert.equal(error.code,'BAO_PROVIDER_EMPTY');
+    assert.doesNotMatch(JSON.stringify(error),/PRIVATE_THOUGHT/);
+    return true;
+  });
   diagnostic=c.BAORequestLedger.snapshot().calls[0];
   assert.equal(diagnostic.task,'state-rebuild');
   assert.equal(diagnostic.diagnostic.outcome,'output_truncated');
 
   responder=()=>new Response(JSON.stringify({choices:[{message:{content:''},finish_reason:'stop'}]}));
-  await c.API.send({...config('openai'),__storyRevision:'regenerate'},messages);
+  await assert.rejects(c.API.send({...config('openai'),__storyRevision:'regenerate'},messages),{code:'BAO_PROVIDER_EMPTY'});
   assert.equal(c.BAORequestLedger.snapshot().calls[0].diagnostic.outcome,'empty_response');
 
   responder=()=>new Response(JSON.stringify({error:{message:'PRIVATE_ERROR'}}),{status:403});
@@ -98,7 +102,7 @@ const messages=[{role:'system',content:'PRIVATE_SYSTEM'},{role:'user',content:'P
     {candidates:[{finishReason:'SAFETY',safetyRatings:[unsafeRating]}]},
     {usageMetadata:{promptTokenCount:234}}
   ].map(item=>'data: '+JSON.stringify(item)+'\n\n').join(''),{headers:{'content-type':'text/event-stream'}});
-  await c.API.send({...config('gemini'),stream:true,onDelta:()=>assert.fail('thought/block must not produce a delta')},messages);
+  await assert.rejects(c.API.send({...config('gemini'),stream:true,onDelta:()=>assert.fail('thought/block must not produce a delta')},messages),{code:'BAO_PROVIDER_BLOCKED'});
   diagnostic=c.BAORequestLedger.snapshot().calls[0].diagnostic;
   assert.equal(diagnostic.outcome,'policy_block');
   assert.equal(diagnostic.finishReason,'SAFETY');

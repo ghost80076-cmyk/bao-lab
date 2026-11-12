@@ -6,7 +6,7 @@ const path = require('node:path');
 const code = fs.readFileSync(path.join(__dirname, '../js/credits-pilot.js'), 'utf8');
 const siteLoader = fs.readFileSync(path.join(__dirname, '../js/site-ui.js'), 'utf8');
 const siteHtml = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8');
-assert.match(siteLoader, /loadBAOScript\("js\/credits-pilot\.js\?v=9"\)/,
+assert.match(siteLoader, /loadBAOScript\("js\/credits-pilot\.js\?v=10"\)/,
   "Hosted credits must actually load before relying on its production error handler");
 const lazyLoaderVersion = siteHtml.match(/js\/site-ui\.js\?v=(\d+)/);
 assert(lazyLoaderVersion && Number(lazyLoaderVersion[1]) >= 166,
@@ -570,4 +570,34 @@ for (const status of [401, 403]) test(`hosted upstream ${status} points to admin
    return true;
  });
  assert.equal(s.window.BAOCreditsPilot.isAccountReady(cfg),true);
+});
+
+// Compare the actual direct adapter, hosted client, Worker validator and relay payload.
+test('Gemini memory JSON contracts match across direct, hosted and relay payloads', async () => {
+  const { normalizeResponseFormat } = await import('../workers/bao-lab-credits-api/modules/chat-input.js');
+  const { providerCall } = await import('../workers/bao-lab-credits-api/modules/provider-transport.js');
+  let directBody;
+  const context = { window: {}, TextEncoder, URL, fetch: async (_url, options) => {
+    directBody = JSON.parse(options.body);
+    return { ok: true, status: 200, text: async () => JSON.stringify({ candidates: [{ content: { parts: [{ text: '{}' }] }, finishReason: 'STOP' }] }) };
+  }};
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../js/api.js'), 'utf8') + '\nglobalThis.realAPI = API;', context);
+  for (const options of [{ __memoryTask: true }, { __memoryTask: true, __responseSchema: false },
+    { __memoryTask: true, __responseSchema: { type: 'object', properties: { evidence: { type: 'array', items: { type: 'string' } } } } }, {}]) {
+    await context.realAPI.sendGemini({ ...options, key: 'mock', model: 'gemini-test' }, msgs);
+    const s = build();
+    s.api.memoryResponseFormat = context.realAPI.memoryResponseFormat;
+    await s.api.send({ ...cfg, ...options }, msgs);
+    const wire = JSON.parse(s.calls[0][1].body);
+    const format = normalizeResponseFormat(wire.response_format);
+    const originalFetch = global.fetch;
+    let relay;
+    try {
+      global.fetch = async (_url, init) => { relay = JSON.parse(init.body); return new Response('{}'); };
+      await providerCall({ AWS_RELAY_URL: 'https://relay.test', BAO_INTERNAL_TOKEN: 'mock' },
+        'gemini', cfg.model, msgs, 1024, null, '', wire.request_kind, format);
+    } finally { global.fetch = originalFetch; }
+    assert.deepEqual(relay.payload.generationConfig.responseFormat, directBody.generationConfig?.responseFormat);
+    if (!options.__memoryTask) assert.equal(wire.response_format, undefined, 'ordinary narration stays unrestricted');
+  }
 });

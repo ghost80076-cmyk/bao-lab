@@ -99,6 +99,18 @@ assert.match(
   assert.equal(normalizeHostedSessionId("x".repeat(256)), "x".repeat(256));
   assert.equal(normalizeHostedSessionId("x".repeat(257)), null);
 
+  const { normalizeResponseFormat } = await import(pathToFileURL(modulePath).href);
+  assert.equal(normalizeResponseFormat(undefined), undefined);
+  const valid = { text: { mimeType: 'application/json', schema: { type: 'object' } } };
+  assert.deepEqual(normalizeResponseFormat(valid), valid);
+  for (const invalid of [null, [], {}, { text: { mimeType: 'text/plain' } },
+    { ...valid, safetySettings: [] }, { text: { ...valid.text, schema: [] } },
+    { text: { mimeType: 'application/json', schema: { description: 'x'.repeat(16384) } } }]) {
+    assert.equal(normalizeResponseFormat(invalid), null);
+  }
+  let deep = {};
+  for (let i = 0; i < 25; i++) deep = { items: deep };
+  assert.equal(normalizeResponseFormat({ text: { mimeType: 'application/json', schema: deep } }), null);
   console.log("worker chat input core test passed");
 })().catch(error => {
   console.error(error);

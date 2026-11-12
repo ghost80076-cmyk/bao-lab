@@ -88,13 +88,21 @@ global.fetch = async (url, options) => {
   await assert.rejects(API.readAnthropicStream(sseResponse(
     event({ type: 'message_delta', delta: { stop_reason: 'end_turn' } })
   ), {}), error => error.code === 'BAO_STREAM_PROTOCOL', 'Anthropic requires message_stop');
+  for (const [method, payload] of [
+    ['readOpenAIStream', event({ choices: [{ delta: { content: '  ' }, finish_reason: 'stop' }], usage: { prompt_tokens: 7 } })],
+    ['readAnthropicStream', event({ type: 'message_start', message: { usage: { input_tokens: 7 } } }) + event({ type: 'message_stop' })],
+    ['readGeminiStream', event({ candidates: [{ content: { parts: [{ text: 'private thought', thought: true }] }, finishReason: 'STOP' }], usageMetadata: { promptTokenCount: 7 } })]
+  ]) {
+    await assert.rejects(API[method](sseResponse(payload), {}), error =>
+      error.code === 'BAO_PROVIDER_EMPTY' && error.usage.input_tokens === 7 && !('text' in error),
+      method + ': a completed stream without visible text is not a story');
+  }
   // Gemini may report prompt blocking before the final stream chunk. Retain
   // that metadata even when the last chunk carries only usage.
-  const blocked = await API.readGeminiStream(sseResponse([
+  await assert.rejects(API.readGeminiStream(sseResponse([
     `data: ${JSON.stringify({ promptFeedback: { blockReason: 'PROHIBITED_CONTENT' } })}`,
     `data: ${JSON.stringify({ usageMetadata: { totalTokenCount: 2 } })}`
-  ].join('\n\n') + '\n\n'), {});
-  assert.equal(blocked.blockReason, 'PROHIBITED_CONTENT');
+  ].join('\n\n') + '\n\n'), {}), error => error.code === 'BAO_PROVIDER_BLOCKED' && error.blockReason === 'PROHIBITED_CONTENT' && error.usage.total_tokens === 2);
   // A later SSE error/EOF must not erase metadata already received. Errors
   // retain structured diagnostics only, never previously streamed text.
   const metadataCases = [
@@ -125,8 +133,7 @@ global.fetch = async (url, options) => {
   });
   const originalFetch = global.fetch;
   global.fetch = async () => new Response(JSON.stringify({ promptFeedback: { blockReason: 'SAFETY' } }), { status: 200, headers: { 'content-type': 'application/json' } });
-  const blockedJSON = await API.sendGemini({ protocol: 'gemini', model: 'gemini-test', key: 'test' }, messages);
-  assert.equal(blockedJSON.blockReason, 'SAFETY');
+  await assert.rejects(API.sendGemini({ protocol: 'gemini', model: 'gemini-test', key: 'test' }, messages), error => error.code === 'BAO_PROVIDER_BLOCKED' && error.blockReason === 'SAFETY');
   global.fetch = originalFetch;
   const openAIDeltas = [];
   const openAI = await API.send({ type: "openai", protocol: "openai", model: "openai-stream", baseUrl: "https://api.openai.com/v1/chat/completions", key: "SECRET", stream: true, onDelta: (delta, text) => openAIDeltas.push({ delta, text }) }, messages);
