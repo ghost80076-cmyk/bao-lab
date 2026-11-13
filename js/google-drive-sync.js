@@ -215,6 +215,14 @@
       const syncMap = state();
       for (const id of new Set([...localMap.keys(), ...groups.keys(), ...deletions.keys(), ...cloudDeleted])) {
         if (!validId(id)) continue;
+        // Availability does not imply durable chapter writes. Check before
+        // comparing timestamps, applying deletions, or declaring no changes.
+        try {
+          if (!await Library.flush(id)) throw new Error('本機故事尚未成功儲存，已略過同步；請重試儲存後再同步。');
+        } catch (error) {
+          result.errors.push((localMap.get(id)?.title || id) + '：' + errorText(error));
+          continue;
+        }
         if (deletions.has(id) || cloudDeleted.has(id)) {
           try {
             if (!cloudDeleted.has(id)) await makeRemote(id, { storyId: id, deletedAt: deletions.get(id).deletedAt }, true);

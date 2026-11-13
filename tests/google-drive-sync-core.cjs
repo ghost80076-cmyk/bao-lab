@@ -69,6 +69,33 @@ async function run() {
   const second = await sync.sync();
   assert.equal(second.skipped, 1, 'Unmodified story should not upload again');
   assert.equal(calls.filter(call => call.method === 'POST').length, 1);
+  // Use the actual Library completion contract: a usable DB can still have
+  // failed chapter writes, without any metadata timestamp change.
+  const libraryWindow = { Storage: {} };
+  vm.runInNewContext(fs.readFileSync('js/story-library.js', 'utf8'),
+    { window: libraryWindow, console, setTimeout, clearTimeout }, { filename: 'story-library.js' });
+  const actualLibrary = libraryWindow.BAOStoryLibrary;
+  actualLibrary.open = async () => ({});
+  actualLibrary._writeFailures.set(id + ':chapter', { storyId: id });
+  const normalFlush = lib.flush;
+  lib.flush = actualLibrary.flush.bind(actualLibrary);
+  assert.equal(await lib.flush(), true, 'Availability alone does not establish durability');
+  assert.equal(await lib.flush(id), false);
+  const beforeFailedSync = calls.length;
+  const failedWrite = await sync.sync();
+  assert.equal(failedWrite.skipped, 0, 'Failed writes must not be reported as unchanged');
+  assert.equal(failedWrite.errors.length, 1, 'A failed chapter must be surfaced to the player');
+  assert.equal(failedWrite.uploaded + failedWrite.downloaded, 0);
+  assert.ok(calls.slice(beforeFailedSync).every(call => call.method === 'GET'), 'No remote mutations for a failed story');
+  actualLibrary._writeFailures.clear();
+  const recovered = await sync.sync();
+  assert.equal(recovered.skipped, 1, 'Successful later writes restore normal sync');
+  assert.equal(recovered.errors.length, 0);
+  lib.flush = async storyId => { if (storyId) throw new Error('storage failed'); return true; };
+  const thrownWrite = await sync.sync();
+  assert.equal(thrownWrite.errors.length, 1);
+  assert.equal(thrownWrite.skipped, 0);
+  lib.flush = normalFlush;
   local.updatedAt = '2026-09-20T02:00:00Z';
   remote[0].version = '2'; // Another device has modified this story.
   const conflict = await sync.sync();

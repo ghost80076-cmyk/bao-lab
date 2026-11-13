@@ -87,11 +87,12 @@ const GROUPS = [
     'tests/memory-request-guard-core.cjs'
   ] },
   { id: 'storage', patterns: [
-    /^js\/(?:storage|story-library|story-backup|story-rollback)/,
-    /^tests\/(?:storage-|story-library|story-backup|story-restore|story-recovery)/
+    /^js\/(?:storage|story-library|story-backup|story-rollback|google-drive-sync)/,
+    /^tests\/(?:storage-|story-library|story-backup|story-restore|story-recovery|google-drive-sync)/
   ], tests: [
     'tests/storage-fallback-integrity-core.cjs',
     'tests/story-library-durability-core.cjs',
+    'tests/google-drive-sync-core.cjs',
     'tests/story-backup-recovery-core.cjs',
     'tests/story-rollback-core.cjs'
   ] },
