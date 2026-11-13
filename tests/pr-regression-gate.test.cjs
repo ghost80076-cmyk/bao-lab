@@ -39,6 +39,11 @@ test('model or provider changes test memory and policy outcomes', () => {
   assert.ok(plan.groups.includes('model-requests'));
   includes(plan, 'api-provider-contracts.cjs', 'provider-policy-guard-core.cjs', 'memory-request-guard-core.cjs');
 });
+test('local transport edits select provider and local integration regressions', () => {
+  const plan = select(['js/lm-studio-core.js']);
+  assert.ok(plan.groups.includes('model-requests'));
+  includes(plan, 'lm-studio-core.cjs', 'lm-studio-pipeline-core.cjs', 'api-failure-contracts.cjs');
+});
 test('worker changes include wallet and provider contracts', () => {
   const plan = select(['workers/bao-lab-credits-api/src/index.js']);
   assert.ok(plan.groups.includes('worker-billing'));

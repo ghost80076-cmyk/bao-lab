@@ -6,8 +6,11 @@ const vm = require('node:vm');
 global.window = global;
 vm.runInThisContext(`${fs.readFileSync(path.join(__dirname, '..', 'js', 'api.js'), 'utf8')}\nglobalThis.__API = API;`, { filename: 'js/api.js' });
 const API = global.__API;
+const local = require('../js/lm-studio-core.js');
+API.wrapSend('local-failure-contract', (next, config, messages) => local.isLocal(config) ? local.send(config, messages, API) : next(config, messages));
 const messages = [{ role: 'user', content: 'test' }];
 const providers = [
+  { type: 'lmstudio', protocol: 'openai', baseUrl: 'http://localhost:1234/v1' },
   { type: 'custom', protocol: 'openai', baseUrl: 'https://example.test/v1/chat/completions' },
   { type: 'anthropic', protocol: 'anthropic', baseUrl: 'https://example.test/v1/messages' },
   { type: 'gemini', protocol: 'gemini', baseUrl: 'https://example.test/v1beta/models' }
@@ -35,7 +38,7 @@ const providers = [
 
     for (const [status, phrase] of [[401, /API Key/], [429, /額度|頻繁/]]) {
       global.fetch = async () => ({ ok: false, status, text: async () => JSON.stringify({ error: { message: status === 401 ? 'invalid api key' : 'quota exceeded' } }) });
-      await assert.rejects(API.send(config, messages), phrase, `${provider.protocol} HTTP ${status} must explain the failure`);
+      await assert.rejects(API.send(config, messages), provider.type === 'lmstudio' ? new RegExp(String(status)) : phrase, `${provider.protocol} HTTP ${status} must explain the failure`);
     }
   }
   global.addEventListener = () => {};

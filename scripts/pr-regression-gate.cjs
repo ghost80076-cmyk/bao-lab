@@ -70,12 +70,14 @@ const GROUPS = [
     'tests/world-state-completion-core.cjs'
   ] },
   { id: 'model-requests', patterns: [
-    /^js\/(?:api\.js|helper-api|model-|provider-|request-|chat-api|story-data-task|world-state|memory-core)/,
-    /^tests\/(?:api-|helper-api|model-|provider-|request-|chat-api|story-data-task)/
+    /^js\/(?:api\.js|lm-studio|helper-api|model-|provider-|request-|chat-api|story-data-task|world-state|memory-core)/,
+    /^tests\/(?:api-|lm-studio|helper-api|model-|provider-|request-|chat-api|story-data-task)/
   ], tests: [
     'tests/api-send-pipeline-core.cjs',
     'tests/api-provider-contracts.cjs',
     'tests/api-failure-contracts.cjs',
+    'tests/lm-studio-core.cjs',
+    'tests/lm-studio-pipeline-core.cjs',
     'tests/request-ledger-core.cjs',
     'tests/api-ordered-pipeline-integration.cjs',
     'tests/api-streaming-contracts.cjs',

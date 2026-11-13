@@ -3,7 +3,7 @@ if (process.env.BAO_LIVE_URL) test.use({ baseURL: process.env.BAO_LIVE_URL });
 
 const card = {
   schema_version: '1.5',
-  meta: { id: 'e2e-rainport', name: '雨港觀測員', category: 'female', description: '角色卡匯入測試' },
+  meta: { id: 'e2e-rainport', avatar: 'assets/bao-mark.svg', name: '雨港觀測員', category: 'female', description: '角色卡匯入測試' },
   content: {
     greeting: '雨港的燈剛亮起，觀測員向玩家打招呼。',
     system_prompt: '你是雨港觀測員，只能依已知資訊行動，不得替玩家說話。',

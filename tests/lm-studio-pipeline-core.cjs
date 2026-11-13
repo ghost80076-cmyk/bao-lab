@@ -79,6 +79,17 @@ async function run(legacy) {
   assert.deepEqual(deltas, [['local stream', 'local stream']]);
   assert.equal(JSON.parse(h.requests.at(-1).init.body).stream, true);
 
+  for (const stream of [false, true]) {
+    h.respond(async () => stream
+      ? new Response('data: {"choices":[{"delta":{"content":"  "},"finish_reason":"stop"}],"usage":{"prompt_tokens":7}}\n\ndata: [DONE]\n\n', {headers:{'content-type':'text/event-stream'}})
+      : new Response(JSON.stringify({choices:[{message:{content:' '},finish_reason:'stop'}],usage:{prompt_tokens:7}})));
+    const count = h.requests.length;
+    await assert.rejects(c.API.send({...local,stream,onDelta(){}},messages), error => error.code === 'BAO_PROVIDER_EMPTY' && error.usage.input_tokens === 7);
+    assert.equal(h.requests.length,count+1);
+    assert.equal(h.cloud.length,1,'empty local output never falls back to cloud');
+  }
+  h.respond(async () => new Response(JSON.stringify({error:{message:'model unloaded'}})));
+  await assert.rejects(c.API.send(local,messages),/model unloaded/);
   for (const failure of ['abort', 'network', 'http']) {
     h.respond(async () => {
       if (failure === 'abort') throw Object.assign(new Error('cancel'), { name: 'AbortError' });

@@ -48,11 +48,21 @@
     } catch (error) { api?.observeRequest?.(config, 'network', { aborted: error?.name === 'AbortError' }); throw networkError(error); }
     if (streaming && response.ok && api.isEventStream(response)) return api.readOpenAIStream(response, config);
     const data = await api.readJSON(response);
-    if (!response.ok) {
+    if (!response.ok || data?.error) {
       const detail = String(data?.error?.message || data?.message || '').slice(0, 350);
       throw new Error(`LM Studio 回傳 ${response.status}。${detail || '請確認模型已載入、端點正確，以及本地伺服器的驗證設定。'}`);
     }
-    return { text: api.contentToText(data?.choices?.[0]?.message?.content) || '模型沒有回傳內容。', finishReason: data?.choices?.[0]?.finish_reason || null, usage: api.normalizeUsage(data?.usage || {}, 'openai') };
+    const result = { text: api.contentToText(data?.choices?.[0]?.message?.content), finishReason: data?.choices?.[0]?.finish_reason || null, usage: api.normalizeUsage(data?.usage || {}, 'openai') };
+    if (typeof api.requireVisibleResult === 'function') return api.requireVisibleResult(result);
+    // Older cached API versions still need the same failure contract.
+    if (!String(result.text || '').trim()) {
+      const error = new Error('模型沒有回傳可顯示的文字內容，未儲存故事回覆；請重新送出。');
+      error.code = 'BAO_PROVIDER_EMPTY';
+      error.finishReason = result.finishReason;
+      error.usage = result.usage;
+      throw error;
+    }
+    return result;
   };
   const listModels = async (config, fetchImpl = fetch) => {
     const target = endpoint(config?.baseUrl);
