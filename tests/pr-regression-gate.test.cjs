@@ -49,6 +49,14 @@ test('worker changes include wallet and provider contracts', () => {
   assert.ok(plan.groups.includes('worker-billing'));
   includes(plan, 'worker-wallet-reservations-core.cjs', 'worker-provider-transport-core.cjs');
 });
+test('Drive sync edits include durability, backup and rollback contracts', () => {
+  for (const file of ['js/google-drive-sync.js', 'tests/google-drive-sync-core.cjs']) {
+    const plan = select([file]);
+    assert.ok(plan.groups.includes('storage'));
+    includes(plan, 'google-drive-sync-core.cjs', 'story-library-durability-core.cjs',
+      'story-backup-recovery-core.cjs', 'story-rollback-core.cjs');
+  }
+});
 test('unknown source paths never bypass basic regressions', () => {
   const plan = select(['js/new-feature-without-rule.js']);
   assert.deepEqual(plan.groups, ['baseline']);

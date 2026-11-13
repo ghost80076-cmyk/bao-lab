@@ -86,6 +86,122 @@ const snapshot = page => page.evaluate(() => ({
 }));
 
 test.describe("Story branch tree", () => {
+  for (const width of [390, 1440]) test(`sync write failures preserve local progress and recover (${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.addInitScript(() => {
+      // WebKit's request observer may omit a Blob postData buffer. Inspect
+      // the immutable Blob before transport, and still count actual requests.
+      const originalFetch = window.fetch.bind(window);
+      window.__integrationUploadBodies = [];
+      window.fetch = async (url, options = {}) => {
+        if (String(url).includes('/upload/drive/v3/files?') && options.method === 'POST') {
+          window.__integrationUploadBodies.push(await options.body.text());
+        }
+        return originalFetch(url, options);
+      };
+      window.google = { accounts: { oauth2: { initTokenClient: () => {
+        const client = { callback: null, requestAccessToken() {
+          queueMicrotask(() => client.callback({ access_token: 'fixture-token', expires_in: 3600 }));
+        } };
+        return client;
+      } } } };
+    });
+    await page.route('**/js/google-drive-config.js*', route => route.fulfill({ contentType: 'application/javascript',
+      body: 'window.BAOGoogleDriveConfig={clientId:"fixture.apps.googleusercontent.com"};' }));
+    const uploads = [];
+    await page.route('https://www.googleapis.com/**', async route => {
+      const request = route.request(), url = request.url();
+      if (url.includes('/about?')) return route.fulfill({ json: { user: { permissionId: 'fixture-account' } } });
+      if (request.method() === 'GET' && url.includes('/files?')) return route.fulfill({ json: { files: [], incompleteSearch: false } });
+      if (request.method() === 'POST' && url.includes('/upload/drive/v3/files?')) {
+        const body = await page.evaluate(() => window.__integrationUploadBodies.at(-1));
+        uploads.push(body);
+        const name = /"name":"([^"]+)"/.exec(body)?.[1];
+        return route.fulfill({ json: { id: 'fixture-file', name, version: '1' } });
+      }
+      throw new Error('Unexpected Drive request: ' + request.method() + ' ' + url);
+    });
+    await openDemoStory(page);
+    await page.waitForFunction(() => window.BAOGoogleDriveSync);
+    const before = await page.evaluate(async () => {
+      await BAOGoogleDriveSync.connect();
+      App.saveStory(false);
+      const refs = BAOStoryLibrary.refs();
+      await BAOStoryLibrary.flush(refs.storyId);
+      Chat.add('user', '同步失敗後仍保留');
+      Chat.add('assistant', '這是本機已確認的故事進度。');
+      Chat.summary = '同步失敗測試摘要';
+      GameState.current.location = '測試碼頭';
+      window.__integrationPersist = BAOStoryLibrary.persist;
+      BAOStoryLibrary.persist = async () => { throw new Error('injected sync write failure'); };
+      const result = await BAOGoogleDriveSync.sync();
+      return { errors: result.errors.length, uploaded: result.uploaded,
+        messages: Chat.messages.map(({ id, role, content }) => ({ id, role, content })), summary: Chat.summary, location: GameState.current.location, refs };
+    });
+    expect(before.errors).toBe(1);
+    expect(before.uploaded).toBe(0);
+    expect(before.messages.slice(-2).map(message => message.content)).toEqual(['同步失敗後仍保留', '這是本機已確認的故事進度。']);
+    expect(before.summary).toBe('同步失敗測試摘要');
+    expect(before.location).toBe('測試碼頭');
+    expect(uploads).toHaveLength(0);
+    const recovered = await page.evaluate(async refs => {
+      BAOStoryLibrary.persist = window.__integrationPersist;
+      delete window.__integrationPersist;
+      const result = await BAOGoogleDriveSync.sync();
+      await Storage.flush();
+      await BAOStoryLibrary.flush(refs.storyId);
+      const saved = await BAOStoryLibrary.reconstruct(refs.storyId, refs.chapterId);
+      return { errors: result.errors.length, uploaded: result.uploaded,
+        messages: saved.chat.messages.map(({ id, role, content }) => ({ id, role, content })), summary: saved.chat.summary, location: saved.state.location };
+    }, before.refs);
+    expect(recovered).toEqual({ errors: 0, uploaded: 1, messages: before.messages, summary: before.summary, location: before.location });
+    expect(uploads).toHaveLength(1);
+    expect(uploads[0]).toContain(before.summary);
+    await page.reload();
+    await page.waitForFunction(() => Storage.status().ready && window.BAOStoryLibrary);
+    const afterReload = await page.evaluate(() => ({ messages: Storage.loadStory().chat.messages.map(({ id, role, content }) => ({ id, role, content })),
+      summary: Storage.loadStory().chat.summary, location: Storage.loadStory().state.location }));
+    expect(afterReload).toEqual({ messages: before.messages, summary: before.summary, location: before.location });
+  });
+
+  for (const width of [390, 1440]) test(`failed source writes preserve progress and allow retry (${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await openDemoStory(page);
+    const ids = await seedNestedBranches(page);
+    const result = await page.evaluate(async ids => {
+      Chat.summary = '未保存的新摘要';
+      GameState.current.location = '未保存的新地點';
+      const source = { messages: JSON.stringify(Chat.messages), summary: Chat.summary, location: GameState.current.location };
+      const persist = BAOStoryLibrary.persist;
+      BAOStoryLibrary.persist = async function(payload) {
+        if (payload._library.chapterId === ids.childRefs.chapterId) throw new Error('injected chapter write failure');
+        return persist.call(this, payload);
+      };
+      let error = '';
+      try { await BAOStoryBranches.restore(ids.mainRefs.storyId, ids.mainRefs.chapterId); }
+      catch (failure) { error = failure.message; }
+      finally { BAOStoryLibrary.persist = persist; }
+      return { error, source, after: { messages: JSON.stringify(Chat.messages), summary: Chat.summary,
+        location: GameState.current.location }, chapterId: BAOStoryLibrary.refs().chapterId };
+    }, ids);
+    expect(result.error).toContain('儲存');
+    expect(result.after).toEqual(result.source);
+    expect(result.chapterId).toBe(ids.childRefs.chapterId);
+    const retry = await page.evaluate(async ids => {
+      const ok = await BAOStoryBranches.restore(ids.mainRefs.storyId, ids.mainRefs.chapterId);
+      await Storage.flush();
+      await BAOStoryLibrary.flush(ids.mainRefs.storyId);
+      const prior = await BAOStoryLibrary.reconstruct(ids.childRefs.storyId, ids.childRefs.chapterId);
+      return { ok, priorSummary: prior.chat.summary, priorLocation: prior.state.location,
+        currentChapter: BAOStoryLibrary.refs().chapterId };
+    }, ids);
+    expect(retry).toEqual({ ok: true, priorSummary: result.source.summary, priorLocation: result.source.location,
+      currentChapter: ids.mainRefs.chapterId });
+    await page.reload();
+    await page.waitForFunction(() => Storage.status().ready && window.BAOStoryLibrary);
+    expect(await page.evaluate(() => Storage.loadStory()._library.chapterId)).toBe(ids.mainRefs.chapterId);
+  });
+
   test("nested branches show lineage and restore isolated memory and world state", async ({ page }) => {
     await openDemoStory(page);
     const ids = await seedNestedBranches(page);
