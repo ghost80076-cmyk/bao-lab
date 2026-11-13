@@ -38,7 +38,8 @@ for (const width of [390, 1440]) {
     await page.getByRole('button', { name: '開始故事' }).click();
     const before = await page.evaluate(async () => {
       App.config.memory.mode = 'full';
-      App.config.cost = { ...App.config.cost, stateEnabled: false };
+      App.config.stateTracking = false;
+      App.config.cost = { ...App.config.cost, stateInterval: 1000 };
       App.saveStory(false);
       const refs = BAOStoryLibrary.refs();
       await BAOStoryLibrary.flush(refs.storyId);

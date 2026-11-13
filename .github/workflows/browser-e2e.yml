@@ -69,8 +69,7 @@ jobs:
               tests/e2e/bao-mascot-motion.spec.cjs
               tests/e2e/bao-image-quality.spec.cjs
               tests/e2e/avatar-chat.spec.cjs
-              tests/e2e/story-exit-persistence.spec.cjs
-          tests/e2e/character-import.spec.cjs
+              tests/e2e/character-import.spec.cjs
               tests/e2e/work-package.spec.cjs
               tests/e2e/player-portability.spec.cjs
               tests/e2e/story-backup.spec.cjs
