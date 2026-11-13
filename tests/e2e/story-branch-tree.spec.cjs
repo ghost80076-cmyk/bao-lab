@@ -89,6 +89,16 @@ test.describe("Story branch tree", () => {
   for (const width of [390, 1440]) test(`sync write failures preserve local progress and recover (${width}px)`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.addInitScript(() => {
+      // WebKit's request observer may omit a Blob postData buffer. Inspect
+      // the immutable Blob before transport, and still count actual requests.
+      const originalFetch = window.fetch.bind(window);
+      window.__integrationUploadBodies = [];
+      window.fetch = async (url, options = {}) => {
+        if (String(url).includes('/upload/drive/v3/files?') && options.method === 'POST') {
+          window.__integrationUploadBodies.push(await options.body.text());
+        }
+        return originalFetch(url, options);
+      };
       window.google = { accounts: { oauth2: { initTokenClient: () => {
         const client = { callback: null, requestAccessToken() {
           queueMicrotask(() => client.callback({ access_token: 'fixture-token', expires_in: 3600 }));
@@ -104,7 +114,7 @@ test.describe("Story branch tree", () => {
       if (url.includes('/about?')) return route.fulfill({ json: { user: { permissionId: 'fixture-account' } } });
       if (request.method() === 'GET' && url.includes('/files?')) return route.fulfill({ json: { files: [], incompleteSearch: false } });
       if (request.method() === 'POST' && url.includes('/upload/drive/v3/files?')) {
-        const body = request.postData();
+        const body = await page.evaluate(() => window.__integrationUploadBodies.at(-1));
         uploads.push(body);
         const name = /"name":"([^"]+)"/.exec(body)?.[1];
         return route.fulfill({ json: { id: 'fixture-file', name, version: '1' } });
@@ -130,6 +140,9 @@ test.describe("Story branch tree", () => {
     });
     expect(before.errors).toBe(1);
     expect(before.uploaded).toBe(0);
+    expect(before.messages.slice(-2).map(message => message.content)).toEqual(['同步失敗後仍保留', '這是本機已確認的故事進度。']);
+    expect(before.summary).toBe('同步失敗測試摘要');
+    expect(before.location).toBe('測試碼頭');
     expect(uploads).toHaveLength(0);
     const recovered = await page.evaluate(async refs => {
       BAOStoryLibrary.persist = window.__integrationPersist;
