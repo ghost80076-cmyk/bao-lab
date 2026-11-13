@@ -66,6 +66,12 @@ for (const width of [390, 1440]) test(`selected story features survive regenerat
   expectAgeSources(serialized);
   await expect.poll(() => page.evaluate(() => GameState.current.actorMode?.role?.label)).toBe('AUDIT_IDENTITY');
   const checkEvidence = async kind => {
+    // Dispatch and revision-queue idle do not imply transport completion,
+    // especially when rewrite returns the same visible text as regeneration.
+    await expect.poll(() => page.evaluate(() => {
+      const entry = BAOContextInspector.snapshot();
+      return { kind: entry?.kind, status: entry?.status };
+    })).toEqual({ kind, status: 'success' });
     await page.evaluate(()=>BAOStoryRevisionState.whenIdle());
     const snap=await page.evaluate(()=>BAOContextInspector.snapshot());
     expect(snap).not.toBeNull();expect(snap.kind).toBe(kind);expect(snap.status).toBe('success');
