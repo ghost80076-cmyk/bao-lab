@@ -199,7 +199,14 @@
     refresh();
     const result = { uploaded: 0, downloaded: 0, skipped: 0, conflicts: 0, errors: [] };
     try {
-      if (activeChat(Library.refs().storyId) && window.App?.activeCharacter && window.GameState?.current) Storage.saveStory();
+      const activeStoryId = Library.refs().storyId;
+      const saveActive = activeChat(activeStoryId) && window.App?.activeCharacter && window.GameState?.current;
+      if (saveActive) {
+        if (window.App.__requestPending || window.App.__exitHandoff || window.App.__sendMessageTasks?.size
+            || window.Chat?.summarizing || window.BAOStoryMaintenanceLock?.has?.(window.GameState.current))
+          throw new Error('故事仍在生成或整理中，請完成或取消後再同步。');
+        if (Storage.saveStory() === false) throw new Error('目前故事無法儲存，已停止同步。');
+      }
       if (!await Library.flush()) throw new Error('本機故事庫無法使用，已停止同步。');
       const local = await Library.listStories();
       const remoteFiles = await listRemote();
@@ -213,8 +220,16 @@
       });
       const localMap = new Map(local.map(story => [story.storyId, story]));
       const syncMap = state();
-      for (const id of new Set([...localMap.keys(), ...groups.keys(), ...deletions.keys(), ...cloudDeleted])) {
+      for (const id of new Set([...(saveActive ? [activeStoryId] : []), ...localMap.keys(), ...groups.keys(), ...deletions.keys(), ...cloudDeleted])) {
         if (!validId(id)) continue;
+        // Availability does not imply durable chapter writes. Check before
+        // comparing timestamps, applying deletions, or declaring no changes.
+        try {
+          if (!await Library.flush(id)) throw new Error('本機故事尚未成功儲存，已略過同步；請重試儲存後再同步。');
+        } catch (error) {
+          result.errors.push((localMap.get(id)?.title || id) + '：' + errorText(error));
+          continue;
+        }
         if (deletions.has(id) || cloudDeleted.has(id)) {
           try {
             if (!cloudDeleted.has(id)) await makeRemote(id, { storyId: id, deletedAt: deletions.get(id).deletedAt }, true);

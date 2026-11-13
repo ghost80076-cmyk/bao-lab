@@ -66,6 +66,7 @@
       setPending(Boolean(this.__requestPending));
       return; // No text is cleared and no provider request is sent.
     }
+    if (this.__exitHandoff) return;
     if (this.config?.demoMode) return next(...args);
     const text = document.getElementById("user-input")?.value.trim();
     const accountReady = Boolean(window.BAOCreditsPilot?.isAccountReady?.(this.config?.api));
@@ -77,9 +78,12 @@
     this.__activeRequestController = controller;
     API.activeSignal = controller.signal;
     setPending(true);
+    const settlement = (async () => next(...args))();
+    this.__requestSettlement = settlement;
     try {
-      return await next(...args);
+      return await settlement;
     } finally {
+      if (this.__requestSettlement === settlement) this.__requestSettlement = null;
       if (API.activeSignal === controller.signal) API.activeSignal = null;
       if (this.__activeRequestController === controller) this.__activeRequestController = null;
       this.__requestPending = false;
@@ -95,7 +99,24 @@
   }
 
   const originalExitChat = App.exitChat?.bind(App);
-  if (originalExitChat) App.exitChat = function() { this.cancelGeneration?.(); return originalExitChat(); };
+  if (originalExitChat) App.exitChat = function() {
+    if (this.__exitHandoff) return this.__exitHandoff;
+    const owner = window.GameState?.current, config = this.config;
+    const tasks = [...(this.__sendMessageTasks || [])];
+    const settlement = tasks.length ? Promise.allSettled(tasks) : this.__requestSettlement;
+    if (!settlement) return originalExitChat();
+    // Keep another turn from starting between request settlement and exit save.
+    this.__exitHandoff = true;
+    this.cancelGeneration?.();
+    const handoff = settlement.catch(() => {}).then(() => {
+      if (window.GameState?.current !== owner || this.config !== config) return false;
+      return originalExitChat();
+    }).finally(() => {
+      if (this.__exitHandoff === handoff) this.__exitHandoff = null;
+    });
+    this.__exitHandoff = handoff;
+    return handoff;
+  };
 
   controls();
   // Standalone memory / state scans can begin after a normal story request ends.

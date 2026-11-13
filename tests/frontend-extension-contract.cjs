@@ -14,7 +14,8 @@ assert(memoryWorkbenchSource.includes('data-summary-mode-notice'));
 assert(siteUI.includes('js/world-state-cost.js?v=14'));
 assert(siteUI.includes('js/provider-policy-guard.js?v=1'), 'policy circuit must load before hosted transport');
 assert(siteUI.indexOf('js/provider-policy-guard.js?v=1') < siteUI.indexOf('js/credits-pilot.js?v=10'));
-assert(index.includes('src="js/site-ui.js?v=200"'));
+assert(index.includes('src="js/site-ui.js?v=206"'));
+assert(index.includes('src="js/app.js?v=15"'));
 assert(siteUI.includes('loadBAOOptionalGroup("chapter-memory"'), 'chapter workbench must not block story sends');
 assert(siteUI.includes('loadBAOOptionalGroup("chapter-recall"'), 'optional recall must not block story sends');
 assert(siteUI.indexOf('js/episodic-memory.js?v=5') < siteUI.indexOf('js/chapter-memory-recall.js?v=1'), 'chapter recall must follow knowledge resolver');
@@ -89,7 +90,7 @@ increasing(siteUI, [
   'then(() => worldModulesReady)',
   'loadBAOScript("js/three-realms-events.js?v=3")',
   'loadBAOScript("js/streaming-ui.js',
-  'loadBAOScript("js/request-lifecycle.js?v=7")'
+  'loadBAOScript("js/request-lifecycle.js?v=8")'
 ], "story extension");
 
 // Stage capability must resolve before Reader Context / Player Shell consume it.
@@ -230,7 +231,7 @@ assert.match(creditsPilot, /window\.BAOCreditsPilot\s*=\s*Object\.freeze\(\{/);
 assert.match(requestLifecycle, /App\.__requestLifecyclePatched/);
 assert.match(requestLifecycle, /App\.__requestLifecyclePatched\s*=\s*true/);
 assert.match(requestLifecycle, /App\.wrapSendMessage\("request-lifecycle:pending", requestLifecycleWrapper\)/);
-assert.match(requestLifecycle, /return await next\(\.\.\.args\)/);
+assert.match(requestLifecycle, /return await settlement/);
 
 assert.match(worldStateHook, /App\.__worldStateHooked/);
 assert.match(worldStateHook, /App\.__worldStateHooked\s*=\s*true/);
