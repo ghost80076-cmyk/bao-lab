@@ -135,11 +135,27 @@
   };
 
   const restore = async (storyId, chapterId) => {
+    const turnInFlight = () => App.__requestPending || App.__exitHandoff || App.__sendMessageTasks?.size;
+    if (turnInFlight() || Chat.summarizing || window.BAOStoryMaintenanceLock?.has?.(GameState.current))
+      throw new Error("故事仍在生成或整理中，請完成或取消後再切換分支。");
+    const sourceRefs = Library.refs();
+    const owner = GameState.current, config = App.config;
+    const messageSignature = () => JSON.stringify((Chat.messages || []).map(message =>
+      [message.id, message.role, message.content, message.context_content || ""]));
+    const sourceMessages = messageSignature();
+    const sourceIsCurrent = () => GameState.current === owner && App.config === config
+      && !turnInFlight() && !Chat.summarizing && !window.BAOStoryMaintenanceLock?.has?.(owner)
+      && messageSignature() === sourceMessages
+      && Library.refs().storyId === sourceRefs.storyId && Library.refs().chapterId === sourceRefs.chapterId;
     await waitForRevisionState();
-    App.saveStory?.(false);
-    await Library.flush();
+    if (!sourceIsCurrent()) return false;
+    if (App.saveStory?.(false) === false) throw new Error("目前故事尚未成功儲存，無法切換分支。");
+    if (!sourceIsCurrent()) return false;
+    if (!sourceRefs.storyId || !await Library.flush(sourceRefs.storyId)) throw new Error("目前章節尚未成功儲存，無法切換分支。請重試儲存或先備份故事。");
+    if (!sourceIsCurrent()) return false;
     const save = await Library.reconstruct(storyId, chapterId);
     if (!save) throw new Error("找不到這條故事線的完整資料。");
+    if (!sourceIsCurrent()) return false;
     const previousApi = App.config?.api || {};
     let key = sameConnection(previousApi, save.config?.api) ? String(previousApi.key || "") : "";
     if (!save.config?.demoMode && !key) {
@@ -147,6 +163,7 @@
       if (entered === null) return false;
       key = entered.trim();
     }
+    if (!sourceIsCurrent()) return false;
     if (!Storage.restoreStory(save)) throw new Error("無法恢復這條故事線。");
     App.config.api = Object.assign({}, App.config.api || {}, { key });
     if (GameState.current) GameState.current.config = App.config;

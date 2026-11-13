@@ -5,8 +5,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const source = fs.readFileSync(path.join(__dirname, '..', 'js', 'story-branches.js'), 'utf8');
 
-function fixture({ targetURL = 'https://a.example/v1', targetProtocol = 'openai', answer = 'target-secret' } = {}) {
-  const events = { prompts: [], alerts: [], restores: 0, apiOpens: 0, saves: 0 };
+function fixture({ targetURL = 'https://a.example/v1', targetProtocol = 'openai', answer = 'target-secret', flush = async () => true, save = () => true } = {}) {
+  const events = { prompts: [], alerts: [], restores: 0, apiOpens: 0, saves: 0, flushed: [] };
   const sourceApi = { baseUrl: 'https://a.example/v1/', protocol: 'openai', model: 'source-model', key: 'source-secret' };
   const target = {
     config: { api: { baseUrl: targetURL, protocol: targetProtocol, model: 'target-model' }, memory: {} },
@@ -17,7 +17,7 @@ function fixture({ targetURL = 'https://a.example/v1', targetProtocol = 'openai'
   const app = {
     config: { api: sourceApi, memory: {} },
     escapeHTML: x => String(x), escapeAttr: x => String(x),
-    saveStory: () => { events.saves++; return true; },
+    saveStory: () => { events.saves++; return save(); },
     renderChatShell: () => {}, showView: () => {}
   };
   const chat = { messages: [target.chat.messages[0]] };
@@ -33,7 +33,8 @@ function fixture({ targetURL = 'https://a.example/v1', targetProtocol = 'openai'
     }
   };
   const library = {
-    flush: async () => true,
+    refs: () => ({ storyId: 'source-story', chapterId: 'source-chapter' }),
+    flush: async storyId => { events.flushed.push(storyId); return flush(storyId); },
     reconstruct: async () => structuredClone(target),
     createBranch: async () => structuredClone(target)
   };
@@ -52,13 +53,14 @@ function fixture({ targetURL = 'https://a.example/v1', targetProtocol = 'openai'
     alert: message => events.alerts.push(message), console });
   vm.runInContext(source, context, { filename: 'story-branches.js' });
   assert(win.BAOStoryBranches, 'branch module must initialize');
-  return { ...events, app, chat, state, branch: win.BAOStoryBranches, events };
+  return { ...events, app, chat, state, library, branch: win.BAOStoryBranches, events };
 }
 
 (async () => {
   {
     const f = fixture({ targetURL: 'https://a.example/v1' });
     assert.equal(await f.branch.restore('story1', 'branch1'), true);
+    assert.deepEqual(f.events.flushed, ['source-story']);
     assert.equal(f.app.config.api.key, 'source-secret');
     assert.equal(f.events.prompts.length, 0);
     assert.equal(f.chat.messages[0].content, 'branch point');
@@ -72,6 +74,76 @@ function fixture({ targetURL = 'https://a.example/v1', targetProtocol = 'openai'
     assert.equal(f.app.config.api.key, 'target-secret');
     assert.equal(f.events.prompts.length, 1);
     console.log('PASS switching providers asks for destination key');
+  }
+  for (const failure of [async () => false, async () => { throw new Error('disk unavailable'); }]) {
+    const f = fixture({ flush: failure });
+    await assert.rejects(f.branch.restore('story1', 'branch1'), /儲存|disk unavailable/);
+    assert.equal(f.events.restores, 0, 'failed source durability must block restore');
+    assert.equal(f.state.current.money, 20);
+    assert.equal(f.app.config.api.key, 'source-secret');
+    assert.deepEqual(f.events.flushed, ['source-story']);
+  }
+  {
+    const f = fixture({ save: () => false });
+    await assert.rejects(f.branch.restore('story1', 'branch1'), /儲存/);
+    assert.equal(f.events.restores, 0);
+    assert.deepEqual(f.events.flushed, []);
+  }
+  {
+    const f = fixture();
+    f.app.__requestPending = true;
+    await assert.rejects(f.branch.restore('story1', 'branch1'), /生成或整理/);
+    assert.equal(f.events.saves, 0);
+    assert.equal(f.events.restores, 0);
+  }
+  for (const pending of [() => ({ __exitHandoff: true }), () => ({ __sendMessageTasks: new Set([Promise.resolve()]) })]) {
+    const f = fixture();
+    Object.assign(f.app, pending());
+    await assert.rejects(f.branch.restore('story1', 'branch1'), /生成或整理/);
+    assert.equal(f.events.saves, 0);
+    assert.equal(f.events.restores, 0);
+  }
+  {
+    let release;
+    const pendingFlush = new Promise(resolve => { release = resolve; });
+    const f = fixture({ flush: () => pendingFlush });
+    const restore = f.branch.restore('story1', 'branch1');
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(f.events.restores, 0, 'restore waits for queued source writes');
+    f.state.current = { money: 999, config: f.app.config };
+    release(true);
+    assert.equal(await restore, false, 'a changed source owner must not replace the newer story');
+    assert.equal(f.state.current.money, 999);
+  }
+  {
+    let release;
+    const f = fixture({ flush: () => new Promise(resolve => { release = resolve; }) });
+    const restore = f.branch.restore('story1', 'branch1');
+    await new Promise(resolve => setImmediate(resolve));
+    f.app.__requestPending = true;
+    release(true);
+    assert.equal(await restore, false);
+    assert.equal(f.events.restores, 0);
+  }
+  {
+    let release;
+    const f = fixture({ flush: () => new Promise(resolve => { release = resolve; }) });
+    const restore = f.branch.restore('story1', 'branch1');
+    await new Promise(resolve => setImmediate(resolve));
+    f.app.__sendMessageTasks = new Set([Promise.resolve()]);
+    release(true);
+    assert.equal(await restore, false, 'a new outer turn blocks the pending branch switch');
+    assert.equal(f.events.restores, 0);
+  }
+  {
+    let release;
+    const f = fixture({ flush: () => new Promise(resolve => { release = resolve; }) });
+    const restore = f.branch.restore('story1', 'branch1');
+    await new Promise(resolve => setImmediate(resolve));
+    f.chat.messages.push({ id: 'new-turn', role: 'user', content: 'changed while flushing' });
+    release(true);
+    assert.equal(await restore, false, 'a completed concurrent turn must invalidate the source snapshot');
+    assert.equal(f.events.restores, 0);
   }
   {
     const f = fixture({ targetURL: 'https://a.example/v1', targetProtocol: 'anthropic' });
@@ -103,5 +175,5 @@ function fixture({ targetURL = 'https://a.example/v1', targetProtocol = 'openai'
     assert.equal(f.state.current.money, 100);
     console.log('PASS new branch with a different endpoint preserves state but not unrelated key');
   }
-  console.log('PASS 6 branch API continuity regression cases');
+  console.log('PASS branch API continuity and durable source handoff regression cases');
 })().catch(error => { console.error(error); process.exitCode = 1; });
