@@ -247,6 +247,8 @@ jobs:
       - name: Run cross-browser smoke flows
         run: >-
           npm run test:e2e --
+          tests/e2e/character-import.spec.cjs
+          tests/e2e/lm-studio.spec.cjs
           tests/e2e/story-discussion.spec.cjs
           tests/e2e/mobile-story-entry.spec.cjs
           tests/e2e/story-integrity.spec.cjs

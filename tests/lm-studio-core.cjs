@@ -51,6 +51,12 @@ const local = require('../js/lm-studio-core.js');
   await assert.rejects(local.send(config, [], api, async () => { throw Error('Failed to fetch'); }), /CORS/);
   await assert.rejects(local.send(config, [], api, async () => { const e = new Error('Aborted'); e.name = 'AbortError'; throw e; }), error => error.code === 'BAO_ABORTED');
   await assert.rejects(local.send(config, [], api, async () => response({ error: { message: 'Model not loaded' } }, false, 404)), /404.*Model not loaded/);
+  for (const content of ['', '   ']) {
+    await assert.rejects(local.send(config, [], api, async () => response({
+      choices: [{message: {content}, finish_reason: 'stop'}], usage: {total_tokens: 7}
+    })), error => error.code === 'BAO_PROVIDER_EMPTY' && error.usage.total_tokens === 7 && !('text' in error));
+  }
+  await assert.rejects(local.send(config, [], api, async () => response({error: {message: 'Model unloaded'}})), /Model unloaded/);
   const streamed = await local.send({ ...config, stream: true, onDelta() {} }, [], api, async (url, init) => {
     assert.equal(JSON.parse(init.body).stream, true);
     return { ok: true, headers: { get: () => 'text/event-stream' } };
