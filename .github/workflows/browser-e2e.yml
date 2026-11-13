@@ -212,6 +212,8 @@ jobs:
           tests/e2e/reader-context-desktop.spec.cjs
           tests/e2e/chat-api-settings.spec.cjs
           --project=chromium
+      - name: Verify durable branch handoff
+        run: npx playwright test tests/e2e/story-branch-tree.spec.cjs --grep "failed source writes" --project=chromium
       - name: Upload story control report
         if: always()
         uses: actions/upload-artifact@v4
@@ -257,6 +259,8 @@ jobs:
           tests/e2e/home-first-paint.spec.js
           tests/e2e/memory-workbench-theme.spec.cjs
           --project=${{ matrix.browser }}
+      - name: Verify durable branch handoff
+        run: npx playwright test tests/e2e/story-branch-tree.spec.cjs --grep "failed source writes" --project=${{ matrix.browser }}
       - name: Verify optional world review on mobile and desktop
         run: >-
           npx playwright test tests/e2e/settings-effects.spec.cjs
