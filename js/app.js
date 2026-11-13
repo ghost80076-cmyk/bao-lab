@@ -8,7 +8,16 @@ const App = {
     if(!this.__sendMessageWrapperIds)this.__sendMessageWrapperIds=new Set();
     if(this.__sendMessageWrapperIds.has(key))return false;
     const next=this.sendMessage.bind(this);
-    this.sendMessage=async(...args)=>wrapper.call(this,next,...args);
+    this.sendMessage=(...args)=>{
+      if(this.__exitHandoff)return Promise.resolve();
+      const task=(async()=>wrapper.call(this,next,...args))();
+      // Keep every layer until it settles; async preflight can start inner layers later.
+      if(!this.__sendMessageTasks)this.__sendMessageTasks=new Set();
+      this.__sendMessageTasks.add(task);
+      task.then(() => this.__sendMessageTasks.delete(task),
+        () => this.__sendMessageTasks.delete(task));
+      return task;
+    };
     this.__sendMessageWrapperIds.add(key);
     return true;
   },
@@ -128,7 +137,7 @@ const App = {
   async sendMessage() {
     const input = document.getElementById("user-input"), text = input.value.trim();
     if (!text) return;
-    const owner = GameState.current, config = this.config;
+    const owner = GameState.current, config = this.config, requestSignal = API.activeSignal;
     window.BAOCreditsPilot?.prepareAccountConfig?.(config.api);
     if (!config.api.key && !window.BAOCreditsPilot?.isAccountReady?.(config.api)) {
       API.noteRequest?.('story','not-connected');
@@ -154,6 +163,7 @@ const App = {
     try {
       const messages = this.buildMessages ? await this.buildMessages(config)
         : [{ role: "system", content: this.buildSystemPrompt() }, ...await Chat.context(config)];
+      if (requestSignal?.aborted) throw Object.assign(new Error("已取消生成。"), { code: "BAO_ABORTED" });
       if (!isCurrent()) return;
       const apiConfig = this.applyProviderContext ? this.applyProviderContext(config.api) : config.api;
       const result = await API.send(apiConfig, messages);
