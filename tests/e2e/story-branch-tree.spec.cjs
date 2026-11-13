@@ -86,6 +86,44 @@ const snapshot = page => page.evaluate(() => ({
 }));
 
 test.describe("Story branch tree", () => {
+  for (const width of [390, 1440]) test(`failed source writes preserve progress and allow retry (${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await openDemoStory(page);
+    const ids = await seedNestedBranches(page);
+    const result = await page.evaluate(async ids => {
+      Chat.summary = '未保存的新摘要';
+      GameState.current.location = '未保存的新地點';
+      const source = { messages: JSON.stringify(Chat.messages), summary: Chat.summary, location: GameState.current.location };
+      const persist = BAOStoryLibrary.persist;
+      BAOStoryLibrary.persist = async function(payload) {
+        if (payload._library.chapterId === ids.childRefs.chapterId) throw new Error('injected chapter write failure');
+        return persist.call(this, payload);
+      };
+      let error = '';
+      try { await BAOStoryBranches.restore(ids.mainRefs.storyId, ids.mainRefs.chapterId); }
+      catch (failure) { error = failure.message; }
+      finally { BAOStoryLibrary.persist = persist; }
+      return { error, source, after: { messages: JSON.stringify(Chat.messages), summary: Chat.summary,
+        location: GameState.current.location }, chapterId: BAOStoryLibrary.refs().chapterId };
+    }, ids);
+    expect(result.error).toContain('儲存');
+    expect(result.after).toEqual(result.source);
+    expect(result.chapterId).toBe(ids.childRefs.chapterId);
+    const retry = await page.evaluate(async ids => {
+      const ok = await BAOStoryBranches.restore(ids.mainRefs.storyId, ids.mainRefs.chapterId);
+      await Storage.flush();
+      await BAOStoryLibrary.flush(ids.mainRefs.storyId);
+      const prior = await BAOStoryLibrary.reconstruct(ids.childRefs.storyId, ids.childRefs.chapterId);
+      return { ok, priorSummary: prior.chat.summary, priorLocation: prior.state.location,
+        currentChapter: BAOStoryLibrary.refs().chapterId };
+    }, ids);
+    expect(retry).toEqual({ ok: true, priorSummary: result.source.summary, priorLocation: result.source.location,
+      currentChapter: ids.mainRefs.chapterId });
+    await page.reload();
+    await page.waitForFunction(() => Storage.status().ready && window.BAOStoryLibrary);
+    expect(await page.evaluate(() => Storage.loadStory()._library.chapterId)).toBe(ids.mainRefs.chapterId);
+  });
+
   test("nested branches show lineage and restore isolated memory and world state", async ({ page }) => {
     await openDemoStory(page);
     const ids = await seedNestedBranches(page);

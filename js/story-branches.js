@@ -143,13 +143,18 @@
     const messageSignature = () => JSON.stringify((Chat.messages || []).map(message =>
       [message.id, message.role, message.content, message.context_content || ""]));
     const sourceMessages = messageSignature();
+    const stateSignature = () => JSON.stringify([GameState.current, Chat.summary || '',
+      Number(Chat.summarizedUntil || 0), Chat.memoryHealth || null]);
+    let savedState;
     const sourceIsCurrent = () => GameState.current === owner && App.config === config
       && !turnInFlight() && !Chat.summarizing && !window.BAOStoryMaintenanceLock?.has?.(owner)
       && messageSignature() === sourceMessages
+      && (savedState === undefined || stateSignature() === savedState)
       && Library.refs().storyId === sourceRefs.storyId && Library.refs().chapterId === sourceRefs.chapterId;
     await waitForRevisionState();
     if (!sourceIsCurrent()) return false;
     if (App.saveStory?.(false) === false) throw new Error("目前故事尚未成功儲存，無法切換分支。");
+    savedState = stateSignature();
     if (!sourceIsCurrent()) return false;
     if (!sourceRefs.storyId || !await Library.flush(sourceRefs.storyId)) throw new Error("目前章節尚未成功儲存，無法切換分支。請重試儲存或先備份故事。");
     if (!sourceIsCurrent()) return false;

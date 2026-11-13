@@ -83,6 +83,16 @@ function fixture({ targetURL = 'https://a.example/v1', targetProtocol = 'openai'
     assert.equal(f.app.config.api.key, 'source-secret');
     assert.deepEqual(f.events.flushed, ['source-story']);
   }
+  for (const mutate of [f => { f.chat.summary = 'new memory'; }, f => { f.state.current.money = 999; }]) {
+    let release;
+    const f = fixture({ flush: () => new Promise(resolve => { release = resolve; }) });
+    const restore = f.branch.restore('story1', 'branch1');
+    await new Promise(resolve => setImmediate(resolve));
+    mutate(f);
+    release(true);
+    assert.equal(await restore, false, 'state or memory changes after the source save invalidate the handoff');
+    assert.equal(f.events.restores, 0);
+  }
   {
     const f = fixture({ save: () => false });
     await assert.rejects(f.branch.restore('story1', 'branch1'), /儲存/);
