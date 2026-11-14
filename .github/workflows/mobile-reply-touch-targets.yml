@@ -1,0 +1,60 @@
+name: Mobile reply touch targets
+on:
+  push:
+    branches: [fix/mobile-reply-touch-targets]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'css/mobile-reading-layout.css'
+      - 'js/mobile-reading-layout.js'
+      - 'tests/e2e/mobile-reply-touch-targets.spec.cjs'
+      - '.github/workflows/mobile-reply-touch-targets.yml'
+permissions:
+  contents: read
+concurrency:
+  group: reply-touch-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Extract original stylesheet for paired evidence
+        run: git show c9d73a50a9775733afa1160a68ce8935965dd2fe:css/mobile-reading-layout.css > /tmp/reply-touch-before.css
+      - name: Compare geometry and exercise reply controls
+        env:
+          REPLY_TOUCH_BASELINE_CSS: /tmp/reply-touch-before.css
+        run: npx playwright test tests/e2e/mobile-reply-touch-targets.spec.cjs --project=${{ matrix.browser }} --workers=2
+      - name: Preserve paired evidence before the regression runner cleans test-results
+        run: cp -a test-results reply-touch-evidence
+      - name: Connected reading, author and revision regression
+        run: >-
+          npx playwright test tests/e2e/mobile-reading-layout.spec.cjs
+          tests/e2e/story-rollback.spec.cjs tests/e2e/author-regex-inline.spec.cjs
+          tests/e2e/request-feature-contract.spec.cjs
+          --project=${{ matrix.browser }} --workers=2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reply-touch-${{ matrix.browser }}
+          path: |
+            reply-touch-evidence
+            test-results
+            playwright-report
+          retention-days: 14
