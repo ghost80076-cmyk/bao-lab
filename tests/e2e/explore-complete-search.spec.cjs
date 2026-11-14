@@ -190,5 +190,7 @@ test('same criteria pager preserves another control focus and still expands resu
   hold.release();
   await expect.poll(() => page.locator('#character-list .character-card').count()).toBeGreaterThan(24);
   await expect(page.locator('#explore-search-input')).toBeFocused();
-  await expect(page.locator('#character-load-more')).toBeVisible();
+  const total = await page.evaluate(() => BAOExploreDiscovery.matches().length);
+  await expect(page.locator('#character-list .character-card')).toHaveCount(Math.min(48, total));
+  await expect(page.locator('#character-load-more')).toHaveCount(total > 48 ? 1 : 0);
 });
