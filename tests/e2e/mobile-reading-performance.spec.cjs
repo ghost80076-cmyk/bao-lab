@@ -76,7 +76,7 @@ test('Phone fixed clock avoids recurring writes and closes on story switch', asy
 test('Phone clock pauses its presentation work while hidden and catches up when visible', async ({page}) => {
   await ready(page);await story(page,5,true);await page.locator('#bao-phone-launch').click();
   // Deterministic visibility lifecycle injection, not a physical background test.
-  await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,get:()=>true});document.dispatchEvent(new Event('visibilitychange'));GameState.current.phoneUI={storyTime:'23:18'};BAOPhoneUI.refreshFromState();});
+  await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,get:()=>true});document.dispatchEvent(new Event('visibilitychange'));GameState.current.phoneUI={...BAOPhoneStoryCore.empty(),storyTime:'23:18'};BAOPhoneUI.refreshFromState();});
   await page.waitForTimeout(1200);
   await expect(page.locator('.bp-lock-clock')).toBeEmpty();
   await page.evaluate(()=>{delete document.hidden;document.dispatchEvent(new Event('visibilitychange'));});
