@@ -83,11 +83,12 @@
     const available = Boolean($('bao-scene-native-status') || $('bao-scene-author-status'));
     const empty = rail.querySelector('.bao-status-empty');
     if (empty) {
-      empty.hidden = available;
-      if (window.BAOSceneHTML?.prefs?.status === 'hidden') {
-        empty.hidden = false;
-        empty.textContent = '你已在「顯示方式」中隱藏狀態欄。';
-      } else empty.textContent = '目前沒有可顯示的世界狀態。';
+      const statusHidden = window.BAOSceneHTML?.prefs?.status === 'hidden';
+      empty.hidden = available && !statusHidden;
+      const text = statusHidden ? '你已在「顯示方式」中隱藏狀態欄。' : '目前沒有可顯示的世界狀態。';
+      // This rail is inside our observed subtree. Replacing identical text
+      // schedules another sync every frame, even while the player only reads.
+      if (empty.textContent !== text) empty.textContent = text;
     }
     window.BAOChatToolNavigation?.compactBoard?.(rail);
     return rail;

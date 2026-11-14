@@ -1,0 +1,1034 @@
+{
+  "baselineCommit": "408966bae38a0d51a584ccba9af797411e12d28d",
+  "candidateCommit": "0cee18f3adde91bafb07517719ca2be2f2b06ca9",
+  "runURL": "https://github.com/ghost80076-cmyk/bao-lab/actions/runs/43570802988",
+  "environment": {
+    "playwright": "1.63.0",
+    "container": "mcr.microsoft.com/playwright:v1.63.0-noble",
+    "viewport": {
+      "width": 390,
+      "height": 844,
+      "dpr": 3
+    },
+    "cpuThrottle": 4,
+    "physicalDevice": false,
+    "background": "Injected document.hidden; not OS suspension"
+  },
+  "measurements": [
+    {
+      "label": "baseline",
+      "name": "short-idle",
+      "elapsedMs": 10014,
+      "taskMs": 3028.54,
+      "scriptMs": 849.81,
+      "layoutMs": 0,
+      "recalcMs": 1841.78,
+      "cpuMainThreadPercent": 30.24,
+      "heapMiB": 4,
+      "heapDeltaMiB": 0.24,
+      "nodes": 5762,
+      "listeners": 809,
+      "raf": {
+        "chat-experience.js": 601,
+        "work-package.js": 301,
+        "player-shell-v2.js": 301
+      },
+      "mutations": 601,
+      "renderCalls": 0,
+      "longTasks": [],
+      "events": [],
+      "callbacks": {
+        "author-diagnostics.js": 39,
+        "story-start-readiness.js": 51,
+        "bao-character.js": 41
+      },
+      "activeIntervals": [
+        {
+          "source": "bao-character.js",
+          "delay": 240
+        }
+      ],
+      "dom": 2276
+    },
+    {
+      "label": "baseline",
+      "name": "long-idle",
+      "elapsedMs": 10009,
+      "taskMs": 4732.51,
+      "scriptMs": 1631.28,
+      "layoutMs": 0,
+      "recalcMs": 2731.43,
+      "cpuMainThreadPercent": 47.28,
+      "heapMiB": 4.78,
+      "heapDeltaMiB": 0.58,
+      "nodes": 9700,
+      "listeners": 1569,
+      "raf": {
+        "chat-experience.js": 601,
+        "work-package.js": 300,
+        "player-shell-v2.js": 300
+      },
+      "mutations": 601,
+      "renderCalls": 0,
+      "longTasks": [],
+      "events": [],
+      "callbacks": {
+        "bao-character.js": 42
+      },
+      "activeIntervals": [
+        {
+          "source": "bao-character.js",
+          "delay": 240
+        }
+      ],
+      "dom": 3796
+    },
+    {
+      "label": "baseline",
+      "name": "continuous-reading-60s",
+      "elapsedMs": 60756,
+      "taskMs": 27519.9,
+      "scriptMs": 8766.98,
+      "layoutMs": 0,
+      "recalcMs": 15678.91,
+      "cpuMainThreadPercent": 45.3,
+      "heapMiB": 6.14,
+      "heapDeltaMiB": 1.31,
+      "nodes": 9758,
+      "listeners": 1582,
+      "raf": {
+        "chat-experience.js": 3644,
+        "work-package.js": 1822,
+        "player-shell-v2.js": 1822
+      },
+      "mutations": 3644,
+      "renderCalls": 0,
+      "longTasks": [],
+      "events": [],
+      "callbacks": {
+        "bao-character.js": 253
+      },
+      "activeIntervals": [
+        {
+          "source": "bao-character.js",
+          "delay": 240
+        }
+      ],
+      "dom": 3796
+    },
+    {
+      "label": "baseline",
+      "name": "typing-and-menu",
+      "elapsedMs": 1069,
+      "taskMs": 839.24,
+      "scriptMs": 217.59,
+      "layoutMs": 112.07,
+      "recalcMs": 321.92,
+      "cpuMainThreadPercent": 78.51,
+      "heapMiB": 5.78,
+      "heapDeltaMiB": -0.4,
+      "nodes": 10848,
+      "listeners": 1649,
+      "raf": {
+        "chat-experience.js": 37,
+        "work-package.js": 19,
+        "player-shell-v2.js": 19,
+        "mobile-reading-layout.js": 3
+      },
+      "mutations": 38,
+      "renderCalls": 0,
+      "longTasks": [
+        204,
+        112,
+        76
+      ],
+      "events": [
+        304,
+        304,
+        304,
+        216,
+        96
+      ],
+      "callbacks": {
+        "bao-character.js": 5
+      },
+      "activeIntervals": [
+        {
+          "source": "bao-character.js",
+          "delay": 240
+        }
+      ],
+      "dom": 3798
+    },
+    {
+      "label": "baseline",
+      "name": "story-switches-10",
+      "elapsedMs": 5665,
+      "taskMs": 5382,
+      "scriptMs": 2006,
+      "layoutMs": 822.56,
+      "recalcMs": 1223.71,
+      "cpuMainThreadPercent": 95,
+      "heapMiB": 6.5,
+      "heapDeltaMiB": 0.69,
+      "nodes": 16162,
+      "listeners": 2298,
+      "raf": {
+        "chat-experience.js": 79,
+        "work-package.js": 60,
+        "player-shell-v2.js": 60,
+        "gameplay-ui.js": 10,
+        "story-image-prompts.js": 20,
+        "bao-visual-ui.js": 20,
+        "scene-render-integrity.js": 42,
+        "mobile-reading-layout.js": 39
+      },
+      "mutations": 18023,
+      "renderCalls": 5120,
+      "longTasks": [
+        62,
+        132,
+        105,
+        84,
+        170,
+        62,
+        52,
+        129,
+        130,
+        50,
+        226,
+        69,
+        77,
+        156,
+        59,
+        135,
+        101,
+        227,
+        53,
+        78,
+        198,
+        63,
+        130,
+        94,
+        72,
+        148,
+        63,
+        125,
+        104,
+        308,
+        57,
+        229
+      ],
+      "events": [],
+      "callbacks": {
+        "bao-character.js": 15
+      },
+      "activeIntervals": [
+        {
+          "source": "bao-character.js",
+          "delay": 240
+        }
+      ],
+      "dom": 3798
+    },
+    {
+      "label": "baseline",
+      "name": "after-switch-idle",
+      "elapsedMs": 10013,
+      "taskMs": 4550.57,
+      "scriptMs": 1481.86,
+      "layoutMs": 0,
+      "recalcMs": 2637.79,
+      "cpuMainThreadPercent": 45.45,
+      "heapMiB": 7.25,
+      "heapDeltaMiB": 1.37,
+      "nodes": 9812,
+      "listeners": 1582,
+      "raf": {
+        "chat-experience.js": 602,
+        "work-package.js": 301,
+        "player-shell-v2.js": 301
+      },
+      "mutations": 602,
+      "renderCalls": 0,
+      "longTasks": [],
+      "events": [],
+      "callbacks": {
+        "bao-character.js": 41
+      },
+      "activeIntervals": [
+        {
+          "source": "bao-character.js",
+          "delay": 240
+        }
+      ],
+      "dom": 3798
+    },
+    {
+      "label": "baseline",
+      "name": "phone-fixed-clock-idle",
+      "elapsedMs": 10013,
+      "taskMs": 2893.45,
+      "scriptMs": 742.63,
+      "layoutMs": 8.73,
+      "recalcMs": 1807.03,
+      "cpuMainThreadPercent": 28.9,
+      "heapMiB": 6.58,
+      "heapDeltaMiB": 0.06,
+      "nodes": 6398,
+      "listeners": 829,
+      "raf": {
+        "chat-experience.js": 597,
+        "work-package.js": 300,
+        "player-shell-v2.js": 299
+      },
+      "mutations": 627,
+      "renderCalls": 0,
+      "longTasks": [],
+      "events": [
+        88,
+        88,
+        88
+      ],
+      "callbacks": {
+        "bao-character.js": 42,
+        "phone-ui.js": 10
+      },
+      "activeIntervals": [
+        {
+          "source": "bao-character.js",
+          "delay": 240
+        },
+        {
+          "source": "phone-ui.js",
+          "delay": 1000
+        }
+      ],
+      "dom": 2292
+    },
+    {
+      "label": "baseline",
+      "name": "background-visibility-simulated",
+      "elapsedMs": 6016,
+      "taskMs": 1686.63,
+      "scriptMs": 430.77,
+      "layoutMs": 4.86,
+      "recalcMs": 1040.69,
+      "cpuMainThreadPercent": 28.04,
+      "heapMiB": 6.51,
+      "heapDeltaMiB": -0.1,
+      "nodes": 6776,
+      "listeners": 829,
+      "raf": {
+        "chat-experience.js": 359,
+        "player-shell-v2.js": 180,
+        "work-package.js": 180
+      },
+      "mutations": 377,
+      "renderCalls": 0,
+      "longTasks": [],
+      "events": [],
+      "callbacks": {
+        "bao-character.js": 25,
+        "phone-ui.js": 6
+      },
+      "activeIntervals": [
+        {
+          "source": "bao-character.js",
+          "delay": 240
+        },
+        {
+          "source": "phone-ui.js",
+          "delay": 1000
+        }
+      ],
+      "dom": 2292
+    },
+    {
+      "label": "baseline",
+      "name": "phone-closed-idle",
+      "elapsedMs": 5010,
+      "taskMs": 1434.26,
+      "scriptMs": 362.05,
+      "layoutMs": 0,
+      "recalcMs": 867.68,
+      "cpuMainThreadPercent": 28.63,
+      "heapMiB": 5.83,
+      "heapDeltaMiB": -0.96,
+      "nodes": 5782,
+      "listeners": 823,
+      "raf": {
+        "chat-experience.js": 301,
+        "work-package.js": 151,
+        "player-shell-v2.js": 150
+      },
+      "mutations": 301,
+      "renderCalls": 0,
+      "longTasks": [],
+      "events": [],
+      "callbacks": {
+        "bao-character.js": 20
+      },
+      "activeIntervals": [
+        {
+          "source": "bao-character.js",
+          "delay": 240
+        }
+      ],
+      "dom": 2279
+    },
+    {
+      "label": "baseline",
+      "checkpoints": {
+        "shortGC": {
+          "Timestamp": 56.144974,
+          "AudioHandlers": 0,
+          "AudioWorkletProcessors": 0,
+          "Documents": 4,
+          "Frames": 4,
+          "JSEventListeners": 809,
+          "LayoutObjects": 200,
+          "MediaKeySessions": 0,
+          "MediaKeys": 0,
+          "Nodes": 5639,
+          "Resources": 293,
+          "ContextLifecycleStateObservers": 136,
+          "V8PerContextDatas": 2,
+          "WorkerGlobalScopes": 0,
+          "UACSSResources": 0,
+          "RTCPeerConnections": 0,
+          "ResourceFetchers": 4,
+          "AdSubframes": 0,
+          "DetachedScriptStates": 0,
+          "ArrayBufferContents": 0,
+          "LayoutCount": 15,
+          "RecalcStyleCount": 156,
+          "LayoutDuration": 0.079677,
+          "RecalcStyleDuration": 0.500272,
+          "DevToolsCommandDuration": 0.067411,
+          "ScriptDuration": 0.300619,
+          "V8CompileDuration": 0,
+          "TaskDuration": 1.203116,
+          "TaskOtherDuration": 0.255137,
+          "ThreadTime": 2.425974,
+          "ProcessTime": 4,
+          "JSHeapUsedSize": 3921904,
+          "JSHeapTotalSize": 4780032,
+          "FirstMeaningfulPaint": 53.711908,
+          "DomContentLoaded": 52.463472,
+          "NavigationStart": 52.138365
+        },
+        "longGC": {
+          "Timestamp": 69.054273,
+          "AudioHandlers": 0,
+          "AudioWorkletProcessors": 0,
+          "Documents": 4,
+          "Frames": 4,
+          "JSEventListeners": 1569,
+          "LayoutObjects": 2005,
+          "MediaKeySessions": 0,
+          "MediaKeys": 0,
+          "Nodes": 9534,
+          "Resources": 294,
+          "ContextLifecycleStateObservers": 326,
+          "V8PerContextDatas": 2,
+          "WorkerGlobalScopes": 0,
+          "UACSSResources": 0,
+          "RTCPeerConnections": 0,
+          "ResourceFetchers": 4,
+          "AdSubframes": 0,
+          "DetachedScriptStates": 0,
+          "ArrayBufferContents": 0,
+          "LayoutCount": 29,
+          "RecalcStyleCount": 871,
+          "LayoutDuration": 0.277648,
+          "RecalcStyleDuration": 3.026549,
+          "DevToolsCommandDuration": 0.181178,
+          "ScriptDuration": 1.895568,
+          "V8CompileDuration": 0,
+          "TaskDuration": 6.405205,
+          "TaskOtherDuration": 1.024262,
+          "ThreadTime": 13.534224,
+          "ProcessTime": 15.77,
+          "JSHeapUsedSize": 4365108,
+          "JSHeapTotalSize": 5304320,
+          "FirstMeaningfulPaint": 53.711908,
+          "DomContentLoaded": 52.463472,
+          "NavigationStart": 52.138365
+        },
+        "afterSwitchGC": {
+          "Timestamp": 146.86082,
+          "AudioHandlers": 0,
+          "AudioWorkletProcessors": 0,
+          "Documents": 4,
+          "Frames": 4,
+          "JSEventListeners": 1582,
+          "LayoutObjects": 2003,
+          "MediaKeySessions": 0,
+          "MediaKeys": 0,
+          "Nodes": 9553,
+          "Resources": 297,
+          "ContextLifecycleStateObservers": 327,
+          "V8PerContextDatas": 2,
+          "WorkerGlobalScopes": 0,
+          "UACSSResources": 0,
+          "RTCPeerConnections": 0,
+          "ResourceFetchers": 4,
+          "AdSubframes": 0,
+          "DetachedScriptStates": 0,
+          "ArrayBufferContents": 0,
+          "LayoutCount": 181,
+          "RecalcStyleCount": 5393,
+          "LayoutDuration": 1.212277,
+          "RecalcStyleDuration": 22.996044,
+          "DevToolsCommandDuration": 1.349887,
+          "ScriptDuration": 14.530839,
+          "V8CompileDuration": 0,
+          "TaskDuration": 45.188926,
+          "TaskOtherDuration": 5.099879,
+          "ThreadTime": 82.243679,
+          "ProcessTime": 88.46,
+          "JSHeapUsedSize": 6130556,
+          "JSHeapTotalSize": 6938624,
+          "FirstMeaningfulPaint": 53.711908,
+          "DomContentLoaded": 52.463472,
+          "NavigationStart": 52.138365
+        },
+        "finalGC": {
+          "Timestamp": 180.325682,
+          "AudioHandlers": 0,
+          "AudioWorkletProcessors": 0,
+          "Documents": 4,
+          "Frames": 4,
+          "JSEventListeners": 823,
+          "LayoutObjects": 200,
+          "MediaKeySessions": 0,
+          "MediaKeys": 0,
+          "Nodes": 5667,
+          "Resources": 298,
+          "ContextLifecycleStateObservers": 137,
+          "V8PerContextDatas": 2,
+          "WorkerGlobalScopes": 0,
+          "UACSSResources": 0,
+          "RTCPeerConnections": 0,
+          "ResourceFetchers": 4,
+          "AdSubframes": 0,
+          "DetachedScriptStates": 0,
+          "ArrayBufferContents": 0,
+          "LayoutCount": 218,
+          "RecalcStyleCount": 7420,
+          "LayoutDuration": 1.263112,
+          "RecalcStyleDuration": 29.814289,
+          "DevToolsCommandDuration": 1.431063,
+          "ScriptDuration": 17.77877,
+          "V8CompileDuration": 0,
+          "TaskDuration": 56.872358,
+          "TaskOtherDuration": 6.585124,
+          "ThreadTime": 110.597946,
+          "ProcessTime": 118.29,
+          "JSHeapUsedSize": 5927208,
+          "JSHeapTotalSize": 6938624,
+          "FirstMeaningfulPaint": 53.711908,
+          "DomContentLoaded": 52.463472,
+          "NavigationStart": 52.138365
+        }
+      },
+      "animations": []
+    },
+    {
+      "label": "candidate",
+      "name": "short-idle",
+      "elapsedMs": 10014,
+      "taskMs": 24.35,
+      "scriptMs": 18.69,
+      "layoutMs": 0,
+      "recalcMs": 0,
+      "cpuMainThreadPercent": 0.24,
+      "heapMiB": 3.77,
+      "heapDeltaMiB": 0.01,
+      "nodes": 5638,
+      "listeners": 809,
+      "raf": {},
+      "mutations": 0,
+      "renderCalls": 0,
+      "longTasks": [],
+      "events": [],
+      "callbacks": {
+        "bao-character.js": 42,
+        "author-diagnostics.js": 39,
+        "story-start-readiness.js": 51
+      },
+      "activeIntervals": [
+        {
+          "source": "bao-character.js",
+          "delay": 240
+        }
+      ],
+      "dom": 2276
+    },
+    {
+      "label": "candidate",
+      "name": "long-idle",
+      "elapsedMs": 10008,
+      "taskMs": 19.24,
+      "scriptMs": 14.54,
+      "layoutMs": 0,
+      "recalcMs": 0,
+      "cpuMainThreadPercent": 0.19,
+      "heapMiB": 4.16,
+      "heapDeltaMiB": 0.01,
+      "nodes": 9533,
+      "listeners": 1569,
+      "raf": {},
+      "mutations": 0,
+      "renderCalls": 0,
+      "longTasks": [],
+      "events": [],
+      "callbacks": {
+        "bao-character.js": 42
+      },
+      "activeIntervals": [
+        {
+          "source": "bao-character.js",
+          "delay": 240
+        }
+      ],
+      "dom": 3796
+    },
+    {
+      "label": "candidate",
+      "name": "continuous-reading-60s",
+      "elapsedMs": 60046,
+      "taskMs": 1205.92,
+      "scriptMs": 93.68,
+      "layoutMs": 0,
+      "recalcMs": 0,
+      "cpuMainThreadPercent": 2.01,
+      "heapMiB": 5.78,
+      "heapDeltaMiB": 1.59,
+      "nodes": 9536,
+      "listeners": 1582,
+      "raf": {},
+      "mutations": 0,
+      "renderCalls": 0,
+      "longTasks": [],
+      "events": [],
+      "callbacks": {
+        "bao-character.js": 250
+      },
+      "activeIntervals": [
+        {
+          "source": "bao-character.js",
+          "delay": 240
+        }
+      ],
+      "dom": 3796
+    },
+    {
+      "label": "candidate",
+      "name": "typing-and-menu",
+      "elapsedMs": 1001,
+      "taskMs": 572.25,
+      "scriptMs": 113.68,
+      "layoutMs": 101.23,
+      "recalcMs": 164.94,
+      "cpuMainThreadPercent": 57.17,
+      "heapMiB": 5.26,
+      "heapDeltaMiB": -0.55,
+      "nodes": 9553,
+      "listeners": 1582,
+      "raf": {
+        "mobile-reading-layout.js": 3,
+        "work-package.js": 2,
+        "chat-experience.js": 1,
+        "player-shell-v2.js": 1
+      },
+      "mutations": 1,
+      "renderCalls": 0,
+      "longTasks": [
+        225,
+        119,
+        53
+      ],
+      "events": [
+        304,
+        304,
+        304,
+        200,
+        80
+      ],
+      "callbacks": {
+        "bao-character.js": 3
+      },
+      "activeIntervals": [
+        {
+          "source": "bao-character.js",
+          "delay": 240
+        }
+      ],
+      "dom": 3798
+    },
+    {
+      "label": "candidate",
+      "name": "story-switches-10",
+      "elapsedMs": 6419,
+      "taskMs": 5975.98,
+      "scriptMs": 2388.68,
+      "layoutMs": 965.9,
+      "recalcMs": 1115.25,
+      "cpuMainThreadPercent": 93.1,
+      "heapMiB": 5.93,
+      "heapDeltaMiB": 0.65,
+      "nodes": 9553,
+      "listeners": 1582,
+      "raf": {
+        "gameplay-ui.js": 10,
+        "story-image-prompts.js": 20,
+        "chat-experience.js": 44,
+        "bao-visual-ui.js": 20,
+        "scene-render-integrity.js": 40,
+        "mobile-reading-layout.js": 38,
+        "work-package.js": 42,
+        "player-shell-v2.js": 42
+      },
+      "mutations": 19242,
+      "renderCalls": 5300,
+      "longTasks": [
+        69,
+        158,
+        107,
+        67,
+        260,
+        61,
+        75,
+        132,
+        121,
+        272,
+        97,
+        282,
+        65,
+        125,
+        118,
+        68,
+        272,
+        59,
+        85,
+        181,
+        81,
+        146,
+        109,
+        59,
+        97,
+        169,
+        82,
+        255,
+        91,
+        129,
+        120,
+        93,
+        173,
+        80,
+        263
+      ],
+      "events": [],
+      "callbacks": {
+        "bao-character.js": 15
+      },
+      "activeIntervals": [
+        {
+          "source": "bao-character.js",
+          "delay": 240
+        }
+      ],
+      "dom": 3798
+    },
+    {
+      "label": "candidate",
+      "name": "after-switch-idle",
+      "elapsedMs": 10012,
+      "taskMs": 20.05,
+      "scriptMs": 15.28,
+      "layoutMs": 0,
+      "recalcMs": 0,
+      "cpuMainThreadPercent": 0.2,
+      "heapMiB": 5.86,
+      "heapDeltaMiB": 0.01,
+      "nodes": 9553,
+      "listeners": 1582,
+      "raf": {},
+      "mutations": 0,
+      "renderCalls": 0,
+      "longTasks": [],
+      "events": [],
+      "callbacks": {
+        "bao-character.js": 41
+      },
+      "activeIntervals": [
+        {
+          "source": "bao-character.js",
+          "delay": 240
+        }
+      ],
+      "dom": 3798
+    },
+    {
+      "label": "candidate",
+      "name": "phone-fixed-clock-idle",
+      "elapsedMs": 10012,
+      "taskMs": 13.78,
+      "scriptMs": 10.02,
+      "layoutMs": 0,
+      "recalcMs": 0,
+      "cpuMainThreadPercent": 0.14,
+      "heapMiB": 6.19,
+      "heapDeltaMiB": 0.02,
+      "nodes": 11037,
+      "listeners": 1667,
+      "raf": {},
+      "mutations": 0,
+      "renderCalls": 0,
+      "longTasks": [],
+      "events": [
+        88,
+        88,
+        88
+      ],
+      "callbacks": {
+        "bao-character.js": 41,
+        "phone-ui.js": 10
+      },
+      "activeIntervals": [
+        {
+          "source": "bao-character.js",
+          "delay": 240
+        },
+        {
+          "source": "phone-ui.js",
+          "delay": 1000
+        }
+      ],
+      "dom": 2292
+    },
+    {
+      "label": "candidate",
+      "name": "background-visibility-simulated",
+      "elapsedMs": 6015,
+      "taskMs": 6.95,
+      "scriptMs": 2.02,
+      "layoutMs": 0,
+      "recalcMs": 0,
+      "cpuMainThreadPercent": 0.12,
+      "heapMiB": 6.22,
+      "heapDeltaMiB": 0.01,
+      "nodes": 11037,
+      "listeners": 1667,
+      "raf": {},
+      "mutations": 0,
+      "renderCalls": 0,
+      "longTasks": [],
+      "events": [],
+      "callbacks": {
+        "bao-character.js": 25,
+        "phone-ui.js": 6
+      },
+      "activeIntervals": [
+        {
+          "source": "bao-character.js",
+          "delay": 240
+        },
+        {
+          "source": "phone-ui.js",
+          "delay": 1000
+        }
+      ],
+      "dom": 2292
+    },
+    {
+      "label": "candidate",
+      "name": "phone-closed-idle",
+      "elapsedMs": 5008,
+      "taskMs": 7,
+      "scriptMs": 5.22,
+      "layoutMs": 0,
+      "recalcMs": 0,
+      "cpuMainThreadPercent": 0.14,
+      "heapMiB": 6.27,
+      "heapDeltaMiB": 0,
+      "nodes": 11037,
+      "listeners": 1667,
+      "raf": {},
+      "mutations": 0,
+      "renderCalls": 0,
+      "longTasks": [],
+      "events": [],
+      "callbacks": {
+        "bao-character.js": 20
+      },
+      "activeIntervals": [
+        {
+          "source": "bao-character.js",
+          "delay": 240
+        }
+      ],
+      "dom": 2279
+    },
+    {
+      "label": "candidate",
+      "checkpoints": {
+        "shortGC": {
+          "Timestamp": 184.975835,
+          "AudioHandlers": 0,
+          "AudioWorkletProcessors": 0,
+          "Documents": 4,
+          "Frames": 4,
+          "JSEventListeners": 809,
+          "LayoutObjects": 200,
+          "MediaKeySessions": 0,
+          "MediaKeys": 0,
+          "Nodes": 5638,
+          "Resources": 293,
+          "ContextLifecycleStateObservers": 136,
+          "V8PerContextDatas": 2,
+          "WorkerGlobalScopes": 0,
+          "UACSSResources": 0,
+          "RTCPeerConnections": 0,
+          "ResourceFetchers": 4,
+          "AdSubframes": 0,
+          "DetachedScriptStates": 0,
+          "ArrayBufferContents": 0,
+          "LayoutCount": 15,
+          "RecalcStyleCount": 21,
+          "LayoutDuration": 0.077882,
+          "RecalcStyleDuration": 0.095552,
+          "DevToolsCommandDuration": 0.066982,
+          "ScriptDuration": 0.096997,
+          "V8CompileDuration": 0,
+          "TaskDuration": 0.491416,
+          "TaskOtherDuration": 0.154003,
+          "ThreadTime": 2.229156,
+          "ProcessTime": 3.78,
+          "JSHeapUsedSize": 3933964,
+          "JSHeapTotalSize": 5042176,
+          "FirstMeaningfulPaint": 182.543338,
+          "DomContentLoaded": 181.300885,
+          "NavigationStart": 180.911184
+        },
+        "longGC": {
+          "Timestamp": 197.845824,
+          "AudioHandlers": 0,
+          "AudioWorkletProcessors": 0,
+          "Documents": 4,
+          "Frames": 4,
+          "JSEventListeners": 1569,
+          "LayoutObjects": 2005,
+          "MediaKeySessions": 0,
+          "MediaKeys": 0,
+          "Nodes": 9533,
+          "Resources": 294,
+          "ContextLifecycleStateObservers": 326,
+          "V8PerContextDatas": 2,
+          "WorkerGlobalScopes": 0,
+          "UACSSResources": 0,
+          "RTCPeerConnections": 0,
+          "ResourceFetchers": 4,
+          "AdSubframes": 0,
+          "DetachedScriptStates": 0,
+          "ArrayBufferContents": 0,
+          "LayoutCount": 29,
+          "RecalcStyleCount": 38,
+          "LayoutDuration": 0.274062,
+          "RecalcStyleDuration": 0.262676,
+          "DevToolsCommandDuration": 0.162492,
+          "ScriptDuration": 0.57611,
+          "V8CompileDuration": 0,
+          "TaskDuration": 1.791981,
+          "TaskOtherDuration": 0.516641,
+          "ThreadTime": 12.300916,
+          "ProcessTime": 14.36,
+          "JSHeapUsedSize": 4347836,
+          "JSHeapTotalSize": 5304320,
+          "FirstMeaningfulPaint": 182.543338,
+          "DomContentLoaded": 181.300885,
+          "NavigationStart": 180.911184
+        },
+        "afterSwitchGC": {
+          "Timestamp": 275.523809,
+          "AudioHandlers": 0,
+          "AudioWorkletProcessors": 0,
+          "Documents": 4,
+          "Frames": 4,
+          "JSEventListeners": 1582,
+          "LayoutObjects": 2003,
+          "MediaKeySessions": 0,
+          "MediaKeys": 0,
+          "Nodes": 9553,
+          "Resources": 297,
+          "ContextLifecycleStateObservers": 327,
+          "V8PerContextDatas": 2,
+          "WorkerGlobalScopes": 0,
+          "UACSSResources": 0,
+          "RTCPeerConnections": 0,
+          "ResourceFetchers": 4,
+          "AdSubframes": 0,
+          "DetachedScriptStates": 0,
+          "ArrayBufferContents": 0,
+          "LayoutCount": 180,
+          "RecalcStyleCount": 248,
+          "LayoutDuration": 1.341185,
+          "RecalcStyleDuration": 1.542871,
+          "DevToolsCommandDuration": 1.432763,
+          "ScriptDuration": 3.187743,
+          "V8CompileDuration": 0,
+          "TaskDuration": 9.770262,
+          "TaskOtherDuration": 2.2657,
+          "ThreadTime": 73.242061,
+          "ProcessTime": 79.17,
+          "JSHeapUsedSize": 6123496,
+          "JSHeapTotalSize": 7200768,
+          "FirstMeaningfulPaint": 182.543338,
+          "DomContentLoaded": 181.300885,
+          "NavigationStart": 180.911184
+        },
+        "finalGC": {
+          "Timestamp": 308.930442,
+          "AudioHandlers": 0,
+          "AudioWorkletProcessors": 0,
+          "Documents": 4,
+          "Frames": 4,
+          "JSEventListeners": 823,
+          "LayoutObjects": 200,
+          "MediaKeySessions": 0,
+          "MediaKeys": 0,
+          "Nodes": 5666,
+          "Resources": 298,
+          "ContextLifecycleStateObservers": 137,
+          "V8PerContextDatas": 2,
+          "WorkerGlobalScopes": 0,
+          "UACSSResources": 0,
+          "RTCPeerConnections": 0,
+          "ResourceFetchers": 4,
+          "AdSubframes": 0,
+          "DetachedScriptStates": 0,
+          "ArrayBufferContents": 0,
+          "LayoutCount": 201,
+          "RecalcStyleCount": 298,
+          "LayoutDuration": 1.380794,
+          "RecalcStyleDuration": 1.652259,
+          "DevToolsCommandDuration": 1.524501,
+          "ScriptDuration": 3.31531,
+          "V8CompileDuration": 0,
+          "TaskDuration": 10.364733,
+          "TaskOtherDuration": 2.491869,
+          "ThreadTime": 98.752558,
+          "ProcessTime": 105.81,
+          "JSHeapUsedSize": 5851444,
+          "JSHeapTotalSize": 6938624,
+          "FirstMeaningfulPaint": 182.543338,
+          "DomContentLoaded": 181.300885,
+          "NavigationStart": 180.911184
+        }
+      },
+      "animations": []
+    }
+  ]
+}
