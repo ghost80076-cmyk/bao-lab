@@ -54,6 +54,7 @@
 
   let renderLimit = 24;
   let criteriaKey = "";
+  let criteriaGeneration = 0;
   let catalogSearchStarted = false;
   let catalogSearchLoading = false;
   let catalogSearchError = false;
@@ -533,9 +534,13 @@
       characters: matches.slice(0, renderLimit),
       hasMore: matches.length > renderLimit || Boolean(App.hasMoreCharacterCatalog?.()),
       async loadMore() {
+        const generation = criteriaGeneration;
+        const conditions = JSON.stringify(state);
         if (matches.length <= renderLimit && App.hasMoreCharacterCatalog?.()) await App.loadMoreCharacters();
+        if (generation !== criteriaGeneration || conditions !== JSON.stringify(state)) return false;
         catalogSearchError = false;
         renderLimit += 24;
+        return true;
       }
     };
   };
@@ -727,6 +732,7 @@
     const nextCriteria = JSON.stringify(state);
     if (nextCriteria !== criteriaKey) {
       criteriaKey = nextCriteria;
+      criteriaGeneration += 1;
       renderLimit = 24;
     }
     const needsCompleteCatalog = Boolean(core.clean(state.query)) || state.category !== "all" ||
@@ -735,7 +741,9 @@
     const matches = currentMatches();
     const desired = matches.slice(0, renderLimit).map(item => String(item.id));
     const rendered = [...document.querySelectorAll("#character-list [data-character-id]")].map(card => card.dataset.characterId);
-    if (JSON.stringify(desired) !== JSON.stringify(rendered)) App.renderCharacters("all");
+    const hasMore = matches.length > renderLimit || Boolean(App.hasMoreCharacterCatalog?.());
+    const renderedMore = Boolean(document.getElementById("character-load-more"));
+    if (JSON.stringify(desired) !== JSON.stringify(rendered) || hasMore !== renderedMore) App.renderCharacters("all");
     const visible = new Set(matches.map(item => String(item.id || "")));
 
     const list = document.getElementById("character-list");

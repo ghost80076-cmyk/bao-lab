@@ -128,3 +128,67 @@ test('official catalog failure offers retry rather than a false empty result',as
   await page.locator('[data-explore-retry]').click();
   await expect(page.locator(target)).toBeVisible();await settled(page);expect(attempts).toBe(2);
 });
+
+// Release the actual outstanding response explicitly; no timing sleeps.
+async function holdOlderPage(page) {
+  let release;
+  const requested = new Promise(resolve => {
+    page.route('**/data/character-catalog/community/page-0001.json', async route => {
+      await new Promise(done => { release = done; resolve(); });
+      await route.continue();
+    });
+  });
+  return { requested, release: () => release() };
+}
+test('first nonexistent search removes the exhausted pager', async ({page}) => {
+  const hold = await holdOlderPage(page);
+  await start(page);
+  await query(page, '不存在的作品-xyz');
+  await hold.requested;
+  await expect(page.locator('#explore-search-empty')).toBeHidden();
+  hold.release();
+  await settled(page);
+  await expect(page.locator('#explore-search-empty')).toBeVisible();
+  await expect(page.locator('#character-load-more')).toHaveCount(0);
+});
+for (const change of ['keyword', 'clear', 'category', 'multiple']) {
+  test(`pending pager cannot change new criteria or input focus: ${change}`, async ({page}) => {
+    const hold = await holdOlderPage(page);
+    await start(page);
+    await expect(page.locator('#character-list .character-card')).toHaveCount(24);
+    const click = page.locator('#character-load-more').click();
+    await hold.requested;
+    await click;
+    await query(page, '未讀餘溫');
+    if (change === 'clear' || change === 'multiple') {
+      await page.locator('[data-explore-clear]').click();
+    }
+    if (change === 'category' || change === 'multiple') {
+      await page.evaluate(() => { BAOExploreDiscovery.state.category = 'female'; BAOExploreDiscovery.apply(); });
+    }
+    if (change === 'multiple') {
+      await query(page, '不存在的作品-xyz');
+      await query(page, '未讀餘溫');
+    }
+    await page.locator('#explore-search-input').focus();
+    hold.release();
+    await expect.poll(() => page.evaluate(() => App.hasMoreCharacterCatalog())).toBe(false);
+    await settled(page);
+    await expect(page.locator('#explore-search-input')).toBeFocused();
+    const gallery = await page.evaluate(() => BAOExploreDiscovery.gallery().characters.length);
+    expect(gallery).toBeLessThanOrEqual(24);
+    if (change === 'clear') await expect(page.locator('#character-list .character-card')).toHaveCount(24);
+    else await expect(page.locator(target)).toBeVisible();
+  });
+}
+test('same criteria pager preserves another control focus and still expands results', async ({page}) => {
+  const hold = await holdOlderPage(page);
+  await start(page);
+  await page.locator('#character-load-more').click();
+  await hold.requested;
+  await page.locator('#explore-search-input').focus();
+  hold.release();
+  await expect.poll(() => page.locator('#character-list .character-card').count()).toBeGreaterThan(24);
+  await expect(page.locator('#explore-search-input')).toBeFocused();
+  await expect(page.locator('#character-load-more')).toBeVisible();
+});
