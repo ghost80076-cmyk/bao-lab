@@ -86,6 +86,7 @@ jobs:
               tests/e2e/character-studio-rehearsal.spec.cjs
               tests/e2e/admin-workbench-navigation.spec.cjs
               tests/e2e/explore-discovery.spec.cjs
+              tests/e2e/explore-rehearsal-back-visibility.spec.cjs
               tests/e2e/adult-content-visibility.spec.cjs
               tests/e2e/portable-story-actors.spec.cjs
               tests/e2e/author-profile.spec.cjs
@@ -260,6 +261,7 @@ jobs:
           tests/e2e/keyboard-main-entry.spec.cjs
           tests/e2e/home-first-paint.spec.js
           tests/e2e/memory-workbench-theme.spec.cjs
+          tests/e2e/explore-rehearsal-back-visibility.spec.cjs
           --project=${{ matrix.browser }}
       - name: Verify durable branch and sync handoffs
         run: npx playwright test tests/e2e/story-branch-tree.spec.cjs --grep "failed source writes|sync write failures" --project=${{ matrix.browser }}
