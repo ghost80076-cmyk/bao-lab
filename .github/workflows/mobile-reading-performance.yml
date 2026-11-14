@@ -1,0 +1,51 @@
+name: Mobile reading performance
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [perf/mobile-story-reading]
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/mobile-reading-performance.yml'
+      - 'scripts/mobile-reading-performance.cjs'
+      - 'tests/e2e/mobile-reading-performance.spec.cjs'
+      - 'js/chat-experience.js'
+      - 'js/phone-ui.js'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-reading-performance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  profile:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Measure #956 baseline
+        run: |
+          git worktree add /tmp/reading-baseline 408966bae38a0d51a584ccba9af797411e12d28d
+          node scripts/mobile-reading-performance.cjs --root=/tmp/reading-baseline --label=baseline
+      - name: Measure candidate
+        run: node scripts/mobile-reading-performance.cjs --label=candidate
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mobile-reading-performance
+          path: test-results/mobile-reading-performance
+          retention-days: 14
