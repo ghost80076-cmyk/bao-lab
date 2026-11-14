@@ -1,0 +1,52 @@
+name: Explore complete search
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'js/app.js'
+      - 'js/character-ui.js'
+      - 'js/explore-discovery*.js'
+      - 'tests/e2e/explore-complete-search.spec.cjs'
+      - 'tests/explore-catalog-loading-core.cjs'
+      - '.github/workflows/explore-complete-search.yml'
+permissions:
+  contents: read
+concurrency:
+  group: explore-search-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
+    timeout-minutes: 18
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node --test tests/explore-catalog-loading-core.cjs
+      - name: Paired search evidence and connected discovery contracts
+        run: >-
+          npx playwright test tests/e2e/explore-complete-search.spec.cjs
+          tests/e2e/explore-discovery.spec.cjs tests/e2e/adult-content-visibility.spec.cjs
+          tests/e2e/explore-rehearsal-back-visibility.spec.cjs
+          --project=${{ matrix.browser }} --workers=2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: explore-search-${{ matrix.browser }}
+          path: |
+            test-results
+            playwright-report
+          retention-days: 14

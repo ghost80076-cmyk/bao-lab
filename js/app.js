@@ -91,12 +91,74 @@ const App = {
   bindNavigation(){ document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>this.showView(b.dataset.view))); document.querySelectorAll(".filter").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");this.renderCharacters(b.dataset.filter)})); },
   bindBuilder(){ document.querySelectorAll('input[name="narrative-mode"],input[name="display-mode"]').forEach(r=>r.addEventListener("change",()=>{document.querySelectorAll(`input[name="${r.name}"]`).forEach(x=>x.closest(".choice-card").classList.remove("selected"));r.closest(".choice-card").classList.add("selected")})); document.querySelectorAll(".step").forEach(s=>s.addEventListener("click",()=>this.setStep(Number(s.dataset.step)))); document.querySelectorAll(".ui-tab").forEach(t=>t.addEventListener("click",()=>{document.querySelectorAll(".ui-tab").forEach(x=>x.classList.remove("active"));t.classList.add("active");this.renderUIPanel(t.dataset.panel)})); document.getElementById("api-type").addEventListener("change",()=>this.populateModelOptions()); document.getElementById("model-select").addEventListener("change",()=>this.syncSelectedPreset()); document.getElementById("user-input").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();this.sendMessage()}}); },
   catalogCharacter(item={}){const raw={...item,source:"built-in"},c=typeof CharacterEngine!=="undefined"?CharacterEngine.normalize(raw):raw;c.source="built-in";c.catalog_only=true;c.catalog_file=String(item.file||"");return c},
-  async loadCommunityCatalogManifest(){try{const response=await fetch("data/character-catalog/community/manifest.json",{cache:"no-store"});if(!response.ok)return null;const manifest=await response.json();if(!manifest||!Array.isArray(manifest.pages))return null;return manifest}catch{return null}},
-  async loadCommunityCatalogPage(index){const pages=this.communityCatalogManifest?.pages||[];const meta=pages[index];if(!meta?.file||this.communityCatalogLoaded.has(meta.file))return[];const response=await fetch(meta.file,{cache:"no-store"});if(!response.ok)throw new Error(`作品分頁載入失敗（HTTP ${response.status}）`);const payload=await response.json();const list=Array.isArray(payload)?payload:[];this.communityCatalogLoaded.add(meta.file);return list.slice().reverse()},
+  // Catalog pages contain reviewed discovery metadata, never full cards/worldbooks.
+  async loadCommunityCatalogManifest(){
+    try {
+      const response=await fetch("data/character-catalog/community/manifest.json",{cache:"no-store"});
+      if(!response.ok)throw new Error(`作品目錄載入失敗（HTTP ${response.status}）`);
+      const manifest=await response.json();
+      if(!manifest||!Array.isArray(manifest.pages))throw new Error("作品目錄格式錯誤");
+      this.communityCatalogError=null;
+      return manifest;
+    } catch(error) { this.communityCatalogError=error; throw error; }
+  },
+  async loadCommunityCatalogPage(index){
+    const meta=this.communityCatalogManifest?.pages?.[index];
+    if(!meta?.file)throw new Error("作品分頁資料缺失");
+    if(this.communityCatalogLoaded.has(meta.file))return [];
+    const response=await fetch(meta.file,{cache:"no-store"});
+    if(!response.ok)throw new Error(`作品分頁載入失敗（HTTP ${response.status}）`);
+    const list=await response.json();
+    if(!Array.isArray(list))throw new Error("作品分頁格式錯誤");
+    this.communityCatalogLoaded.add(meta.file);
+    return list.slice().reverse();
+  },
   mergeCharacterCatalog(entries=[]){const existing=new Set(this.characterManifest.map(x=>String(x?.id||"")));const fresh=entries.filter(item=>item?.id&&!existing.has(String(item.id))).map(item=>{existing.add(String(item.id));return item});if(fresh.length)this.characterManifest.push(...fresh);const seen=new Set(this.characters.map(x=>String(x?.id||"")));for(const item of fresh){const c=this.catalogCharacter(item);if(c?.id&&!seen.has(c.id)){seen.add(c.id);this.characters.push(c)}}return fresh.length},
-  hasMoreCharacterCatalog(){return this.communityCatalogCursor>=0},
-  async loadMoreCharacters(){if(this.communityCatalogCursor<0)return 0;const index=this.communityCatalogCursor;this.communityCatalogCursor-=1;const entries=await this.loadCommunityCatalogPage(index);const added=this.mergeCharacterCatalog(entries);return added},
-  async loadCharacters(){const [response,community]=await Promise.all([fetch("data/characters.json"),this.loadCommunityCatalogManifest()]);if(!response.ok)throw new Error(`作品目錄載入失敗（HTTP ${response.status}）`);const official=await response.json();this.characterManifest=Array.isArray(official)?official:[];this.communityCatalogManifest=community;this.communityCatalogLoaded=new Set();this.communityCatalogCursor=Array.isArray(community?.pages)?community.pages.length-1:-1;const builtIn=this.characterManifest.map(item=>this.catalogCharacter(item)),custom=typeof CharacterEngine!=="undefined"?CharacterEngine.loadCustom():[],seen=new Set();this.characters=[...custom,...builtIn].filter(c=>c?.id&&!seen.has(c.id)&&seen.add(c.id));if(this.communityCatalogCursor>=0)await this.loadMoreCharacters();this.renderCharacters("all")},
+  hasMoreCharacterCatalog(){return this.communityCatalogCursor>=0||Boolean(this.communityCatalogError)},
+  async loadMoreCharacters(){
+    if(this.communityCatalogPageTask)return this.communityCatalogPageTask;
+    const task=(async()=>{
+      if(!this.communityCatalogManifest){
+        this.communityCatalogManifest=await this.loadCommunityCatalogManifest();
+        this.communityCatalogCursor=this.communityCatalogManifest.pages.length-1;
+      }
+      if(this.communityCatalogCursor<0)return 0;
+      const index=this.communityCatalogCursor;
+      const entries=await this.loadCommunityCatalogPage(index);
+      const added=this.mergeCharacterCatalog(entries);
+      // Commit the cursor only after a successful fetch and merge; retry the same page.
+      this.communityCatalogCursor=index-1;
+      this.communityCatalogError=null;
+      return added;
+    })();
+    this.communityCatalogPageTask=task;
+    try{return await task}catch(error){this.communityCatalogError=error;throw error}
+    finally{this.communityCatalogPageTask=null}
+  },
+  async ensureCompleteCharacterCatalog(){
+    if(this.completeCharacterCatalogTask)return this.completeCharacterCatalogTask;
+    const task=(async()=>{
+      // Sequential, bounded by the existing manifest. All callers share each page request.
+      while(this.hasMoreCharacterCatalog())await this.loadMoreCharacters();
+    })();
+    this.completeCharacterCatalogTask=task;
+    try{await task}finally{this.completeCharacterCatalogTask=null}
+  },
+  async loadCharacters(){
+    this.characterCatalogReady=false;
+    const [response,community]=await Promise.all([fetch("data/characters.json"),this.loadCommunityCatalogManifest().catch(()=>null)]);
+    if(!response.ok)throw new Error(`作品目錄載入失敗（HTTP ${response.status}）`);
+    const official=await response.json();
+    this.characterManifest=Array.isArray(official)?official:[];
+    this.communityCatalogManifest=community;
+    this.communityCatalogLoaded=new Set();
+    this.communityCatalogCursor=Array.isArray(community?.pages)?community.pages.length-1:-1;
+    const builtIn=this.characterManifest.map(item=>this.catalogCharacter(item)),custom=typeof CharacterEngine!=="undefined"?CharacterEngine.loadCustom():[],seen=new Set();
+    this.characters=[...custom,...builtIn].filter(c=>c?.id&&!seen.has(c.id)&&seen.add(c.id));
+    if(this.communityCatalogCursor>=0){try{await this.loadMoreCharacters()}catch(error){console.warn("作品分頁尚未載入:",error)}}
+    this.characterCatalogReady=true;
+    this.renderCharacters("all");
+  },
   async loadCharacter(id){const key=String(id||"");if(!key)return null;let current=this.characters.find(c=>c.id===key);if(current&&current.source!=="built-in")return current;if(current&&!current.catalog_only)return current;if(this.characterCache.has(key))return this.characterCache.get(key);let item=this.characterManifest.find(entry=>String(entry.id||"")===key);while(!item?.file&&this.hasMoreCharacterCatalog()){await this.loadMoreCharacters();current=this.characters.find(c=>c.id===key);if(current&&current.source!=="built-in")return current;if(current&&!current.catalog_only)return current;item=this.characterManifest.find(entry=>String(entry.id||"")===key)}if(!item?.file)return current||null;const task=(async()=>{const response=await fetch(item.file);if(!response.ok)throw new Error(`作品載入失敗（HTTP ${response.status}）`);const raw=await response.json();raw.discovery=item.discovery;const character=typeof CharacterEngine!=="undefined"?CharacterEngine.normalize(raw):raw;character.source="built-in";character.catalog_only=false;character.catalog_file=item.file;const index=this.characters.findIndex(c=>c.id===key&&c.source==="built-in");if(index>=0)this.characters[index]=character;else this.characters.push(character);return character})();this.characterCache.set(key,task);try{return await task}catch(error){this.characterCache.delete(key);throw error}},
   async loadPrompts(){const [a,b]=await Promise.all([fetch("data/prompts/immersive.json").then(r=>r.json()),fetch("data/prompts/world.json").then(r=>r.json())]);this.prompts={immersive:a,world:b}},
   flattenModelRegistry(registry){

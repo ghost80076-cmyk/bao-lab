@@ -21,7 +21,8 @@
     if(!list)return;
     const requested=['general','male','female','world','r18'].includes(filter)?filter:'all';
     const active=requested==='r18'&&!adultEnabled()?'all':requested;
-    const chars=this.characters.filter(character=>{
+    const gallery=window.BAOExploreDiscovery?.gallery?.();
+    const chars=(gallery?.characters||this.characters).filter(character=>{
       const adult=window.BAOContentPreferences?.isDiscoveryAdult?.(character)===true;
       if(adult&&!adultEnabled())return false;
       if(active==='r18')return adult;
@@ -36,8 +37,8 @@
       const orientationBadge=category==='general'?'':`<span class="category-badge">${this.escapeHTML(meta.label)}</span>`;
       const adultBadge=window.BAOContentPreferences?.isDiscoveryAdult?.(character)===true?'<span class="rating-badge">18+</span>':'';
       return `<article class="character-card category-${this.escapeAttr(category)}" data-character-id="${this.escapeAttr(character.id)}" tabindex="0" role="button" aria-label="預覽 ${this.escapeAttr(character.title||character.name)}"><div class="character-image-wrap"><img src="${this.escapeAttr(character.avatar)}" alt="${this.escapeAttr(character.name)}" loading="lazy" decoding="async" fetchpriority="low" referrerpolicy="no-referrer">${orientationBadge}${adultBadge}</div><div class="character-content"><div class="eyebrow">${this.escapeHTML(meta.en)}</div><h3>${this.escapeHTML(character.title||character.name)}</h3><p>${this.escapeHTML(character.description)}</p><div class="tags">${(character.tags||[]).map(tag=>`<span class="tag">#${this.escapeHTML(tag)}</span>`).join('')}</div></div></article>`;
-    }).join(''):`<div class="empty-category"><b>${active==='all'?'目前還沒有更多作品':active==='r18'?'目前沒有成人內容作品':(categoryMeta[active]?.label||'這個取向')+'目前還沒有作品'}</b><span>作品取向描述主要受眾，不代表角色性別。</span></div>`;
-    const more=this.hasMoreCharacterCatalog?.()?`<div class="character-load-more"><button type="button" class="secondary" id="character-load-more">載入更多作品</button></div>`:'';
+    }).join(''):gallery?'':`<div class="empty-category"><b>${active==='all'?'目前還沒有更多作品':active==='r18'?'目前沒有成人內容作品':(categoryMeta[active]?.label||'這個取向')+'目前還沒有作品'}</b><span>作品取向描述主要受眾，不代表角色性別。</span></div>`;
+    const more=(gallery?gallery.hasMore:this.hasMoreCharacterCatalog?.())?`<div class="character-load-more"><button type="button" class="secondary" id="character-load-more">載入更多作品</button></div>`:'';
     list.innerHTML=cards+more;
     list.querySelectorAll('[data-character-id]').forEach(card=>{
       const open=()=>{const id=card.dataset.characterId;if(window.BAOExploreDiscovery?.openPreview?.(id))return;this.openCharacter(id)};
@@ -45,7 +46,7 @@
       card.addEventListener('keydown',event=>{if(event.target!==card||!['Enter',' '].includes(event.key))return;event.preventDefault();open()});
     });
     const moreButton=document.getElementById('character-load-more');
-    if(moreButton)moreButton.addEventListener('click',async()=>{moreButton.disabled=true;moreButton.textContent='載入中…';try{await this.loadMoreCharacters();this.renderCharacters(active)}catch(error){console.error('BAO/LAB community catalog load failed:',error);moreButton.disabled=false;moreButton.textContent='載入失敗，點此重試'}});
+    if(moreButton)moreButton.addEventListener('click',async()=>{moreButton.disabled=true;moreButton.textContent='載入中…';try{if(gallery)await gallery.loadMore();else await this.loadMoreCharacters();this.renderCharacters(active);document.getElementById('character-load-more')?.focus()}catch(error){console.error('BAO/LAB community catalog load failed:',error);moreButton.disabled=false;moreButton.textContent='載入失敗，點此重試'}});
   };
   App.renderDetail = function(){
     const c=this.activeCharacter;
