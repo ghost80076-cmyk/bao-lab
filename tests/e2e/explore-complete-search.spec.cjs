@@ -60,6 +60,9 @@ for(const width of [320,390,1280]){
       await expect(page.locator('#character-list .character-card:visible')).toHaveCount(24);
       await page.locator('#character-load-more').click();
       expect(await page.locator('#character-list .character-card:visible').count()).toBeGreaterThan(24);
+      for(let batch=0;batch<5 && await page.locator('#character-load-more').count();batch++)await page.locator('#character-load-more').click();
+      await expect(page.locator('#character-load-more')).toHaveCount(0);
+      await expect(page.locator('#character-list [data-character-id]:focus')).toHaveCount(1);
     }
   });
 }

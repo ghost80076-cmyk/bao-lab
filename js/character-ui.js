@@ -46,7 +46,7 @@
       card.addEventListener('keydown',event=>{if(event.target!==card||!['Enter',' '].includes(event.key))return;event.preventDefault();open()});
     });
     const moreButton=document.getElementById('character-load-more');
-    if(moreButton)moreButton.addEventListener('click',async()=>{moreButton.disabled=true;moreButton.textContent='載入中…';try{if(gallery)await gallery.loadMore();else await this.loadMoreCharacters();this.renderCharacters(active);document.getElementById('character-load-more')?.focus()}catch(error){console.error('BAO/LAB community catalog load failed:',error);moreButton.disabled=false;moreButton.textContent='載入失敗，點此重試'}});
+    if(moreButton)moreButton.addEventListener('click',async()=>{moreButton.disabled=true;moreButton.textContent='載入中…';try{const previousCount=list.querySelectorAll('[data-character-id]').length;if(gallery)await gallery.loadMore();else await this.loadMoreCharacters();this.renderCharacters(active);const cards=list.querySelectorAll('[data-character-id]');(document.getElementById('character-load-more')||cards[previousCount]||cards[cards.length-1])?.focus()}catch(error){console.error('BAO/LAB community catalog load failed:',error);moreButton.disabled=false;moreButton.textContent='載入失敗，點此重試'}});
   };
   App.renderDetail = function(){
     const c=this.activeCharacter;
