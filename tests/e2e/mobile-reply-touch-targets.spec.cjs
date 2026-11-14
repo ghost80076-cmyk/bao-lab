@@ -15,12 +15,15 @@ async function prepare(page, baseline) {
     API.send=async()=>({text:'重新生成的港口回覆。'});
     window.touchCopy='';navigator.clipboard.writeText=async text=>{window.touchCopy=text;};
   });
+  await expect(page.locator('#chat-stream .message.assistant .story-message-tools').last().locator('summary')).toBeVisible();
+  await expect(page.locator('#chat-stream .message.assistant .story-message-tools').last().locator('[data-edit]')).toBeVisible();
+  await page.evaluate(()=>document.fonts.ready);
 }
 async function record(page, info, label) {
   const tools=page.locator('#chat-stream .message.assistant .story-message-tools').last();
   const data=await tools.evaluate(root=>({
     viewport:{width:innerWidth,height:innerHeight},pageWidth:document.documentElement.scrollWidth,
-    controls:[...root.querySelectorAll('button,summary')].filter(n=>n.getClientRects().length&&getComputedStyle(n).visibility!=='hidden').map(n=>{
+    controls:[...root.querySelectorAll('button,summary')].filter(n=>n.getClientRects().length&&getComputedStyle(n).visibility!=='hidden'&&(!n.closest('details:not([open])')||n.tagName==='SUMMARY')).map(n=>{
       const r=n.getBoundingClientRect(),s=getComputedStyle(n);
       const pseudo=p=>{const t=getComputedStyle(n,p);return {content:t.content,position:t.position,inset:t.inset,width:t.width,height:t.height,pointerEvents:t.pointerEvents};};
       const hit=(x,y)=>{const e=document.elementFromPoint(x,y);return !!e&&(e===n||n.contains(e));};
