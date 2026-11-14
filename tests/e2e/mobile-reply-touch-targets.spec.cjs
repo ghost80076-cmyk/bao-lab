@@ -21,7 +21,8 @@ async function prepare(page, baseline) {
 }
 async function record(page, info, label) {
   const tools=page.locator('#chat-stream .message.assistant .story-message-tools').last();
-  const data=await tools.evaluate(root=>({
+  let data;
+  await expect.poll(async()=>{ data=await tools.evaluate(root=>({
     viewport:{width:innerWidth,height:innerHeight},pageWidth:document.documentElement.scrollWidth,
     controls:[...root.querySelectorAll('button,summary')].filter(n=>n.getClientRects().length&&getComputedStyle(n).visibility!=='hidden'&&(!n.closest('details:not([open])')||n.tagName==='SUMMARY')).map(n=>{
       const r=n.getBoundingClientRect(),s=getComputedStyle(n);
@@ -32,7 +33,7 @@ async function record(page, info, label) {
         outsideHits:[hit(r.left+r.width/2,r.top-1),hit(r.left+r.width/2,r.bottom+1)],
         centerHit:hit(r.left+r.width/2,r.top+r.height/2)};
     })
-  }));
+  })); return data.controls.length; }).toBeGreaterThanOrEqual(4);
   fs.mkdirSync(info.outputPath('evidence'),{recursive:true});
   fs.writeFileSync(info.outputPath('evidence',label+'.json'),JSON.stringify(data,null,2));
   await page.screenshot({path:info.outputPath('evidence',label+'.png')});
@@ -54,7 +55,7 @@ for(const viewport of [{width:320,height:568},{width:390,height:844},{width:390,
     const after=await record(page,info,'after');
     if(viewport.width<=820){
       for(const c of after.controls){expect(c.width,c.label).toBeGreaterThanOrEqual(44);expect(c.height,c.label).toBeGreaterThanOrEqual(44);expect(c.centerHit,c.label).toBe(true);}
-      if(before) expect(before.controls.some(c=>c.height<44)).toBe(true);
+      if(before){expect(before.controls.some(c=>c.height<44)).toBe(true);for(const c of before.controls)expect(c.outsideHits,c.label).toEqual([false,false]);}
     }else if(before){expect(after.controls.map(c=>[c.label,c.width,c.height])).toEqual(before.controls.map(c=>[c.label,c.width,c.height]));}
     const summary=more.locator('summary');await summary.focus();await expect(summary).toBeFocused();
     await page.keyboard.press('Enter');await expect(more).toHaveAttribute('open','');
