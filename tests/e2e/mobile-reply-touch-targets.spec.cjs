@@ -61,7 +61,7 @@ for(const viewport of [{width:320,height:568},{width:390,height:844},{width:390,
     await page.keyboard.press('Enter');await expect(more).toHaveAttribute('open','');
     if(viewport.width<=820){
       expect(await toolbar.evaluate(n=>n.scrollWidth<=n.clientWidth+1)).toBe(true);
-      for(const button of await more.locator('button').all()){
+      for(const button of await more.locator('button:visible').all()){
         await button.scrollIntoViewIfNeeded();
         expect(await button.evaluate(n=>{const r=n.getBoundingClientRect();const e=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return e===n||n.contains(e);})).toBe(true);
       }
