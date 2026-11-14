@@ -279,6 +279,30 @@ assert.equal(
     assert.doesNotMatch(JSON.stringify(disabled), /讓句式、描寫焦點、對話節奏/);
   }
 
+
+  // Scene fidelity only enters the stable system preference prefix when selected.
+  // It is composable with motivation/flexibility and leaves legacy requests unchanged.
+  for (const model of ["google/gemini-3.1-pro-preview", "anthropic/claude-sonnet-4.5"]) {
+    App.config = { api: { model }, narrative: { playerPortrayal: "strict", innerThoughts: "none" } };
+    const baselineFidelity = await App.buildMessages(App.config);
+    assert.doesNotMatch(JSON.stringify(baselineFidelity), /【場景轉譯完整度】/);
+    App.config.narrative = {
+      playerPortrayal: "strict", innerThoughts: "none",
+      storyExtras: ["scene_fidelity", "motivation", "flexibility", "scene_fidelity"]
+    };
+    const withFidelity = await App.buildMessages(App.config);
+    assert.deepEqual(await App.buildMessages(App.config), withFidelity, "scene fidelity keeps the stable cached prefix");
+    const fidelitySystem = withFidelity.filter(m => m.role === "system").map(m => m.content).join("\n");
+    assert.equal((fidelitySystem.match(/【場景轉譯完整度】/g) || []).length, 1);
+    assert.equal((fidelitySystem.match(/讓已有的長短期目標/g) || []).length, 1);
+    assert.equal((fidelitySystem.match(/讓句式、描寫焦點、對話節奏/g) || []).length, 1);
+    assert.match(fidelitySystem, /玩家角色演繹授權｜玩家主控/);
+    assert.match(fidelitySystem, /不直接揭露 NPC 內心/);
+    assert.doesNotMatch(withFidelity.at(-1).content, /【場景轉譯完整度】/);
+    App.config.narrative = { playerPortrayal: "strict", innerThoughts: "none" };
+    assert.deepEqual(await App.buildMessages(App.config), baselineFidelity, "disabling scene fidelity restores identical legacy request");
+  }
+
   const storyConfig = { api: { model: "google/gemini-3.1-pro-preview" }, narrative: {} };
   App.config = storyConfig;
   latestInput = "我用陰影之手試著拿走櫃檯上的商品。";
