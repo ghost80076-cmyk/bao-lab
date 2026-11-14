@@ -49,3 +49,44 @@ jobs:
           name: mobile-reading-performance
           path: test-results/mobile-reading-performance
           retention-days: 14
+
+  reading-regression:
+    name: Reading lifecycle · ${{ matrix.browser }}
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Verify reader, Stage, Phone and author isolation
+        run: >-
+          npx playwright test
+          tests/e2e/mobile-reading-performance.spec.cjs
+          tests/e2e/mobile-long-reading-touch.spec.cjs
+          tests/e2e/stage-capability.spec.cjs
+          tests/e2e/phone-ui.spec.cjs
+          tests/e2e/phone-interactions.spec.cjs
+          tests/e2e/phone-story-sync.spec.cjs
+          tests/e2e/phone-player-settings.spec.cjs
+          tests/e2e/reading-layout-foundation.spec.cjs
+          tests/e2e/story-integrity.spec.cjs
+          tests/e2e/author-regex-inline.spec.cjs
+          --project=${{ matrix.browser }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mobile-reading-regression-${{ matrix.browser }}
+          path: |
+            playwright-report
+            test-results
+          retention-days: 14

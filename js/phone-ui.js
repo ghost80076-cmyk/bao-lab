@@ -223,12 +223,12 @@
     render(); dismiss.focus({preventScroll:true});
   }
   function updateClock() {
-    if (!root) return;
+    if (!root || document.hidden) return;
     const now = new Date();
     const time = config.storyTime || now.toLocaleTimeString(config.locale, {hour:'2-digit',minute:'2-digit',hour12:false});
     const date = config.storyDate || new Intl.DateTimeFormat(config.locale, {month:'long',day:'numeric',weekday:'long'}).format(now);
-    root.querySelectorAll('[data-phone-clock]').forEach(node => { node.textContent = time; });
-    root.querySelectorAll('[data-phone-date]').forEach(node => { node.textContent = date; });
+    root.querySelectorAll('[data-phone-clock]').forEach(node => { if (node.textContent !== time) node.textContent = time; });
+    root.querySelectorAll('[data-phone-date]').forEach(node => { if (node.textContent !== date) node.textContent = date; });
   }
   const wallpaper = node => {
     node.classList.add('bp-wallpaper');

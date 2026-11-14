@@ -64,8 +64,8 @@ async function main() {
       records.push({name,elapsedMs:elapsed,taskMs:delta('TaskDuration'),scriptMs:delta('ScriptDuration'),layoutMs:delta('LayoutDuration'),recalcMs:delta('RecalcStyleDuration'),cpuMainThreadPercent:+(delta('TaskDuration')/elapsed*100).toFixed(2),heapMiB:+(end.JSHeapUsedSize/1048576).toFixed(2),heapDeltaMiB:+((end.JSHeapUsedSize-start.JSHeapUsedSize)/1048576).toFixed(2),nodes:end.Nodes,listeners:end.JSEventListeners,...data});
       console.log(JSON.stringify({label,...records.at(-1)}));
     }
-    await seed(5); await sleep(2500); await sample('short-idle',10000);
-    await seed(100); await sleep(2500); await sample('long-idle',10000);
+    await seed(5); await sleep(2500); await cdp.send('HeapProfiler.collectGarbage');const shortGC=await metrics();await sample('short-idle',10000);
+    await seed(100); await sleep(2500); await cdp.send('HeapProfiler.collectGarbage');const longGC=await metrics();await sample('long-idle',10000);
     await sample('continuous-reading-60s',60000,async()=>{
       const deadline=Date.now()+60000;
       while(Date.now()<deadline){await page.locator('#chat-stream').evaluate(el=>{el.scrollTop=Math.max(0,el.scrollTop-240)||el.scrollHeight;});await sleep(1000);}
@@ -75,13 +75,14 @@ async function main() {
     await cdp.send('HeapProfiler.collectGarbage');const afterSwitchGC=await metrics();
     await sample('after-switch-idle',10000);
     await seed(5,true);await sleep(1500);await page.locator('#bao-phone-launch').click();await sample('phone-fixed-clock-idle',10000);
-    // Real CDP page lifecycle freeze/resume; this is not an OS thermal test.
-    await sample('background-freeze-resume',0,async()=>{await cdp.send('Page.setWebLifecycleState',{state:'frozen'});await sleep(5000);await cdp.send('Page.setWebLifecycleState',{state:'active'});await sleep(1000);});
+    // Inject document visibility for app lifecycle handlers; no claim of OS suspension.
+    await sample('background-visibility-simulated',0,async()=>{await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,get:()=>true});document.dispatchEvent(new Event('visibilitychange'));});await sleep(5000);await page.evaluate(()=>{delete document.hidden;document.dispatchEvent(new Event('visibilitychange'));});await sleep(1000);});
     await page.keyboard.press('Escape');await sleep(500);await sample('phone-closed-idle',5000);
     const finalGC=await cdp.send('HeapProfiler.collectGarbage').then(metrics);
     const animations=await page.evaluate(()=>document.getAnimations().map(a=>({state:a.playState,target:a.effect?.target?.className,name:a.animationName})).slice(0,40));
-    const report={label,root,browser:browser.version(),viewport:'390x844 @3x',cpuThrottle:4,physicalDevice:false,records,afterSwitchGC,finalGC,animations};
+    const report={label,root,browser:browser.version(),viewport:'390x844 @3x',cpuThrottle:4,physicalDevice:false,records,shortGC,longGC,afterSwitchGC,finalGC,animations};
     const out=path.join(__dirname,'../test-results/mobile-reading-performance');fs.mkdirSync(out,{recursive:true});fs.writeFileSync(path.join(out,label+'.json'),JSON.stringify(report,null,2));
+    console.log(JSON.stringify({label,checkpoints:{shortGC,longGC,afterSwitchGC,finalGC},animations}));
     const summary=process.env.GITHUB_STEP_SUMMARY;
     if(summary)fs.appendFileSync(summary,`\n### ${label} · ${browser.version()} · 390×844 · CPU 4×\n\n| Scenario | Task ms | Main-thread % | Heap MiB | DOM mutations | rAF callbacks | Renders | Long tasks |\n|---|---:|---:|---:|---:|---:|---:|---:|\n`+records.map(r=>`|${r.name}|${r.taskMs}|${r.cpuMainThreadPercent}|${r.heapMiB}|${r.mutations}|${Object.values(r.raf).reduce((a,b)=>a+b,0)}|${r.renderCalls}|${r.longTasks.length}|`).join('\n')+'\n');
   } finally {await browser.close();}
