@@ -62,7 +62,7 @@ global.App = {
   },
   buildSystemPrompt() {
     return CharacterEngine.composeSystemPrompt({
-      id: "pipeline-test", name: "測試作品", system_prompt: "角色保持自己的生活。"
+      id: "pipeline-test", name: "測試作品", system_prompt: "角色保持自己的生活。", ...this.activeCharacter
     }, { persona: { name: "旅人" } });
   },
   renderChatShell() {},
@@ -302,6 +302,46 @@ assert.equal(
     App.config.narrative = { playerPortrayal: "strict", innerThoughts: "none" };
     assert.deepEqual(await App.buildMessages(App.config), baselineFidelity, "disabling scene fidelity restores identical legacy request");
   }
+
+  // Every combination shares one opt-in system rule, including generic/local routes.
+  const routes = [
+    { type: "gemini", protocol: "gemini", model: "gemini-test" },
+    { type: "anthropic", protocol: "anthropic", model: "claude-test" },
+    { type: "openrouter", protocol: "openai", model: "openrouter/free" },
+    { type: "custom", protocol: "openai", model: "local-test", baseUrl: "http://127.0.0.1:1234/v1" }
+  ];
+  const keys = ["motivation", "flexibility", "scene_fidelity"];
+  const markers = [/讓已有的長短期目標/g, /讓句式、描寫焦點、對話節奏/g, /【場景轉譯完整度】/g];
+  const beforeSend = capturedRequest;
+  for (const api of routes) for (const displayMode of ["text", "ui"]) {
+    for (const perspective of ["第一人稱", "第三人稱"]) {
+      App.activeCharacter = { id: "pipeline-test", system_prompt: `作者指定${perspective}，保留冷硬短句。`,
+        world: "世界事實：圖書館已關閉。", author_instructions: "保持角色的獨立動機。" };
+      for (let mask = 0; mask < 8; mask++) {
+        const chosen = keys.filter((_, i) => mask & (1 << i));
+        App.config = { api, displayMode, narrative: { storyExtras: [...chosen, ...chosen] } };
+        const assembled = await App.buildMessages(App.config);
+        const system = assembled.filter(m => m.role === "system").map(m => m.content).join("\n");
+        markers.forEach((marker, i) => assert.equal((system.match(marker) || []).length, Number(chosen.includes(keys[i]))));
+        assert.match(system, new RegExp(`作者指定${perspective}，保留冷硬短句`));
+        assert.match(system, /以上偏好不得破壞角色卡人格|角色只能依已知資訊行動/);
+        assert.match(system, /已確認事實、記憶、Canon、狀態與固定 Schema 不得為文風改寫/);
+        assert.doesNotMatch(assembled.at(-1).content, /【場景轉譯完整度】/);
+        const revision = await App.buildMessages(App.config, { contextMessages: [
+          { role: "assistant", content: "較早的回覆。" }, { role: "user", content: "重生成的原始輸入。" }
+        ] });
+        assert.equal(revision[0].content, assembled[0].content, "revision history must not alter the preference prefix");
+        assert.match(revision.at(-1).content, /重生成的原始輸入/);
+        const roundtrip = JSON.parse(JSON.stringify(App.config));
+        App.config = roundtrip;
+        assert.deepEqual(await App.buildMessages(roundtrip), assembled, "config roundtrip preserves prompt bytes");
+        // Switch to an older/other branch config; no enabled rule may leak across it.
+        App.config = { api, displayMode, narrative: {} };
+        assert.doesNotMatch(JSON.stringify(await App.buildMessages(App.config)), /【場景轉譯完整度】/);
+      }
+    }
+  }
+  assert.equal(capturedRequest, beforeSend, "assembly and preference changes issue no model request");
 
   const storyConfig = { api: { model: "google/gemini-3.1-pro-preview" }, narrative: {} };
   App.config = storyConfig;

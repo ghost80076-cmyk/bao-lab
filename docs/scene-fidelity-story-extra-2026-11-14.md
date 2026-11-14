@@ -23,3 +23,12 @@ node tests/narrative-prompt-pipeline-core.cjs
 
 ## 回退
 移除 `extras.scene_fidelity` 與本次文件／測試即可。舊存檔中的未知 `scene_fidelity` 會被既有 `validExtras` 忽略，不需要資料遷移；正式站未因本 PR 自動部署。
+
+## 最終整合驗收範圍（2026-11-15）
+- 整合 #960 後的 main；補上 narrative-settings v18 與 site-ui v208 的載入鏈，避免舊快取漏掉選項。
+- 「不新增無依據的事件或關係」限定無依據擴寫，合理 NPC 行動仍依平台既有自主／因果規則；作品文風與內心描寫設定仍適用。不重複加入平台已有的資訊隔離、重大決策與狀態規則。
+- Pipeline Mock 增加 Gemini、Claude、OpenRouter 泛用路由、本地 OpenAI-compatible 路由，三選項全部 8 種組合、作者第一／第三人稱約束、text／ui config、重生成的獨立歷史與設定 JSON 往返。這是組裝契約，並非所有供應商的真實 API 測試。
+- 既有 narrative-cache-preservation E2E 增加手機／桌面草稿取消、快速勾選、開關、真實 Storage 寫入、頁面重新載入及還原；舊故事不會因未變更儲存而新增 narrative 欄位。
+- Scene fidelity acceptance CI 在 Chromium／Firefox／WebKit 執行上述規格及 tonight-story、narrative-blunt-style、story-rollback。回溯／分支一般契約由既有測試補驗；組裝層驗證切換 config 後不殘留選項，不代表正在生成中的請求會被追溯修改。
+- Token 增量只在選取時加入一條固定文字；修改選項會改變穩定 system 前綴，未修改時可重用，實際快取命中仍由供應商決定。未啟用不增加本功能 Token；不新增呼叫或設定字數下限。不同 tokenizer 與生成內容會影響實際帳單，沒有使用付費 API 量測。
+- 實際執行數量、最終 SHA 與失敗／待驗證項目，以本輪驗收回報和對應 GitHub Actions 為準，不將配置了 CI 視為已通過。

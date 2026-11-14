@@ -210,7 +210,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/chat-shell-fix.js?v=4"))
     .then(() => loadBAOScript("js/player-settings.js?v=17"))
     .then(() => loadBAOScript("js/player-text-replace-mod.js?v=2"))
-    .then(() => loadBAOScript("js/narrative-settings.js?v=17"))
+    .then(() => loadBAOScript("js/narrative-settings.js?v=18"))
     .then(() => loadBAOScript("js/memory-workbench-core.js?v=17"))
     .then(() => loadBAOScript("js/summary-knowledge-ui.js?v=1"))
     .then(() => loadBAOOptionalGroup("full-story-memory-rebuild", ["js/full-story-memory-rebuild-core.js?v=2", "js/full-story-memory-rebuild.js?v=6"]))

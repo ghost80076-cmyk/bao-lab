@@ -37,6 +37,10 @@ test("adult content stays hidden until the player enables it locally", async ({ 
     App.renderCharacters("all");
   });
   await expect(page.locator('#character-list [data-character-id="desire-district"]')).toBeVisible();
+  // Metadata completion no longer implies every card is mounted. Use the real card pager.
+  for (let batch=0; batch<5 && !await page.locator('#character-list [data-character-id="desire-werewolf"]').count(); batch++) {
+    await page.locator('#character-load-more').click();
+  }
   await expect(page.locator('#character-list [data-character-id="desire-werewolf"]')).toBeVisible();
   await expect(page.locator('#character-list [data-character-id="linchenfeng"]')).toBeVisible();
   await page.locator('[data-explore-filter-open]').click();
@@ -46,9 +50,12 @@ test("adult content stays hidden until the player enables it locally", async ({ 
   await adultControls.getByRole('button', { name: '成熟內容', exact: true }).click();
   await page.getByRole('button', { name: '完成', exact: true }).click();
   await expect(page.locator('#character-list [data-character-id="desire-district"]')).toBeVisible();
+  // Changing rating starts a new progressive result window.
+  for (let batch=0; batch<5 && !await page.locator('#character-list [data-character-id="desire-werewolf"]').count(); batch++) {
+    await page.locator('#character-load-more').click();
+  }
   await expect(page.locator('#character-list [data-character-id="desire-werewolf"]')).toBeVisible();
-  await expect(page.locator('#character-list [data-character-id="linchenfeng"]')).toHaveCount(1);
-  await expect(page.locator('#character-list [data-character-id="linchenfeng"]')).toHaveClass(/bao-explore-filter-hidden/);
+  await expect(page.locator('#character-list [data-character-id="linchenfeng"]')).toHaveCount(0);
 
   await page.reload();
   await page.waitForFunction(() => window.BAOContentPreferences && window.BAOExploreDiscovery);

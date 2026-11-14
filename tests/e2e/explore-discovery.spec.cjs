@@ -383,7 +383,14 @@ test('explore cards change information emphasis by browsing context', async ({ p
   await chooseFilter(page, '★ 收藏');
   await expect(target.locator('.explore-card-context')).toContainText('收藏中');
 
+  // A fixed September timestamp is no longer a recent update in November.
+  // Keep this a visible-context test rather than inspecting an old hidden card.
+  await page.evaluate(() => {
+    const entry = App.characterManifest.find(item => item.id === 'night-sky-magic-academy');
+    entry.updated_at = entry.version_published_at = new Date().toISOString();
+  });
   await chooseFilter(page, '有近期更新');
+  await expect(target).toBeVisible();
   await expect(target.locator('.explore-card-context')).toContainText('更新於');
 });
 
