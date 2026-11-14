@@ -6,7 +6,7 @@ const target='#character-list [data-character-id="unread-afterglow-seoul"]';
 async function start(page,width=390){
   await page.setViewportSize({width,height:844});
   await page.goto('./');
-  await page.waitForFunction(()=>window.BAOExploreDiscovery && App.characters.length && (App.characterCatalogReady!==false));
+  await page.waitForFunction(()=>window.BAOExploreDiscovery && App.characters.length && (App.characterCatalogReady===true || (App.characterCatalogReady===undefined && App.communityCatalogLoaded?.size>=1)));
   await page.evaluate(()=>App.showView('explore'));
   await expect(page.locator('#explore-search-input')).toBeVisible();
 }
@@ -32,6 +32,7 @@ for(const width of [320,390,1280]){
     }else{await expect(page.locator(target)).toBeVisible();await settled(page);}
     const firstSearchMs=Date.now()-searchAt;
     const searchRequests=responses.length-initialRequests;
+    const firstSearchResponses=responses.slice(initialRequests);
     if(mode==='before'){
       await page.locator('#character-load-more').click();
       await expect(page.locator(target)).toBeVisible();
@@ -43,7 +44,11 @@ for(const width of [320,390,1280]){
     expect(fullLoads).toBe(0);
     expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(2);
     const metadataBytes=(await Promise.all(responses.map(async r=>(await r.body()).length))).reduce((a,b)=>a+b,0);
-    const evidence={mode,width,interactiveMs,initialCards,firstSearchMs,subsequentSearchMs,initialRequests,searchRequests,metadataRequests:responses.length,metadataBytes,fullLoads};
+    const bytes=async list=>(await Promise.all(list.map(async r=>(await r.body()).length))).reduce((a,b)=>a+b,0);
+    const initialMetadataBytes=await bytes(responses.slice(0,initialRequests));
+    const firstSearchMetadataBytes=await bytes(firstSearchResponses);
+    const heap=await page.evaluate(()=>performance.memory?.usedJSHeapSize || null);
+    const evidence={mode,width,interactiveMs,initialCards,firstSearchMs,subsequentSearchMs,initialRequests,searchRequests,initialMetadataBytes,firstSearchMetadataBytes,metadataRequests:responses.length,metadataBytes,heap,fullLoads};
     console.log('SEARCH_EVIDENCE '+JSON.stringify(evidence));
     await info.attach('search-metrics',{body:JSON.stringify(evidence,null,2),contentType:'application/json'});
     await page.screenshot({path:info.outputPath('search.png'),animations:'disabled'});
@@ -69,6 +74,7 @@ test('slow catalog uses latest query, keeps partial state honest and retries fai
   await expect(page.locator('#explore-result-count')).toContainText('正在搜尋');
   await expect(page.locator('#explore-search-empty')).toBeHidden();
   await query(page,'不存在的作品-xyz');
+  await expect.poll(()=>typeof release).toBe('function');
   release();
   await expect(page.locator('[data-explore-retry]')).toBeVisible();
   await expect(page.locator('#explore-result-count')).toContainText('僅搜尋已載入');
@@ -83,7 +89,7 @@ test('manifest failure has a working retry and reload repeats complete search',a
   await page.route('**/data/character-catalog/community/manifest.json',route=>++attempts===1?route.fulfill({status:503,body:''}):route.continue());
   await start(page);await query(page,'未讀餘溫');await expect(page.locator(target)).toBeVisible();await settled(page);
   expect(attempts).toBe(2);
-  await page.reload();await page.waitForFunction(()=>App.characterCatalogReady);await query(page,'未讀餘溫');await expect(page.locator(target)).toBeVisible();await settled(page);
+  await page.reload();await page.waitForFunction(()=>App.characterCatalogReady);await page.evaluate(()=>App.showView('explore'));await query(page,'未讀餘溫');await expect(page.locator(target)).toBeVisible();await settled(page);
 });
 test('complete metadata respects rating, local continuity and catalog-only publication boundary',async({page})=>{
   const seen=[];page.on('request',r=>{if(new URL(r.url()).pathname.startsWith('/data/characters/'))seen.push(r.url())});
@@ -106,4 +112,16 @@ test('complete metadata respects rating, local continuity and catalog-only publi
   await page.locator('#explore-work-preview').getByRole('button',{name:'查看作品',exact:true}).click();
   await expect(page.locator('#detail-view')).toHaveClass(/active/);expect(seen).toHaveLength(1);
   await page.locator('#detail-start').click();await expect(page.locator('#builder-view')).toHaveClass(/active/);
+});
+
+test('official catalog failure offers retry rather than a false empty result',async({page})=>{
+  let attempts=0;
+  await page.route('**/data/characters.json',route=>++attempts===1?route.fulfill({status:503,body:''}):route.continue());
+  await page.goto('./');await page.waitForFunction(()=>window.BAOExploreDiscovery);
+  await page.evaluate(()=>App.showView('explore'));
+  await expect(page.locator('[data-explore-retry]')).toBeVisible();
+  await expect(page.locator('#explore-search-empty')).toBeHidden();
+  await query(page,'未讀餘溫');
+  await page.locator('[data-explore-retry]').click();
+  await expect(page.locator(target)).toBeVisible();await settled(page);expect(attempts).toBe(2);
 });

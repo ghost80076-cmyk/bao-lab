@@ -51,3 +51,13 @@ test('metadata loading preserves local work identity and on-demand full-card loa
   await app.loadCharacter('night-sky-magic-academy');
   assert.equal(requests.filter(x=>x.startsWith('data/characters/')).length,1);
 });
+
+test('official catalog network failure is recoverable without claiming an empty catalog',async()=>{
+  const {app}=runtime({'data/characters.json':1});
+  await app.loadCharacters();
+  assert.ok(app.characterCatalogError);
+  assert.equal(app.characterCatalogReady,false);
+  await app.loadCharacters();
+  assert.equal(app.characterCatalogError,null);
+  assert.equal(app.characterCatalogReady,true);
+});

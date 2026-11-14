@@ -367,7 +367,9 @@
 
     host.querySelector("[data-explore-retry]")?.addEventListener("click", () => {
       catalogSearchError = false;
-      requestCompleteCatalog();
+      if (App.characterCatalogError) {
+        App.loadCharacters().then(() => { requestCompleteCatalog(); scheduleApply(); });
+      } else requestCompleteCatalog();
       scheduleApply();
     });
 
@@ -543,6 +545,7 @@
       hasMore: matches.length > renderLimit || Boolean(App.hasMoreCharacterCatalog?.()),
       async loadMore() {
         if (matches.length <= renderLimit && App.hasMoreCharacterCatalog?.()) await App.loadMoreCharacters();
+        catalogSearchError = false;
         renderLimit += 24;
       }
     };
@@ -857,18 +860,18 @@
     const count = host.querySelector("#explore-result-count");
     const incomplete = Boolean(App.hasMoreCharacterCatalog?.());
     root.setAttribute("aria-busy", String(catalogSearchLoading));
-    host.querySelector("[data-explore-retry]").hidden = !catalogSearchError && !App.communityCatalogError;
+    host.querySelector("[data-explore-retry]").hidden = !catalogSearchError && !App.communityCatalogError && !App.characterCatalogError;
     if (count) count.textContent = catalogSearchLoading
       ? "正在搜尋完整作品目錄…"
-      : (catalogSearchError || App.communityCatalogError)
+      : (catalogSearchError || App.communityCatalogError || App.characterCatalogError)
         ? "作品目錄載入失敗，目前僅搜尋已載入作品。請重試完整搜尋。"
         : catalogSearchStarted && !incomplete
-          ? "找到 " + matches.length + " 個作品 · 目前顯示 " + Math.min(matches.length, renderLimit) + " 個"
+          ? "找到 " + matches.length + " 個作品 · 目前顯示 " + Math.min(matches.length, renderLimit) + " 個作品"
           : core.resultLabel(Math.min(matches.length, renderLimit), incomplete);
 
     const empty = host.querySelector("#explore-search-empty");
     if (empty) {
-      empty.hidden = matches.length !== 0 || catalogSearchLoading || incomplete;
+      empty.hidden = matches.length !== 0 || catalogSearchLoading || incomplete || !App.characterCatalogReady;
       const title = empty.querySelector("b");
       const copy = empty.querySelector("span");
       if (state.scope === "favorites") {

@@ -146,6 +146,8 @@ const App = {
   },
   async loadCharacters(){
     this.characterCatalogReady=false;
+    this.characterCatalogError=null;
+    try {
     const [response,community]=await Promise.all([fetch("data/characters.json"),this.loadCommunityCatalogManifest().catch(()=>null)]);
     if(!response.ok)throw new Error(`作品目錄載入失敗（HTTP ${response.status}）`);
     const official=await response.json();
@@ -158,6 +160,10 @@ const App = {
     if(this.communityCatalogCursor>=0){try{await this.loadMoreCharacters()}catch(error){console.warn("作品分頁尚未載入:",error)}}
     this.characterCatalogReady=true;
     this.renderCharacters("all");
+    } catch(error) {
+      this.characterCatalogError=error;
+      this.renderCharacters("all");
+    }
   },
   async loadCharacter(id){const key=String(id||"");if(!key)return null;let current=this.characters.find(c=>c.id===key);if(current&&current.source!=="built-in")return current;if(current&&!current.catalog_only)return current;if(this.characterCache.has(key))return this.characterCache.get(key);let item=this.characterManifest.find(entry=>String(entry.id||"")===key);while(!item?.file&&this.hasMoreCharacterCatalog()){await this.loadMoreCharacters();current=this.characters.find(c=>c.id===key);if(current&&current.source!=="built-in")return current;if(current&&!current.catalog_only)return current;item=this.characterManifest.find(entry=>String(entry.id||"")===key)}if(!item?.file)return current||null;const task=(async()=>{const response=await fetch(item.file);if(!response.ok)throw new Error(`作品載入失敗（HTTP ${response.status}）`);const raw=await response.json();raw.discovery=item.discovery;const character=typeof CharacterEngine!=="undefined"?CharacterEngine.normalize(raw):raw;character.source="built-in";character.catalog_only=false;character.catalog_file=item.file;const index=this.characters.findIndex(c=>c.id===key&&c.source==="built-in");if(index>=0)this.characters[index]=character;else this.characters.push(character);return character})();this.characterCache.set(key,task);try{return await task}catch(error){this.characterCache.delete(key);throw error}},
   async loadPrompts(){const [a,b]=await Promise.all([fetch("data/prompts/immersive.json").then(r=>r.json()),fetch("data/prompts/world.json").then(r=>r.json())]);this.prompts={immersive:a,world:b}},

@@ -15,7 +15,7 @@ assert(siteUI.includes('js/world-state-cost.js?v=14'));
 assert(siteUI.includes('js/provider-policy-guard.js?v=1'), 'policy circuit must load before hosted transport');
 assert(siteUI.indexOf('js/provider-policy-guard.js?v=1') < siteUI.indexOf('js/credits-pilot.js?v=10'));
 assert(index.includes('src="js/site-ui.js?v=207"'));
-assert(index.includes('src="js/app.js?v=15"'));
+assert(index.includes('src="js/app.js?v=16"'));
 assert(siteUI.includes('loadBAOOptionalGroup("chapter-memory"'), 'chapter workbench must not block story sends');
 assert(siteUI.includes('loadBAOOptionalGroup("chapter-recall"'), 'optional recall must not block story sends');
 assert(siteUI.indexOf('js/episodic-memory.js?v=5') < siteUI.indexOf('js/chapter-memory-recall.js?v=1'), 'chapter recall must follow knowledge resolver');

@@ -41,7 +41,7 @@ jobs:
           npx playwright test tests/e2e/explore-complete-search.spec.cjs
           tests/e2e/explore-discovery.spec.cjs tests/e2e/adult-content-visibility.spec.cjs
           tests/e2e/explore-rehearsal-back-visibility.spec.cjs
-          --project=${{ matrix.browser }} --workers=2
+          --project=${{ matrix.browser }} --workers=2 --retries=0
       - uses: actions/upload-artifact@v4
         if: always()
         with:
