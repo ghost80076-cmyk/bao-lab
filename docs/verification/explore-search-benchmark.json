@@ -1,0 +1,60 @@
+{
+  "runtime": "v24.22.1",
+  "scenario": "shared catalog filter+updated sort, 60 recents, 100 favorites; seven warm samples; GC retained delta is noisy, not peak heap",
+  "results": [
+    {
+      "mode": "before",
+      "count": 75,
+      "catalogHeapBytes": 262624,
+      "catalogJsonBytes": 82425,
+      "p50Ms": 6.042,
+      "p95Ms": 14.05,
+      "retainedHeapDeltaBytes": 57280
+    },
+    {
+      "mode": "after",
+      "count": 75,
+      "catalogHeapBytes": 262624,
+      "catalogJsonBytes": 82425,
+      "p50Ms": 2.847,
+      "p95Ms": 3.139,
+      "retainedHeapDeltaBytes": 816
+    },
+    {
+      "mode": "before",
+      "count": 1000,
+      "catalogHeapBytes": 3307512,
+      "catalogJsonBytes": 1098424,
+      "p50Ms": 239.537,
+      "p95Ms": 345.454,
+      "retainedHeapDeltaBytes": 7288
+    },
+    {
+      "mode": "after",
+      "count": 1000,
+      "catalogHeapBytes": 3307512,
+      "catalogJsonBytes": 1098424,
+      "p50Ms": 38.005,
+      "p95Ms": 39.649,
+      "retainedHeapDeltaBytes": 23576
+    },
+    {
+      "mode": "before",
+      "count": 5000,
+      "catalogHeapBytes": 16601312,
+      "catalogJsonBytes": 5504763,
+      "p50Ms": 4804.14,
+      "p95Ms": 5410.087,
+      "retainedHeapDeltaBytes": 40136
+    },
+    {
+      "mode": "after",
+      "count": 5000,
+      "catalogHeapBytes": 16601312,
+      "catalogJsonBytes": 5504763,
+      "p50Ms": 193.108,
+      "p95Ms": 195.803,
+      "retainedHeapDeltaBytes": 30176
+    }
+  ]
+}

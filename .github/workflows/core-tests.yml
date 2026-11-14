@@ -297,6 +297,7 @@ jobs:
           node --check js/explore-discovery-core.js
           node --check js/explore-discovery.js
           node tests/explore-discovery-core.cjs
+          node --test tests/explore-catalog-loading-core.cjs
           node tests/public-work-classification.cjs
       - name: Author profile core
         run: |

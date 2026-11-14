@@ -52,6 +52,13 @@
   let library = readLibrary();
   const preferences = readPreferences();
 
+  let renderLimit = 24;
+  let criteriaKey = "";
+  let criteriaGeneration = 0;
+  let catalogSearchStarted = false;
+  let catalogSearchLoading = false;
+  let catalogSearchError = false;
+
   const state = {
     category: "all",
     rating: defaultRating(),
@@ -63,17 +70,6 @@
 
   const manifestEntry = character =>
     (App.characterManifest || []).find(item => String(item?.id || "") === String(character?.id || "")) || {};
-
-  const extraFor = character => {
-    const item = manifestEntry(character);
-    const libraryInfo = core.libraryMeta(library, character?.id);
-    const updateInfo = core.workUpdateState(item, libraryInfo);
-    return {
-      author: item.author || "",
-      ...libraryInfo,
-      ...updateInfo
-    };
-  };
 
   const authorHref = item => {
     const id = String(item?.author_id || "").trim().toLowerCase();
@@ -283,6 +279,7 @@
       <div id="explore-active-filters" class="explore-active-filters" aria-label="目前篩選條件" hidden></div>
       <div class="explore-result-line">
         <span id="explore-result-count" role="status" aria-live="polite">整理作品中…</span>
+        <button type="button" class="text-button" data-explore-retry hidden>重試完整搜尋</button>
         <button type="button" class="text-button" data-explore-reset hidden>全部重設</button>
       </div>
       <div id="explore-search-empty" class="explore-search-empty" hidden>
@@ -357,6 +354,14 @@
     const clear = host.querySelector("[data-explore-clear]");
     const reset = host.querySelector("[data-explore-reset]");
     const dialog = host.querySelector("#explore-filter-sheet");
+
+    host.querySelector("[data-explore-retry]")?.addEventListener("click", () => {
+      catalogSearchError = false;
+      if (App.characterCatalogError) {
+        App.loadCharacters().then(() => { requestCompleteCatalog(); scheduleApply(); });
+      } else requestCompleteCatalog();
+      scheduleApply();
+    });
 
     const closeDialog = () => {
       if (!dialog) return;
@@ -486,11 +491,59 @@
     return host;
   };
 
-  const currentMatches = () => core.filter(
-    App.characters || [],
-    state,
-    extraFor
-  );
+  const currentMatches = () => {
+    // Build metadata lookups once per filtering pass, rather than scanning the catalog
+    // and normalizing up to 60 recent entries again for every work and sort comparison.
+    const manifest = new Map((App.characterManifest || []).map(item => [String(item.id), item]));
+    const favorites = new Set(library.favorites);
+    const recent = new Map(library.recent.map(item => [item.id, item]));
+    const extras = new Map();
+    return core.filter((App.characters || []).filter(character =>
+      window.BAOContentPreferences?.canExpose?.(character) !== false
+    ), state, character => {
+      const id = String(character.id || "");
+      if (!extras.has(id)) {
+        const item = manifest.get(id) || {};
+        const viewed = recent.get(id);
+        const info = { favorite: favorites.has(id), recentAt: viewed?.viewedAt || 0,
+          seenUpdatedAt: viewed?.seenUpdatedAt || 0, seenVersion: viewed?.seenVersion || 0 };
+        extras.set(id, { author: item.author || "", ...info, ...core.workUpdateState(item, info) });
+      }
+      return extras.get(id);
+    });
+  };
+
+  const requestCompleteCatalog = () => {
+    if (!App.characterCatalogReady || catalogSearchLoading || catalogSearchError || !App.hasMoreCharacterCatalog?.()) return;
+    catalogSearchStarted = true;
+    catalogSearchLoading = true;
+    // The response only fills the shared catalog. Rendering always reads the latest
+    // query, so a slow request cannot restore an older keyword/filter selection.
+    App.ensureCompleteCharacterCatalog().catch(error => {
+      console.warn("完整作品目錄尚未載入:", error);
+      catalogSearchError = true;
+    }).finally(() => {
+      catalogSearchLoading = false;
+      scheduleApply();
+    });
+  };
+
+  const gallery = () => {
+    const matches = currentMatches();
+    return {
+      characters: matches.slice(0, renderLimit),
+      hasMore: matches.length > renderLimit || Boolean(App.hasMoreCharacterCatalog?.()),
+      async loadMore() {
+        const generation = criteriaGeneration;
+        const conditions = JSON.stringify(state);
+        if (matches.length <= renderLimit && App.hasMoreCharacterCatalog?.()) await App.loadMoreCharacters();
+        if (generation !== criteriaGeneration || conditions !== JSON.stringify(state)) return false;
+        catalogSearchError = false;
+        renderLimit += 24;
+        return true;
+      }
+    };
+  };
 
   const decorateCards = () => {
     document.querySelectorAll("#character-list [data-character-id]").forEach(card => {
@@ -676,7 +729,21 @@
       "hidden",
       !adultEnabled() || state.rating === "general"
     );
+    const nextCriteria = JSON.stringify(state);
+    if (nextCriteria !== criteriaKey) {
+      criteriaKey = nextCriteria;
+      criteriaGeneration += 1;
+      renderLimit = 24;
+    }
+    const needsCompleteCatalog = Boolean(core.clean(state.query)) || state.category !== "all" ||
+      state.capability !== "all" || state.scope !== "all" || state.sort !== "default" || state.rating !== defaultRating();
+    if (needsCompleteCatalog) requestCompleteCatalog();
     const matches = currentMatches();
+    const desired = matches.slice(0, renderLimit).map(item => String(item.id));
+    const rendered = [...document.querySelectorAll("#character-list [data-character-id]")].map(card => card.dataset.characterId);
+    const hasMore = matches.length > renderLimit || Boolean(App.hasMoreCharacterCatalog?.());
+    const renderedMore = Boolean(document.getElementById("character-load-more"));
+    if (JSON.stringify(desired) !== JSON.stringify(rendered) || hasMore !== renderedMore) App.renderCharacters("all");
     const visible = new Set(matches.map(item => String(item.id || "")));
 
     const list = document.getElementById("character-list");
@@ -788,11 +855,20 @@
     }
 
     const count = host.querySelector("#explore-result-count");
-    if (count) count.textContent = core.resultLabel(matches.length, Boolean(App.hasMoreCharacterCatalog?.()));
+    const incomplete = Boolean(App.hasMoreCharacterCatalog?.());
+    root.setAttribute("aria-busy", String(catalogSearchLoading));
+    host.querySelector("[data-explore-retry]").hidden = !catalogSearchError && !App.communityCatalogError && !App.characterCatalogError;
+    if (count) count.textContent = catalogSearchLoading
+      ? "正在搜尋完整作品目錄…"
+      : (catalogSearchError || App.communityCatalogError || App.characterCatalogError)
+        ? "作品目錄載入失敗，目前僅搜尋已載入作品。請重試完整搜尋。"
+        : catalogSearchStarted && !incomplete
+          ? "找到 " + matches.length + " 個作品 · 目前顯示 " + Math.min(matches.length, renderLimit) + " 個作品"
+          : core.resultLabel(Math.min(matches.length, renderLimit), incomplete);
 
     const empty = host.querySelector("#explore-search-empty");
     if (empty) {
-      empty.hidden = matches.length !== 0;
+      empty.hidden = matches.length !== 0 || catalogSearchLoading || incomplete || !App.characterCatalogReady;
       const title = empty.querySelector("b");
       const copy = empty.querySelector("span");
       if (state.scope === "favorites") {
@@ -955,6 +1031,7 @@
 
   window.BAOExploreDiscovery = Object.freeze({
     state,
+    gallery,
     apply,
     openPreview,
     closePreview,
