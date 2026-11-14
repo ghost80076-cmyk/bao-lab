@@ -257,7 +257,7 @@
   #chat-view .message.user .bubble{max-width:88%!important;border-radius:18px 18px 5px 18px!important}
   #chat-view .story-message-tools{
     display:flex!important;
-    flex-wrap:nowrap!important;
+    flex-wrap:wrap!important;
     align-items:center!important;
     gap:6px!important;
     width:100%!important;

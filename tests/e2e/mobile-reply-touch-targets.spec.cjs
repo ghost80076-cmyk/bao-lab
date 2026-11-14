@@ -59,6 +59,14 @@ for(const viewport of [{width:320,height:568},{width:390,height:844},{width:390,
     }else if(before){expect(after.controls.map(c=>[c.label,c.width,c.height])).toEqual(before.controls.map(c=>[c.label,c.width,c.height]));}
     const summary=more.locator('summary');await summary.focus();await expect(summary).toBeFocused();
     await page.keyboard.press('Enter');await expect(more).toHaveAttribute('open','');
+    if(viewport.width<=820){
+      expect(await toolbar.evaluate(n=>n.scrollWidth<=n.clientWidth+1)).toBe(true);
+      for(const button of await more.locator('button').all()){
+        await button.scrollIntoViewIfNeeded();
+        expect(await button.evaluate(n=>{const r=n.getBoundingClientRect();const e=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return e===n||n.contains(e);})).toBe(true);
+      }
+      await more.scrollIntoViewIfNeeded();
+    }
     const expanded=await record(page,info,'expanded');
     if(viewport.width<=820)for(const c of expanded.controls){expect(c.width,c.label).toBeGreaterThanOrEqual(44);expect(c.height,c.label).toBeGreaterThanOrEqual(44);}
     await summary.press('Enter');await expect(more).not.toHaveAttribute('open','');
