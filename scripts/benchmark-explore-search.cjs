@@ -8,7 +8,10 @@ const pages=JSON.parse(fs.readFileSync('data/character-catalog/community/manifes
 const catalog=[...new Map([...official,...pages.flatMap(p=>JSON.parse(fs.readFileSync(p.file)))].map(x=>[x.id,x])).values()];
 const results=[];
 for(const count of [75,1000,5000]){
-  const works=Array.from({length:count},(_,i)=>({...catalog[i%catalog.length],id:'work-'+i,source:'built-in'}));
+  global.gc?.();const emptyHeap=process.memoryUsage().heapUsed;
+  const works=JSON.parse(JSON.stringify(Array.from({length:count},(_,i)=>({...catalog[i%catalog.length],id:'work-'+i,source:'built-in'}))));
+  global.gc?.();const catalogHeapBytes=process.memoryUsage().heapUsed-emptyHeap;
+  const catalogJsonBytes=Buffer.byteLength(JSON.stringify(works));
   const library=core.normalizeLibrary({favorites:works.slice(-100).map(w=>w.id),recent:works.slice(-60).map((w,i)=>({id:w.id,viewedAt:Date.now()-i,seenUpdatedAt:1}))});
   for(const [mode,source]of [['before',baseline],['after',candidate]]){
     const state={query:'韓系',category:'all',rating:'all',scope:'all',sort:'updated'};
@@ -22,7 +25,7 @@ for(const count of [75,1000,5000]){
     const samples=[];for(let i=0;i<7;i++){let t=performance.now();ctx.run();samples.push(performance.now()-t)}
     global.gc?.();const retainedHeapDeltaBytes=process.memoryUsage().heapUsed-heapBefore;
     samples.sort((a,b)=>a-b);
-    results.push({mode,count,p50Ms:+samples[3].toFixed(3),p95Ms:+samples[6].toFixed(3),retainedHeapDeltaBytes});
+    results.push({mode,count,catalogHeapBytes,catalogJsonBytes,p50Ms:+samples[3].toFixed(3),p95Ms:+samples[6].toFixed(3),retainedHeapDeltaBytes});
   }
 }
 console.log(JSON.stringify({runtime:process.version,scenario:'shared catalog filter+updated sort, 60 recents, 100 favorites; seven warm samples; GC retained delta is noisy, not peak heap',results},null,2));
