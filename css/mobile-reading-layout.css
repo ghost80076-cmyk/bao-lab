@@ -272,7 +272,7 @@
     margin-top:7px!important;
     opacity:1!important;
   }
-  #chat-view .story-message-tools button{flex:0 0 auto;white-space:nowrap;min-height:39px;padding:7px 10px;font-size:12px}
+  #chat-view .story-message-tools button{flex:0 0 auto;white-space:nowrap;min-width:44px;min-height:44px;padding:7px 10px;font-size:12px}
   #chat-view .story-message-tools [data-edit]{order:10}
   #chat-view .story-message-tools [data-rewrite]{order:20}
   #chat-view .story-message-tools [data-regenerate]{order:30}
@@ -576,7 +576,7 @@
   #chat-view .story-message-tools > details.bao-message-more[hidden]{display:none!important}
   #chat-view .story-message-tools .bao-message-more > summary{
     display:flex;align-items:center;justify-content:center;gap:7px;
-    min-height:39px;padding:6px 11px;cursor:pointer;list-style:none;
+    min-width:44px;min-height:44px;padding:6px 11px;cursor:pointer;list-style:none;
     font-size:12px;font-weight:700;white-space:nowrap;
   }
   #chat-view .story-message-tools .bao-message-more > summary::-webkit-details-marker{display:none}
@@ -594,7 +594,7 @@
   }
   #chat-view .story-message-tools .bao-message-more-actions button{
     width:auto;max-width:100%;white-space:normal;
-    text-align:left;overflow-wrap:anywhere;min-height:39px;
+    text-align:left;overflow-wrap:anywhere;min-width:44px;min-height:44px;
   }
   #chat-view .story-message-tools > button{
     border-color:var(--yoru-control-border,var(--story-border));
