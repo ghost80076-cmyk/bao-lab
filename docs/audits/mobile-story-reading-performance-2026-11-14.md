@@ -61,7 +61,9 @@
 - 10 次切換 elapsed 5665 → 6419ms、Task 5382.00 → 5975.98ms；受完整歷史渲染／裝飾與排程影響，並未改善，單次 runner 比較不足以判定穩定退化。保留為剩餘瓶頸，不以漂亮的平均值掩蓋。
 - 最終 passive-reader 動畫清單在兩邊均為空；未涵蓋作者 iframe 與真實多媒體解碼。
 
-**驗證：** 本機 Core 211/211 workflow run steps、Maintenance 24/24、Regression Impact Gate 10/10 connected files 與 gate-selection 16/16 通過。Phone core 28/28 通過。跨瀏覽器最終結果於重跑後補入。
+**驗證：** 本機 Core 211/211 workflow run steps、Maintenance 24/24、Regression Impact Gate 10/10 connected files 與 gate-selection 16/16 通過。Phone core 28/28 通過。[最終分支跨瀏覽器實跑](https://github.com/ghost80076-cmyk/bao-lab/actions/runs/43571317927)：Chromium 64 passed；Firefox 63 passed / 1 skipped；WebKit 63 passed / 1 skipped，無失敗或重試。兩個 skip 均為既有 story-integrity 中限定 Chromium 的 Android emulation case，不當作通過；該案例在 Chromium 實際執行。新增的 5 個效能／visibility 案例三瀏覽器全部執行通過。
+
+涵蓋 mobile-long-reading-touch、Stage capability、Phone apps／interactions／story-sync／player settings、reading layout、story integrity 與 author-regex-inline，含作者 iframe script permission 與 parent storage 隔離。分支重跑只改測試 fixture；配對效能 job 已在前次 run 成功，刻意不重複。正式工作流程只保留 workflow_dispatch 與相關 PR 觸發，移除本次測試用的分支 push trigger。PR checks 的最終狀態另見 PR 的 Checks 頁。
 
 首次跨瀏覽器執行發現新增 visibility 測試 fixture 漏了 phoneUI.version，既有 mergeDisplay 正確忽略無效 overlay；已修正測試為使用 BAOPhoneStoryCore.empty()，未修改產品狀態驗證或擴大修補。
 
