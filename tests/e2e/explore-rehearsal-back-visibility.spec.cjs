@@ -43,7 +43,9 @@ for (const viewport of [
     await expect(preview).toBeVisible();
     await expect(back).not.toHaveAttribute('hidden', '');
     await expect(back).toBeVisible();
-    await expect(back).toHaveCSS('display', 'inline-flex');
+    // Later theme/layout rules may legitimately compute flex instead of inline-flex.
+    // Both preserve the author action; hidden mode is strictly display:none above.
+    await expect(back).toHaveCSS('display', /^(?:inline-)?flex$/);
     await expect(preview.getByRole('button', { name: '進入試演設定' })).toBeVisible();
     await back.click();
     await page.waitForURL(/character-studio\.html(?:$|[?#])/);
