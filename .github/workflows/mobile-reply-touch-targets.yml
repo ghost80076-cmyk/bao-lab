@@ -41,6 +41,8 @@ jobs:
         env:
           REPLY_TOUCH_BASELINE_CSS: /tmp/reply-touch-before.css
         run: npx playwright test tests/e2e/mobile-reply-touch-targets.spec.cjs --project=${{ matrix.browser }} --workers=2
+      - name: Preserve paired evidence before the regression runner cleans test-results
+        run: cp -a test-results reply-touch-evidence
       - name: Connected reading, author and revision regression
         run: >-
           npx playwright test tests/e2e/mobile-reading-layout.spec.cjs
@@ -52,6 +54,7 @@ jobs:
         with:
           name: reply-touch-${{ matrix.browser }}
           path: |
+            reply-touch-evidence
             test-results
             playwright-report
           retention-days: 14
