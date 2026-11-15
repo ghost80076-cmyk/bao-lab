@@ -368,3 +368,37 @@ test('a retired document cannot reuse its fallback lease after pagehide', async 
   });
   expect(result).toEqual({code:'BAO_FALLBACK_WRITE_UNSAFE',retained:'retained',raw:null});
 });
+
+test('simulated BFCache restoration keeps the old fallback writer retired', async ({context, page}) => {
+  // Synthetic lifecycle event injection validates the safety invariant only.
+  // It does not claim that the browser actually placed a page in BFCache.
+  await context.route('**/bfcache-fallback', route => route.fulfill({contentType:'text/html',body:
+    '<script>Object.defineProperty(window,"indexedDB",{value:undefined})</script><script src="/js/storage.js"></script>'}));
+  await page.goto('/bfcache-fallback');
+  await page.evaluate(() => Storage.ready());
+  const result = await page.evaluate(async () => {
+    const payload = id => ({id,characterId:'fixture',config:{},chat:{messages:[]}});
+    Storage._commitOperation({type:'saveSlot',payload:payload('before-bfcache')});
+    await Storage.flush();
+    const before = localStorage.getItem(Storage.fallbackSnapshotKey);
+    const hide = new Event('pagehide');
+    Object.defineProperty(hide, 'persisted', {value:true});
+    window.dispatchEvent(hide);
+    const show = new Event('pageshow');
+    Object.defineProperty(show, 'persisted', {value:true});
+    window.dispatchEvent(show);
+    Storage._commitOperation({type:'saveSlot',payload:payload('stale-after-return')});
+    let code = '';
+    try { await Storage.flush(); } catch (error) { code = error.code || ''; }
+    return {
+      code, retired: Storage._fallbackLeaseRetired,
+      cache: Storage.getSlot('stale-after-return')?.id,
+      unchanged: localStorage.getItem(Storage.fallbackSnapshotKey) === before,
+      disk: Storage._readFallbackSnapshot()?.slots.map(slot => slot.id)
+    };
+  });
+  expect(result).toEqual({
+    code:'BAO_FALLBACK_WRITE_UNSAFE', retired:true,
+    cache:'stale-after-return', unchanged:true, disk:['before-bfcache']
+  });
+});
