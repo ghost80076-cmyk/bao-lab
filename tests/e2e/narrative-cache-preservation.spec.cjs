@@ -3,7 +3,8 @@ const { test, expect } = require('@playwright/test');
 async function setup(page, width, legacy = false) {
   await page.setViewportSize({ width, height: 900 });
   await page.goto('./');
-  await page.waitForFunction(() => window.BAONarrativeSettings && window.BAOPromptCache && window.BAOPromptOrchestrator && window.BAOStoryControlCenter && Storage.status().ready && App.characters?.length);
+  await page.waitForFunction(() => window.BAONarrativeSettings && window.BAOPromptCache && window.BAOPromptOrchestrator && window.BAOStoryControlCenter
+    && window.BAOSceneStoryPreferences && window.BAOSceneHTML && Storage.status().ready && App.characters?.length);
   await page.waitForFunction(() => window.BAOExtensionLoadHealth?.snapshot().story === 'ready'
     && BAOExtensionLoadHealth.snapshot().world === 'ready');
   await page.evaluate(legacy => {
@@ -429,6 +430,7 @@ for (const width of [390, 1440]) {
     });
     await page.reload();
     await page.waitForFunction(() => window.BAONarrativeSettings && window.BAOPromptCache
+      && window.BAOSceneStoryPreferences && window.BAOSceneHTML
       && window.BAOPromptOrchestrator && Storage.status().ready
       && window.BAOExtensionLoadHealth?.snapshot().story === 'ready'
       && BAOExtensionLoadHealth.snapshot().world === 'ready');

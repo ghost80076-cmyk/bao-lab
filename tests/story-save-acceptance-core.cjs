@@ -78,3 +78,16 @@ test('saving a pending player turn waits for cancellation and cannot replace the
   gate.resolve(); assert.equal(await f.ctx.BAOStorageWriteGuard.whenIdle(), true);
   assert.notEqual(f.storage.loadStory(), prior, 'the deferred save runs after the turn settles');
 });
+
+test('the retry barrier includes chapter replay before the new autosave is accepted', async () => {
+  const f = fixture(), gate = deferred();
+  f.failLibrary(); f.app.saveStory(false);
+  assert.equal(await f.ctx.BAOStorageWriteGuard.whenIdle(), false);
+  f.library.retryFailedWrites = () => gate.promise;
+  f.recover();
+  f.ctx.BAOStorageWriteGuard.retry();
+  let settled = false;
+  const pending = f.ctx.BAOStorageWriteGuard.whenIdle().then(ok => { settled = true; return ok; });
+  await drain(); assert.equal(settled, false);
+  gate.resolve(); assert.equal(await pending, true);
+});

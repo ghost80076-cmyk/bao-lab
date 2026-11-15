@@ -73,7 +73,7 @@ node tests/story-rollback-core.cjs
 
 ## 執行與 CI 證據的界線
 
-已執行完整 Core／Maintenance workflow 的 run steps；新增 Core 7 個確定性案例、Library retry／stale-write、branch stale destination、rollback scoped flush、Drive local barrier 均已通過。初次整批執行曾遇 story-library-core 的假交易計時器競態，已用共用交易排程器修正並保留原斷言。
+已執行完整 Core／Maintenance workflow 的 run steps；新增 Core 8 個確定性案例、Library retry／stale-write、branch stale destination、rollback scoped flush、Drive local barrier 均已通過。初次整批執行曾遇 story-library-core 的假交易計時器競態，已用共用交易排程器修正並保留原斷言。
 
 新增 Chromium 12 個案例的單輪已全通過；連同既有六個高風險 spec 的三瀏覽器擴大回歸共 153 案例。最終完整結果與 GitHub Actions 的成功／失敗／skipped／pending 數量，以本 PR Checks 頁及交付回報為準，不把配置了 CI 寫成已執行成功。早期多個本機 Playwright 共用 outputDir 曾造成 trace ENOENT；已分離 outputDir／port 重跑，此類失敗不列為產品通過證據。
 
@@ -94,3 +94,19 @@ CI 保留既有 Core、Maintenance、Regression Impact Gate 與 Fast Browser job
 沒有修改 Save schema、IndexedDB version、角色卡／作者世界設定、Provider 路由、計價規則、Workers、AWS 或 #800。失敗 payload 只沿用頁內 Library failure Map，不新增持久化 schema。App.saveStory 的 boolean 仍代表同步受理；需要成功判定的入口使用現有 guard 的 async whenIdle。
 
 可合併條件：此 PR 最終 head 的 Core、Maintenance、regression-impact、全部既有 Fast Browser 與三個 Story safety jobs 均成功，無未解決阻擋。部署需阿夜另行最終驗收，這次沒有授權合併／部署。回退為 revert 此 PR 並前進載入版本；不改寫玩家存檔、不做資料遷移，也無後端部署依賴。
+
+## 最終擴大驗收發現的阻擋（保留草稿，不可合併）
+
+**另發現既有 P0：Linux WebKit 的 localStorage 備援跨分頁寫入可覆蓋另一份槽位，重新載入後仍遺失。**
+
+- 使用原有 `storage-multitab.spec.cjs` fallback 案例，禁用 IndexedDB、確認 Web Locks 存在，兩個分頁同時新增 `left`／`right`。不是正式資料，也沒有故障注入 Storage 寫入函式。
+- 單獨重複原測試 3 次，2 次失敗；改為等待正確資料的診斷仍有 1/3 逾時，並非只是在寫入後太早讀取。
+- 另用兩個分頁、全新第三分頁及重新載入後的讀回，共 8 次觀察，有 **4 次只剩一個槽位，fresh page 與 reload 都相同**。資料見 `story-safety-fallback-evidence-2026-11-15.json`。該診斷測試本身是觀察記錄，8 次「執行完成」不能算成 8 次資料一致性通過。
+- 本 PR 與原 main 的 `js/storage.js` blob 完全相同：`d9345860ac8c9ab52979e3ee9b4381fdd7683783`。Storage-only harness 不載入其他 App／Library 模組，因此已確認是既有儲存路徑缺口，不是本次 handoff 修復引入。
+- 已確認可覆蓋，但 WebKit 的跨頁儲存可見性與 lock release 排序根因仍需更精確驗證。不能用加 sleep、重跑到綠、刪除測試或擅自改成另一套持久化協定宣稱解決；本輪沒有修改 fallback Schema 或改變多分頁契約。**此項尚未修復，必須阻擋本 PR 合併部署。**
+
+三瀏覽器擴大本機執行初輪實際為 **150/153 通過**：Chromium 51/51、Firefox 51/51、WebKit 48/51。WebKit 三個失敗為上述 fallback 一項，以及保存重試按鈕後 whenIdle 提前觀察上一輪失敗的兩個案例；後者已補成涵蓋「失敗章節重播 → 新 autosave」的完整 retry barrier，Core 加入確定性 gate，Chromium／WebKit 的 8 個受影響 viewport 案例重跑全過。這不消除 fallback P0，也不把初輪 153 案例改報為全綠。
+
+GitHub 第一個提交 `769e14d8dff352a79860f643ded844e4e17df946` 的 Core、Maintenance、regression-impact 已成功；Story safety Chromium 曾因同一 retry barrier 觀察缺口失敗，已修復。既有 story-experience 的 narrative-cache-preservation 1440px 曾在 reload 後出現場景排版 Prompt 不同；檢查發現 fixture 等 story ready，卻未明確等待它要驗證的 SceneStoryPreferences 還原包裝器。補等待該模組與 SceneHTML 後，原 byte-equivalence 斷言保留，獨立重複 3/3 通過；沒有修改敘事 runtime。最後提交的實際 CI 狀態仍以 PR Checks 與交付回報為準。
+
+最新修正後本機驗證：完整 Core **211/211 run steps**、Maintenance **24/24 run steps**、新增確定性 Core **8/8 cases**；新增 save acceptance **36/36 cases**（Chromium／Firefox／WebKit 各 12，四種 viewport）通過。上述只代表這些新增修復；既有 WebKit fallback P0 仍保留為未解決阻擋。

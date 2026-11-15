@@ -29,15 +29,9 @@
       retry.textContent = '重試儲存';
       retry.dataset.retryStorySave = 'true';
       retry.style.cssText = 'display:block;margin-top:8px;min-width:44px;min-height:44px';
-      retry.addEventListener('click', async () => {
+      retry.addEventListener('click', () => {
         retry.disabled = true;
-        const owner = window.GameState?.current, storyId = window.BAOStoryLibrary?.refs?.().storyId;
-        try { await window.BAOStoryLibrary?.retryFailedWrites?.(storyId); }
-        catch (error) { console.warn('BAO/LAB chapter retry failed:', error); }
-        finally {
-          if (window.GameState?.current === owner) App.saveStory(true);
-          else retry.disabled = false;
-        }
+        void retrySave();
       });
       warning.append(retry);
     }
@@ -130,10 +124,27 @@
     do { task = settlement; ok = await task; } while (task !== settlement);
     return ok;
   };
+  const retrySave = () => {
+    const owner = window.GameState?.current, storyId = window.BAOStoryLibrary?.refs?.().storyId;
+    const myGeneration = ++generation;
+    pending = unsafe = true;
+    // Track the whole retry immediately, including the chapter replay before
+    // App.saveStory runs, so whenIdle never observes the preceding failure.
+    settlement = Promise.resolve().then(() => window.BAOStoryLibrary?.retryFailedWrites?.(storyId)).catch(error => {
+      console.warn('BAO/LAB chapter retry failed:', error);
+    }).then(() => {
+      if (myGeneration !== generation || window.GameState?.current !== owner) return false;
+      if (!App.saveStory(true)) return false;
+      return whenIdle();
+    }).finally(() => {
+      if (myGeneration === generation) pending = false;
+    });
+    return settlement;
+  };
   window.addEventListener?.('beforeunload', event => {
     if (!pending && !unsafe && !App.__requestPending && !App.__sendMessageTasks?.size && !window.Chat?.summarizing) return;
     event.preventDefault();
     event.returnValue = '';
   });
-  window.BAOStorageWriteGuard = { verify, whenIdle };
+  window.BAOStorageWriteGuard = { verify, whenIdle, retry: retrySave };
 })();
