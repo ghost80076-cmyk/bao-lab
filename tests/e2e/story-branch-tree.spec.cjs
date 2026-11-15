@@ -157,6 +157,23 @@ test.describe("Story branch tree", () => {
     expect(recovered).toEqual({ errors: 0, uploaded: 1, messages: before.messages, summary: before.summary, location: before.location });
     expect(uploads).toHaveLength(1);
     expect(uploads[0]).toContain(before.summary);
+    // The chapter store may succeed while both primary autosave destinations
+    // fail. Sync must still report the local failure without another upload.
+    const primaryFailure = await page.evaluate(async () => {
+      const idb = Storage._persistOperationIndexedDB, fallback = Storage._persistFallbackSnapshot;
+      Storage._persistOperationIndexedDB = async () => { throw new Error('fixture primary IDB failure'); };
+      Storage._persistFallbackSnapshot = () => { throw new DOMException('fixture primary full', 'QuotaExceededError'); };
+      try {
+        const result = await BAOGoogleDriveSync.sync();
+        return { errors: result.errors.length, uploaded: result.uploaded };
+      } finally {
+        Storage._persistOperationIndexedDB = idb;
+        Storage._persistFallbackSnapshot = fallback;
+      }
+    });
+    expect(primaryFailure).toEqual({ errors: 1, uploaded: 0 });
+    expect(uploads).toHaveLength(1);
+    await page.evaluate(async () => { App.saveStory(false); await BAOStorageWriteGuard.whenIdle(); });
     await page.reload();
     await page.waitForFunction(() => Storage.status().ready && window.BAOStoryLibrary);
     const afterReload = await page.evaluate(() => ({ messages: Storage.loadStory().chat.messages.map(({ id, role, content }) => ({ id, role, content })),

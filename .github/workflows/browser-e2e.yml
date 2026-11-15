@@ -173,6 +173,47 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+  story-safety:
+    name: Story safety · ${{ matrix.browser }}
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install test dependencies
+        run: npm ci
+      - name: Verify fault recovery and durable high-risk operations
+        run: >-
+          npx playwright test
+          tests/e2e/story-save-acceptance.spec.cjs
+          tests/e2e/story-exit-persistence.spec.cjs
+          tests/e2e/story-rollback.spec.cjs
+          tests/e2e/storage-multitab.spec.cjs
+          tests/e2e/memory-recovery.spec.cjs
+          --project=${{ matrix.browser }}
+      - name: Upload story safety evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: story-safety-${{ matrix.browser }}
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+          retention-days: 7
+
   story-controls:
     name: Story controls · Chromium
     runs-on: ubuntu-latest

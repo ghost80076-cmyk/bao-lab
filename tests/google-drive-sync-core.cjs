@@ -107,6 +107,25 @@ async function run() {
   Storage.saveStory = () => false;
   await assert.rejects(sync.sync(), /儲存/);
   Storage.saveStory = priorSave;
+  // Even when the Library is healthy, primary autosave failure must stop
+  // this active story before any remote mutation. Release the actual barrier.
+  let releaseLocal, enteredLocal;
+  const localEntered = new Promise(resolve => { enteredLocal = resolve; });
+  Storage.flush = () => { enteredLocal(); return new Promise(resolve => { releaseLocal = resolve; }); };
+  Storage.loadStory = () => ({});
+  window.BAOStorageWriteGuard = { verify: () => ({ ok: false }) };
+  lib.flush = normalFlush;
+  localExists = true;
+  const beforeLocalFailure = calls.length;
+  const localFailure = sync.sync();
+  await localEntered;
+  assert.equal(calls.length, beforeLocalFailure, 'Drive must wait for local persistence before requesting cloud data');
+  releaseLocal();
+  const rejectedAutosave = await localFailure;
+  assert.equal(rejectedAutosave.errors.length, 1);
+  assert.equal(rejectedAutosave.uploaded + rejectedAutosave.downloaded, 0);
+  assert.ok(calls.slice(beforeLocalFailure).every(call => call.method === 'GET'));
+  delete Storage.flush; delete window.BAOStorageWriteGuard;
   delete window.App;
   delete window.GameState;
   lib.refs = () => ({ storyId: '', chapterId: '' });

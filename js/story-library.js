@@ -527,7 +527,7 @@
           return true;
         } catch (error) {
           const prior = this._writeFailures.get(key);
-          this._writeFailures.set(key, { storyId, chapterId, error });
+          this._writeFailures.set(key, { storyId, chapterId, error, payload: safe });
           if (error.code === "YORUBAY_LIBRARY_DELETED" && prior?.error?.code !== error.code) {
             try { window.BAOFeedback?.notify?.(error.message, "error"); } catch {}
           }
@@ -546,6 +546,17 @@
       // No argument retains the existing availability check used by the library
       // browser. A story ID additionally requires every pending chapter to save.
       return storyId === null || ![...this._writeFailures.values()].some(failure => failure.storyId === storyId);
+    },
+
+    async retryFailedWrites(storyId) {
+      // Drain newer accepted writes first. Only retry each chapter's latest
+      // failed payload, never replay an old failure over a newer queued save.
+      let queue;
+      do { queue = this._writeQueue; await queue; } while (queue !== this._writeQueue);
+      for (const failure of this._writeFailures.values()) {
+        if (failure.storyId === storyId && failure.payload) this.queuePersist(failure.payload);
+      }
+      return this.flush(storyId);
     },
 
     clearWriteFailures(storyId, chapterIds = null) {

@@ -33,6 +33,7 @@ const GROUPS = [
     'tests/worldbook-recall-ownership-core.cjs',
     'tests/memory-orchestration-core.cjs',
     'tests/memory-checkpoint-persistence-core.cjs',
+    'tests/memory-save-acceptance-core.cjs',
     'tests/memory-workbench-persistence-core.cjs',
     'tests/canon-workbench-core.cjs',
     'tests/memory-knowledge-boundaries-core.cjs',
@@ -92,6 +93,7 @@ const GROUPS = [
   ], tests: [
     'tests/storage-fallback-integrity-core.cjs',
     'tests/story-library-durability-core.cjs',
+    'tests/story-save-acceptance-core.cjs',
     'tests/google-drive-sync-core.cjs',
     'tests/story-backup-recovery-core.cjs',
     'tests/story-rollback-core.cjs'

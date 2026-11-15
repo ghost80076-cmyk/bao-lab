@@ -21,10 +21,12 @@ for (const width of [390, 1440]) {
   test(`cancel then exit persists settled history across reload and retry (${width}px)`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     let requests = 0;
+    let releaseFirst;
+    const firstResponse = new Promise(resolve => { releaseFirst = resolve; });
     await page.route('https://generativelanguage.googleapis.com/**', async route => {
       requests++;
       if (requests === 1) {
-        await new Promise(resolve => setTimeout(resolve, 1200));
+        await firstResponse;
         try { await route.abort(); } catch {}
       } else {
         await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
@@ -48,7 +50,14 @@ for (const width of [390, 1440]) {
     await page.locator('#user-input').fill('取消後不應留在存檔');
     await page.getByRole('button', { name: '送出訊息' }).click();
     await expect.poll(() => requests).toBe(1);
-    await page.evaluate(() => App.exitChat());
+    expect(await page.evaluate(async () => {
+      App.saveStory(true);
+      await Storage.flush();
+      return JSON.stringify(Storage.loadStory().chat.messages);
+    })).toBe(before.messages);
+    await page.evaluate(() => { window.__cancelExit = App.exitChat(); });
+    releaseFirst();
+    await page.evaluate(() => window.__cancelExit);
     await expect(page.locator('#detail-view')).toHaveClass(/active/);
     const saved = await page.evaluate(async refs => {
       await Storage.flush();

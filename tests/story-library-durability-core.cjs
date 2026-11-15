@@ -77,6 +77,27 @@ async function main() {
   library.queuePersist({ ...save('B-failed'), _library: b });
   assert.equal(await library.flush(b.storyId), false, 'false persistence results also block durability');
   library.persist = persist;
+  // Retry retains failed chapters and never replays an older failed payload
+  // over a newer accepted write which is still waiting in the same queue.
+  library.persist = async () => false;
+  library.queuePersist({ ...save('A-retry-old'), _library: a });
+  await library.flush();
+  library.persist = persist;
+  assert.equal(await library.retryFailedWrites(a.storyId), true);
+  assert.equal((await library.reconstruct(a.storyId, a.chapterId)).chat.messages[0].content, 'A-retry-old');
+  library.persist = async () => false;
+  library.queuePersist({ ...save('A-stale-failure'), _library: a });
+  await library.flush();
+  library.persist = persist;
+  let releaseNew;
+  const gate = new Promise(resolve => { releaseNew = resolve; });
+  library._writeQueue = gate;
+  library.queuePersist({ ...save('A-newer'), _library: a });
+  const retry = library.retryFailedWrites(a.storyId);
+  releaseNew();
+  assert.equal(await retry, true);
+  assert.equal((await library.reconstruct(a.storyId, a.chapterId)).chat.messages[0].content, 'A-newer');
+  await library.persist(tagged);
   assert.equal(await library.deleteStory(b.storyId), true);
   assert.equal(await library.flush(b.storyId), true, 'intentional story deletion releases obsolete failure state');
   // A failed branch write must keep the original active chapter.

@@ -40,7 +40,9 @@
     if (!await Library.open()) fail("這台裝置的故事庫無法開啟，回溯已取消。");
     if (!App.saveStory(false)) fail("目前的故事無法儲存，回溯已取消。");
     await Storage.flush();
-    if (!await Library.flush()) fail("故事庫未能完成儲存，回溯已取消。");
+    if (!await Library.flush(Library.refs().storyId)) fail("故事庫未能完成儲存，回溯已取消。");
+    if (window.BAOStorageWriteGuard?.whenIdle && !await window.BAOStorageWriteGuard.whenIdle())
+      fail("目前故事尚未完成本機儲存，回溯已取消。請重試儲存。");
     const refs = Library.refs();
     const source = Chat.messages[index];
     if (!refs.storyId || !refs.chapterId || source?.role !== "assistant" || source.id !== messageId)
@@ -117,7 +119,8 @@
       App.showView("chat");
       if (!App.saveStory(false)) fail("回溯分支無法儲存。");
       await Storage.flush();
-      if (!await Library.flush()) fail("回溯分支無法寫入故事庫。");
+      if (!await Library.flush(Library.refs().storyId)) fail("回溯分支無法寫入故事庫。");
+      if (window.BAOStorageWriteGuard?.whenIdle && !await window.BAOStorageWriteGuard.whenIdle()) fail("回溯分支尚未完成本機儲存，請重試儲存。");
       window.BAORefreshSaveUI?.();
       await window.BAOStoryBranches.positionReader?.();
       if (!save.config?.demoMode && !safeKey) window.BAOChatAPISettings?.open?.();

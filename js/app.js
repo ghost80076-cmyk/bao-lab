@@ -280,5 +280,11 @@ const App = {
       const prefix = (err?.code === "BAO_ABORTED" || err?.code === "BAO_PROVIDER_BLOCKED") ? "" : "連線失敗：";
       loading.innerHTML = `<div class="bubble">${prefix}${this.escapeHTML(err.message)}</div>`;
     }
-  }, exitChat(){this.saveStory(false);this.showView("detail")},showView(name){document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));document.getElementById(`${name}-view`)?.classList.add("active");window.scrollTo({top:0,behavior:"instant"})},formatMessage(s=""){return this.escapeHTML(s).replace(/\n/g,"<br>")},displayStatusValue(s=""){const mod=window.BAOPlayerTextReplace;return mod?.applyStatus?mod.applyStatus(String(s??""),mod.get?.()):String(s??"")},escapeHTML(s=""){return String(s).replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[x]))},escapeAttr(s=""){return this.escapeHTML(s)}
+  }, async exitChat(){
+    const owner=GameState.current, config=this.config;
+    if(this.saveStory(false)===false)return false;
+    if(window.BAOStorageWriteGuard?.whenIdle && !await window.BAOStorageWriteGuard.whenIdle())return false;
+    if(GameState.current!==owner || this.config!==config)return false;
+    this.showView("detail");return true;
+  },showView(name){document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));document.getElementById(`${name}-view`)?.classList.add("active");window.scrollTo({top:0,behavior:"instant"})},formatMessage(s=""){return this.escapeHTML(s).replace(/\n/g,"<br>")},displayStatusValue(s=""){const mod=window.BAOPlayerTextReplace;return mod?.applyStatus?mod.applyStatus(String(s??""),mod.get?.()):String(s??"")},escapeHTML(s=""){return String(s).replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[x]))},escapeAttr(s=""){return this.escapeHTML(s)}
 }; window.addEventListener("DOMContentLoaded",()=>App.init());

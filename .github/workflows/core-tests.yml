@@ -95,6 +95,7 @@ jobs:
       - name: Memory checkpoint persistence and workbench lifecycle
         run: |
           node tests/memory-checkpoint-persistence-core.cjs
+          node --test tests/memory-save-acceptance-core.cjs
           node tests/memory-workbench-persistence-core.cjs
       - name: Context Pack resumable organization
         run: node tests/context-pack-resume-core.cjs
@@ -136,6 +137,7 @@ jobs:
         run: |
           node --check js/storage-write-guard.js
           node tests/storage-write-guard-load-order.cjs
+          node --test tests/story-save-acceptance-core.cjs
       - name: Story library core
         run: |
           node tests/story-recovery-integrity-core.cjs

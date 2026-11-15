@@ -22,7 +22,7 @@ const loadBAOScript = src => {
   return promise;
 };
 
-const STORY_LIBRARY_SRC = "js/story-library.js?v=12";
+const STORY_LIBRARY_SRC = "js/story-library.js?v=13";
 // The policy guard must be active even when the optional cost UI chain fails.
 const providerPolicyReady = loadBAOScript("js/provider-policy-guard.js?v=1");
 window.BAOEnsureStoryLibrary = () => {
@@ -206,12 +206,12 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/provider-diagnostics.js"))
     .then(() => loadBAOScript("js/credits-pilot.js?v=10"))
     .catch(err => console.warn("BAO/LAB cost, provider compatibility, model routing or Hosted credits controls failed to load:", err));
-  loadBAOScript("js/storage-write-guard.js?v=3")
+  loadBAOScript("js/storage-write-guard.js?v=4")
     .then(() => loadBAOScript("js/chat-shell-fix.js?v=4"))
     .then(() => loadBAOScript("js/player-settings.js?v=17"))
     .then(() => loadBAOScript("js/player-text-replace-mod.js?v=2"))
     .then(() => loadBAOScript("js/narrative-settings.js?v=18"))
-    .then(() => loadBAOScript("js/memory-workbench-core.js?v=17"))
+    .then(() => loadBAOScript("js/memory-workbench-core.js?v=18"))
     .then(() => loadBAOScript("js/summary-knowledge-ui.js?v=1"))
     .then(() => loadBAOOptionalGroup("full-story-memory-rebuild", ["js/full-story-memory-rebuild-core.js?v=2", "js/full-story-memory-rebuild.js?v=6"]))
     .then(() => loadBAOScript("js/memory-workbench-ai.js?v=7"))
@@ -226,7 +226,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => window.BAOEnsureStoryLibrary())
     .then(() => loadBAOScript("js/context-pack-resume.js?v=5"))
     .then(() => loadBAOScript("js/story-backup.js?v=4"))
-    .then(() => loadBAOOptionalGroup("google-drive", ["js/google-drive-config.js", "js/google-drive-sync.js?v=2"]))
+    .then(() => loadBAOOptionalGroup("google-drive", ["js/google-drive-config.js", "js/google-drive-sync.js?v=3"]))
     .then(() => loadBAOScript("js/prompt-cache.js?v=13"))
     .then(() => loadBAOScript("js/prompt-orchestrator.js?v=8"))
     .then(() => loadBAOScript("js/episodic-memory.js?v=5"))
@@ -242,9 +242,9 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOOptionalGroup("inspiration-copy", ["js/inspiration-copy.js?v=2"]))
     .then(() => loadBAOScript("js/story-revision-state.js?v=14"))
     .then(() => loadBAOScript("js/story-history.js?v=2"))
-    .then(() => loadBAOScript("js/story-branches.js?v=5"))
+    .then(() => loadBAOScript("js/story-branches.js?v=6"))
     .then(() => loadBAOScript("js/streaming-ui.js?v=8"))
-    .then(() => loadBAOScript("js/request-lifecycle.js?v=8"))
+    .then(() => loadBAOScript("js/request-lifecycle.js?v=9"))
     .then(() => loadBAOScript("js/chat-tool-navigation.js?v=17"))
     .then(() => loadBAOScript("js/chat-experience-repairs.js?v=6"))
     .then(() => loadBAOOptionalGroup("story-quick-commands", ["js/story-quick-commands-core.js?v=3", "js/story-quick-commands.js?v=9"]))

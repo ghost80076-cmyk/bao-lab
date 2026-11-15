@@ -201,11 +201,15 @@
     try {
       const activeStoryId = Library.refs().storyId;
       const saveActive = activeChat(activeStoryId) && window.App?.activeCharacter && window.GameState?.current;
+      let activeSaveOK = true;
       if (saveActive) {
         if (window.App.__requestPending || window.App.__exitHandoff || window.App.__sendMessageTasks?.size
             || window.Chat?.summarizing || window.BAOStoryMaintenanceLock?.has?.(window.GameState.current))
           throw new Error('故事仍在生成或整理中，請完成或取消後再同步。');
         if (Storage.saveStory() === false) throw new Error('目前故事無法儲存，已停止同步。');
+        await Storage.flush?.();
+        if (window.BAOStorageWriteGuard?.verify)
+          activeSaveOK = window.BAOStorageWriteGuard.verify(Storage.loadStory()).ok;
       }
       if (!await Library.flush()) throw new Error('本機故事庫無法使用，已停止同步。');
       const local = await Library.listStories();
@@ -225,6 +229,7 @@
         // Availability does not imply durable chapter writes. Check before
         // comparing timestamps, applying deletions, or declaring no changes.
         try {
+          if (id === activeStoryId && !activeSaveOK) throw new Error('本機自動存檔尚未成功寫入，已停止這份故事的同步；請保留本頁並重試儲存。');
           if (!await Library.flush(id)) throw new Error('本機故事尚未成功儲存，已略過同步；請重試儲存後再同步。');
         } catch (error) {
           result.errors.push((localMap.get(id)?.title || id) + '：' + errorText(error));
