@@ -125,6 +125,15 @@ async function run() {
   assert.equal(rejectedAutosave.errors.length, 1);
   assert.equal(rejectedAutosave.uploaded + rejectedAutosave.downloaded, 0);
   assert.ok(calls.slice(beforeLocalFailure).every(call => call.method === 'GET'));
+  // flush now rejects uncommitted fallback writes. Preserve the sync result
+  // contract even if a stale readback would otherwise verify successfully.
+  Storage.flush = async () => { throw new Error('fixture uncommitted fallback'); };
+  window.BAOStorageWriteGuard.verify = () => ({ ok: true });
+  const beforeRejectedFlush = calls.length;
+  const rejectedFlush = await sync.sync();
+  assert.equal(rejectedFlush.errors.length, 1);
+  assert.equal(rejectedFlush.skipped + rejectedFlush.uploaded + rejectedFlush.downloaded, 0);
+  assert.ok(calls.slice(beforeRejectedFlush).every(call => call.method === 'GET'));
   delete Storage.flush; delete window.BAOStorageWriteGuard;
   delete window.App;
   delete window.GameState;

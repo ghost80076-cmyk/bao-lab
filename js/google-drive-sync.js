@@ -207,8 +207,9 @@
             || window.Chat?.summarizing || window.BAOStoryMaintenanceLock?.has?.(window.GameState.current))
           throw new Error('故事仍在生成或整理中，請完成或取消後再同步。');
         if (Storage.saveStory() === false) throw new Error('目前故事無法儲存，已停止同步。');
-        await Storage.flush?.();
-        if (window.BAOStorageWriteGuard?.verify)
+        try { await Storage.flush?.(); }
+        catch { activeSaveOK = false; }
+        if (activeSaveOK && window.BAOStorageWriteGuard?.verify)
           activeSaveOK = window.BAOStorageWriteGuard.verify(Storage.loadStory()).ok;
       }
       if (!await Library.flush()) throw new Error('本機故事庫無法使用，已停止同步。');

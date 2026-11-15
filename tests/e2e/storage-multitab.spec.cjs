@@ -1,5 +1,14 @@
 const { test, expect } = require('@playwright/test');
 
+async function closeFallbackWriter(owner, observer) {
+  await owner.close();
+  // Closing a WebKit page can finish before its native lock release reaches
+  // the observer process. Wait for that lifecycle signal, never a time delay.
+  await expect.poll(() => observer.evaluate(async () =>
+    (await navigator.locks.query()).held.some(lock => lock.name === Storage.fallbackWriterLockName)
+  )).toBe(false);
+}
+
 // Keep app autosave hooks out of this harness; both tabs still use the actual
 // Storage module and the browser's shared IndexedDB transaction scheduler.
 test('shared IndexedDB keeps unrelated slots from stale tabs and prunes atomically', async ({ context, page }) => {
@@ -107,7 +116,7 @@ test('migration and stale fallback preserve another tab\'s committed stories', a
   }));
   expect(await result()).toEqual({ auto: 'remote-new', slots: ['legacy', 'remote-slot'] });
   // Reopen after the fallback owner closes; a cached observer cannot take over.
-  await page.close();
+  await closeFallbackWriter(page, fresh);
   await fresh.reload();
   await fresh.evaluate(() => Storage.ready());
   // Without a foreign write, a new complete fallback still applies deletions.
@@ -150,7 +159,7 @@ test('fallback tabs reject a stale second writer and recover a whole snapshot at
   await fresh.goto('/storage-fallback-harness'); await fresh.evaluate(() => Storage.ready());
   expect(await ids(fresh)).toEqual(['left']);
   // Export before closing. Reopening is mandatory, even after the owner closes.
-  await page.close();
+  await closeFallbackWriter(page, other);
   expect(await add(other, 'still-blocked')).toMatchObject({ ok: false, code: 'BAO_FALLBACK_WRITE_UNSAFE' });
   await other.reload(); await other.evaluate(() => Storage.ready());
   await other.evaluate(async payload => {
@@ -267,7 +276,7 @@ for (let trial = 1; trial <= 8; trial++) {
     await other.reload(); await other.evaluate(() => Storage.ready());
     const reloadIds = await other.evaluate(() => Storage.listSlots().map(slot => slot.id).sort());
     expect(reloadIds).toEqual(['left']);
-    await page.close();
+    await closeFallbackWriter(page, other);
     // A blocked cached document never automatically becomes a writer.
     expect(await other.evaluate(() => Storage.status().fallbackWriter)).toBe('blocked');
     await other.reload(); await other.evaluate(() => Storage.ready());
@@ -342,7 +351,7 @@ test('secondary IndexedDB page retains the live fallback owner backup until safe
   await other.evaluate(async () => {
     Storage._commitOperation({type:'saveSlot',payload:{id:'idb-confirmed',characterId:'fixture',config:{},chat:{messages:[]}}}); await Storage.flush();
   });
-  await page.close(); await other.reload(); await other.evaluate(() => Storage.ready());
+  await closeFallbackWriter(page, other); await other.reload(); await other.evaluate(() => Storage.ready());
   expect(await other.evaluate(() => Storage.listSlots().map(slot => slot.id).sort())).toEqual(['fallback-confirmed','idb-confirmed']);
   expect(await other.evaluate(() => localStorage.getItem(Storage.fallbackSnapshotKey))).toBe(null);
 });

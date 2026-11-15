@@ -32,7 +32,8 @@
 - 恢復流程：先匯出待保存故事／槽位，關閉其他夜灣分頁，重新開啟讀取有效持久資料，再匯入。重新開啟後兩份槽位皆可持久保存。
 - 配額拒寫保留最後有效快照；同一安全持有者在後續重試時一起重播尚未保存的操作，包含刪除意圖。啟動失敗的整批操作以一次快照提交，避免只重播新 autosave 而漏掉先前槽位。
 - 第二個 IDB 文件不遷移／清掉仍由其他活躍文件持有的 fallback；其正常 IDB 寫入可繼續。原文件關閉、次頁重開取得權限後，沿用原 revision 政策回遷，保留兩邊有效資料。
-- 手動槽位確認改讀真正的 fallback snapshot，不再只查舊 `story:slots` key；衝突時顯示原因。載入版本 storage 10、write guard 5、site UI 210，契約同步更新。
+- 手動槽位確認改讀真正的 fallback snapshot，不再只查舊 `story:slots` key；衝突時顯示原因。載入版本 storage 10、write guard 5、Drive sync 4、site UI 211，契約同步更新。
+- Drive 在 `flush()` 拒絕時，沿用既有每份故事的錯誤結果，不能讓後續 readback 將失敗改判為成功，也不能上傳該故事。補齊 Core 的 rejected-flush 案例，保留原三瀏覽器 Drive 同步故障／恢復驗證。
 
 **行為取捨：備援模式不再承諾多分頁同時保存。拒絕衝突是本次安全契約；不是讓兩個寫入假裝成功。** 正常 IndexedDB 模式仍可多頁寫不同槽位。所有舊版本分頁必須重載才能參與新租約；舊版 runtime 不會遵循新鎖，不能以此修補保證新舊混合版本同寫的安全。備援使用者收到衝突時應先匯出，再關閉其他分頁重開。
 
@@ -58,5 +59,7 @@
 | 完整檢查 | 本機 Core 211/211 run steps、Maintenance 24/24；Regression Impact Gate 69/69；首輪三瀏覽器 Storage 45/45（含各 8 輪 gate）；最終故事／搜尋及 GitHub Actions 結果記錄於 #963 交付與 Checks |
 
 可合併條件為最終提交的 Core、Maintenance、impact gate 及所有必需三瀏覽器 jobs 成功，沒有 fail／pending。本 PR 仍留草稿待阿夜最終驗收；本次不合併、不部署。不能只憑綠色 CI 宣稱真實 Safari／iOS 已通過。
+
+首輪候選 `99a94f4` 的 Story safety 三瀏覽器皆通過，但 Smoke Firefox／WebKit 的 Drive 測試揭露新 `flush()` 拒絕未被同步層轉成錯誤結果；已補上述處理，不以重跑掩蓋。另本機 WebKit 曾在關頁後立即重開的 migration 測試得到安全拒寫：`page.close()` 已完成，但原生 writer lock 尚未釋放。fixture 改為觀察 `navigator.locks.query()` 確認無 held writer，再開新文件；未增加 sleep、重試次數或 timeout。其餘槽位／刪除／重載斷言完整保留。最終結果見 PR Checks 與交付回報；早期失敗不計為最終通過。
 
 剩餘風險：實體 Android／iOS、WebKit/Safari 真實私密模式／quota／OS 強制終止及 BFCache、舊新版本混用、真實 Provider、Google OAuth／Drive、正式環境均未驗證。失敗內容只保留頁內，若所有存放目的地拒寫且仍強制關閉，瀏覽器無法承諾恢復；UI 明確要求先匯出。恢復測試使用隔離 fixture，沒有真實模型請求。回退使用 revert 並更新載入版本，不改玩家持久資料。
