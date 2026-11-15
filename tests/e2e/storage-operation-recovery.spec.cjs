@@ -96,6 +96,7 @@ test('deletion stays visible and duplicate clicks are disabled until durable set
  await page.locator('[data-delete-slot]').focus();await page.keyboard.press('Enter');
  await expect.poll(()=>page.evaluate(()=>Boolean(window.pendingCommit))).toBe(true);
  await expect(page.locator('[data-delete-slot]')).toBeDisabled();await expect(page.locator('[data-delete-slot]')).toContainText('正在儲存刪除');
+ await page.evaluate(()=>renderSlots()); // Listing again cannot hide an uncommitted deletion.
  await expect(page.locator('#slot-list')).toContainText('kept');await expect(page.locator('#notice')).toBeEmpty();
  await page.evaluate(()=>releaseCommit());await expect(page.locator('#notice')).toContainText('刪除已確認儲存');
  await expect(page.locator('#slot-list')).toBeFocused();

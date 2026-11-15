@@ -338,7 +338,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     const renderSlots = () => {
       const box = document.getElementById("slot-list");
-      if (!box) return;
+      if (!box || box.getAttribute("aria-busy") === "true") return;
       const slots = Storage.listSlots();
       // Failed deletion intents remain in Storage, while its optimistic cache
       // omits the slot. Keep the durable row visible and explicitly pending.
@@ -354,8 +354,10 @@ window.addEventListener("DOMContentLoaded", () => {
       box.querySelectorAll("[data-load-slot]").forEach(b => b.onclick = () => resumeSave(Storage.getSlot(b.dataset.loadSlot)));
       box.querySelectorAll("[data-export-slot]").forEach(b => b.onclick = () => Storage.exportSave(slots.find(slot => slot.id === b.dataset.exportSlot)));
       box.querySelectorAll("[data-delete-slot]").forEach(b => b.onclick = async () => {
+        if (box.getAttribute("aria-busy") === "true") return;
         const s = Storage.getSlot(b.dataset.deleteSlot);
         if (!s || !confirm(`確定刪除「${s.label || "未命名存檔"}」？`)) return;
+        box.setAttribute("aria-busy", "true");
         const restoreFocus = document.activeElement === b;
         b.disabled = true;
         b.setAttribute("aria-busy", "true");
@@ -368,6 +370,7 @@ window.addEventListener("DOMContentLoaded", () => {
           notifyPlayer("刪除尚未儲存。" + (error?.message || "請保留本頁，檢查裝置空間後再儲存。"), "error");
         } finally {
           const hadFocus = restoreFocus && (document.activeElement === b || document.activeElement === document.body);
+          box.removeAttribute("aria-busy");
           renderSlots();
           if (hadFocus) {
             box.tabIndex = -1;
