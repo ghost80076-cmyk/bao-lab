@@ -106,6 +106,10 @@ test('migration and stale fallback preserve another tab\'s committed stories', a
     Storage._cleanupLegacyStoryStorage();
   }));
   expect(await result()).toEqual({ auto: 'remote-new', slots: ['legacy', 'remote-slot'] });
+  // Reopen after the fallback owner closes; a cached observer cannot take over.
+  await page.close();
+  await fresh.reload();
+  await fresh.evaluate(() => Storage.ready());
   // Without a foreign write, a new complete fallback still applies deletions.
   await fresh.evaluate(async () => {
     await Storage._loadIndexedDBCache();
@@ -118,7 +122,7 @@ test('migration and stale fallback preserve another tab\'s committed stories', a
   expect(await result()).toEqual({ auto: undefined, slots: [] });
 });
 
-test('fallback tabs rebase under Web Locks and commit a whole snapshot atomically', async ({ context, page }) => {
+test('fallback tabs reject a stale second writer and recover a whole snapshot atomically', async ({ context, page }) => {
   await context.route('**/storage-fallback-harness', route => route.fulfill({
     contentType: 'text/html', body: '<!doctype html><meta charset="utf-8"><script>Object.defineProperty(window,"indexedDB",{value:undefined});</script><script src="/js/storage.js"></script>'
   }));
@@ -132,17 +136,34 @@ test('fallback tabs rebase under Web Locks and commit a whole snapshot atomicall
     Storage._commitOperation({ type: 'saveSlot', payload: {
       id, label: id, characterId: 'hero', savedAt: new Date().toISOString(), config: {}, chat: { messages: [] }
     } });
-    await Storage.flush();
+    try { await Storage.flush(); return { ok: true }; }
+    catch (error) { return { ok: false, code: error.code, message: error.message }; }
   }, id);
-  const ids = () => page.evaluate(() => Storage._readFallbackSnapshot().slots.map(slot => slot.id).sort());
-  await Promise.all([add(page, 'left'), add(other, 'right')]);
-  expect(await ids()).toEqual(['left', 'right']);
+  const ids = tab => tab.evaluate(() => Storage._readFallbackSnapshot().slots.map(slot => slot.id).sort());
+  const results = await Promise.all([add(page, 'left'), add(other, 'right')]);
+  expect(results[0]).toEqual({ ok: true });
+  expect(results[1]).toMatchObject({ ok: false, code: 'BAO_FALLBACK_WRITE_UNSAFE' });
+  expect(results[1].message).toContain('本頁未儲存');
+  const exported = await other.evaluate(() => Storage.getSlot('right'));
+  expect(exported.id).toBe('right');
+  const fresh = await context.newPage();
+  await fresh.goto('/storage-fallback-harness'); await fresh.evaluate(() => Storage.ready());
+  expect(await ids(fresh)).toEqual(['left']);
+  // Export before closing. Reopening is mandatory, even after the owner closes.
+  await page.close();
+  expect(await add(other, 'still-blocked')).toMatchObject({ ok: false, code: 'BAO_FALLBACK_WRITE_UNSAFE' });
   await other.reload(); await other.evaluate(() => Storage.ready());
-  await page.evaluate(async () => { Storage.deleteSlot('left'); await Storage.flush(); });
-  await add(other, 'third');
-  expect(await ids()).toEqual(['right', 'third']);
-  const prior = await page.evaluate(() => localStorage.getItem(Storage.fallbackSnapshotKey));
-  await page.evaluate(() => {
+  await other.evaluate(async payload => {
+    Storage._commitOperation({ type: 'saveSlot', payload }); await Storage.flush();
+  }, exported);
+  expect(await ids(other)).toEqual(['left', 'right']);
+  // The stale observer still remembers left; it cannot resurrect a deletion.
+  await other.evaluate(async () => { Storage.deleteSlot('left'); await Storage.flush(); });
+  expect(await add(fresh, 'third')).toMatchObject({ ok: false, code: 'BAO_FALLBACK_WRITE_UNSAFE' });
+  expect(await add(other, 'third')).toEqual({ ok: true });
+  expect(await ids(other)).toEqual(['right', 'third']);
+  const prior = await other.evaluate(() => localStorage.getItem(Storage.fallbackSnapshotKey));
+  await other.evaluate(() => {
     const prototype = Object.getPrototypeOf(localStorage);
     window.restoreStorageWrite = prototype.setItem;
     prototype.setItem = function(key, value) {
@@ -150,11 +171,13 @@ test('fallback tabs rebase under Web Locks and commit a whole snapshot atomicall
       return window.restoreStorageWrite.call(this, key, value);
     };
   });
-  await add(page, 'quota-failed');
-  expect(await page.evaluate(() => localStorage.getItem(Storage.fallbackSnapshotKey))).toBe(prior);
-  await add(other, 'after-quota');
-  expect(await ids()).toEqual(['after-quota', 'right', 'third']);
-  await page.evaluate(() => { Object.getPrototypeOf(localStorage).setItem = window.restoreStorageWrite; });
+  expect(await add(other, 'quota-failed')).toMatchObject({ ok: false });
+  expect(await other.evaluate(() => localStorage.getItem(Storage.fallbackSnapshotKey))).toBe(prior);
+  expect(await other.evaluate(() => Storage.getSlot('quota-failed')?.id)).toBe('quota-failed');
+  await other.evaluate(() => { Object.getPrototypeOf(localStorage).setItem = window.restoreStorageWrite; });
+  expect(await add(other, 'after-quota')).toEqual({ ok: true });
+  // A later successful save also retries retained earlier operations.
+  expect(await ids(other)).toEqual(['after-quota', 'quota-failed', 'right', 'third']);
   await other.evaluate(async () => {
     Storage._commitOperation({ type: 'saveStory', payload: {
       characterId: 'hero', savedAt: new Date().toISOString(), config: {}, chat: { messages: [{ role: 'user', content: 'saved' }] }
@@ -164,7 +187,175 @@ test('fallback tabs rebase under Web Locks and commit a whole snapshot atomicall
   });
   await other.addScriptTag({ url: '/js/storage-write-guard.js' });
   expect(await other.evaluate(() => BAOStorageWriteGuard.verify(Storage.loadStory()).ok)).toBe(true);
-  await page.reload(); await page.evaluate(() => Storage.ready());
-  expect(await page.evaluate(() => Storage.listSlots().map(slot => slot.id).sort())).toEqual(['after-quota', 'right', 'third']);
-  expect(await page.evaluate(() => Storage.loadStory().chat.messages[0].content)).toBe('saved');
+  await other.reload(); await other.evaluate(() => Storage.ready());
+  expect(await other.evaluate(() => Storage.listSlots().map(slot => slot.id).sort())).toEqual(['after-quota', 'quota-failed', 'right', 'third']);
+  expect(await other.evaluate(() => Storage.loadStory().chat.messages[0].content)).toBe('saved');
+  await fresh.close();
+  const reopened = await context.newPage();
+  await reopened.goto('/storage-fallback-harness'); await reopened.evaluate(() => Storage.ready());
+  expect(await ids(reopened)).toEqual(['after-quota', 'quota-failed', 'right', 'third']);
+});
+
+// Record the actual return values used by persistence, without extra reads
+// which can themselves refresh WebKit's localStorage cache and hide the race.
+async function traceFallback(context) {
+  await context.addInitScript(() => {
+    window.storageTrace = [];
+    const record = (phase, snapshot, lock) => storageTrace.push({
+      tab: location.hash, phase, time: performance.timeOrigin + performance.now(), lock,
+      revision: snapshot?.revision ?? null, owner: snapshot?.owner ?? null,
+      slots: snapshot?.slots?.map(slot => slot.id) || []
+    });
+    window.recordStorageTrace = record;
+    const request = navigator.locks.request.bind(navigator.locks);
+    navigator.locks.request = (name, options, action) => {
+      record('request', null, name);
+      return request(name, options, async lock => {
+        record(lock ? 'acquire' : 'denied', null, name);
+        try { return await action(lock); }
+        finally { if (lock) record('release', null, name); }
+      });
+    };
+    const set = Object.getPrototypeOf(localStorage).setItem;
+    Object.getPrototypeOf(localStorage).setItem = function(key, value) {
+      const result = set.call(this, key, value);
+      if (key === 'bao-lab:story-fallback-snapshot-v1') record('write', JSON.parse(value));
+      return result;
+    };
+    addEventListener('storage', event => {
+      if (event.key === 'bao-lab:story-fallback-snapshot-v1') record('storage-event', event.newValue ? JSON.parse(event.newValue) : null);
+    });
+  });
+  await context.route('**/gated-fallback*', route => route.fulfill({ contentType: 'text/html', body: `
+    <script>Object.defineProperty(window,'indexedDB',{value:undefined})</script><script src="/js/storage.js"></script>
+    <script>const read=Storage._readFallbackSnapshot;Storage._readFallbackSnapshot=function(){const value=read.call(this);recordStorageTrace('read',value);return value}</script>` }));
+}
+for (let trial = 1; trial <= 8; trial++) {
+  test(`fallback lease controlled contention and reopen stress ${trial}/8`, async ({context, page}, info) => {
+    await traceFallback(context);
+    const other = await context.newPage();
+    for (const [tab, id] of [[page, 'left'], [other, 'right']]) {
+      await tab.goto('/gated-fallback#' + id); await tab.evaluate(() => Storage.ready());
+    }
+    // Hold the first actual story lock; wait for the second native request,
+    // then release explicitly. There are no timing sleeps or eventual retries.
+    await page.evaluate(() => {
+      const original = Storage._withStoryLock.bind(Storage);
+      window.hold = new Promise(resolve => window.release = resolve);
+      Storage._withStoryLock = action => original(async () => { window.entered = true; await hold; return action(); });
+      Storage._commitOperation({ type: 'saveSlot', payload: { id: 'left', characterId: 'fixture', config: {}, chat: { messages: [] } } });
+    });
+    await page.waitForFunction(() => window.entered);
+    await other.evaluate(() => Storage._commitOperation({ type: 'saveSlot', payload: { id: 'right', characterId: 'fixture', config: {}, chat: { messages: [] } } }));
+    await other.waitForFunction(() => storageTrace.some(event => event.phase === 'request' && event.lock === Storage.storyLockName));
+    const waiting = await other.evaluate(async () => ({ locks: await navigator.locks.query(), events: storageTrace }));
+    expect(waiting.locks.held.filter(lock => lock.name === 'bao-lab:story-storage-v1')).toHaveLength(1);
+    expect(waiting.locks.pending.filter(lock => lock.name === 'bao-lab:story-storage-v1')).toHaveLength(1);
+    await page.evaluate(() => release());
+    const outcomes = await Promise.all([page, other].map(tab => tab.evaluate(async () => {
+      try { await Storage.flush(); return { saved: true }; }
+      catch (error) { return { saved: false, code: error.code }; }
+    })));
+    expect(outcomes).toEqual([{ saved: true }, { saved: false, code: 'BAO_FALLBACK_WRITE_UNSAFE' }]);
+    const exported = await other.evaluate(() => Storage.getSlot('right'));
+    const readback = await Promise.all([page, other].map(tab => tab.evaluate(() => Storage._readFallbackSnapshot()?.slots.map(slot => slot.id) || [])));
+    const traces = (await Promise.all([page, other].map(tab => tab.evaluate(() => storageTrace)))).flat().sort((a,b) => a.time-b.time);
+    expect(traces.filter(event => event.phase === 'write').map(event => event.tab)).toEqual(['#left']);
+    const fresh = await context.newPage(); await fresh.goto('/gated-fallback#fresh'); await fresh.evaluate(() => Storage.ready());
+    const freshIds = await fresh.evaluate(() => Storage.listSlots().map(slot => slot.id).sort());
+    expect(freshIds).toEqual(['left']);
+    await other.reload(); await other.evaluate(() => Storage.ready());
+    const reloadIds = await other.evaluate(() => Storage.listSlots().map(slot => slot.id).sort());
+    expect(reloadIds).toEqual(['left']);
+    await page.close();
+    // A blocked cached document never automatically becomes a writer.
+    expect(await other.evaluate(() => Storage.status().fallbackWriter)).toBe('blocked');
+    await other.reload(); await other.evaluate(() => Storage.ready());
+    await other.evaluate(async payload => { Storage._commitOperation({ type: 'saveSlot', payload }); await Storage.flush(); }, exported);
+    await other.reload(); await other.evaluate(() => Storage.ready());
+    const recovered = await other.evaluate(() => Storage.listSlots().map(slot => slot.id).sort());
+    expect(recovered).toEqual(['left', 'right']);
+    const evidence = { browser: info.project.name, trial, outcomes, waiting, trace: traces, readback, freshIds, reloadIds, recovered };
+    console.log('FALLBACK_LEASE_EVIDENCE ' + JSON.stringify(evidence));
+    await info.attach('fallback-lock-trace', { body: JSON.stringify(evidence, null, 2), contentType: 'application/json' });
+  });
+}
+
+test('unsafe fallback has an export path and no success notification at 320px', async ({context, page}) => {
+  await context.route('**/fallback-warning', route => route.fulfill({contentType:'text/html',body:`
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><section id="chat-view"><div class="composer"><textarea id="input"></textarea></div></section>
+    <script>Object.defineProperty(window,'indexedDB',{value:undefined})</script><script src="/js/storage.js"></script>`}));
+  await page.goto('/fallback-warning'); await page.evaluate(() => Storage.ready());
+  const other = await context.newPage(); await other.setViewportSize({width:320,height:568});
+  await other.goto('/fallback-warning'); await other.evaluate(() => Storage.ready());
+  await other.evaluate(() => {
+    window.GameState = { current: {} }; window.Chat = { messages: [{role:'user',content:'recoverable fixture'}] };
+    window.App = { activeCharacter: { id:'fixture' }, config: { api: { key:'fixture-secret-must-not-export' } }, saveStory(){return Storage.saveStory()} };
+  });
+  await other.addScriptTag({url:'/js/storage-write-guard.js'});
+  await other.locator('#input').focus();
+  expect(await other.evaluate(async () => { App.saveStory(true); return BAOStorageWriteGuard.whenIdle(); })).toBe(false);
+  const warning = other.locator('#bao-storage-write-warning');
+  await expect(warning).toHaveAttribute('role','alert');
+  await expect(warning).toContainText('本頁未儲存');
+  await expect(other.locator('#input')).toBeFocused();
+  await expect(warning.locator('[data-retry-story-save]')).toHaveCount(0);
+  const button = warning.getByRole('button',{name:'匯出本頁故事'});
+  await expect(button).toBeVisible();
+  const download = other.waitForEvent('download'); await button.click();
+  const file = await (await download).path();
+  const text = require('node:fs').readFileSync(file,'utf8');
+  expect(text).not.toContain('fixture-secret');
+  expect(JSON.parse(text).chat.messages[0].content).toBe('recoverable fixture');
+  expect(await other.evaluate(() => { const event = new Event('beforeunload', {cancelable:true}); window.dispatchEvent(event); return event.defaultPrevented; })).toBe(true);
+  expect(await page.evaluate(() => Storage._readFallbackSnapshot())).toBe(null);
+});
+
+test('fallback without Web Locks refuses writing while IndexedDB remains usable', async ({context, page}) => {
+  await context.addInitScript(() => Object.defineProperty(navigator,'locks',{value:undefined}));
+  await context.route('**/no-locks*', route => route.fulfill({contentType:'text/html',body:
+    (route.request().url().includes('fallback') ? '<script>Object.defineProperty(window,"indexedDB",{value:undefined})</script>' : '') + '<script src="/js/storage.js"></script>'}));
+  for (const mode of ['fallback','indexeddb']) {
+    await page.goto('/no-locks?' + mode); await page.evaluate(() => Storage.ready());
+    const result = await page.evaluate(async () => {
+      Storage._commitOperation({type:'saveSlot',payload:{id:'safe',characterId:'fixture',config:{},chat:{messages:[]}}});
+      try { await Storage.flush(); return {ok:true, mode:Storage.status().mode}; }
+      catch(error) { return {ok:false,code:error.code,retained:Storage.getSlot('safe')?.id,snapshot:localStorage.getItem(Storage.fallbackSnapshotKey)}; }
+    });
+    if (mode === 'fallback') expect(result).toEqual({ok:false,code:'BAO_FALLBACK_WRITE_UNSAFE',retained:'safe',snapshot:null});
+    else expect(result).toEqual({ok:true,mode:'indexedDB'});
+  }
+});
+
+test('secondary IndexedDB page retains the live fallback owner backup until safe reopening', async ({context, page}) => {
+  await context.route('**/migration-owner*', route => route.fulfill({contentType:'text/html',body:
+    (route.request().url().includes('fallback') ? '<script>Object.defineProperty(window,"indexedDB",{value:undefined})</script>' : '') + '<script src="/js/storage.js"></script>'}));
+  await page.goto('/migration-owner?fallback'); await page.evaluate(() => Storage.ready());
+  await page.evaluate(async () => {
+    Storage._commitOperation({type:'saveSlot',payload:{id:'fallback-confirmed',characterId:'fixture',config:{},chat:{messages:[]}}});
+    await Storage.flush();
+  });
+  const other = await context.newPage(); await other.goto('/migration-owner?indexeddb'); await other.evaluate(() => Storage.ready());
+  expect(await other.evaluate(() => Storage.status().mode)).toBe('indexedDB');
+  expect(await page.evaluate(() => Storage._readFallbackSnapshot().slots.map(slot => slot.id))).toEqual(['fallback-confirmed']);
+  // Normal IDB record writes still work while this page is not the lease owner.
+  await other.evaluate(async () => {
+    Storage._commitOperation({type:'saveSlot',payload:{id:'idb-confirmed',characterId:'fixture',config:{},chat:{messages:[]}}}); await Storage.flush();
+  });
+  await page.close(); await other.reload(); await other.evaluate(() => Storage.ready());
+  expect(await other.evaluate(() => Storage.listSlots().map(slot => slot.id).sort())).toEqual(['fallback-confirmed','idb-confirmed']);
+  expect(await other.evaluate(() => localStorage.getItem(Storage.fallbackSnapshotKey))).toBe(null);
+});
+
+test('a retired document cannot reuse its fallback lease after pagehide', async ({context, page}) => {
+  await context.route('**/retired-fallback', route => route.fulfill({contentType:'text/html',body:
+    '<script>Object.defineProperty(window,"indexedDB",{value:undefined})</script><script src="/js/storage.js"></script>'}));
+  await page.goto('/retired-fallback'); await page.evaluate(() => Storage.ready());
+  const result = await page.evaluate(async () => {
+    window.dispatchEvent(new Event('pagehide'));
+    Storage._commitOperation({type:'saveSlot',payload:{id:'retained',characterId:'fixture',config:{},chat:{messages:[]}}});
+    try { await Storage.flush(); return 'unsafe success'; }
+    catch(error) { return {code:error.code,retained:Storage.getSlot('retained')?.id,raw:localStorage.getItem(Storage.fallbackSnapshotKey)}; }
+  });
+  expect(result).toEqual({code:'BAO_FALLBACK_WRITE_UNSAFE',retained:'retained',raw:null});
 });

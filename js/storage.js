@@ -16,6 +16,7 @@ const Storage = {
   revisionRecordId: "__story_revision__",
   fallbackSnapshotKey: "bao-lab:story-fallback-snapshot-v1",
   storyLockName: "bao-lab:story-storage-v1",
+  fallbackWriterLockName: "bao-lab:story-fallback-writer-v1",
 
   _db: null,
   _mode: "booting",
@@ -31,6 +32,10 @@ const Storage = {
   _legacyMigrationSnapshot: null,
   _startupOperations: [],
   _fallbackWriterId: "tab-" + Date.now() + "-" + Math.random().toString(36).slice(2),
+  _fallbackLease: null,
+  _fallbackLeaseState: "pending",
+  _fallbackLeaseRetired: false,
+  _fallbackFailures: new Map(),
 
   set(key, value) {
     try {
@@ -216,6 +221,60 @@ const Storage = {
     return Promise.resolve().then(action);
   },
 
+  _prepareFallbackWriter() {
+    if (this._fallbackLease) return this._fallbackLease;
+    // WebKit can grant the next Web Lock before that page's localStorage
+    // cache receives the previous commit. A session lease prevents a second
+    // snapshot writer, rather than assuming a lock refreshes that cache.
+    // A restored document may retain a stale cache after a lifecycle change.
+    // It must export/reopen too, even if the browser retires its native lock.
+    window.addEventListener?.("pagehide", () => {
+      this._fallbackLeaseRetired = true;
+      this._fallbackLeaseState = "blocked";
+    });
+    this._fallbackLease = new Promise(resolve => {
+      if (typeof navigator === "undefined" || !navigator.locks?.request) {
+        this._fallbackLeaseState = "unsupported";
+        resolve(false);
+        return;
+      }
+      navigator.locks.request(this.fallbackWriterLockName, { mode: "exclusive", ifAvailable: true }, lock => {
+        if (this._fallbackLeaseRetired) { resolve(false); return; }
+        this._fallbackLeaseState = lock ? "owner" : "blocked";
+        resolve(Boolean(lock));
+        // The browser releases this lease when the document is destroyed.
+        // A blocked document must reopen from durable data before takeover.
+        if (lock) return new Promise(() => {});
+      }).catch(() => { this._fallbackLeaseState = "unsupported"; resolve(false); });
+    });
+    return this._fallbackLease;
+  },
+
+  async _requireFallbackWriter() {
+    if (await this._prepareFallbackWriter() && !this._fallbackLeaseRetired) return;
+    const error = new Error(this._fallbackLeaseState === "blocked"
+      ? "另一個分頁持有備援儲存寫入權，本頁未儲存。內容仍保留在本頁；請先匯出本頁備份，關閉其他夜灣分頁，再重新開啟並匯入備份。"
+      : "瀏覽器無法提供安全的備援寫入鎖，本頁未儲存。請保留本頁並先匯出備份，再使用支援 IndexedDB 或 Web Locks 的瀏覽器。"
+    );
+    error.code = "BAO_FALLBACK_WRITE_UNSAFE";
+    throw error;
+  },
+
+  async _persistFallbackOperations(operation, baseCache) {
+    for (const item of Array.isArray(operation) ? operation : [operation]) {
+      const key = !item ? "snapshot" : item.type === "saveStory" || item.type === "clearStory"
+        ? "autosave" : "slot:" + String(item.id || item.payload?.id);
+      this._fallbackFailures.set(key, { operation: item, baseCache: item ? baseCache : this.clone(baseCache) });
+    }
+    await this._requireFallbackWriter();
+    const pending = [...this._fallbackFailures.values()];
+    const operations = pending.map(entry => entry.operation).filter(Boolean);
+    const snapshotBase = this._fallbackFailures.get("snapshot")?.baseCache || baseCache;
+    this._persistFallbackSnapshot(operations, snapshotBase);
+    this._fallbackFailures.clear();
+    this._lastError = null;
+  },
+
   _hydrateLegacyCache() {
     this._cache.autosave = this._legacyAutosave();
     this._cache.slots = this._legacySlots();
@@ -246,7 +305,8 @@ const Storage = {
   },
 
   _persistFallbackSnapshot(operations = [], baseCache = this._cache) {
-    // Caller holds the cross-tab lock. Rebase only the requested operations on
+    // Caller holds both the session writer lease and the short story lock.
+    // Rebase only the requested operations on
     // the latest shared snapshot, then atomically replace this one key.
     const previous = this._readFallbackSnapshot();
     const sourceRevision = this._fallbackSnapshotComplete && Number.isSafeInteger(this._expectedRevision) && this._expectedRevision >= 0 ? this._expectedRevision : null;
@@ -269,9 +329,9 @@ const Storage = {
   },
 
   _queueFallbackOperation(operation, baseCache) {
-    const run = () => this._withStoryLock(() => {
+    const run = () => this._withStoryLock(async () => {
       if (this._mode === "indexedDB" && this._ready) return;
-      try { this._persistFallbackSnapshot(operation ? [operation] : [], baseCache); }
+      try { await this._persistFallbackOperations(operation, baseCache); }
       catch (error) { this._lastError = error; console.warn("BAO/LAB fallback write failed:", error); }
     });
     this._writeQueue = this._writeQueue.then(run, run);
@@ -557,7 +617,7 @@ const Storage = {
           try { await this._persistOperationIndexedDB(operation); return; }
           catch (error) { this._degradeToLocalStorage(error, false); }
         }
-        this._persistFallbackSnapshot([operation], baseCache);
+        await this._persistFallbackOperations(operation, baseCache);
       } catch (error) { this._lastError = error; console.warn("BAO/LAB fallback write failed:", error); }
     });
     this._writeQueue = this._writeQueue.then(run, run);
@@ -580,12 +640,13 @@ const Storage = {
 
   init() {
     if (this._initPromise) return this._initPromise;
+    this._prepareFallbackWriter();
     this._hydrateLegacyCache();
 
     if (typeof indexedDB === "undefined") {
       this._mode = "localStorage";
       this._ready = true;
-      this._initPromise = Promise.resolve(this._mode);
+      this._initPromise = this._fallbackLease.then(() => this._mode);
       return this._initPromise;
     }
 
@@ -595,7 +656,10 @@ const Storage = {
         this._db = await this._openDatabase();
         return await this._withStoryLock(async () => {
           try {
-            await this._migrateLegacyToIndexedDB();
+            await this._fallbackLease;
+            // A live fallback owner may have commits absent from this page's
+            // cache. Leave its backup intact; native IDB writes remain usable.
+            if (this._fallbackLeaseState !== "blocked") await this._migrateLegacyToIndexedDB();
             await this._loadIndexedDBCache();
             this._fallbackSnapshotComplete = true;
 
@@ -611,7 +675,7 @@ const Storage = {
             }
             this._mode = "indexedDB";
 
-            this._cleanupLegacyStoryStorage();
+            if (this._fallbackLeaseState !== "blocked") this._cleanupLegacyStoryStorage();
             this._ready = true;
             setTimeout(() => window.BAORefreshSaveUI?.(), 0);
             this._startupOperations.length = 0;
@@ -620,7 +684,9 @@ const Storage = {
             this._pendingOperations.length = 0;
             this._ready = true;
             this._degradeToLocalStorage(error, false);
-            try { this._persistFallbackSnapshot(this._startupOperations, this._cache); }
+            try {
+              await this._persistFallbackOperations(this._startupOperations.length ? this._startupOperations : null, this._cache);
+            }
             catch (backupError) { this._lastError = backupError; }
             this._startupOperations.length = 0;
             return this._mode;
@@ -641,6 +707,7 @@ const Storage = {
   async flush() {
     await this.init();
     await this._writeQueue;
+    if (this._mode === "localStorage" && this._fallbackFailures.size) throw this._lastError || new Error("備援寫入尚未完成，請保留本頁並匯出備份。");
     return this._mode;
   },
   status() {
@@ -650,6 +717,8 @@ const Storage = {
       database: this._mode === "indexedDB" ? this.dbName : null,
       store: this._mode === "indexedDB" ? this.dbStore : null,
       legacyStoryDataPresent: this._legacyStoryKeysExist(),
+      fallbackWriter: this._fallbackLeaseState,
+      uncommittedWrites: this._fallbackFailures.size,
       lastError: this._lastError ? String(this._lastError.message || this._lastError) : "",
       lastRestoreError: this._lastRestoreError ? String(this._lastRestoreError.message || this._lastRestoreError) : ""
     };

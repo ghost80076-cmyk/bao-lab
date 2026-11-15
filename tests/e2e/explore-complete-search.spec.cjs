@@ -14,6 +14,10 @@ async function query(page,value){await page.locator('#explore-search-input').fil
 async function settled(page){await expect(page.locator('#explore-view')).toHaveAttribute('aria-busy','false');await expect(page.locator('#explore-result-count')).toContainText('找到');}
 for(const width of [320,390,1280]){
   for(const mode of ['before','after'])test(`paired full search ${mode} ${width}px`,async({page},info)=>{
+    // Apply the same motion setting to both samples. CI trace 43688004269
+    // shows smooth autoscroll moving the legacy pager between down/up (51px),
+    // so the native click never fired and page-0001 was never requested.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     if(mode==='before')for(const file of ['js/app.js','js/character-ui.js','js/explore-discovery.js']){
       const body=execFileSync('git',['show',baseline+':'+file],{encoding:'utf8'});
       await page.route('**/'+file+'?*',route=>route.fulfill({contentType:'application/javascript',body}));
@@ -34,8 +38,15 @@ for(const width of [320,390,1280]){
     const searchRequests=responses.length-initialRequests;
     const firstSearchResponses=responses.slice(initialRequests);
     if(mode==='before'){
+      const olderPage = page.waitForResponse(response => response.url().endsWith('/data/character-catalog/community/page-0001.json'));
       await page.locator('#character-load-more').click();
+      expect((await olderPage).ok()).toBe(true);
       await expect(page.locator(target)).toBeVisible();
+      expect(await page.evaluate(() => ({ cursor: App.communityCatalogCursor,
+        loaded: [...App.communityCatalogLoaded].sort(),
+        hasTarget: App.characters.some(c => c.id === 'unread-afterglow-seoul') }))).toEqual({
+        cursor: -1, loaded: ['data/character-catalog/community/page-0001.json', 'data/character-catalog/community/page-0002.json'], hasTarget: true
+      });
     }
     const secondAt=Date.now();await query(page,'不存在的作品-xyz');
     await expect(page.locator('#explore-search-empty')).toBeVisible();
@@ -160,6 +171,9 @@ for (const change of ['keyword', 'clear', 'category', 'multiple']) {
     await hold.requested;
     await click;
     await query(page, '未讀餘溫');
+    // Input schedules a render frame. Hold the response until that frame has
+    // actually started complete search, rather than racing the label mode.
+    await expect(page.locator('#explore-view')).toHaveAttribute('aria-busy', 'true');
     if (change === 'clear' || change === 'multiple') {
       await page.locator('[data-explore-clear]').click();
     }

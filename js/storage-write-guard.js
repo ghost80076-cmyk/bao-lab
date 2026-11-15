@@ -9,7 +9,7 @@
   let settlement = Promise.resolve(true);
   const warningId = 'bao-storage-write-warning';
 
-  const warn = (message, saving = false) => {
+  const warn = (message, saving = false, unsafeWriter = false) => {
     const composer = document.querySelector('#chat-view .composer');
     if (!composer) return;
     let warning = document.getElementById(warningId);
@@ -26,10 +26,12 @@
       const retry = document.createElement('button');
       retry.type = 'button';
       retry.className = 'secondary';
-      retry.textContent = '重試儲存';
-      retry.dataset.retryStorySave = 'true';
+      retry.textContent = unsafeWriter ? '匯出本頁故事' : '重試儲存';
+      if (unsafeWriter) retry.dataset.exportUnsavedStory = 'true';
+      else retry.dataset.retryStorySave = 'true';
       retry.style.cssText = 'display:block;margin-top:8px;min-width:44px;min-height:44px';
       retry.addEventListener('click', () => {
+        if (unsafeWriter) { Storage.exportCurrentStory?.(); return; }
         retry.disabled = true;
         void retrySave();
       });
@@ -37,9 +39,9 @@
     }
   };
   const clearWarning = () => document.getElementById(warningId)?.remove();
-  const tell = (message, tone = 'info') => {
+  const tell = (message, tone = 'info', unsafeWriter = false) => {
     if (window.BAOFeedback?.notify) return window.BAOFeedback.notify(message, tone);
-    warn(message);
+    warn(message, false, unsafeWriter);
     return true;
   };
 
@@ -110,9 +112,10 @@
     }).catch(error => {
       if (myGeneration !== generation || window.GameState?.current !== owner) return false;
       console.warn('BAO/LAB story persistence verification failed:', error);
-      const text = '無法確認目前內容已完成儲存。內容仍保留在本頁，請先不要關閉或重新整理，並重試儲存。';
-      warn(text);
-      if (notify) tell(text, 'error');
+      const unsafeWriter = error?.code === 'BAO_FALLBACK_WRITE_UNSAFE';
+      const text = unsafeWriter ? error.message : '目前內容尚未成功寫入瀏覽器儲存空間。內容仍保留在本頁，請先不要關閉或重新整理，並重試儲存。';
+      warn(text, false, unsafeWriter);
+      if (notify) tell(text, 'error', unsafeWriter);
       return false;
     }).finally(() => {
       if (myGeneration === generation) pending = false;

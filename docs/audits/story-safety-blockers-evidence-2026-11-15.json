@@ -1,0 +1,2233 @@
+{
+  "baselineHead": "733bb7e32ee75dbcc8a1c9325023ed41792afa15",
+  "main": "6a624446f33b031fd806230ec40d562a4f663596",
+  "contents": "Only isolated fixture IDs, lock metadata, revisions, owners and test request/scroll diagnostics; no story bodies or API keys.",
+  "beforeWebKitGated": [
+    {
+      "lockState": {
+        "locks": {
+          "held": [
+            {
+              "clientId": "3eafbdd5-374a-49af-aecd-842c599b6b47",
+              "mode": "exclusive",
+              "name": "bao-lab:story-storage-v1"
+            }
+          ],
+          "pending": [
+            {
+              "clientId": "6ef91025-10a2-44bf-8626-b87d004cc2b7",
+              "mode": "exclusive",
+              "name": "bao-lab:story-storage-v1"
+            }
+          ]
+        },
+        "events": [
+          {
+            "tab": 1,
+            "phase": "request",
+            "time": 1794727803481,
+            "revision": null,
+            "owner": null,
+            "slots": []
+          }
+        ]
+      },
+      "trace": [
+        {
+          "tab": 0,
+          "phase": "request",
+          "time": 1794727803417,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": 0,
+          "phase": "acquire",
+          "time": 1794727803417,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": 1,
+          "phase": "request",
+          "time": 1794727803481,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": 0,
+          "phase": "read",
+          "time": 1794727803572,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": 0,
+          "phase": "write",
+          "time": 1794727803572,
+          "revision": null,
+          "owner": "tab-1794727803320-9yoslla349i",
+          "slots": [
+            "left"
+          ]
+        },
+        {
+          "tab": 0,
+          "phase": "release",
+          "time": 1794727803572,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": 1,
+          "phase": "acquire",
+          "time": 1794727803573,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": 1,
+          "phase": "read",
+          "time": 1794727803574,
+          "revision": null,
+          "owner": "tab-1794727803320-9yoslla349i",
+          "slots": [
+            "left"
+          ]
+        },
+        {
+          "tab": 0,
+          "phase": "storage-event",
+          "time": 1794727803575,
+          "revision": null,
+          "owner": null,
+          "slots": [
+            "right",
+            "left"
+          ]
+        },
+        {
+          "tab": 1,
+          "phase": "write",
+          "time": 1794727803575,
+          "revision": null,
+          "owner": null,
+          "slots": [
+            "right",
+            "left"
+          ]
+        },
+        {
+          "tab": 1,
+          "phase": "release",
+          "time": 1794727803575,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": 1,
+          "phase": "storage-event",
+          "time": 1794727803576,
+          "revision": null,
+          "owner": "tab-1794727803320-9yoslla349i",
+          "slots": [
+            "left"
+          ]
+        }
+      ],
+      "fresh": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "lockState": {
+        "locks": {
+          "held": [
+            {
+              "clientId": "01212854-d742-49c9-b67d-6b2d1b99dd85",
+              "mode": "exclusive",
+              "name": "bao-lab:story-storage-v1"
+            }
+          ],
+          "pending": [
+            {
+              "clientId": "80169927-8b07-40c9-a861-329213cdac89",
+              "mode": "exclusive",
+              "name": "bao-lab:story-storage-v1"
+            }
+          ]
+        },
+        "events": [
+          {
+            "tab": 1,
+            "phase": "request",
+            "time": 1794727805986,
+            "revision": null,
+            "owner": null,
+            "slots": []
+          }
+        ]
+      },
+      "trace": [
+        {
+          "tab": 0,
+          "phase": "request",
+          "time": 1794727805915,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": 0,
+          "phase": "acquire",
+          "time": 1794727805916,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": 1,
+          "phase": "request",
+          "time": 1794727805986,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": 0,
+          "phase": "read",
+          "time": 1794727806054,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": 0,
+          "phase": "write",
+          "time": 1794727806054,
+          "revision": null,
+          "owner": "tab-1794727805797-3lgih62e5ui",
+          "slots": [
+            "left"
+          ]
+        },
+        {
+          "tab": 0,
+          "phase": "release",
+          "time": 1794727806054,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": 1,
+          "phase": "storage-event",
+          "time": 1794727806055,
+          "revision": null,
+          "owner": "tab-1794727805797-3lgih62e5ui",
+          "slots": [
+            "left"
+          ]
+        },
+        {
+          "tab": 1,
+          "phase": "acquire",
+          "time": 1794727806055,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": 1,
+          "phase": "read",
+          "time": 1794727806057,
+          "revision": null,
+          "owner": "tab-1794727805797-3lgih62e5ui",
+          "slots": [
+            "left"
+          ]
+        },
+        {
+          "tab": 0,
+          "phase": "storage-event",
+          "time": 1794727806058,
+          "revision": null,
+          "owner": null,
+          "slots": [
+            "right",
+            "left"
+          ]
+        },
+        {
+          "tab": 1,
+          "phase": "write",
+          "time": 1794727806058,
+          "revision": null,
+          "owner": null,
+          "slots": [
+            "right",
+            "left"
+          ]
+        },
+        {
+          "tab": 1,
+          "phase": "release",
+          "time": 1794727806058,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        }
+      ],
+      "fresh": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "lockState": {
+        "locks": {
+          "held": [
+            {
+              "clientId": "883d1794-3ce9-4733-9380-8f6633e2cf0c",
+              "mode": "exclusive",
+              "name": "bao-lab:story-storage-v1"
+            }
+          ],
+          "pending": [
+            {
+              "clientId": "92fe9e53-a876-4da6-a050-5cfb9ed4e77b",
+              "mode": "exclusive",
+              "name": "bao-lab:story-storage-v1"
+            }
+          ]
+        },
+        "events": [
+          {
+            "tab": 1,
+            "phase": "request",
+            "time": 1794727808521,
+            "revision": null,
+            "owner": null,
+            "slots": []
+          }
+        ]
+      },
+      "trace": [
+        {
+          "tab": 0,
+          "phase": "request",
+          "time": 1794727808480,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": 0,
+          "phase": "acquire",
+          "time": 1794727808481,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": 1,
+          "phase": "request",
+          "time": 1794727808521,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": 0,
+          "phase": "read",
+          "time": 1794727808571,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": 0,
+          "phase": "write",
+          "time": 1794727808571,
+          "revision": null,
+          "owner": "tab-1794727808294-gaukb8yp5u5",
+          "slots": [
+            "left"
+          ]
+        },
+        {
+          "tab": 0,
+          "phase": "release",
+          "time": 1794727808572,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": 1,
+          "phase": "acquire",
+          "time": 1794727808575,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": 1,
+          "phase": "read",
+          "time": 1794727808575,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": 1,
+          "phase": "write",
+          "time": 1794727808575,
+          "revision": null,
+          "owner": "tab-1794727808425-tysajk1jod",
+          "slots": [
+            "right"
+          ]
+        },
+        {
+          "tab": 1,
+          "phase": "release",
+          "time": 1794727808575,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": 1,
+          "phase": "storage-event",
+          "time": 1794727808575,
+          "revision": null,
+          "owner": "tab-1794727808294-gaukb8yp5u5",
+          "slots": [
+            "left"
+          ]
+        },
+        {
+          "tab": 0,
+          "phase": "storage-event",
+          "time": 1794727808576,
+          "revision": null,
+          "owner": "tab-1794727808425-tysajk1jod",
+          "slots": [
+            "right"
+          ]
+        }
+      ],
+      "fresh": [
+        "right"
+      ]
+    }
+  ],
+  "beforeGatedPersistentLosses": 1,
+  "searchCI": {
+    "run": 43688004269,
+    "artifact": 14150179650,
+    "metadataResponses": [
+      {
+        "url": "http://127.0.0.1:4173/data/characters.json",
+        "status": 200,
+        "time": 4512.326
+      },
+      {
+        "url": "http://127.0.0.1:4173/data/character-catalog/community/manifest.json",
+        "status": 200,
+        "time": 4524.431
+      },
+      {
+        "url": "http://127.0.0.1:4173/data/character-catalog/community/page-0002.json",
+        "status": 200,
+        "time": 4592.022
+      }
+    ],
+    "click": [
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6554.224,
+        "message": "waiting for locator('#character-load-more')"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6561.755,
+        "message": "  locator resolved to <button type=\"button\" class=\"secondary\" id=\"character-load-more\">載入更多作品</button>"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6563.016,
+        "message": "attempting click action"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6563.346,
+        "message": "  waiting for element to be visible, enabled and stable"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6586.801,
+        "message": "  element is visible, enabled and stable"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6586.815,
+        "message": "  scrolling into view if needed"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6587.713,
+        "message": "  done scrolling"
+      },
+      {
+        "type": "input",
+        "callId": "call@43",
+        "point": {
+          "x": 76,
+          "y": 789
+        },
+        "box": {
+          "x": 10,
+          "y": 767.4000244140625,
+          "width": 132,
+          "height": 45
+        }
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6600.806,
+        "message": "  <button type=\"button\" class=\"active\" aria-label=\"首頁\" aria-current=\"page\" data-player-nav=\"home\">…</button> from <nav aria-label=\"主要導覽\" id=\"bao-mobile-nav\" class=\"bao-mobile-nav\">…</nav> subtree intercepts pointer events"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6600.821,
+        "message": "retrying click action"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6600.861,
+        "message": "  waiting for element to be visible, enabled and stable"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6619.397,
+        "message": "  element is visible, enabled and stable"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6619.408,
+        "message": "  scrolling into view if needed"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6620.46,
+        "message": "  done scrolling"
+      },
+      {
+        "type": "input",
+        "callId": "call@43",
+        "point": {
+          "x": 76,
+          "y": 789
+        },
+        "box": {
+          "x": 10,
+          "y": 767.4000244140625,
+          "width": 132,
+          "height": 45
+        }
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6628.758,
+        "message": "  <button type=\"button\" class=\"active\" aria-label=\"首頁\" aria-current=\"page\" data-player-nav=\"home\">…</button> from <nav aria-label=\"主要導覽\" id=\"bao-mobile-nav\" class=\"bao-mobile-nav\">…</nav> subtree intercepts pointer events"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6628.773,
+        "message": "retrying click action"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6628.777,
+        "message": "  waiting 20ms"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6651.58,
+        "message": "  waiting for element to be visible, enabled and stable"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6672.528,
+        "message": "  element is visible, enabled and stable"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6672.542,
+        "message": "  scrolling into view if needed"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6675.726,
+        "message": "  done scrolling"
+      },
+      {
+        "type": "input",
+        "callId": "call@43",
+        "point": {
+          "x": 76,
+          "y": 789
+        },
+        "box": {
+          "x": 10,
+          "y": 767.4000244140625,
+          "width": 132,
+          "height": 45
+        }
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6684.595,
+        "message": "  <button type=\"button\" class=\"active\" aria-label=\"首頁\" aria-current=\"page\" data-player-nav=\"home\">…</button> from <nav aria-label=\"主要導覽\" id=\"bao-mobile-nav\" class=\"bao-mobile-nav\">…</nav> subtree intercepts pointer events"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6684.607,
+        "message": "retrying click action"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6684.61,
+        "message": "  waiting 100ms"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6786.769,
+        "message": "  waiting for element to be visible, enabled and stable"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6819.384,
+        "message": "  element is not stable"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6819.399,
+        "message": "retrying click action"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6819.403,
+        "message": "  waiting 100ms"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6922.748,
+        "message": "  waiting for element to be visible, enabled and stable"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6953.048,
+        "message": "  element is not stable"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6953.064,
+        "message": "retrying click action"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 6953.068,
+        "message": "  waiting 500ms"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 7456.859,
+        "message": "  waiting for element to be visible, enabled and stable"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 7488.09,
+        "message": "  element is visible, enabled and stable"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 7488.11,
+        "message": "  scrolling into view if needed"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 7492.328,
+        "message": "  done scrolling"
+      },
+      {
+        "type": "input",
+        "callId": "call@43",
+        "point": {
+          "x": 76,
+          "y": 463
+        },
+        "box": {
+          "x": 10,
+          "y": 441.3999938964844,
+          "width": 132,
+          "height": 45
+        }
+      },
+      {
+        "phase": "action",
+        "timestamp": 7515.525,
+        "scrollTop": "326"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 7524.438,
+        "message": "  performing click action"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 7568.798,
+        "message": "  click action done"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 7568.816,
+        "message": "  waiting for scheduled navigations to finish"
+      },
+      {
+        "type": "log",
+        "callId": "call@43",
+        "time": 7569.227,
+        "message": "  navigations have finished"
+      },
+      {
+        "phase": "after",
+        "timestamp": 7599.998,
+        "scrollTop": "275"
+      }
+    ]
+  },
+  "afterPolicy": "One document-lifetime fallback writer; other cached documents reject before snapshot read/write. Recovery requires export, close owner, reopen and import; no unsafe writer handoff.",
+  "afterObservations": [
+    {
+      "browser": "chromium",
+      "trial": 1,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "chromium",
+      "trial": 2,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "chromium",
+      "trial": 3,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "chromium",
+      "trial": 4,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "chromium",
+      "trial": 5,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "chromium",
+      "trial": 6,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "chromium",
+      "trial": 7,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "chromium",
+      "trial": 8,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "firefox",
+      "trial": 1,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "firefox",
+      "trial": 2,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "firefox",
+      "trial": 3,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "webkit",
+      "trial": 1,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "firefox",
+      "trial": 4,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "webkit",
+      "trial": 2,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "firefox",
+      "trial": 5,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "webkit",
+      "trial": 3,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "firefox",
+      "trial": 6,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "webkit",
+      "trial": 4,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "webkit",
+      "trial": 5,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "firefox",
+      "trial": 7,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "webkit",
+      "trial": 6,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "webkit",
+      "trial": 7,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "webkit",
+      "trial": 8,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    },
+    {
+      "browser": "firefox",
+      "trial": 8,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ],
+      "heldStoryLocks": 1,
+      "pendingStoryLocks": 1
+    }
+  ],
+  "afterObservationStage": "Document lease + pagehide implementation; before final atomic startup-batch hardening. Final PR-head Story safety CI repeats all these cases, with full traces as artifacts.",
+  "afterRepresentativeTraces": [
+    {
+      "browser": "chromium",
+      "trial": 1,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "waiting": {
+        "locks": {
+          "held": [
+            {
+              "clientId": "E8B33B84A62633783A8E1C4BFB621CFE",
+              "mode": "exclusive",
+              "name": "bao-lab:story-fallback-writer-v1"
+            },
+            {
+              "clientId": "E8B33B84A62633783A8E1C4BFB621CFE",
+              "mode": "exclusive",
+              "name": "bao-lab:story-storage-v1"
+            }
+          ],
+          "pending": [
+            {
+              "clientId": "624A8C85167B5D294F2ADE7B9238BFFB",
+              "mode": "exclusive",
+              "name": "bao-lab:story-storage-v1"
+            }
+          ]
+        },
+        "events": [
+          {
+            "tab": "#right",
+            "phase": "request",
+            "time": 1794729157191.4001,
+            "lock": "bao-lab:story-fallback-writer-v1",
+            "revision": null,
+            "owner": null,
+            "slots": []
+          },
+          {
+            "tab": "#right",
+            "phase": "denied",
+            "time": 1794729157192.4001,
+            "lock": "bao-lab:story-fallback-writer-v1",
+            "revision": null,
+            "owner": null,
+            "slots": []
+          },
+          {
+            "tab": "#right",
+            "phase": "request",
+            "time": 1794729157273.4001,
+            "lock": "bao-lab:story-storage-v1",
+            "revision": null,
+            "owner": null,
+            "slots": []
+          }
+        ]
+      },
+      "trace": [
+        {
+          "tab": "#left",
+          "phase": "request",
+          "time": 1794729157120.8,
+          "lock": "bao-lab:story-fallback-writer-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#left",
+          "phase": "acquire",
+          "time": 1794729157124.9,
+          "lock": "bao-lab:story-fallback-writer-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#right",
+          "phase": "request",
+          "time": 1794729157191.4001,
+          "lock": "bao-lab:story-fallback-writer-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#right",
+          "phase": "denied",
+          "time": 1794729157192.4001,
+          "lock": "bao-lab:story-fallback-writer-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#left",
+          "phase": "request",
+          "time": 1794729157222.4,
+          "lock": "bao-lab:story-storage-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#left",
+          "phase": "acquire",
+          "time": 1794729157222.9,
+          "lock": "bao-lab:story-storage-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#right",
+          "phase": "request",
+          "time": 1794729157273.4001,
+          "lock": "bao-lab:story-storage-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#left",
+          "phase": "read",
+          "time": 1794729157352.3,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#left",
+          "phase": "write",
+          "time": 1794729157352.5,
+          "revision": null,
+          "owner": "tab-1794729157120-hhc78bau6zt",
+          "slots": [
+            "left"
+          ]
+        },
+        {
+          "tab": "#left",
+          "phase": "release",
+          "time": 1794729157352.5,
+          "lock": "bao-lab:story-storage-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#right",
+          "phase": "storage-event",
+          "time": 1794729157352.8,
+          "revision": null,
+          "owner": "tab-1794729157120-hhc78bau6zt",
+          "slots": [
+            "left"
+          ]
+        },
+        {
+          "tab": "#right",
+          "phase": "acquire",
+          "time": 1794729157353,
+          "lock": "bao-lab:story-storage-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#right",
+          "phase": "release",
+          "time": 1794729157353.9001,
+          "lock": "bao-lab:story-storage-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#right",
+          "phase": "read",
+          "time": 1794729157369.5,
+          "revision": null,
+          "owner": "tab-1794729157120-hhc78bau6zt",
+          "slots": [
+            "left"
+          ]
+        },
+        {
+          "tab": "#left",
+          "phase": "read",
+          "time": 1794729157369.9,
+          "revision": null,
+          "owner": "tab-1794729157120-hhc78bau6zt",
+          "slots": [
+            "left"
+          ]
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "browser": "firefox",
+      "trial": 1,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "waiting": {
+        "locks": {
+          "held": [
+            {
+              "clientId": "4565bdc5-9473-4eea-9246-9484cf0bd22b",
+              "mode": "exclusive",
+              "name": "bao-lab:story-fallback-writer-v1"
+            },
+            {
+              "clientId": "4565bdc5-9473-4eea-9246-9484cf0bd22b",
+              "mode": "exclusive",
+              "name": "bao-lab:story-storage-v1"
+            }
+          ],
+          "pending": [
+            {
+              "clientId": "0ed048df-2eb5-4455-b25b-b9ffa000b413",
+              "mode": "exclusive",
+              "name": "bao-lab:story-storage-v1"
+            }
+          ]
+        },
+        "events": [
+          {
+            "tab": "#right",
+            "phase": "request",
+            "time": 1794729164640,
+            "lock": "bao-lab:story-fallback-writer-v1",
+            "revision": null,
+            "owner": null,
+            "slots": []
+          },
+          {
+            "tab": "#right",
+            "phase": "denied",
+            "time": 1794729164644,
+            "lock": "bao-lab:story-fallback-writer-v1",
+            "revision": null,
+            "owner": null,
+            "slots": []
+          },
+          {
+            "tab": "#right",
+            "phase": "request",
+            "time": 1794729164792,
+            "lock": "bao-lab:story-storage-v1",
+            "revision": null,
+            "owner": null,
+            "slots": []
+          }
+        ]
+      },
+      "trace": [
+        {
+          "tab": "#left",
+          "phase": "request",
+          "time": 1794729164485,
+          "lock": "bao-lab:story-fallback-writer-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#left",
+          "phase": "acquire",
+          "time": 1794729164493,
+          "lock": "bao-lab:story-fallback-writer-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#right",
+          "phase": "request",
+          "time": 1794729164640,
+          "lock": "bao-lab:story-fallback-writer-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#right",
+          "phase": "denied",
+          "time": 1794729164644,
+          "lock": "bao-lab:story-fallback-writer-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#left",
+          "phase": "request",
+          "time": 1794729164733,
+          "lock": "bao-lab:story-storage-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#left",
+          "phase": "acquire",
+          "time": 1794729164733,
+          "lock": "bao-lab:story-storage-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#right",
+          "phase": "request",
+          "time": 1794729164792,
+          "lock": "bao-lab:story-storage-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#left",
+          "phase": "read",
+          "time": 1794729164888,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#left",
+          "phase": "write",
+          "time": 1794729164888,
+          "revision": null,
+          "owner": "tab-1794729164486-lq08c25qtg",
+          "slots": [
+            "left"
+          ]
+        },
+        {
+          "tab": "#left",
+          "phase": "release",
+          "time": 1794729164888,
+          "lock": "bao-lab:story-storage-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#right",
+          "phase": "acquire",
+          "time": 1794729164890,
+          "lock": "bao-lab:story-storage-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#right",
+          "phase": "release",
+          "time": 1794729164891,
+          "lock": "bao-lab:story-storage-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#right",
+          "phase": "storage-event",
+          "time": 1794729164891,
+          "revision": null,
+          "owner": "tab-1794729164486-lq08c25qtg",
+          "slots": [
+            "left"
+          ]
+        },
+        {
+          "tab": "#left",
+          "phase": "read",
+          "time": 1794729164919,
+          "revision": null,
+          "owner": "tab-1794729164486-lq08c25qtg",
+          "slots": [
+            "left"
+          ]
+        },
+        {
+          "tab": "#right",
+          "phase": "read",
+          "time": 1794729164924,
+          "revision": null,
+          "owner": "tab-1794729164486-lq08c25qtg",
+          "slots": [
+            "left"
+          ]
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "browser": "webkit",
+      "trial": 1,
+      "outcomes": [
+        {
+          "saved": true
+        },
+        {
+          "saved": false,
+          "code": "BAO_FALLBACK_WRITE_UNSAFE"
+        }
+      ],
+      "waiting": {
+        "locks": {
+          "held": [
+            {
+              "clientId": "86b6bf67-8fa6-4f47-b328-815ef89e5e79",
+              "mode": "exclusive",
+              "name": "bao-lab:story-storage-v1"
+            },
+            {
+              "clientId": "86b6bf67-8fa6-4f47-b328-815ef89e5e79",
+              "mode": "exclusive",
+              "name": "bao-lab:story-fallback-writer-v1"
+            }
+          ],
+          "pending": [
+            {
+              "clientId": "700b24f3-4de3-4fa8-84ad-f5ecbb0d54cb",
+              "mode": "exclusive",
+              "name": "bao-lab:story-storage-v1"
+            }
+          ]
+        },
+        "events": [
+          {
+            "tab": "#right",
+            "phase": "request",
+            "time": 1794729172103,
+            "lock": "bao-lab:story-fallback-writer-v1",
+            "revision": null,
+            "owner": null,
+            "slots": []
+          },
+          {
+            "tab": "#right",
+            "phase": "denied",
+            "time": 1794729172110,
+            "lock": "bao-lab:story-fallback-writer-v1",
+            "revision": null,
+            "owner": null,
+            "slots": []
+          },
+          {
+            "tab": "#right",
+            "phase": "request",
+            "time": 1794729172194,
+            "lock": "bao-lab:story-storage-v1",
+            "revision": null,
+            "owner": null,
+            "slots": []
+          }
+        ]
+      },
+      "trace": [
+        {
+          "tab": "#left",
+          "phase": "request",
+          "time": 1794729172044,
+          "lock": "bao-lab:story-fallback-writer-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#left",
+          "phase": "acquire",
+          "time": 1794729172049,
+          "lock": "bao-lab:story-fallback-writer-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#right",
+          "phase": "request",
+          "time": 1794729172103,
+          "lock": "bao-lab:story-fallback-writer-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#right",
+          "phase": "denied",
+          "time": 1794729172110,
+          "lock": "bao-lab:story-fallback-writer-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#left",
+          "phase": "request",
+          "time": 1794729172124,
+          "lock": "bao-lab:story-storage-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#left",
+          "phase": "acquire",
+          "time": 1794729172124,
+          "lock": "bao-lab:story-storage-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#right",
+          "phase": "request",
+          "time": 1794729172194,
+          "lock": "bao-lab:story-storage-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#left",
+          "phase": "read",
+          "time": 1794729172235,
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#left",
+          "phase": "write",
+          "time": 1794729172236,
+          "revision": null,
+          "owner": "tab-1794729172044-dy4m34c442r",
+          "slots": [
+            "left"
+          ]
+        },
+        {
+          "tab": "#left",
+          "phase": "release",
+          "time": 1794729172236,
+          "lock": "bao-lab:story-storage-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#right",
+          "phase": "storage-event",
+          "time": 1794729172237,
+          "revision": null,
+          "owner": "tab-1794729172044-dy4m34c442r",
+          "slots": [
+            "left"
+          ]
+        },
+        {
+          "tab": "#right",
+          "phase": "acquire",
+          "time": 1794729172237,
+          "lock": "bao-lab:story-storage-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#right",
+          "phase": "release",
+          "time": 1794729172239,
+          "lock": "bao-lab:story-storage-v1",
+          "revision": null,
+          "owner": null,
+          "slots": []
+        },
+        {
+          "tab": "#left",
+          "phase": "read",
+          "time": 1794729172260,
+          "revision": null,
+          "owner": "tab-1794729172044-dy4m34c442r",
+          "slots": [
+            "left"
+          ]
+        },
+        {
+          "tab": "#right",
+          "phase": "read",
+          "time": 1794729172261,
+          "revision": null,
+          "owner": "tab-1794729172044-dy4m34c442r",
+          "slots": [
+            "left"
+          ]
+        }
+      ],
+      "readback": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "freshIds": [
+        "left"
+      ],
+      "reloadIds": [
+        "left"
+      ],
+      "recovered": [
+        "left",
+        "right"
+      ]
+    }
+  ],
+  "afterStorageSuite": {
+    "chromium": 15,
+    "firefox": 15,
+    "webkit": 15,
+    "passed": 45,
+    "failed": 0,
+    "retries": 0
+  }
+}

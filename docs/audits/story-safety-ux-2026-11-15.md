@@ -2,6 +2,8 @@
 
 基準：`6a624446f33b031fd806230ec40d562a4f663596`（#961 合併後的 main）。本次只做稽核、必要修復、隔離測試及獨立 PR；未合併、未部署、未操作正式玩家資料、未呼叫付費模型。
 
+本輪兩項阻擋的根因、修復與安全取捨，以 [阻擋修復報告](story-safety-blockers-2026-11-15.md) 為準；下方歷史驗收與原始失敗證據保留，不代表本輪仍未修復。
+
 ## 已確認問題與修復
 
 | 分級 | 可重現問題 | 修復後行為與證據 |
@@ -95,7 +97,7 @@ CI 保留既有 Core、Maintenance、Regression Impact Gate 與 Fast Browser job
 
 可合併條件：此 PR 最終 head 的 Core、Maintenance、regression-impact、全部既有 Fast Browser 與三個 Story safety jobs 均成功，無未解決阻擋。部署需阿夜另行最終驗收，這次沒有授權合併／部署。回退為 revert 此 PR 並前進載入版本；不改寫玩家存檔、不做資料遷移，也無後端部署依賴。
 
-## 最終擴大驗收發現的阻擋（保留草稿，不可合併）
+## 前輪擴大驗收的歷史阻擋（733bb7e；本節為修復前記錄）
 
 **另發現既有 P0：Linux WebKit 的 localStorage 備援跨分頁寫入可覆蓋另一份槽位，重新載入後仍遺失。**
 

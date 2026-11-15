@@ -206,7 +206,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/provider-diagnostics.js"))
     .then(() => loadBAOScript("js/credits-pilot.js?v=10"))
     .catch(err => console.warn("BAO/LAB cost, provider compatibility, model routing or Hosted credits controls failed to load:", err));
-  loadBAOScript("js/storage-write-guard.js?v=4")
+  loadBAOScript("js/storage-write-guard.js?v=5")
     .then(() => loadBAOScript("js/chat-shell-fix.js?v=4"))
     .then(() => loadBAOScript("js/player-settings.js?v=17"))
     .then(() => loadBAOScript("js/player-text-replace-mod.js?v=2"))
@@ -325,14 +325,14 @@ window.addEventListener("DOMContentLoaded", () => {
         let stored = mode === "indexedDB";
         if (mode === "localStorage") {
           try {
-            const slots = JSON.parse(localStorage.getItem(Storage.prefix + Storage.slotsKey) || "[]");
+            const slots = Storage._readFallbackSnapshot?.()?.slots || JSON.parse(localStorage.getItem(Storage.prefix + Storage.slotsKey) || "[]");
             stored = Array.isArray(slots) && slots.some(item => item.id === slot.id);
           } catch { stored = false; }
         }
         notifyPlayer(stored ? successText : "無法確認存檔已寫入，請立即匯出完整故事備份。", stored ? "success" : "error");
       } catch (error) {
         console.warn("BAO/LAB slot persistence verification failed:", error);
-        notifyPlayer("無法確認存檔已寫入，請立即匯出完整故事備份。", "error");
+        notifyPlayer(error?.code === "BAO_FALLBACK_WRITE_UNSAFE" ? error.message : "無法確認存檔已寫入，請立即匯出完整故事備份。", "error");
       }
     };
 

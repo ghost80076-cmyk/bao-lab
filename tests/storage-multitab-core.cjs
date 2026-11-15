@@ -1,3 +1,4 @@
+const { singleDocumentLocks } = require('./helpers/storage-web-locks.cjs');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -35,7 +36,7 @@ class Database {
   drain() { if (!this.active && this.queue.length) { this.active = true; this.queue.shift()(); } }
 }
 function tab(db, cache, localStorage = null) {
-  const c = { structuredClone, setTimeout, console: { warn() {} }, localStorage: { getItem: () => null, setItem() {}, removeItem() {} } };
+  const c = { navigator: { locks: singleDocumentLocks() }, structuredClone, setTimeout, console: { warn() {} }, localStorage: { getItem: () => null, setItem() {}, removeItem() {} } };
   if (localStorage) c.localStorage = localStorage;
   c.window = c; vm.createContext(c);
   vm.runInContext(source.replace(/Storage\.init\(\);\s*$/, '') + '\nwindow.store = Storage;', c);
