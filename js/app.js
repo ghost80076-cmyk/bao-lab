@@ -283,7 +283,32 @@ const App = {
   }, async exitChat(){
     const owner=GameState.current, config=this.config;
     if(this.saveStory(false)===false)return false;
-    if(window.BAOStorageWriteGuard?.whenIdle && !await window.BAOStorageWriteGuard.whenIdle())return false;
+    try {
+      if(window.BAOStorageWriteGuard?.whenIdle){
+        if(!await window.BAOStorageWriteGuard.whenIdle())return false;
+      }else{
+        // The guard is dynamically loaded. A missing script must not turn an
+        // accepted in-memory save into permission to leave before it is durable.
+        await Storage.flush();
+        const save=Storage.loadStory();
+        if(!Storage.validateStory(save))throw new Error("故事存檔無法確認。");
+        if(Storage.status().mode==="localStorage"){
+          const durable=Storage._readFallbackSnapshot()?.autosave;
+          const canonical=value=>JSON.stringify(Storage.sanitizeImportedStory(value));
+          if(!durable || canonical(durable)!==canonical(save))throw new Error("備援故事存檔與目前內容不一致。");
+        }
+        const library=window.BAOStoryLibrary;
+        if(library && (!save._library?.storyId || !await library.flush(save._library.storyId)))
+          throw new Error("故事庫章節尚未完成儲存。");
+      }
+    }catch(error){
+      console.warn("BAO/LAB exit story save confirmation failed:",error);
+      const message=error?.code==="BAO_FALLBACK_WRITE_UNSAFE" ? error.message
+        : "故事尚未確認儲存，已留在本頁。請重試儲存或匯出完整故事備份。";
+      if(window.BAOFeedback?.notify)window.BAOFeedback.notify(message,"error");
+      else alert(message);
+      return false;
+    }
     if(GameState.current!==owner || this.config!==config)return false;
     this.showView("detail");return true;
   },showView(name){document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));document.getElementById(`${name}-view`)?.classList.add("active");window.scrollTo({top:0,behavior:"instant"})},formatMessage(s=""){return this.escapeHTML(s).replace(/\n/g,"<br>")},displayStatusValue(s=""){const mod=window.BAOPlayerTextReplace;return mod?.applyStatus?mod.applyStatus(String(s??""),mod.get?.()):String(s??"")},escapeHTML(s=""){return String(s).replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[x]))},escapeAttr(s=""){return this.escapeHTML(s)}
