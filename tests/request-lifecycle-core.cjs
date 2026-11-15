@@ -172,7 +172,15 @@ assert.equal(
     context.App.config = { api: { key: "mock" } };
     context.App.buildMessages = async () => [];
     context.App.renderStoryMessage = text => text;
-    context.App.saveStory = () => { snapshots.push(JSON.parse(JSON.stringify(context.Chat.messages))); };
+    context.App.saveStory = () => { snapshots.push(JSON.parse(JSON.stringify(context.Chat.messages))); return true; };
+    // app.js must enforce the durable write barrier when the optional write
+    // guard script is absent, including inside this isolated lifecycle fixture.
+    context.Storage = {
+      flush: async () => 'indexedDB',
+      loadStory: () => ({ characterId: 'fixture', config: {}, chat: { messages: context.Chat.messages } }),
+      validateStory: value => Boolean(value?.chat?.messages),
+      status: () => ({ mode: 'indexedDB' })
+    };
     context.App.showView = () => {};
     vm.runInContext(source, isolated);
     const request = context.App.sendMessage();
