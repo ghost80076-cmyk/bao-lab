@@ -397,3 +397,79 @@ for (const width of [390, 1440]) {
     expect(await page.evaluate(() => GameState.current.storySessionId)).toBe('cache-test-fixed-session');
   });
 }
+
+for (const width of [390, 1440]) {
+  test(`scene fidelity drafts, toggles and saved reload preserve story contracts at ${width}px`, async ({ page }) => {
+    await setup(page, width);
+    const before = await page.evaluate(() => preferenceSnapshot());
+    await page.evaluate(() => BAONarrativeSettings.open());
+    const option = page.locator('[data-story-extra="scene_fidelity"]');
+    await expect(option).not.toBeChecked();
+    await option.check();
+    await option.uncheck();
+    await option.check();
+    await page.locator('.bao-modal-close').click();
+    expect(await page.evaluate(() => preferenceSnapshot())).toEqual(before);
+    await page.evaluate(() => BAONarrativeSettings.open());
+    await expect(option).not.toBeChecked();
+    await option.check();
+    await page.locator('[data-narrative-save]').click();
+    const enabled = await page.evaluate(() => preferenceSnapshot());
+    expect(enabled.messages.match(/【場景轉譯完整度】/g)).toHaveLength(1);
+    expect(enabled.defaults).toBe(before.defaults);
+    expect(enabled.calls).toBe(0);
+    expect(enabled.saves).toBe(1);
+    expect(await page.evaluate(() => preferenceSnapshot())).toEqual(enabled);
+    // Use the real IndexedDB/local-first save and restore, not a settings-only mock.
+    const shape = await page.evaluate(async () => {
+      if (!Storage.saveStory()) throw new Error('Story save failed');
+      await Storage.flush();
+      const save = Storage.loadStory();
+      return { schema: save.schema, version: save.version };
+    });
+    await page.reload();
+    await page.waitForFunction(() => window.BAONarrativeSettings && window.BAOPromptCache
+      && window.BAOPromptOrchestrator && Storage.status().ready
+      && window.BAOExtensionLoadHealth?.snapshot().story === 'ready'
+      && BAOExtensionLoadHealth.snapshot().world === 'ready');
+    const restored = await page.evaluate(() => {
+      const save = Storage.loadStory();
+      if (!Storage.restoreStory(save)) throw new Error('Story restore failed');
+      App.showView('chat');
+      App.renderChatShell(false);
+      Chat.context = async () => [{ role: 'user', content: '繼續散步。' }];
+      API.send = () => { throw new Error('Reload must not call a model'); };
+      App.saveStory = () => Storage.saveStory();
+      return { schema: save.schema, version: save.version, extras: App.config.narrative.storyExtras };
+    });
+    expect(restored).toEqual({ ...shape, extras: ['threads', 'daily', 'scene_fidelity'] });
+    await page.evaluate(() => BAONarrativeSettings.open());
+    await expect(option).toBeChecked();
+    await option.uncheck();
+    await page.locator('[data-narrative-save]').click();
+    expect(await page.evaluate(async () => JSON.stringify(await App.buildMessages(App.config)))).toBe(before.messages);
+    await page.evaluate(async () => { await Storage.flush();
+      if (!Storage.restoreStory(Storage.loadStory())) throw new Error('Disabled restore failed');
+    });
+    expect(await page.evaluate(() => App.config.narrative.storyExtras)).toEqual(['threads', 'daily']);
+    expect(await page.evaluate(async () => JSON.stringify(await App.buildMessages(App.config)))).toBe(before.messages);
+  });
+}
+
+test('scene fidelity leaves legacy save shape and prompt intact until explicitly applied', async ({ page }) => {
+  await setup(page, 390, true);
+  const before = await page.evaluate(() => preferenceSnapshot());
+  await page.evaluate(() => BAONarrativeSettings.open());
+  await expect(page.locator('[data-story-extra="scene_fidelity"]')).not.toBeChecked();
+  await page.locator('[data-narrative-save]').click();
+  expect(await page.evaluate(() => preferenceSnapshot())).toEqual(before);
+  const result = await page.evaluate(async () => {
+    Storage.saveStory();
+    await Storage.flush();
+    const save = Storage.loadStory();
+    if (!Storage.restoreStory(save)) throw new Error('Legacy restore failed');
+    return { hasNarrative: Object.hasOwn(App.config, 'narrative'),
+      messages: JSON.stringify(await App.buildMessages(App.config)) };
+  });
+  expect(result).toEqual({ hasNarrative: false, messages: before.messages });
+});

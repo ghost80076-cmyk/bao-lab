@@ -251,3 +251,27 @@ assert.deepEqual(BAONarrativeSettings.get().storyExtras, ['flexibility', 'motiva
 BAONarrativeSettings.set({ storyExtras: ['not-a-feature'] });
 assert.deepEqual(BAONarrativeSettings.get().storyExtras, []);
 assert.equal(BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()), '');
+
+ 
+// Scene fidelity is opt-in and reuses the existing story extras storage and prompt path.
+const sceneFidelityMarker = /【場景轉譯完整度】/g;
+assert.equal(BAONarrativeSettings.buildPrompt({}), '');
+assert.doesNotMatch(BAONarrativeSettings.buildPrompt({ storyExtras: ['unknown'] }), sceneFidelityMarker);
+BAONarrativeSettings.set({ storyExtras: ['scene_fidelity', 'motivation', 'flexibility', 'scene_fidelity', 'unknown'] });
+const sceneFidelity = BAONarrativeSettings.get();
+assert.deepEqual(sceneFidelity.storyExtras, ['scene_fidelity', 'motivation', 'flexibility']);
+assert.equal(BAONarrativeSettings.storyExtraLabel('scene_fidelity'), '場景轉譯完整度');
+assert.match(BAONarrativeSettings.statusLabel(sceneFidelity).title, /場景轉譯完整度/);
+const fidelityPrompt = BAONarrativeSettings.buildPrompt(sceneFidelity);
+assert.equal((fidelityPrompt.match(sceneFidelityMarker) || []).length, 1);
+assert.equal((fidelityPrompt.match(/讓已有的長短期目標/g) || []).length, 1);
+assert.equal((fidelityPrompt.match(/讓句式、描寫焦點、對話節奏/g) || []).length, 1);
+assert.match(fidelityPrompt, /轉譯成下一個可回應的具體瞬間/);
+assert.match(fidelityPrompt, /不新增無依據的事件或關係、不預設情感、不強制延長場景/);
+assert.match(fidelityPrompt, /停在玩家能自然接續之處/);
+assert.match(BAONarrativeSettings.buildPrompt({ storyExtras: ['scene_fidelity'], innerThoughts: 'none' }), /不直接揭露 NPC 內心/);
+assert.match(BAONarrativeSettings.buildPrompt({ storyExtras: ['scene_fidelity'], pacing: 'slow' }), /敘事慢慢展開/);
+sceneFidelity.storyExtras.push('threads');
+assert.deepEqual(BAONarrativeSettings.get().storyExtras, ['scene_fidelity', 'motivation', 'flexibility']);
+BAONarrativeSettings.set({ storyExtras: [] });
+assert.equal(BAONarrativeSettings.buildPrompt(BAONarrativeSettings.get()), '');

@@ -1,0 +1,53 @@
+name: Scene fidelity acceptance
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'js/narrative-settings.js'
+      - 'tests/narrative-*-core.cjs'
+      - 'tests/e2e/narrative-*.spec.cjs'
+      - '.github/workflows/scene-fidelity-acceptance.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scene-fidelity-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cross-browser:
+    name: Scene fidelity · ${{ matrix.browser }}
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Narrative settings and connected story recovery
+        run: >-
+          npx playwright test
+          tests/e2e/narrative-cache-preservation.spec.cjs
+          tests/e2e/narrative-blunt-style.spec.cjs
+          tests/e2e/tonight-story.spec.cjs
+          tests/e2e/story-rollback.spec.cjs
+          --project=${{ matrix.browser }} --workers=2
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: scene-fidelity-${{ matrix.browser }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
