@@ -340,12 +340,40 @@ window.addEventListener("DOMContentLoaded", () => {
       const box = document.getElementById("slot-list");
       if (!box) return;
       const slots = Storage.listSlots();
-      box.innerHTML = slots.length ? slots.map(s => `<div class="note" style="margin-top:8px"><b>${App.escapeHTML(s.label || "未命名存檔")}</b><br>${App.escapeHTML(s.characterName || s.characterId)} · ${new Date(s.savedAt).toLocaleString("zh-TW")}<br><button class="text-button" data-load-slot="${s.id}">讀取</button> <button class="text-button" data-export-slot="${s.id}">匯出</button> <button class="text-button" data-delete-slot="${s.id}">刪除</button></div>`).join("") : '<div class="note" style="margin-top:8px">目前沒有手動存檔。</div>';
+      // Failed deletion intents remain in Storage, while its optimistic cache
+      // omits the slot. Keep the durable row visible and explicitly pending.
+      const pendingDeletes = new Set();
+      for (const entry of Storage._fallbackFailures.values()) {
+        if (entry.operation?.type !== "deleteSlot") continue;
+        const id = entry.operation.id;
+        pendingDeletes.add(id);
+        const saved = entry.baseCache?.slots?.find(slot => slot.id === id);
+        if (saved && !slots.some(slot => slot.id === id)) slots.push(saved);
+      }
+      box.innerHTML = slots.length ? slots.map(s => `<div class="note" style="margin-top:8px"><b>${App.escapeHTML(s.label || "未命名存檔")}</b><br>${App.escapeHTML(s.characterName || s.characterId)} · ${new Date(s.savedAt).toLocaleString("zh-TW")}<br><button class="text-button" data-load-slot="${s.id}" ${pendingDeletes.has(s.id) ? 'disabled' : ''}>讀取</button> <button class="text-button" data-export-slot="${s.id}">匯出</button> <button class="text-button" data-delete-slot="${s.id}" ${pendingDeletes.has(s.id) ? 'disabled' : ''}>${pendingDeletes.has(s.id) ? "刪除待完成" : "刪除"}</button></div>`).join("") : '<div class="note" style="margin-top:8px">目前沒有手動存檔。</div>';
       box.querySelectorAll("[data-load-slot]").forEach(b => b.onclick = () => resumeSave(Storage.getSlot(b.dataset.loadSlot)));
-      box.querySelectorAll("[data-export-slot]").forEach(b => b.onclick = () => Storage.exportSave(Storage.getSlot(b.dataset.exportSlot)));
-      box.querySelectorAll("[data-delete-slot]").forEach(b => b.onclick = () => {
+      box.querySelectorAll("[data-export-slot]").forEach(b => b.onclick = () => Storage.exportSave(slots.find(slot => slot.id === b.dataset.exportSlot)));
+      box.querySelectorAll("[data-delete-slot]").forEach(b => b.onclick = async () => {
         const s = Storage.getSlot(b.dataset.deleteSlot);
-        if (s && confirm(`確定刪除「${s.label || "未命名存檔"}」？`)) { Storage.deleteSlot(b.dataset.deleteSlot); renderSlots(); }
+        if (!s || !confirm(`確定刪除「${s.label || "未命名存檔"}」？`)) return;
+        const restoreFocus = document.activeElement === b;
+        b.disabled = true;
+        b.setAttribute("aria-busy", "true");
+        b.textContent = "正在儲存刪除…";
+        try {
+          Storage.deleteSlot(b.dataset.deleteSlot);
+          await Storage.flush();
+          notifyPlayer("刪除已確認儲存。", "success");
+        } catch (error) {
+          notifyPlayer("刪除尚未儲存。" + (error?.message || "請保留本頁，檢查裝置空間後再儲存。"), "error");
+        } finally {
+          const hadFocus = restoreFocus && (document.activeElement === b || document.activeElement === document.body);
+          renderSlots();
+          if (hadFocus) {
+            box.tabIndex = -1;
+            box.focus({ preventScroll: true });
+          }
+        }
       });
     };
 

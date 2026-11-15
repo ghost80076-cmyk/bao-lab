@@ -36,6 +36,7 @@ const Storage = {
   _fallbackLeaseState: "pending",
   _fallbackLeaseRetired: false,
   _fallbackFailures: new Map(),
+  _operationSequence: 0,
 
   set(key, value) {
     try {
@@ -260,10 +261,26 @@ const Storage = {
     throw error;
   },
 
+  _operationKey(operation) {
+    return !operation ? "snapshot" : operation.type === "saveStory" || operation.type === "clearStory"
+      ? "autosave" : "slot:" + String(operation.id || operation.payload?.id);
+  },
+
+  _acknowledgeIndexedDBOperation(operation) {
+    const key = this._operationKey(operation);
+    const failed = this._fallbackFailures.get(key);
+    // Sequence lives only on the in-memory operation envelope. Startup and
+    // fallback clones retain it; payloads and persistent schemas do not change.
+    // A transaction for an older intent must never acknowledge a newer one.
+    if (operation.sequence && failed?.operation?.sequence === operation.sequence) {
+      this._fallbackFailures.delete(key);
+      if (!this._fallbackFailures.size) this._lastError = null;
+    }
+  },
+
   async _persistFallbackOperations(operation, baseCache) {
     for (const item of Array.isArray(operation) ? operation : [operation]) {
-      const key = !item ? "snapshot" : item.type === "saveStory" || item.type === "clearStory"
-        ? "autosave" : "slot:" + String(item.id || item.payload?.id);
+      const key = this._operationKey(item);
       this._fallbackFailures.set(key, { operation: item, baseCache: item ? baseCache : this.clone(baseCache) });
     }
     await this._requireFallbackWriter();
@@ -569,11 +586,13 @@ const Storage = {
     if (operation.type === "saveStory") {
       await this._transaction("readwrite", store => store.put(this._record("autosave", operation.payload)));
       this._advanceExpectedRevision();
+      this._acknowledgeIndexedDBOperation(operation);
       return;
     }
     if (operation.type === "clearStory") {
       await this._transaction("readwrite", store => store.delete(this.autosaveRecordId));
       this._advanceExpectedRevision();
+      this._acknowledgeIndexedDBOperation(operation);
       return;
     }
     if (operation.type === "saveSlot" || operation.type === "deleteSlot") {
@@ -596,6 +615,7 @@ const Storage = {
         };
       });
       this._advanceExpectedRevision();
+      this._acknowledgeIndexedDBOperation(operation);
     }
   },
 
@@ -625,6 +645,7 @@ const Storage = {
   },
 
   _commitOperation(operation) {
+    operation = { ...operation, sequence: ++this._operationSequence };
     const baseCache = { autosave: this._cache.autosave, slots: this._cache.slots };
     this._applyOperation(operation);
     if (this._mode === "indexedDB") {

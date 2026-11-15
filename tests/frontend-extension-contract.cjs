@@ -14,7 +14,7 @@ assert(memoryWorkbenchSource.includes('data-summary-mode-notice'));
 assert(siteUI.includes('js/world-state-cost.js?v=14'));
 assert(siteUI.includes('js/provider-policy-guard.js?v=1'), 'policy circuit must load before hosted transport');
 assert(siteUI.indexOf('js/provider-policy-guard.js?v=1') < siteUI.indexOf('js/credits-pilot.js?v=10'));
-assert(index.includes('src="js/site-ui.js?v=211"'));
+assert(index.includes('src="js/site-ui.js?v=212"'));
 assert(index.includes('src="js/app.js?v=17"'));
 assert(siteUI.includes('loadBAOOptionalGroup("chapter-memory"'), 'chapter workbench must not block story sends');
 assert(siteUI.includes('loadBAOOptionalGroup("chapter-recall"'), 'optional recall must not block story sends');
@@ -49,7 +49,7 @@ const increasing = (source, tokens, label) => {
 
 // Base globals must exist before site-ui starts its asynchronous extension chains.
 increasing(index, [
-  'src="js/storage.js?v=10"',
+  'src="js/storage.js?v=11"',
   'src="js/story-history-core.js?v=2"',
   'src="js/state.js?v=3"',
   'src="js/api.js',
