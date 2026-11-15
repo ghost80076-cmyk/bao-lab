@@ -21,6 +21,7 @@ async function run() {
     story: { storyId: id, title: local.title, createdAt: local.updatedAt, updatedAt: local.updatedAt },
     activeChapterId: 'chapter-12345678', chapters: [{ chapterId: 'chapter-12345678', payload: {}, checkpoints: [] }]
   });
+  let oauthMode = 'grant', aboutMode = 'valid';
   const response = (value, status = 200) => ({ ok: status < 400, status, json: async () => value });
   const fetch = async (url, options = {}) => {
     calls.push({ url: String(url), method: options.method || 'GET' });
@@ -29,7 +30,11 @@ async function run() {
       if (index >= 0) remote.splice(index, 1);
       return response({}, 204);
     }
-    if (String(url).includes('/about?')) return response({ user: { permissionId: 'test-account' } });
+    if (String(url).includes('/about?')) {
+      if (aboutMode === 'missing-account') return response({ user: {} });
+      if (aboutMode === 'unauthorized') return response({ error: { message: 'expired test token' } }, 401);
+      return response({ user: { permissionId: 'test-account' } });
+    }
     // Upload URLs also end in /files?, so match the specific upload endpoint first.
     if (String(url).includes('/upload/drive/v3/files?')) {
       const body = await options.body.text();
@@ -47,7 +52,9 @@ async function run() {
   const Storage = { saveStory: () => true };
   const google = { accounts: { oauth2: { initTokenClient: () => {
     const client = { callback: null, requestAccessToken() {
-      queueMicrotask(() => client.callback({ access_token: 'test-token', expires_in: 3600 }));
+      queueMicrotask(() => client.callback(oauthMode === 'cancel'
+        ? { error: 'access_denied' }
+        : { access_token: 'test-token', expires_in: oauthMode === 'short-lived' ? 30 : 3600 }));
     } };
     return client;
   } } } };
@@ -60,8 +67,28 @@ async function run() {
   const sync = window.BAOGoogleDriveSync;
   assert.ok(sync, 'Sync module should initialize');
   assert.equal(sync.connected(), false, 'Must never connect without user consent');
+  oauthMode = 'cancel';
+  await assert.rejects(sync.connect(), /access_denied/, 'Declined Google consent must not connect');
+  assert.equal(sync.connected(), false);
+  assert.equal(calls.length, 0, 'Declined consent cannot call the Drive API');
+
+  oauthMode = 'short-lived';
+  await assert.rejects(sync.connect(), /授權已到期/, 'Near-expired token cannot be used for Drive identity');
+  assert.equal(sync.connected(), false);
+  assert.equal(calls.length, 0, 'Expired token must not trigger a remote request');
+
+  oauthMode = 'grant';
+  aboutMode = 'missing-account';
+  await assert.rejects(sync.connect(), /帳號識別碼/, 'OAuth success without Drive identity is not a connection');
+  assert.equal(sync.connected(), false);
+  aboutMode = 'unauthorized';
+  await assert.rejects(sync.connect(), /Drive 401/, 'Revoked authorization must fail closed');
+  assert.equal(sync.connected(), false);
+  aboutMode = 'valid';
   await sync.connect();
   assert.equal(sync.connected(), true);
+  assert.ok([...memory.values()].every(value => !String(value).includes('test-token')),
+    'Bearer access token must not be persisted to localStorage');
   const first = await sync.sync();
   assert.equal(first.uploaded, 1, 'First sync uploads a single story');
   assert.equal(first.errors.length, 0);
