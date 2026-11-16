@@ -19,47 +19,36 @@ class FakeNames {
   contains(name) { return this.set.has(name); }
 }
 
+// Use the shared request-draining scheduler instead of completing a fake
+// transaction after 5 ms regardless of its outstanding requests.
+const { Database } = require('./storage-multitab-core.cjs');
 class FakeStore {
   constructor(db) { this.db = db; this.indexNames = new FakeNames(db.indexes); }
   createIndex(name) { this.db.indexes.add(name); return {}; }
-  index(name) {
-    if (!this.db.indexes.has(name)) throw new Error("Index missing: " + name);
-    return {
-      getAll(value) {
-        const request = new FakeRequest();
-        setTimeout(() => {
-          request.result = [...global.indexedDB.db.records.values()]
-            .filter(record => record[name] === value).map(record => structuredClone(record));
-          request.onsuccess?.();
-        }, 0);
-        return request;
-      }
-    };
-  }
-  getAll() {
-    const request = new FakeRequest();
-    setTimeout(() => { request.result = [...this.db.records.values()].map(value => structuredClone(value)); request.onsuccess?.(); }, 0);
-    return request;
-  }
-  put(value) { this.db.records.set(value.id, structuredClone(value)); return new FakeRequest(); }
-  delete(id) { this.db.records.delete(id); return new FakeRequest(); }
 }
 
-class FakeTransaction {
-  constructor(db) {
-    this.db = db; this.oncomplete = null; this.onerror = null; this.onabort = null; this.error = null;
-    setTimeout(() => this.oncomplete?.(), 5);
-  }
-  objectStore() { return new FakeStore(this.db); }
-}
-
-class FakeDB {
+class FakeDB extends Database {
   constructor() {
+    super();
     this.records = new Map(); this.indexes = new Set(); this.created = false; this.onversionchange = null;
     this.objectStoreNames = { contains: () => this.created };
   }
   createObjectStore() { this.created = true; return new FakeStore(this); }
-  transaction() { return new FakeTransaction(this); }
+  transaction() {
+    const tx = super.transaction(), store = tx.objectStore();
+    tx.objectStore = () => ({ ...store, indexNames: new FakeNames(this.indexes), index: name => {
+      if (!this.indexes.has(name)) throw new Error('Index missing: ' + name);
+      return { getAll: value => {
+        const request = store.getAll(), result = new FakeRequest();
+        request.onsuccess = () => {
+          result.result = request.result.filter(record => record[name] === value);
+          result.onsuccess?.();
+        };
+        return result;
+      } };
+    } });
+    return tx;
+  }
   close() {}
 }
 
@@ -67,12 +56,12 @@ class FakeIndexedDB {
   constructor() { this.db = new FakeDB(); }
   open() {
     const request = new FakeRequest();
-    request.transaction = new FakeTransaction(this.db);
-    setTimeout(() => {
+    request.transaction = { objectStore: () => new FakeStore(this.db) };
+    setImmediate(() => {
       request.result = this.db;
       if (!this.db.created) request.onupgradeneeded?.();
       request.onsuccess?.();
-    }, 0);
+    });
     return request;
   }
 }

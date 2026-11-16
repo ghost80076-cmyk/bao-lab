@@ -22,7 +22,7 @@ const loadBAOScript = src => {
   return promise;
 };
 
-const STORY_LIBRARY_SRC = "js/story-library.js?v=12";
+const STORY_LIBRARY_SRC = "js/story-library.js?v=13";
 // The policy guard must be active even when the optional cost UI chain fails.
 const providerPolicyReady = loadBAOScript("js/provider-policy-guard.js?v=1");
 window.BAOEnsureStoryLibrary = () => {
@@ -206,12 +206,12 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/provider-diagnostics.js"))
     .then(() => loadBAOScript("js/credits-pilot.js?v=10"))
     .catch(err => console.warn("BAO/LAB cost, provider compatibility, model routing or Hosted credits controls failed to load:", err));
-  loadBAOScript("js/storage-write-guard.js?v=3")
+  loadBAOScript("js/storage-write-guard.js?v=5")
     .then(() => loadBAOScript("js/chat-shell-fix.js?v=4"))
     .then(() => loadBAOScript("js/player-settings.js?v=17"))
     .then(() => loadBAOScript("js/player-text-replace-mod.js?v=2"))
     .then(() => loadBAOScript("js/narrative-settings.js?v=18"))
-    .then(() => loadBAOScript("js/memory-workbench-core.js?v=17"))
+    .then(() => loadBAOScript("js/memory-workbench-core.js?v=18"))
     .then(() => loadBAOScript("js/summary-knowledge-ui.js?v=1"))
     .then(() => loadBAOOptionalGroup("full-story-memory-rebuild", ["js/full-story-memory-rebuild-core.js?v=2", "js/full-story-memory-rebuild.js?v=6"]))
     .then(() => loadBAOScript("js/memory-workbench-ai.js?v=7"))
@@ -226,7 +226,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => window.BAOEnsureStoryLibrary())
     .then(() => loadBAOScript("js/context-pack-resume.js?v=5"))
     .then(() => loadBAOScript("js/story-backup.js?v=4"))
-    .then(() => loadBAOOptionalGroup("google-drive", ["js/google-drive-config.js", "js/google-drive-sync.js?v=2"]))
+    .then(() => loadBAOOptionalGroup("google-drive", ["js/google-drive-config.js", "js/google-drive-sync.js?v=4"]))
     .then(() => loadBAOScript("js/prompt-cache.js?v=13"))
     .then(() => loadBAOScript("js/prompt-orchestrator.js?v=8"))
     .then(() => loadBAOScript("js/episodic-memory.js?v=5"))
@@ -242,9 +242,9 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOOptionalGroup("inspiration-copy", ["js/inspiration-copy.js?v=2"]))
     .then(() => loadBAOScript("js/story-revision-state.js?v=14"))
     .then(() => loadBAOScript("js/story-history.js?v=2"))
-    .then(() => loadBAOScript("js/story-branches.js?v=5"))
+    .then(() => loadBAOScript("js/story-branches.js?v=6"))
     .then(() => loadBAOScript("js/streaming-ui.js?v=8"))
-    .then(() => loadBAOScript("js/request-lifecycle.js?v=8"))
+    .then(() => loadBAOScript("js/request-lifecycle.js?v=9"))
     .then(() => loadBAOScript("js/chat-tool-navigation.js?v=17"))
     .then(() => loadBAOScript("js/chat-experience-repairs.js?v=6"))
     .then(() => loadBAOOptionalGroup("story-quick-commands", ["js/story-quick-commands-core.js?v=3", "js/story-quick-commands.js?v=9"]))
@@ -325,27 +325,58 @@ window.addEventListener("DOMContentLoaded", () => {
         let stored = mode === "indexedDB";
         if (mode === "localStorage") {
           try {
-            const slots = JSON.parse(localStorage.getItem(Storage.prefix + Storage.slotsKey) || "[]");
+            const slots = Storage._readFallbackSnapshot?.()?.slots || JSON.parse(localStorage.getItem(Storage.prefix + Storage.slotsKey) || "[]");
             stored = Array.isArray(slots) && slots.some(item => item.id === slot.id);
           } catch { stored = false; }
         }
         notifyPlayer(stored ? successText : "無法確認存檔已寫入，請立即匯出完整故事備份。", stored ? "success" : "error");
       } catch (error) {
         console.warn("BAO/LAB slot persistence verification failed:", error);
-        notifyPlayer("無法確認存檔已寫入，請立即匯出完整故事備份。", "error");
+        notifyPlayer(error?.code === "BAO_FALLBACK_WRITE_UNSAFE" ? error.message : "無法確認存檔已寫入，請立即匯出完整故事備份。", "error");
       }
     };
 
     const renderSlots = () => {
       const box = document.getElementById("slot-list");
-      if (!box) return;
+      if (!box || box.getAttribute("aria-busy") === "true") return;
       const slots = Storage.listSlots();
-      box.innerHTML = slots.length ? slots.map(s => `<div class="note" style="margin-top:8px"><b>${App.escapeHTML(s.label || "未命名存檔")}</b><br>${App.escapeHTML(s.characterName || s.characterId)} · ${new Date(s.savedAt).toLocaleString("zh-TW")}<br><button class="text-button" data-load-slot="${s.id}">讀取</button> <button class="text-button" data-export-slot="${s.id}">匯出</button> <button class="text-button" data-delete-slot="${s.id}">刪除</button></div>`).join("") : '<div class="note" style="margin-top:8px">目前沒有手動存檔。</div>';
+      // Failed deletion intents remain in Storage, while its optimistic cache
+      // omits the slot. Keep the durable row visible and explicitly pending.
+      const pendingDeletes = new Set();
+      for (const entry of Storage._fallbackFailures.values()) {
+        if (entry.operation?.type !== "deleteSlot") continue;
+        const id = entry.operation.id;
+        pendingDeletes.add(id);
+        const saved = entry.baseCache?.slots?.find(slot => slot.id === id);
+        if (saved && !slots.some(slot => slot.id === id)) slots.push(saved);
+      }
+      box.innerHTML = slots.length ? slots.map(s => `<div class="note" style="margin-top:8px"><b>${App.escapeHTML(s.label || "未命名存檔")}</b><br>${App.escapeHTML(s.characterName || s.characterId)} · ${new Date(s.savedAt).toLocaleString("zh-TW")}<br><button class="text-button" data-load-slot="${s.id}" ${pendingDeletes.has(s.id) ? 'disabled' : ''}>讀取</button> <button class="text-button" data-export-slot="${s.id}">匯出</button> <button class="text-button" data-delete-slot="${s.id}" ${pendingDeletes.has(s.id) ? 'disabled' : ''}>${pendingDeletes.has(s.id) ? "刪除待完成" : "刪除"}</button></div>`).join("") : '<div class="note" style="margin-top:8px">目前沒有手動存檔。</div>';
       box.querySelectorAll("[data-load-slot]").forEach(b => b.onclick = () => resumeSave(Storage.getSlot(b.dataset.loadSlot)));
-      box.querySelectorAll("[data-export-slot]").forEach(b => b.onclick = () => Storage.exportSave(Storage.getSlot(b.dataset.exportSlot)));
-      box.querySelectorAll("[data-delete-slot]").forEach(b => b.onclick = () => {
+      box.querySelectorAll("[data-export-slot]").forEach(b => b.onclick = () => Storage.exportSave(slots.find(slot => slot.id === b.dataset.exportSlot)));
+      box.querySelectorAll("[data-delete-slot]").forEach(b => b.onclick = async () => {
+        if (box.getAttribute("aria-busy") === "true") return;
         const s = Storage.getSlot(b.dataset.deleteSlot);
-        if (s && confirm(`確定刪除「${s.label || "未命名存檔"}」？`)) { Storage.deleteSlot(b.dataset.deleteSlot); renderSlots(); }
+        if (!s || !confirm(`確定刪除「${s.label || "未命名存檔"}」？`)) return;
+        box.setAttribute("aria-busy", "true");
+        const restoreFocus = document.activeElement === b;
+        b.disabled = true;
+        b.setAttribute("aria-busy", "true");
+        b.textContent = "正在儲存刪除…";
+        try {
+          Storage.deleteSlot(b.dataset.deleteSlot);
+          await Storage.flush();
+          notifyPlayer("刪除已確認儲存。", "success");
+        } catch (error) {
+          notifyPlayer("刪除尚未儲存。" + (error?.message || "請保留本頁，檢查裝置空間後再儲存。"), "error");
+        } finally {
+          const hadFocus = restoreFocus && (document.activeElement === b || document.activeElement === document.body);
+          box.removeAttribute("aria-busy");
+          renderSlots();
+          if (hadFocus) {
+            box.tabIndex = -1;
+            box.focus({ preventScroll: true });
+          }
+        }
       });
     };
 

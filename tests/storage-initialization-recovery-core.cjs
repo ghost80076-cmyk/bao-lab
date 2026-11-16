@@ -2,19 +2,20 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { singleDocumentLocks } = require('./helpers/storage-web-locks.cjs');
 const source = fs.readFileSync(path.join(__dirname, '..', 'js', 'storage.js'), 'utf8');
 const AUTO = 'bao-lab:story:autosave', SLOTS = 'bao-lab:story:slots';
 function deferred() { let resolve; const promise = new Promise(r => { resolve = r; }); return { promise, resolve }; }
 function boot() {
   const data = new Map();
-  const c = { indexedDB: {}, structuredClone, setTimeout, console: { warn() {} }, localStorage: {
+  const c = { navigator: { locks: singleDocumentLocks() }, indexedDB: {}, structuredClone, setTimeout, console: { warn() {} }, localStorage: {
     getItem: key => data.get(key) ?? null,
     setItem: (key, value) => data.set(key, String(value)), removeItem: key => data.delete(key)
   } };
   c.window = c;
   vm.createContext(c);
   vm.runInContext(source.replace(/Storage\.init\(\);\s*$/, '') + '\nwindow.store = Storage;', c);
-  return { store: c.store, data };
+  return { store: c.store, data, localStorage: c.localStorage };
 }
 const save = label => ({ characterId: 'hero', label, savedAt: '2026-10-17T00:00:00Z', config: {}, chat: { messages: [] } });
 const slot = id => ({ ...save(id), id });
@@ -22,8 +23,8 @@ const put = label => ({ type: 'saveStory', payload: save(label) });
 const add = id => ({ type: 'saveSlot', payload: slot(id) });
 const del = id => ({ type: 'deleteSlot', id });
 const baseline = () => ({ autosave: save('durable'), slots: [slot('old')] });
-async function initialization(failAt, clearAutosave = false) {
-  const { store, data } = boot(), opening = deferred(), entered = deferred(), release = deferred();
+async function initialization(failAt, clearAutosave = false, quotaFailure = false) {
+  const { store, data, localStorage } = boot(), opening = deferred(), entered = deferred(), release = deferred();
   let durable = baseline(), calls = 0;
   store._openDatabase = () => opening.promise;
   store._migrateLegacyToIndexedDB = async () => {};
@@ -36,6 +37,8 @@ async function initialization(failAt, clearAutosave = false) {
     if (operation.type === 'clearStory') durable.autosave = null;
     if (operation.type === 'saveSlot' || operation.type === 'deleteSlot') durable.slots = structuredClone(store._cache.slots);
   };
+  const setItem = localStorage.setItem;
+  if (quotaFailure) localStorage.setItem = () => { throw Error('injected quota failure'); };
   const init = store.init();
   for (const operation of [put('queued-first'), add('queued'), del('old'), put('queued-last')]) store._commitOperation(operation);
   opening.resolve({ close() {} });
@@ -48,6 +51,12 @@ async function initialization(failAt, clearAutosave = false) {
   if (clearAutosave) store._commitOperation({ type: 'clearStory' });
   release.resolve();
   await init;
+  if (quotaFailure) {
+    await assert.rejects(store.flush(), /quota/);
+    assert.equal(data.has(store.fallbackSnapshotKey), false, 'failed startup must not commit an incomplete snapshot');
+    localStorage.setItem = setItem;
+    store._commitOperation(clearAutosave ? { type: 'clearStory' } : put('during-replay'));
+  }
   await store.flush();
   const expectedLabel = clearAutosave ? undefined : 'during-replay';
   assert.equal(store._cache.autosave?.label, expectedLabel, 'latest autosave survives initialization');
@@ -113,6 +122,7 @@ async function transactions() {
 async function main() {
   if (process.argv.includes('--transaction-only')) { await transactions(); return; }
   for (const failAt of [0, 1, 3, 6]) for (const clear of [false, true]) await initialization(failAt, clear);
+  for (const failAt of [1, 3, 6]) for (const clear of [false, true]) await initialization(failAt, clear, true);
   await transactions();
   console.log('Storage initialization recovery: concurrent replay, first/middle/late failure, reload deletions and atomic abort passed');
 }

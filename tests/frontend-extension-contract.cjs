@@ -14,8 +14,8 @@ assert(memoryWorkbenchSource.includes('data-summary-mode-notice'));
 assert(siteUI.includes('js/world-state-cost.js?v=14'));
 assert(siteUI.includes('js/provider-policy-guard.js?v=1'), 'policy circuit must load before hosted transport');
 assert(siteUI.indexOf('js/provider-policy-guard.js?v=1') < siteUI.indexOf('js/credits-pilot.js?v=10'));
-assert(index.includes('src="js/site-ui.js?v=208"'));
-assert(index.includes('src="js/app.js?v=16"'));
+assert(index.includes('src="js/site-ui.js?v=212"'));
+assert(index.includes('src="js/app.js?v=17"'));
 assert(siteUI.includes('loadBAOOptionalGroup("chapter-memory"'), 'chapter workbench must not block story sends');
 assert(siteUI.includes('loadBAOOptionalGroup("chapter-recall"'), 'optional recall must not block story sends');
 assert(siteUI.indexOf('js/episodic-memory.js?v=5') < siteUI.indexOf('js/chapter-memory-recall.js?v=1'), 'chapter recall must follow knowledge resolver');
@@ -49,7 +49,7 @@ const increasing = (source, tokens, label) => {
 
 // Base globals must exist before site-ui starts its asynchronous extension chains.
 increasing(index, [
-  'src="js/storage.js?v=9"',
+  'src="js/storage.js?v=11"',
   'src="js/story-history-core.js?v=2"',
   'src="js/state.js?v=3"',
   'src="js/api.js',
@@ -80,7 +80,7 @@ increasing(siteUI, [
 
 // Story chain: story-tools is installed before prompt/cache orchestration and request lifecycle.
 increasing(siteUI, [
-  'loadBAOScript("js/storage-write-guard.js?v=3")',
+  'loadBAOScript("js/storage-write-guard.js?v=5")',
   'loadBAOScript("js/story-tools.js?v=17")',
   'window.BAOEnsureStoryLibrary()',
   'loadBAOScript("js/context-pack-resume.js',
@@ -90,7 +90,7 @@ increasing(siteUI, [
   'then(() => worldModulesReady)',
   'loadBAOScript("js/three-realms-events.js?v=3")',
   'loadBAOScript("js/streaming-ui.js',
-  'loadBAOScript("js/request-lifecycle.js?v=8")'
+  'loadBAOScript("js/request-lifecycle.js?v=9")'
 ], "story extension");
 
 // Stage capability must resolve before Reader Context / Player Shell consume it.
@@ -114,7 +114,7 @@ assert.match(quickStartMode, /data-bao-setup="quick"/);
 assert.match(quickStartMode, /data-bao-setup="advanced"/);
 assert.match(quickStartMode, /App\.setStep\(view\.dataset\.baoSetup === 'quick' \? 4 : 1\)/);
 
-assert.match(siteUI, /const STORY_LIBRARY_SRC = "js\/story-library\.js\?v=12"/);
+assert.match(siteUI, /const STORY_LIBRARY_SRC = "js\/story-library\.js\?v=13"/);
 assert.match(siteUI, /window\.BAOEnsureStoryLibrary = \(\) =>/);
 
 // Modules without their own global idempotency guard currently rely on the loader;

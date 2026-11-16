@@ -21,6 +21,7 @@ async function run() {
     story: { storyId: id, title: local.title, createdAt: local.updatedAt, updatedAt: local.updatedAt },
     activeChapterId: 'chapter-12345678', chapters: [{ chapterId: 'chapter-12345678', payload: {}, checkpoints: [] }]
   });
+  let oauthMode = 'grant', aboutMode = 'valid';
   const response = (value, status = 200) => ({ ok: status < 400, status, json: async () => value });
   const fetch = async (url, options = {}) => {
     calls.push({ url: String(url), method: options.method || 'GET' });
@@ -29,7 +30,11 @@ async function run() {
       if (index >= 0) remote.splice(index, 1);
       return response({}, 204);
     }
-    if (String(url).includes('/about?')) return response({ user: { permissionId: 'test-account' } });
+    if (String(url).includes('/about?')) {
+      if (aboutMode === 'missing-account') return response({ user: {} });
+      if (aboutMode === 'unauthorized') return response({ error: { message: 'expired test token' } }, 401);
+      return response({ user: { permissionId: 'test-account' } });
+    }
     // Upload URLs also end in /files?, so match the specific upload endpoint first.
     if (String(url).includes('/upload/drive/v3/files?')) {
       const body = await options.body.text();
@@ -47,7 +52,9 @@ async function run() {
   const Storage = { saveStory: () => true };
   const google = { accounts: { oauth2: { initTokenClient: () => {
     const client = { callback: null, requestAccessToken() {
-      queueMicrotask(() => client.callback({ access_token: 'test-token', expires_in: 3600 }));
+      queueMicrotask(() => client.callback(oauthMode === 'cancel'
+        ? { error: 'access_denied' }
+        : { access_token: 'test-token', expires_in: oauthMode === 'short-lived' ? 30 : 3600 }));
     } };
     return client;
   } } } };
@@ -60,8 +67,28 @@ async function run() {
   const sync = window.BAOGoogleDriveSync;
   assert.ok(sync, 'Sync module should initialize');
   assert.equal(sync.connected(), false, 'Must never connect without user consent');
+  oauthMode = 'cancel';
+  await assert.rejects(sync.connect(), /access_denied/, 'Declined Google consent must not connect');
+  assert.equal(sync.connected(), false);
+  assert.equal(calls.length, 0, 'Declined consent cannot call the Drive API');
+
+  oauthMode = 'short-lived';
+  await assert.rejects(sync.connect(), /授權已到期/, 'Near-expired token cannot be used for Drive identity');
+  assert.equal(sync.connected(), false);
+  assert.equal(calls.length, 0, 'Expired token must not trigger a remote request');
+
+  oauthMode = 'grant';
+  aboutMode = 'missing-account';
+  await assert.rejects(sync.connect(), /帳號識別碼/, 'OAuth success without Drive identity is not a connection');
+  assert.equal(sync.connected(), false);
+  aboutMode = 'unauthorized';
+  await assert.rejects(sync.connect(), /Drive 401/, 'Revoked authorization must fail closed');
+  assert.equal(sync.connected(), false);
+  aboutMode = 'valid';
   await sync.connect();
   assert.equal(sync.connected(), true);
+  assert.ok([...memory.values()].every(value => !String(value).includes('test-token')),
+    'Bearer access token must not be persisted to localStorage');
   const first = await sync.sync();
   assert.equal(first.uploaded, 1, 'First sync uploads a single story');
   assert.equal(first.errors.length, 0);
@@ -107,6 +134,34 @@ async function run() {
   Storage.saveStory = () => false;
   await assert.rejects(sync.sync(), /儲存/);
   Storage.saveStory = priorSave;
+  // Even when the Library is healthy, primary autosave failure must stop
+  // this active story before any remote mutation. Release the actual barrier.
+  let releaseLocal, enteredLocal;
+  const localEntered = new Promise(resolve => { enteredLocal = resolve; });
+  Storage.flush = () => { enteredLocal(); return new Promise(resolve => { releaseLocal = resolve; }); };
+  Storage.loadStory = () => ({});
+  window.BAOStorageWriteGuard = { verify: () => ({ ok: false }) };
+  lib.flush = normalFlush;
+  localExists = true;
+  const beforeLocalFailure = calls.length;
+  const localFailure = sync.sync();
+  await localEntered;
+  assert.equal(calls.length, beforeLocalFailure, 'Drive must wait for local persistence before requesting cloud data');
+  releaseLocal();
+  const rejectedAutosave = await localFailure;
+  assert.equal(rejectedAutosave.errors.length, 1);
+  assert.equal(rejectedAutosave.uploaded + rejectedAutosave.downloaded, 0);
+  assert.ok(calls.slice(beforeLocalFailure).every(call => call.method === 'GET'));
+  // flush now rejects uncommitted fallback writes. Preserve the sync result
+  // contract even if a stale readback would otherwise verify successfully.
+  Storage.flush = async () => { throw new Error('fixture uncommitted fallback'); };
+  window.BAOStorageWriteGuard.verify = () => ({ ok: true });
+  const beforeRejectedFlush = calls.length;
+  const rejectedFlush = await sync.sync();
+  assert.equal(rejectedFlush.errors.length, 1);
+  assert.equal(rejectedFlush.skipped + rejectedFlush.uploaded + rejectedFlush.downloaded, 0);
+  assert.ok(calls.slice(beforeRejectedFlush).every(call => call.method === 'GET'));
+  delete Storage.flush; delete window.BAOStorageWriteGuard;
   delete window.App;
   delete window.GameState;
   lib.refs = () => ({ storyId: '', chapterId: '' });

@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { singleDocumentLocks } = require('./helpers/storage-web-locks.cjs');
 const source = fs.readFileSync(path.join(__dirname, '..', 'js', 'storage.js'), 'utf8');
 const AUTO = 'bao-lab:story:autosave', SLOTS = 'bao-lab:story:slots', MARKER = 'bao-lab:story-idb-fallback-v1';
 class BrowserStorage {
@@ -12,7 +13,7 @@ class BrowserStorage {
 }
 const save = (label, time = '2026-10-17T00:00:00Z') => ({ characterId: 'hero', label, savedAt: time, config: {}, chat: { messages: [{ role: 'user', content: label }] }, state: {} });
 function boot(localStorage) {
-  const c = { localStorage, structuredClone, setTimeout, console: { warn() {} } };
+  const c = { navigator: { locks: singleDocumentLocks() }, localStorage, structuredClone, setTimeout, console: { warn() {} } };
   c.window = c; vm.createContext(c);
   vm.runInContext(source + '\nwindow.store = Storage;', c);
   return c.store;
@@ -48,7 +49,7 @@ async function main() {
     assert.equal(JSON.parse(previous).revision, 0);
     browser.failures.add('set:' + store.fallbackSnapshotKey);
     store._commitOperation({ type: 'clearStory' });
-    store.deleteSlot('keep'); await store.flush();
+    store.deleteSlot('keep'); await assert.rejects(store.flush(), /quota/);
     assert.equal(browser.getItem(store.fallbackSnapshotKey), previous, 'quota failure retains the entire prior snapshot');
     assert.equal(boot(browser).loadStory().label, 'complete');
     assert.ok(boot(browser).getSlot('keep'));
@@ -96,7 +97,7 @@ async function main() {
     const browser = new BrowserStorage(), store = boot(browser);
     const corrupt = '{broken-json';
     browser.setItem(store.fallbackSnapshotKey, corrupt);
-    store._commitOperation({ type: 'saveStory', payload: save('new') }); await store.flush();
+    store._commitOperation({ type: 'saveStory', payload: save('new') }); await assert.rejects(store.flush(), /JSON|position|property/i);
     assert.equal(browser.getItem(store.fallbackSnapshotKey), corrupt, 'invalid existing snapshot is preserved for recovery');
     await assert.rejects(reloadAndMigrate(browser, []), /JSON|position|property/i);
   }

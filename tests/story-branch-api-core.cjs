@@ -53,10 +53,35 @@ function fixture({ targetURL = 'https://a.example/v1', targetProtocol = 'openai'
     alert: message => events.alerts.push(message), console });
   vm.runInContext(source, context, { filename: 'story-branches.js' });
   assert(win.BAOStoryBranches, 'branch module must initialize');
-  return { ...events, app, chat, state, library, branch: win.BAOStoryBranches, events };
+  return { ...events, app, chat, state, library, storage, win, branch: win.BAOStoryBranches, events };
 }
 
 (async () => {
+  {
+    const f = fixture();
+    f.app.__requestPending = true;
+    await f.branch.createFrom(0);
+    assert.equal(f.events.prompts.length, 0);
+    assert.equal(f.events.saves, 0);
+    assert.equal(f.events.restores, 0, 'new branches cannot snapshot a transient player turn');
+  }
+  {
+    const f = fixture();
+    const original = { config: structuredClone(f.app.config), chat: structuredClone(f.chat), state: { money: 20 } };
+    f.storage.loadStory = () => original;
+    let checks = 0, entered, release;
+    const destinationPending = new Promise(resolve => { entered = resolve; });
+    f.win.BAOStorageWriteGuard = { whenIdle: () => ++checks === 1 ? Promise.resolve(true)
+      : new Promise(resolve => { release = resolve; entered(); }) };
+    const restore = f.branch.restore('story1', 'branch1');
+    await destinationPending;
+    f.state.current = { money: 999 };
+    f.app.config = { api: {} };
+    release(false);
+    await assert.rejects(restore, /儲存/);
+    assert.equal(f.state.current.money, 999, 'a late failed branch write cannot restore over a newer story');
+    assert.equal(f.events.restores, 1);
+  }
   {
     const f = fixture({ targetURL: 'https://a.example/v1' });
     assert.equal(await f.branch.restore('story1', 'branch1'), true);

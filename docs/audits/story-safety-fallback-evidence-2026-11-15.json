@@ -1,0 +1,199 @@
+{
+  "base": "6a624446f33b031fd806230ec40d562a4f663596",
+  "browser": "Playwright 1.63.0 Linux WebKit 26.6",
+  "storage_source_blob": "d9345860ac8c9ab52979e3ee9b4381fdd7683783",
+  "fixture": "IndexedDB unavailable; two pages; Promise.all(saveSlot(left),saveSlot(right)); Web Locks available; inspect both pages, fresh page and reload",
+  "runs": [
+    {
+      "before": [
+        [
+          "left",
+          "right"
+        ],
+        [
+          "left",
+          "right"
+        ]
+      ],
+      "fresh": [
+        "left",
+        "right"
+      ],
+      "after": [
+        [
+          "left",
+          "right"
+        ],
+        [
+          "left",
+          "right"
+        ]
+      ]
+    },
+    {
+      "before": [
+        [
+          "right"
+        ],
+        [
+          "right"
+        ]
+      ],
+      "fresh": [
+        "right"
+      ],
+      "after": [
+        [
+          "right"
+        ],
+        [
+          "right"
+        ]
+      ]
+    },
+    {
+      "before": [
+        [
+          "left",
+          "right"
+        ],
+        [
+          "left",
+          "right"
+        ]
+      ],
+      "fresh": [
+        "left",
+        "right"
+      ],
+      "after": [
+        [
+          "left",
+          "right"
+        ],
+        [
+          "left",
+          "right"
+        ]
+      ]
+    },
+    {
+      "before": [
+        [
+          "right"
+        ],
+        [
+          "right"
+        ]
+      ],
+      "fresh": [
+        "right"
+      ],
+      "after": [
+        [
+          "right"
+        ],
+        [
+          "right"
+        ]
+      ]
+    },
+    {
+      "before": [
+        [
+          "left",
+          "right"
+        ],
+        [
+          "left",
+          "right"
+        ]
+      ],
+      "fresh": [
+        "left",
+        "right"
+      ],
+      "after": [
+        [
+          "left",
+          "right"
+        ],
+        [
+          "left",
+          "right"
+        ]
+      ]
+    },
+    {
+      "before": [
+        [
+          "right"
+        ],
+        [
+          "right"
+        ]
+      ],
+      "fresh": [
+        "right"
+      ],
+      "after": [
+        [
+          "right"
+        ],
+        [
+          "right"
+        ]
+      ]
+    },
+    {
+      "before": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ],
+      "fresh": [
+        "left"
+      ],
+      "after": [
+        [
+          "left"
+        ],
+        [
+          "left"
+        ]
+      ]
+    },
+    {
+      "before": [
+        [
+          "right",
+          "left"
+        ],
+        [
+          "right",
+          "left"
+        ]
+      ],
+      "fresh": [
+        "right",
+        "left"
+      ],
+      "after": [
+        [
+          "right",
+          "left"
+        ],
+        [
+          "right",
+          "left"
+        ]
+      ]
+    }
+  ],
+  "lost_slot_runs": 4,
+  "paid_calls": 0,
+  "production_data": false
+}

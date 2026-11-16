@@ -84,6 +84,13 @@ function fixture({ checkpoint = true, confirm = true, pending = false, createFai
 (async () => {
   {
     const f = fixture();
+    f.win.BAOStoryLibrary.flush = async id => !id;
+    assert.equal(await f.rollback.rewind(1), false);
+    assert.equal(f.events.created, 0, 'database availability is not a committed source chapter');
+    assert.equal(f.chat.messages.length, 4);
+  }
+  {
+    const f = fixture();
     assert.equal(await f.rollback.rewind(1), true);
     assert.equal(f.chat.messages.length, 2);
     assert.equal(f.getRefs().chapterId, 'branch1');

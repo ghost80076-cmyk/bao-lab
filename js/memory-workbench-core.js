@@ -175,13 +175,16 @@
     let completed = 0;
     update(completed);
     try {
+      if (window.BAOStorageWriteGuard?.whenIdle && !await window.BAOStorageWriteGuard.whenIdle()) return;
       for (let batch = 0; batch < 4 && window.GameState?.current === owner && App.config === config; batch++) {
         const before = Chat.summarizedUntil;
         await Chat.maybeSummarize(config, true, 4);
         if (window.GameState?.current !== owner || App.config !== config) return;
         if (Chat.summarizedUntil <= before) break;
         completed++;
-        await App.saveStory?.(false);
+        const accepted = await App.saveStory?.(false);
+        if (accepted === false || (window.BAOStorageWriteGuard?.whenIdle && !await window.BAOStorageWriteGuard.whenIdle()))
+          throw new Error('本批摘要已產生，但尚未完成儲存；請先關閉記憶工作台，再按故事頁的「重試儲存」。請保留本頁與原始對話。');
         if (window.GameState?.current !== owner || App.config !== config) return;
         update(completed);
       }

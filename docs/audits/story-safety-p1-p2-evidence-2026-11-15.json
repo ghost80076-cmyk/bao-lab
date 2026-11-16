@@ -1,0 +1,47 @@
+{
+  "baseline": "82bb98b155d0413ec449e746334ab7f0af19ea96",
+  "main": "6a624446f33b031fd806230ec40d562a4f663596",
+  "before": {
+    "review_native_chromium": {
+      "autosave": {
+        "IDB_before_degradation": "confirmed-new",
+        "fallback_after_flush": "startup-old",
+        "reopened": "startup-old",
+        "flush": "resolved"
+      },
+      "slot": {
+        "main_reopened": [
+          "unrelated"
+        ],
+        "PR_reopened": [
+          "unrelated",
+          "deleted-later"
+        ]
+      },
+      "blocked_delete": {
+        "cache": [],
+        "durable": [
+          "kept"
+        ],
+        "pending": 1,
+        "notifications": [],
+        "flush_error": "BAO_FALLBACK_WRITE_UNSAFE"
+      }
+    },
+    "new_regression_run": {
+      "browser": "chromium",
+      "failed": 3,
+      "cases": [
+        "startup autosave acknowledgement",
+        "startup slot acknowledgement",
+        "blocked deletion 320px"
+      ],
+      "retries": 0
+    }
+  },
+  "notes": [
+    "Synthetic fixtures only; no player story or keys.",
+    "Initial broad local run was interrupted after concurrent Playwright output directories collided (ENOENT artifacts); WebKit dependency lookup used a relative path. Final run uses isolated output and absolute library paths.",
+    "Native IDB/storage exercised; quota and abort/degradation injected through controlled hooks."
+  ]
+}

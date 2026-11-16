@@ -1,3 +1,4 @@
+const { singleDocumentLocks } = require('./helpers/storage-web-locks.cjs');
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -149,7 +150,7 @@ localStorage.setItem("bao-lab:story:slots", JSON.stringify([legacySlot]));
 
 function makeContext() {
   let messageSequence = 0;
-  const context = {
+  const context = { navigator: { locks: singleDocumentLocks() },
     console,
     setTimeout,
     clearTimeout,

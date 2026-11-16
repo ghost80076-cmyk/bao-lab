@@ -27,13 +27,13 @@
     const { composer, send, cancel, input } = controls();
     const maintenance = maintenanceTask();
     composer?.classList.toggle("story-request-pending", pending);
-    if (send) send.disabled = pending || Boolean(maintenance);
+    if (send) send.disabled = pending || Boolean(maintenance) || Boolean(App.__exitHandoff);
     if (cancel) {
       cancel.classList.toggle("hidden", !pending);
       cancel.disabled = false;
       cancel.textContent = "取消生成";
     }
-    input?.setAttribute("aria-busy", pending || maintenance ? "true" : "false");
+    input?.setAttribute("aria-busy", pending || maintenance || App.__exitHandoff ? "true" : "false");
     // Not a story message: keep input editable and do not touch unsent drafts.
     let notice = document.getElementById("bao-story-maintenance-notice");
     if (!notice && composer?.before && typeof document.createElement === "function") {
@@ -104,15 +104,21 @@
     const owner = window.GameState?.current, config = this.config;
     const tasks = [...(this.__sendMessageTasks || [])];
     const settlement = tasks.length ? Promise.allSettled(tasks) : this.__requestSettlement;
-    if (!settlement) return originalExitChat();
+    if (!settlement && maintenanceTask()) {
+      window.BAOFeedback?.notify?.('故事資料仍在處理中，請完成後再離開；目前內容保留。', 'info');
+      return false;
+    }
+    if (!settlement && !window.BAOStorageWriteGuard?.whenIdle) return originalExitChat();
     // Keep another turn from starting between request settlement and exit save.
     this.__exitHandoff = true;
+    setPending(Boolean(this.__requestPending));
     this.cancelGeneration?.();
-    const handoff = settlement.catch(() => {}).then(() => {
+    const handoff = Promise.resolve(settlement).catch(() => {}).then(() => {
       if (window.GameState?.current !== owner || this.config !== config) return false;
       return originalExitChat();
     }).finally(() => {
       if (this.__exitHandoff === handoff) this.__exitHandoff = null;
+      setPending(Boolean(this.__requestPending));
     });
     this.__exitHandoff = handoff;
     return handoff;
@@ -142,9 +148,9 @@
   }
   // Story rollback uses existing checkpointed story branches, loaded before this module.
   if (document.head?.append && window.BAOStoryBranches
-      && !document.querySelector('script[src="js/story-rollback.js"]')) {
+      && !document.querySelector('script[src="js/story-rollback.js?v=3"]')) {
     const script = document.createElement('script');
-    script.src = 'js/story-rollback.js';
+    script.src = 'js/story-rollback.js?v=3';
     script.onerror = () => console.warn('BAO/LAB story rollback failed to load');
     document.head.append(script);
   }

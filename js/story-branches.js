@@ -134,6 +134,45 @@
     return date.toLocaleString("zh-TW", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
   };
 
+  // Both existing-branch switches and new branches use the same durable handoff.
+  const applyBranch = async (save, key, original, previousApi, heldOwner = null) => {
+    const maintenance = window.BAOStoryMaintenanceLock;
+    const sourceOwner = GameState.current, token = {};
+    const locks = [];
+    const hold = state => {
+      if (!maintenance || !state || state === heldOwner || locks.includes(state)) return;
+      if (!maintenance.start(state, { token, label: "正在切換故事分支" })) throw new Error("另一項故事操作正在執行，請稍後重試。");
+      locks.push(state);
+    };
+    let switched = false;
+    let restoredOwner = null;
+    try {
+      hold(GameState.current);
+      if (!Storage.restoreStory(save)) throw new Error("無法恢復這條故事線。");
+      switched = true;
+      restoredOwner = GameState.current;
+      hold(GameState.current);
+      App.config.api = Object.assign({}, App.config.api || {}, { key });
+      if (GameState.current) GameState.current.config = App.config;
+      if (App.saveStory(false) === false || (window.BAOStorageWriteGuard?.whenIdle && !await window.BAOStorageWriteGuard.whenIdle()))
+        throw new Error("分支切換尚未完成儲存，已停止切換；請重試儲存後再試。");
+    } catch (error) {
+      if (!switched && original && GameState.current === sourceOwner) Library.adoptRefs(original);
+      if (switched && original && GameState.current === restoredOwner) {
+        if (!Storage.restoreStory(original)) throw new Error("分支未完成儲存，原故事也未能恢復。請保留本頁並備份故事。");
+        hold(GameState.current);
+        App.config.api = Object.assign({}, App.config.api || {}, { key: previousApi.key || "" });
+        if (GameState.current) GameState.current.config = App.config;
+        App.saveStory(false);
+        await window.BAOStorageWriteGuard?.whenIdle?.();
+        App.renderChatShell(false);
+      }
+      throw error;
+    } finally {
+      for (const state of locks) maintenance.end(state, token);
+    }
+  };
+
   const restore = async (storyId, chapterId) => {
     const turnInFlight = () => App.__requestPending || App.__exitHandoff || App.__sendMessageTasks?.size;
     if (turnInFlight() || Chat.summarizing || window.BAOStoryMaintenanceLock?.has?.(GameState.current))
@@ -153,10 +192,14 @@
       && Library.refs().storyId === sourceRefs.storyId && Library.refs().chapterId === sourceRefs.chapterId;
     await waitForRevisionState();
     if (!sourceIsCurrent()) return false;
+    await Library.retryFailedWrites?.(sourceRefs.storyId);
+    if (!sourceIsCurrent()) return false;
     if (App.saveStory?.(false) === false) throw new Error("目前故事尚未成功儲存，無法切換分支。");
     savedState = stateSignature();
     if (!sourceIsCurrent()) return false;
     if (!sourceRefs.storyId || !await Library.flush(sourceRefs.storyId)) throw new Error("目前章節尚未成功儲存，無法切換分支。請重試儲存或先備份故事。");
+    if (window.BAOStorageWriteGuard?.whenIdle && !await window.BAOStorageWriteGuard.whenIdle())
+      throw new Error("目前故事尚未完成本機儲存，無法切換分支。請重試儲存。");
     if (!sourceIsCurrent()) return false;
     const save = await Library.reconstruct(storyId, chapterId);
     if (!save) throw new Error("找不到這條故事線的完整資料。");
@@ -169,12 +212,9 @@
       key = entered.trim();
     }
     if (!sourceIsCurrent()) return false;
-    if (!Storage.restoreStory(save)) throw new Error("無法恢復這條故事線。");
-    App.config.api = Object.assign({}, App.config.api || {}, { key });
-    if (GameState.current) GameState.current.config = App.config;
+    await applyBranch(save, key, Storage.loadStory?.(), previousApi);
     App.renderChatShell(false);
     App.showView("chat");
-    App.saveStory(false);
     window.BAORefreshSaveUI?.();
     close();
     await positionReader();
@@ -184,31 +224,51 @@
 
   const createFrom = async index => {
     if (creating) return;
+    if (App.__requestPending || App.__exitHandoff || App.__sendMessageTasks?.size || Chat.summarizing
+      || window.BAOStoryMaintenanceLock?.has?.(GameState.current)) return alert("故事仍在生成或整理中，請完成或取消後再建立分支。");
     const message = Chat.messages?.[Number(index)];
     if (!message?.id || message.role !== "assistant") return alert("找不到這則 AI 回覆。");
     const label = window.prompt("替新分支命名：", "另一條故事線");
     if (label === null) return;
     creating = true;
+    const owner = GameState.current, config = App.config, token = {};
+    const sourceRefs = Library.refs();
+    const signature = () => JSON.stringify([GameState.current, Chat.summary || '', Chat.summarizedUntil || 0,
+      (Chat.messages || []).map(item => [item.id, item.role, item.content, item.context_content || ''])]);
+    let locked = false;
     try {
       await waitForRevisionState();
-      App.saveStory?.(false);
-      await Library.flush();
+      if (GameState.current !== owner || App.config !== config) throw new Error("故事已切換，請重新選擇分支起點。");
+      if (App.__requestPending || Chat.summarizing || window.BAOStoryMaintenanceLock?.has?.(GameState.current)) throw new Error("故事仍在生成或整理中，請稍後重試。");
+      if (App.saveStory?.(false) === false) throw new Error("目前故事尚未成功儲存，無法建立分支。");
+      const sourceSignature = signature();
+      if (!await Library.flush(sourceRefs.storyId) || (window.BAOStorageWriteGuard?.whenIdle && !await window.BAOStorageWriteGuard.whenIdle()))
+        throw new Error("目前故事尚未完成本機儲存，無法建立分支。請重試儲存。");
+      if (GameState.current !== owner || App.config !== config || signature() !== sourceSignature
+        || Library.refs().storyId !== sourceRefs.storyId || Library.refs().chapterId !== sourceRefs.chapterId
+        || App.__requestPending || App.__sendMessageTasks?.size || Chat.summarizing)
+        throw new Error("故事狀態已變更，請重新選擇分支起點。");
+      if (window.BAOStoryMaintenanceLock) {
+        if (!window.BAOStoryMaintenanceLock.start(owner, { token, label: "正在建立故事分支" })) throw new Error("另一項故事操作正在執行，請稍後重試。");
+        locked = true;
+      }
+      const original = Storage.loadStory?.();
       const previousApi = App.config?.api || {};
       const save = await Library.createBranch(message.id, label);
-      if (!Storage.restoreStory(save)) throw new Error("分支已建立，但無法切換到分支。");
-      const key = sameConnection(previousApi, App.config.api) ? String(previousApi.key || "") : "";
-      App.config.api = Object.assign({}, App.config.api || {}, { key });
-      if (GameState.current) GameState.current.config = App.config;
+      const key = sameConnection(previousApi, save.config?.api) ? String(previousApi.key || "") : "";
+      await applyBranch(save, key, original, previousApi, locked ? owner : null);
       App.renderChatShell(false);
       App.showView("chat");
-      App.saveStory(false);
       window.BAORefreshSaveUI?.();
       await positionReader();
       if (!save.config?.demoMode && !key) window.BAOChatAPISettings?.open?.();
       alert(`已建立並切換至「${save._library?.chapterLabel || label.trim() || "新故事分支"}」。原故事線仍完整保留，可從「故事分支」切換回去。`);
     } catch (error) {
       alert(error.message || "建立故事分支失敗。");
-    } finally { creating = false; }
+    } finally {
+      if (locked) window.BAOStoryMaintenanceLock.end(owner, token);
+      creating = false;
+    }
   };
 
   const renderNode = (node, refs, map) => {
