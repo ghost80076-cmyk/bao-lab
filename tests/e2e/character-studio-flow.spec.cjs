@@ -4,7 +4,8 @@ test.use({ reducedMotion: 'reduce' });
 test('character studio defaults to a focused creation flow and keeps the full workbench available', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./character-studio.html');
-  await page.waitForFunction(() => Boolean(window.BAOCharacterStudioFlow && window.BAOCharacterStudio));
+  await page.waitForFunction(() => Boolean(window.BAOCharacterStudioFlow && window.BAOCharacterStudio && window.BAOStudioSimpleCreate));
+  await page.locator('#studio-simple-open-full').click();
 
   const flow = page.locator('#studio-flow-shell');
   const workspace = page.locator('.studio-flow-workspace');
