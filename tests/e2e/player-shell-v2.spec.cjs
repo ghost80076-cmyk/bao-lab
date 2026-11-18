@@ -60,6 +60,32 @@ test.describe('Player 2.0 shell', () => {
     await page.locator('#me-view [data-bao-player-more] > summary').click();
     await expect(page.locator('#me-view a[href*="ko-fi.com"]')).toBeVisible();
   });
+  test('desktop has a direct, visible character creation entry without changing mobile navigation', async ({ page }) => {
+    for (const width of [1280, 920, 821]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/');
+      const create = page.locator('.topbar nav a.bao-create-nav');
+      await expect(create).toBeVisible();
+      await expect(create).toHaveAttribute('href', 'character-studio.html');
+      const rect = await create.boundingBox();
+      expect(rect).not.toBeNull();
+      expect(rect.x).toBeGreaterThanOrEqual(0);
+      expect(rect.x + rect.width).toBeLessThanOrEqual(width);
+    }
+
+    await page.locator('.topbar nav a.bao-create-nav').click();
+    await expect(page).toHaveURL(/\\/character-studio\\.html$/);
+    await expect(page.locator('.studio-heading h1')).toHaveText('角色卡創作室');
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await expect(page.locator('.topbar nav a.bao-create-nav')).toBeHidden();
+    await expect(page.locator('#bao-mobile-nav [data-player-nav]')).toHaveCount(4);
+    await page.locator('#bao-mobile-nav [data-player-nav="me"]').click();
+    await page.locator('#me-view [data-bao-player-more] > summary').click();
+    await expect(page.locator('#me-view a[href="character-studio.html"]')).toBeVisible();
+  });
+
   test('work discovery searches current cards and keeps local author tools collapsed', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/');
