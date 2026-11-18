@@ -5,7 +5,7 @@ test('Creator Studio imports Luna numbered worldbook into a portable card withou
   await page.setViewportSize({width:390,height:844});
   await page.goto('./character-studio.html');
   await page.waitForFunction(() => Boolean(window.BAOCharacterStudio?.addWorldbookPack && window.YoruWorldbookLibraryCore));
-  await page.getByRole('button', {name:'全部欄位'}).click();
+  await page.locator('[data-creation-route="lorebook"]').click();
   await expect(page.locator('#studio-import-worldbook')).toBeVisible();
 
   const exportFile = {
@@ -40,7 +40,8 @@ test('Creator Studio imports Luna numbered worldbook into a portable card withou
   expect(book.installed[0].entries[1].review_required).toBe(true);
   expect(book.installed[0].entries[2].enabled).toBe(false);
 
-  const review = page.locator('.studio-worldbook-pack details details').first();
+  await page.locator('.studio-worldbook-pack > details > summary').click();
+  const review = page.locator('.studio-worldbook-pack > details > details').first();
   await review.locator('summary').click();
   await expect(review.locator('pre')).toContainText('onerror=');
   expect(await page.evaluate(() => window.__worldbookExecuted)).toBeUndefined();
@@ -48,6 +49,7 @@ test('Creator Studio imports Luna numbered worldbook into a portable card withou
   await expect(page.locator('.studio-worldbook-pack')).toContainText('0 條外部規則待審');
 
   await page.locator('.studio-worldbook-activation input').check();
+  await page.getByRole('button', {name:'全部欄位'}).click();
   await page.locator('[name="name"]').fill('試匯角色');
   await page.locator('[name="id"]').fill('luna-import-test-001');
   await page.locator('[name="system_prompt"]').fill('角色保留自己的立場。');
