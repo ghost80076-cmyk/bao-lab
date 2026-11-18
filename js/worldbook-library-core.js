@@ -156,7 +156,7 @@
       const isRule = ["rule", "custom", "規則", "自訂"].includes(category.toLowerCase());
       const disabled = entry.disable === true || entry.enabled === false ||
         entry.isEnabled === false || original?.isEnabled === false;
-      const sourcePriority = Number(original?.priority ?? entry.priority);
+      const sourcePriority = original && Number.isFinite(Number(original.priority)) ? Number(original.priority) : null;
       return {
         id: "entry-" + (index+1), title,
         category, mode: isConstant ? "constant" : recallTerms.length ? "keyword" : "foundation",
@@ -165,7 +165,7 @@
         // Do not automatically execute external rule-class entries. Keep their
         // original text, but require a separate review-capable workflow.
         review_required: !keywords.length || isRule,
-        priority: Number.isFinite(sourcePriority) ? Math.max(-10, Math.min(10, (sourcePriority-50)/10)) : 0
+        priority: sourcePriority !== null ? Math.max(-10, Math.min(10, (sourcePriority-50)/10)) : 0
       };
     });
     return normalizePack({
