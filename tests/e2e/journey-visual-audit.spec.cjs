@@ -119,6 +119,8 @@ for(const width of [390,1440]) {
   await page.goto('/character-studio.html');
   await page.waitForFunction(()=>window.BAOCharacterStudioFlow && window.BAOCharacterStudioLifecycle);
   await capture(page,`${width}-30-studio-entry`);
+  // The initial capture covers the default three-step UX; then audit native advanced stages.
+  await page.locator('#studio-simple-open-full').click();
   for(const step of ['core','opening','world','appearance','finish']){
     await page.locator(`[data-flow-step="${step}"]`).click();
     await capture(page,`${width}-31-studio-${step}`);
