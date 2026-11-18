@@ -38,6 +38,7 @@
     "故事": ["故事", "Stories"],
     "主要導覽": ["主要导航", "Main navigation"],
     "作者": ["作者", "Creators"],
+    "＋ 創卡": ["＋ 创卡", "+ Create card"],
     "我的": ["我的", "My space"],
     "我的故事": ["我的故事", "My stories"],
     "關於夜灣": ["关于夜湾", "About YoruBay"],
