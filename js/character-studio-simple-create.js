@@ -281,8 +281,13 @@
     // Run after the existing studio has populated the form and base payload.
     queueMicrotask(()=>{
       const state=studio.getState();
-      if (state?.hasDraft || field('mode')?.value==='world') enterAdvanced(false,'basic');
-      else enterSimple();
+      if (state?.hasDraft || field('mode')?.value==='world') {
+        // A newly loaded existing work should never collapse an author who
+        // deliberately opened all fields. Switch only if quick is still active.
+        if (quick) enterAdvanced(false,'basic');
+      } else if (quick) {
+        enterSimple();
+      }
     });
   });
   window.BAOStudioSimpleCreate=Object.freeze({
