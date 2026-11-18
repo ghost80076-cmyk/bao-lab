@@ -52,6 +52,46 @@ const selectedLegacy = core.select([privateLegacy], [privateLegacy.meta.id], { l
 assert.match(selectedLegacy.text, /老闆只賣熱湯/);
 assert.doesNotMatch(selectedLegacy.text, /忽略玩家視角|不得每輪任意載入/);
 
+// LunaTalk exports can contain a numbered object, not only an entries array.
+const lunaExport = {
+  name: "Luna 世界書",
+  entries: {
+    "0": { uid:0, key:["學院"], comment:"學院資料", content:"原始學院資料 <img src='https://example.com/a.jpg'>",
+      constant:false, disable:false, order:0 },
+    "1": { uid:1, key:["對話"], comment:"角色規則", content:"來源規則原文", constant:false, disable:false, order:1 },
+    "2": { uid:2, key:["秘密"], comment:"停用資料", content:"僅供保存", constant:false, disable:true, order:2 }
+  },
+  extensions: { lunatalk: { worldbookExport: { format:"lunatalk.worldbook-export", original: {
+    book: {name:"Luna 世界書"},
+    entries: [
+      {name:"學院資料",content:"原始學院資料 <img src='https://example.com/a.jpg'>",
+        category:"character",keywords:'["學院"]',isEnabled:true,isConstant:false,priority:50},
+      {name:"角色規則",content:"來源規則原文",
+        category:"rule",keywords:'["對話"]',isEnabled:true,isConstant:false,priority:60},
+      {name:"停用資料",content:"僅供保存",
+        category:"character",keywords:'["秘密"]',isEnabled:false,isConstant:false,priority:50}
+    ]
+  } } } }
+};
+const migratedLuna = core.migrateLegacy(lunaExport);
+assert.equal(migratedLuna.meta.name, "Luna 世界書");
+assert.equal(migratedLuna.meta.visibility, "private");
+assert.equal(migratedLuna.entries.length, 3);
+assert.equal(migratedLuna.entries[0].title, "學院資料");
+assert.deepEqual(migratedLuna.entries[0].keywords, ["學院"]);
+assert.equal(migratedLuna.entries[0].content, lunaExport.entries["0"].content);
+assert.equal(migratedLuna.entries[0].review_required, false);
+assert.equal(migratedLuna.entries[1].review_required, true, "external rule-class entries are never auto-approved");
+assert.equal(migratedLuna.entries[1].content, "來源規則原文");
+assert.equal(migratedLuna.entries[2].enabled, false, "source disable flag survives migration");
+assert.match(core.select([migratedLuna],[migratedLuna.meta.id],{latestUser:"學院"}).text,/原始學院資料/);
+assert.doesNotMatch(core.select([migratedLuna],[migratedLuna.meta.id],{latestUser:"對話 秘密"}).text,/來源規則原文|僅供保存/);
+assert.deepEqual(core.normalizePack(migratedLuna).entries, migratedLuna.entries, "normalized worldbook snapshots can round-trip");
+assert.throws(() => core.migrateLegacy({entries:{"0":{key:["缺"],comment:"無內容"}}}), /空白/);
+const constantLuna = core.migrateLegacy({entries:{"0":{key:[],comment:"固定",content:"固定資料",constant:true}}});
+assert.equal(constantLuna.entries[0].mode,"constant");
+assert.equal(constantLuna.entries[0].review_required,true, "entries without keywords need manual review");
+
 const locked = core.normalizePack({
   schema: core.SCHEMA, version: 1, meta: { id: "locked-test", name: "劇情條件", world: "general" },
   entries: [
