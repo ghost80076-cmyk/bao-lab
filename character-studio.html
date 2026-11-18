@@ -156,6 +156,12 @@
 <p class="note"><strong>試玩看看</strong>　讓角色先發起邀約，再分別試婉拒和沉默。觀察角色是否有自己的下一步、是否延續原有關係，以及玩家還能不能接話。</p>
 </details>
 <label>世界設定（這個世界如何運作？）<textarea name="world" rows="4" placeholder="例：魔法與科技共存。魔法師需要執照，五大王國彼此對立。"></textarea><small>填寫時代、社會制度、力量體系及世界的基本規則；沒有特殊設定可以留白。這裡的內容預設每輪提供給 AI。</small></label><label>背景資料／按需世界書<textarea name="lore" rows="9" placeholder="固定世界歷史可直接填寫。人物、勢力或地點的長篇細節，按下方「＋ 新增按需條目」加入。"></textarea><small>未包裝的一般背景文字仍每輪提供給 AI；世界書條目只在相關關鍵字或目前位置命中時載入。舊角色卡的背景文字不會自動刪除或轉換。</small></label><button type="button" class="secondary" id="studio-add-lore-entry">＋ 新增按需條目</button>
+<div class="studio-worldbook-import">
+  <button type="button" class="secondary" id="studio-import-worldbook">匯入 Luna／夜灣世界書 JSON</button>
+  <input id="studio-worldbook-file" type="file" accept=".json,application/json" hidden>
+  <p class="note" id="studio-worldbook-import-status" role="status" aria-live="polite">世界書會附在目前角色卡草稿，並隨夜灣角色 JSON 匯出；匯入後預設不啟用，外部規則需逐條確認。</p>
+  <div id="studio-worldbook-import-list" aria-label="本作品已附加世界書"></div>
+</div>
 <details class="studio-npc-axes" id="studio-npc-personality">
 <summary>NPC 人格四軸 · 成因／行為／失控／代價（選填）</summary>
 <p class="note">幫作者整理真正影響角色行動的四個因素；不替你生成個性，也不修改平台的 NPC 自主權或資訊隔離。只有按「加入角色卡」才會寫入，下次儲存草稿／匯出時跟原有設定一起保存。</p>
@@ -247,7 +253,8 @@
 <script src="js/character-studio-flow-core.js"></script>
 <script src="js/character-studio-lifecycle-core.js"></script>
 <script src="js/character-studio-actions-core.js"></script>
-<script src="js/character-studio.js?v=14"></script>
+<script src="js/worldbook-library-core.js?v=9"></script>
+<script src="js/character-studio.js?v=15"></script>
 <script src="js/gameplay-ui-composer-core.js?v=4"></script>
 <script src="js/gameplay-ui-composer-edit-core.js?v=2"></script>
 <script src="js/gameplay-ui-preview-protocol-core.js?v=3"></script>
@@ -255,6 +262,7 @@
 <script src="js/character-studio-gameplay-composer.js?v=3"></script>
 <script src="js/character-studio-phone-builder.js?v=2"></script>
 <script src="js/character-studio-flow.js?v=9"></script>
+<script src="js/character-studio-worldbook-import.js?v=1"></script>
 <script src="js/npc-personality-helper-core.js?v=1"></script>
 <script src="js/npc-personality-helper.js?v=1"></script>
 <script src="js/character-studio-npc-editor-core.js?v=1"></script>
