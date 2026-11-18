@@ -58,6 +58,24 @@ body{overflow-x:hidden}
 .topbar nav{min-width:0;align-items:center}
 .topbar nav a{color:var(--muted);text-decoration:none;padding:9px 12px;border-radius:9px;white-space:nowrap}
 .topbar nav a:hover{background:var(--surface2);color:var(--text)}
+/* First-class desktop entry to the existing local character studio. */
+.topbar nav a.bao-create-nav{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:8px 11px;border:1px solid rgba(156,140,255,.32);
+  background:rgba(156,140,255,.14);color:var(--yoru-text,var(--text));
+  font-weight:700;
+}
+.topbar nav a.bao-create-nav:hover,
+.topbar nav a.bao-create-nav:focus-visible{
+  border-color:rgba(156,140,255,.58);background:rgba(156,140,255,.24);
+  color:var(--yoru-text,var(--text));
+}
+@media(min-width:821px) and (max-width:1050px){
+  .topbar{gap:10px}
+  .topbar nav{gap:2px}
+  .topbar nav :is(button,a){padding:8px;font-size:13px}
+  .topbar nav a.bao-create-nav{padding:7px 9px}
+}
 #chat-view .chat-layout{grid-template-columns:minmax(190px,220px) minmax(0,1fr)}
 #chat-view .chat-main{min-width:0}
 #chat-view .chat-stream{padding-left:clamp(14px,3vw,34px);padding-right:clamp(14px,3vw,34px)}
