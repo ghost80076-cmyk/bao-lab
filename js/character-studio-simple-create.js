@@ -219,14 +219,14 @@
     root.scrollIntoView({block:'start',behavior:'auto'});
   }
 
-  function enterAdvanced(showAll = false, step = 'basic') {
+  function enterAdvanced(showAll = false, step = 'basic', navigate = true) {
     if (quick) restoreFields();
     quick = false;
     editor.dataset.studioSimple = 'false';
     root.hidden = true;
     returnButton.hidden = false;
     flow.setShowAll(Boolean(showAll));
-    if (!showAll) flow.go(step);
+    if (!showAll && navigate) flow.go(step);
   }
   function enterSimple() {
     if (!quick) moveFields();
@@ -266,14 +266,15 @@
   // Sidebar shortcuts have their own established six-step routes.
   const sidebar=editor.parentElement?.querySelector('.studio-actions');
   sidebar?.addEventListener('click',event=>{
-    const button=event.target.closest('[data-creation-route]');
-    if (quick && button && button.dataset.creationRoute !== 'character')
-      enterAdvanced(false,button.dataset.creationRoute==='lorebook'?'world':'basic');
+    // File imports do not use flow.go; other shortcuts announce their own
+    // native stage through bao:studio-flow-navigate.
+    const button=event.target.closest('[data-creation-route="import"]');
+    if (quick && button) enterAdvanced(false,'basic');
   },true);
 
   window.addEventListener('bao:studio-flow-navigate',event=>{
     const id=event.detail?.id;
-    if (quick && id && id!=='basic') enterAdvanced(false,id);
+    if (quick && id && id!=='basic') enterAdvanced(false,id,false);
   });
   window.addEventListener('bao:character-studio-card-shown',()=>{
     // A loaded draft / existing multi-NPC world should open full editing by default.
