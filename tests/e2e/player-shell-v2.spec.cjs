@@ -74,7 +74,7 @@ test.describe('Player 2.0 shell', () => {
     }
 
     await page.locator('.topbar nav a.bao-create-nav').click();
-    await expect(page).toHaveURL(/\\/character-studio\\.html$/);
+    await expect(page).toHaveURL(/\/character-studio\.html$/);
     await expect(page.locator('.studio-heading h1')).toHaveText('角色卡創作室');
 
     await page.setViewportSize({ width: 390, height: 844 });
