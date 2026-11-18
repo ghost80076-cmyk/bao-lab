@@ -86,3 +86,17 @@
   .studio-phone-card{padding:11px}
   .studio-phone-list li{align-items:flex-start}
 }
+
+/* Luna and native worldbook imports remain within the existing studio world step. */
+.studio-worldbook-import{display:grid;gap:10px;margin:12px 0 18px;min-width:0}
+.studio-worldbook-import > button{justify-self:start;min-height:44px}
+.studio-worldbook-pack{display:grid;gap:8px;padding:14px;border:1px solid var(--yoru-card-border,var(--border));border-radius:14px;background:var(--yoru-card,var(--surface))}
+.studio-worldbook-pack strong{overflow-wrap:anywhere}
+.studio-worldbook-pack > p{margin:0}
+.studio-worldbook-pack > button{justify-self:start}
+.studio-worldbook-pack details{min-width:0;padding:10px;border:1px solid var(--yoru-card-border,var(--border));border-radius:10px}
+.studio-worldbook-pack details > details{margin:10px 0}
+.studio-worldbook-pack summary{cursor:pointer;overflow-wrap:anywhere}
+.studio-worldbook-activation{display:flex;align-items:flex-start;gap:8px;line-height:1.6}
+.studio-worldbook-activation input{flex:0 0 auto;width:20px;height:20px;margin:2px 0 0}
+.studio-worldbook-original{max-height:260px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;font-size:12px;line-height:1.7}

@@ -505,6 +505,63 @@
   window.BAOCharacterStudio = {
     readCard,
     getInitialNPCs: () => clone(base.initial_state?.npcs || []),
+    getWorldbookLibrary: () => clone(base.initial_state?.worldbookLibrary || {
+      version: 1, enabled: [], installed: [], pinned: {}
+    }),
+    addWorldbookPack: input => {
+      const core = window.YoruWorldbookLibraryCore;
+      if (!core) throw new Error("世界書匯入模組尚未載入。");
+      const pack = core.normalizePack(input);
+      const current = window.BAOCharacterStudio.getWorldbookLibrary();
+      if (current.installed.length >= 6) throw new Error("一張角色卡最多附加 6 本私人世界書。");
+      if (current.installed.some(item => item.meta.id === pack.meta.id) || current.pinned[pack.meta.id])
+        throw new Error("這份世界書已存在目前角色卡；請先移除舊版本，再匯入新檔。");
+      const next = { ...current, installed: [...current.installed, pack] };
+      if (JSON.stringify(next).length > 3500000) throw new Error("角色卡附加世界書資料超過 3.5 MB。");
+      base = { ...base, initial_state: { ...base.initial_state, worldbookLibrary: next } };
+      dirty = true;
+      invalidatePreview();
+      status("✓ 世界書已加入目前角色卡，尚未儲存草稿；開局預設不啟用。");
+      window.dispatchEvent(new CustomEvent("bao:studio-worldbook-changed"));
+      return pack;
+    },
+    setWorldbookPackEnabled: (packId, enabled) => {
+      const current = window.BAOCharacterStudio.getWorldbookLibrary();
+      if (!current.installed.some(item => item.meta.id === packId)) throw new Error("找不到這本私人世界書。");
+      const selected = new Set(current.enabled);
+      if (enabled) selected.add(packId); else selected.delete(packId);
+      base = { ...base, initial_state: { ...base.initial_state,
+        worldbookLibrary: { ...current, enabled: [...selected] } } };
+      dirty = true;
+      invalidatePreview();
+      status("世界書開局設定已修改，請儲存草稿。");
+      window.dispatchEvent(new CustomEvent("bao:studio-worldbook-changed"));
+    },
+    setWorldbookEntryReviewed: (packId, entryId) => {
+      const current = window.BAOCharacterStudio.getWorldbookLibrary();
+      const pack = current.installed.find(item => item.meta.id === packId);
+      const entry = pack?.entries?.find(item => item.id === entryId);
+      if (!entry || !entry.review_required) throw new Error("這個世界書條目不需要審核，或已完成審核。");
+      entry.review_required = false;
+      base = { ...base, initial_state: { ...base.initial_state, worldbookLibrary: current } };
+      dirty = true;
+      invalidatePreview();
+      status("已確認世界書條目內容；只有啟用整本世界書後，相關內容才可能進入模型。請儲存草稿。");
+      window.dispatchEvent(new CustomEvent("bao:studio-worldbook-changed"));
+    },
+    removeWorldbookPack: packId => {
+      const current = window.BAOCharacterStudio.getWorldbookLibrary();
+      if (!current.installed.some(item => item.meta.id === packId)) throw new Error("找不到這本私人世界書。");
+      base = { ...base, initial_state: { ...base.initial_state, worldbookLibrary: {
+        ...current,
+        installed: current.installed.filter(item => item.meta.id !== packId),
+        enabled: current.enabled.filter(id => id !== packId)
+      } } };
+      dirty = true;
+      invalidatePreview();
+      status("已從目前角色卡移除世界書，請儲存草稿。");
+      window.dispatchEvent(new CustomEvent("bao:studio-worldbook-changed"));
+    },
     setInitialNPCs: npcs => {
       if (!Array.isArray(npcs) || npcs.length > 50) throw new Error("初始 NPC 名冊最多 50 人。");
       base = {...base, initial_state:{...(base.initial_state || {}), npcs:clone(npcs)}};
