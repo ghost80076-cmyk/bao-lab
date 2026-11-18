@@ -113,20 +113,59 @@
     return (name || "legacy-worldbook") + "-" + (hash >>> 0).toString(36);
   }
   /* Import preserves original text. Rule-class entries require manual review and are NOT sent automatically. */
+  function legacyKeywords(value) {
+    if (Array.isArray(value)) return value;
+    if (typeof value !== "string") return [];
+    const raw = value.trim();
+    if (!raw) return [];
+    if (raw.startsWith("[")) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed;
+      } catch { /* Keep treating an invalid JSON list as plain text. */ }
+    }
+    return raw.split(/[,，、;；]+/).map(item => item.trim()).filter(Boolean);
+  }
+  /* LunaTalk exports use either an array or a numbered entries object.
+     The companion 'original' metadata is used only when its content matches
+     the corresponding portable entry, so the portable text stays canonical. */
   function migrateLegacy(source, name = "LunaTalk 世界書") {
-    if (!obj(source) || !Array.isArray(source.entries)) fail("不是含 entries 的外部世界書");
-    if (source.entries.length > MAX_ENTRIES) fail("單份世界書不得超過 512 筆");
-    const title = text(source.worldbook?.name || source.worldbook?.title || name, 100) || name;
-    const entries = source.entries.map((entry, index) => {
-      const keywords = unique(entry.keywords || entry.keys || entry.triggers || [], 16);
-      const category = text(entry.category, 32);
-      const title = text(entry.title, 100) || "原始條目 " + (index+1);
+    if (!obj(source)) fail("不是含 entries 的外部世界書");
+    const rawEntries = Array.isArray(source.entries) ? source.entries :
+      obj(source.entries) ? Object.entries(source.entries)
+        .sort(([a], [b]) => Number(a) - Number(b))
+        .map(([, entry]) => entry) : null;
+    if (!rawEntries || !rawEntries.length || rawEntries.length > MAX_ENTRIES)
+      fail("外部世界書需包含 1～512 筆 entries");
+    const sourceOriginal = source.extensions?.lunatalk?.worldbookExport?.original;
+    const originalEntries = Array.isArray(sourceOriginal?.entries) ? sourceOriginal.entries : [];
+    const title = text(source.name || source.worldbook?.name || source.worldbook?.title ||
+      sourceOriginal?.book?.name || name, 100) || name;
+    const entries = rawEntries.map((entry, index) => {
+      if (!obj(entry)) fail("外部世界書第 " + (index + 1) + " 筆格式錯誤");
+      const candidate = originalEntries[index];
+      const original = obj(candidate) && candidate.content === entry.content ? candidate : null;
+      const keywords = unique([
+        ...legacyKeywords(entry.keywords || entry.keys || entry.key || entry.triggers),
+        ...(original ? legacyKeywords(original.keywords) : [])
+      ], 16);
+      const category = text(entry.category || original?.category, 32);
+      const title = text(entry.title || entry.comment || original?.name, 100) || "原始條目 " + (index+1);
       const recallTerms = keywords.length ? keywords : (entry.title ? [title] : []);
+      const isConstant = entry.constant === true || entry.isConstant === true || original?.isConstant === true;
+      const isRule = ["rule", "custom", "規則", "自訂"].includes(category.toLowerCase());
+      const disabled = entry.disable === true || entry.enabled === false ||
+        entry.isEnabled === false || original?.isEnabled === false;
+      const sourcePriority = Number(original?.priority ?? entry.priority);
       return {
         id: "entry-" + (index+1), title,
-        category, mode: recallTerms.length ? "keyword" : "foundation",
-        keywords: recallTerms, content: String(entry.content || "").trim(),
-        review_required: !keywords.length || ["規則", "自訂"].includes(category)
+        category, mode: isConstant ? "constant" : recallTerms.length ? "keyword" : "foundation",
+        keywords: recallTerms, content: entry.content,
+        enabled: !disabled,
+        // Do not automatically execute external rule-class entries. Keep their
+        // original text, but require a separate review-capable workflow.
+        review_required: !keywords.length || isRule,
+        priority: Number.isFinite(sourcePriority) ? Math.max(-10, Math.min(10, (sourcePriority-50)/10)) : 0
       };
     });
     return normalizePack({
