@@ -80,6 +80,7 @@ jobs:
               tests/e2e/character-capability-roundtrip.spec.cjs
               tests/e2e/character-studio-actions.spec.cjs
               tests/e2e/character-studio-flow.spec.cjs
+              tests/e2e/character-studio-luna-worldbook.spec.cjs
               tests/e2e/character-studio-npc-editor.spec.cjs
               tests/e2e/character-studio-status-templates.spec.cjs
               tests/e2e/character-studio-creation-map.spec.cjs
