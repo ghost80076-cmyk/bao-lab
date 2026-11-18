@@ -17,10 +17,13 @@ for(const width of [320,390,1280]){
 
     const generatedId=await page.locator('[name="id"]').inputValue();
     expect(generatedId).toMatch(/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/);
+    await page.locator('[name="name"]').fill('');
     await page.getByRole('button',{name:'下一步：故事開場'}).click();
     await expect(page.locator('#studio-simple-message')).toContainText('角色／作品名稱');
 
     await page.locator('[name="name"]').fill('精簡創作測試');
+    await page.getByRole('button',{name:'下一步：故事開場'}).click();
+    await expect(page.locator('#studio-simple-message')).toContainText('核心設定');
     await page.locator('[name="system_prompt"]').fill('角色保留自己的目標、口吻與資訊邊界。');
     await page.getByRole('button',{name:'下一步：故事開場'}).click();
     await expect(page.locator('[name="greeting"]')).toBeVisible();
