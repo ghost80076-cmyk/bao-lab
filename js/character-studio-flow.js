@@ -393,6 +393,9 @@
   const go = (id, intentional = false) => {
     const target = targetFor(id);
     if (!target) return false;
+    // The simple editor listens for direct advanced navigation used by
+    // existing tools and imported author workbenches.
+    window.dispatchEvent(new CustomEvent("bao:studio-flow-navigate", { detail: { id } }));
     setActive(id);
 
     if (id === "world") {
