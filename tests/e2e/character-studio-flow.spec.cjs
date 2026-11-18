@@ -122,7 +122,8 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
   test(`review content stays in review and invalidates after editing at ${viewport.width}px`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await page.goto('./character-studio.html');
-    await page.waitForFunction(() => window.BAOCharacterStudioFlow && window.BAOCharacterStudioLifecycle);
+    await page.waitForFunction(() => window.BAOCharacterStudioFlow && window.BAOCharacterStudioLifecycle && window.BAOStudioSimpleCreate);
+    await page.locator('#studio-simple-open-full').click();
     const flow = page.locator('#studio-flow-shell');
     const lifecycle = page.locator('#studio-lifecycle');
     const preview = page.locator('#studio-preview');
@@ -176,7 +177,8 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
 test('deferred step focus cannot override a later manual edit', async ({page}) => {
   await page.setViewportSize({width:1280,height:900});
   await page.goto('/character-studio.html');
-  await page.waitForFunction(()=>window.BAOCharacterStudioFlow);
+  await page.waitForFunction(()=>window.BAOCharacterStudioFlow && window.BAOStudioSimpleCreate);
+  await page.locator('#studio-simple-open-full').click();
   const result=await page.evaluate(async()=>{
     const flow=BAOCharacterStudioFlow;
     flow.go('finish',true);
