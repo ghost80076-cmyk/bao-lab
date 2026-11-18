@@ -210,11 +210,23 @@ for (const theme of ['mist','dusk']) {
     await draft.fill('這段尚未送出的故事草稿，切換主題後必須保留。');
     const storyBefore = await page.locator('#chat-stream .message.assistant').first().textContent();
     await page.evaluate(selected => window.YoruExperience.choose({theme:selected}),theme);
-    // Buttons animate background-color for 160ms. Assert the settled palette
-    // rather than sampling the transition's old night-color first frame.
-    await expect.poll(() => page.locator('#bao-mobile-composer-tools').evaluate(
-      element => getComputedStyle(element).backgroundColor.replace(/^rgba\((.*), 1\)$/, 'rgb($1)')
-    ), {timeout:3500}).toBe(theme === 'mist' ? 'rgb(240, 232, 223)' : 'rgb(81, 67, 90)');
+    const expected = theme === 'mist'
+      ? {tool:'rgb(243, 236, 227)',input:'rgb(255, 253, 248)',control:'rgb(240, 232, 223)',text:'rgb(69, 59, 52)',send:'rgb(133, 91, 68)'}
+      : {tool:'rgb(64, 56, 73)',input:'rgb(52, 47, 66)',control:'rgb(81, 67, 90)',text:'rgb(246, 237, 244)',send:'rgb(210, 176, 219)'};
+    // All three buttons animate background-color. In Firefox one can still be
+    // at rgba(..., 0.998) after another has reached its final opaque color.
+    await expect.poll(() => page.evaluate(() => {
+      const color = selector => getComputedStyle(document.querySelector(selector)).backgroundColor.replace(/^rgba\((.*), 1\)$/, 'rgb($1)');
+      return {
+        tools:color('#bao-mobile-composer-tools'),
+        inspiration:color('#bao-mobile-composer-inspire'),
+        send:color('#chat-view .composer .primary')
+      };
+    }), {timeout:3500}).toEqual({
+      tools:expected.control,
+      inspiration:expected.control,
+      send:expected.send
+    });
     const current = await page.evaluate(() => {
       // Firefox may serialize an opaque animated color as rgba(..., 1).
       // Compare the same channels/opacity, retaining all non-opaque values.
@@ -238,9 +250,6 @@ for (const theme of ['mist','dusk']) {
         horizontalOverflow:document.documentElement.scrollWidth-innerWidth
       };
     });
-    const expected = theme === 'mist'
-      ? {tool:'rgb(243, 236, 227)',input:'rgb(255, 253, 248)',control:'rgb(240, 232, 223)',text:'rgb(69, 59, 52)',send:'rgb(133, 91, 68)'}
-      : {tool:'rgb(64, 56, 73)',input:'rgb(52, 47, 66)',control:'rgb(81, 67, 90)',text:'rgb(246, 237, 244)',send:'rgb(210, 176, 219)'};
     if (current.tools !== expected.control) {
       const diagnosis = await page.evaluate(() => {
         const el=document.querySelector('#bao-mobile-composer-tools');
