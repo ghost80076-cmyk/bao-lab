@@ -271,6 +271,10 @@
       enterAdvanced(false,button.dataset.creationRoute==='lorebook'?'world':'basic');
   },true);
 
+  window.addEventListener('bao:studio-flow-navigate',event=>{
+    const id=event.detail?.id;
+    if (quick && id && id!=='basic') enterAdvanced(false,id);
+  });
   window.addEventListener('bao:character-studio-card-shown',()=>{
     // A loaded draft / existing multi-NPC world should open full editing by default.
     // Run after the existing studio has populated the form and base payload.
