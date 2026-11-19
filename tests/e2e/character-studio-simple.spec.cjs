@@ -76,6 +76,7 @@ test('advanced worldbook and role fields survive round-trip through simple UI',a
   await page.locator('[name="name"]').fill('世界書角色');
   await page.locator('[name="system_prompt"]').fill('每個人物各自根據資訊行動。');
   await page.locator('[name="greeting"]').fill('從港口開始。');
+  await page.locator('.studio-advanced').first().locator('summary').first().click();
   await page.locator('[name="profile"]').fill('主要角色原始資料');
   const pack=await page.evaluate(()=>{
     const core=window.YoruWorldbookLibraryCore;
