@@ -185,6 +185,38 @@ test.describe('Player 2.0 shell', () => {
   });
 
 
+  for (const width of [390, 1280]) {
+    test(`critical player UI is ready at ${width}px while optional guide is stalled`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 844 });
+      let releaseGuide;
+      let guideRequested = false;
+      const stalledGuide = new Promise(resolve => { releaseGuide = resolve; });
+      await page.route('**/js/bao-guide.js*', async route => {
+        guideRequested = true;
+        await stalledGuide;
+        await route.continue();
+      });
+      try {
+        // The optional mascot/guide request must not gate player shell or builder.
+        await page.goto('/', { waitUntil: 'domcontentloaded' });
+        await expect.poll(() => page.evaluate(() =>
+          Boolean(window.BAOPlayerShellV2 && window.BAOPlayerBuilderV2))).toBe(true);
+        await expect(page.locator('.builder-step[data-step-panel="4"]')).toHaveClass(/bao-builder-ai-v2/);
+        for (const name of ['player-shell-v2', 'player-settings', 'player-builder-v2', 'bao-cinematic-home']) {
+          await expect(page.locator(`link[rel="stylesheet"][href^="css/${name}.css"]`)).toHaveCount(1);
+        }
+        if (width === 390) await expect(page.locator('#bao-mobile-nav')).toBeVisible();
+        else await expect(page.locator('.topbar nav')).toBeVisible();
+        await expect.poll(() => guideRequested).toBe(true);
+        expect(await page.evaluate(() => Boolean(window.BAOGuide))).toBe(false);
+      } finally {
+        // Always unblock the request, even after an assertion fails.
+        releaseGuide();
+      }
+      await expect.poll(() => page.evaluate(() => Boolean(window.BAOGuide))).toBe(true);
+    });
+  }
+
   test('mobile first paint is already mobile before enhancement JavaScript runs', async ({ browser }) => {
     const context = await browser.newContext({
       javaScriptEnabled: false,
