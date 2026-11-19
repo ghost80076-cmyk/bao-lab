@@ -108,3 +108,43 @@ test('only accepted incoming updates create bounded notifications with stable ta
   assert.equal(Core.notifications(restored.phoneUI).length,40);
   assert.equal(Core.notifications({version:1,notifications:[{id:'bad',app:'javascript:alert(1)'}]}).length,0);
 });
+
+
+test('X social events keep independent authors, replies and shared story event references', () => {
+  const state={};
+  const patch=Core.normalizePatch({tweets:[
+    {id:'campus-1',authorId:'npc-a',authorName:'同學 A',authorHandle:'@first',
+      eventId:'festival-1',sourceKind:'witness',text:'舞台上的事情我看到了',date:'週日'},
+    {id:'reply-1',replyTo:'campus-1',authorId:'npc-b',authorName:'同學 B',
+      sourceKind:'hearsay',text:'我聽說不是那樣',date:'週日'}
+  ]});
+  assert.equal(Core.apply(state,patch,'msg-social-1'),true);
+  assert.equal(Core.apply(state,patch,'msg-social-1'),false);
+  const saved=JSON.parse(JSON.stringify(state));
+  const all=Core.mergeDisplay({enabled:true,userName:'手機主人',tweets:['舊版貼文']},saved.phoneUI).tweets;
+  assert.equal(all.length,3);
+  assert.equal(all[0].text,'舊版貼文');
+  assert.equal(all[0].id,'legacy-1');
+  assert.equal(all[1].authorHandle,'@first');
+  assert.equal(all[1].eventId,'festival-1');
+  assert.equal(all[1].sourceKind,'witness');
+  assert.equal(all[2].replyTo,'campus-1');
+  assert.equal(all[2].authorName,'同學 B');
+  assert.equal(Core.notifications(state.phoneUI).length,1);
+});
+
+test('X auto-IDs stay stable on replay and outgoing replies do not create incoming notifications', () => {
+  const state={};
+  const patch={tweets:[{text:'沒有 ID 的貼文',authorName:'路人'}]};
+  assert.equal(Core.apply(state,patch,'message-7'),true);
+  const first=state.phoneUI.tweets[0].id;
+  assert.match(first,/^turn-message-7-0$/);
+  assert.equal(Core.apply(state,patch,'message-7'),false);
+  const rebuilt={};
+  assert.equal(Core.apply(rebuilt,patch,'message-7'),true);
+  assert.equal(rebuilt.phoneUI.tweets[0].id,first);
+  const own={};
+  assert.equal(Core.apply(own,{tweets:[{id:'my-reply',replyTo:'post-1',text:'我的回覆',from:'me'}]},'outgoing-1'),true);
+  assert.deepEqual(Core.notifications(own.phoneUI),[]);
+  assert.equal(own.phoneUI.tweets[0].replyTo,'post-1');
+});
