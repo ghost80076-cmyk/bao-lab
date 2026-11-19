@@ -455,7 +455,14 @@
     add(area,appHeader('X · 動態',true));
     const banner=$('div','bp-x-banner');
     const profile=$('div','bp-x-profile');
-    add(profile,$('h2','','世界動態'),$('div','bp-muted','故事中的公開貼文與討論'));
+    const multiAccount=items.some(tweet=>tweet.authorId || tweet.authorName || tweet.authorHandle || tweet.replyTo);
+    if(multiAccount){
+      add(profile,$('h2','','世界動態'),$('div','bp-muted','故事中的公開貼文與討論'));
+    }else{
+      add(profile,image(config.instagram.avatar,'bp-profile-avatar',(config.userName || 'X').slice(0,1)),
+        $('h2','',(config.userName || '個人檔案')+' 🔒'),
+        $('div','bp-muted',config.twitterHandle || '@user'));
+    }
     add(area,banner,profile);
     const roots=items.filter(item=>!item.replyTo || !ids.has(item.replyTo));
     if(!roots.length)emptyState(area,'目前沒有貼文','故事中出現的新貼文會顯示在這裡。');
