@@ -127,7 +127,7 @@
       if(App.saveStory(false)===false)throw new Error('save');
     } catch (_) {
       if(had)ownerState.phoneInteractions=before;else delete ownerState.phoneInteractions;
-      if(hasRules)return fail('故事儲存失敗，這次已讀與解鎖沒有生效，請重試。');
+      if(hasRules || target.app==='x')return fail('故事儲存失敗，這次已讀與解鎖沒有生效，請重試。');
       return true;
     }
     eventNotice=result.notifications.join('；');
