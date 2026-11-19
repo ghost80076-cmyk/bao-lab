@@ -401,24 +401,65 @@
         area.append(list);
       }
     } else if (page === 'x') {
-      add(area,appHeader('個人檔案',true));
-      const banner=$('div','bp-x-banner');
-      const profile=$('div','bp-x-profile');
-      add(profile,image(config.instagram.avatar,'bp-profile-avatar',config.userName.slice(0,1)||'X'),
-        $('h2','', (config.userName || '個人檔案') + ' 🔒'),
-        $('div','bp-muted',config.twitterHandle || '@user'));
-      add(area,banner,profile);
-      if(!config.tweets.length)emptyState(area,'目前沒有貼文','故事中出現的新貼文會顯示在這裡。');
-      config.tweets.forEach(tweet => {
-        const row = $('article','bp-tweet');
-        add(row,$('strong','',config.userName || '使用者'),
-          $('small','bp-muted','  '+(config.twitterHandle || '@user')+' · '+(tweet.date || '')),
-          $('p','',tweet.text),
-          $('div','bp-muted','♡ '+(tweet.likes || '0')+'    ↩ '+(tweet.replies || '0')+'    ↻ '+(tweet.reposts || '0')));
-        area.append(row);
-      });
+      renderX(area);
     }
     add(screen,area);
+  }
+  function renderX(area) {
+    const items=itemsFor('x');
+    const ids=new Set(config.tweets.map(item=>item.id));
+    const lookup=id=>items.find(item=>item.id===id);
+    const opened=subpage.startsWith('post:') ? lookup(subpage.slice(5)) : null;
+    const postLabel=tweet=>tweet.authorName || config.userName || '使用者';
+    const postHandle=tweet=>tweet.authorHandle || (tweet.authorId ? '@'+tweet.authorId : config.twitterHandle || '@user');
+    const repliesFor=tweet=>items.filter(item=>item.replyTo===tweet.id);
+    const countFor=tweet=>{
+      const actual=repliesFor(tweet).length;
+      return actual ? String(Math.max(actual,Number(tweet.replies)||0)) : (tweet.replies || '0');
+    };
+    const renderPost=(tweet,reply=false,openButton=false)=>{
+      const row=$('article','bp-tweet'+(reply?' bp-x-comment':''));
+      const name=postLabel(tweet);
+      const byline=$('div','bp-x-byline');
+      add(byline,$('strong','',name),$('small','bp-muted',postHandle(tweet)+' · '+(tweet.date || '')));
+      const head=$('div','bp-x-post-header');
+      add(head,image(tweet.avatar || (tweet.authorId && config.contacts.find(c=>c.id===tweet.authorId)?.avatar),'bp-x-avatar',name.slice(0,1)||'X'),byline);
+      row.append(head);
+      if(accessFor({app:'x',id:tweet.id}).locked){
+        add(row,$('p','bp-muted','🔒 這則貼文尚未解鎖'));
+      } else {
+        add(row,$('p','bp-x-post-body',tweet.text),
+          $('div','bp-muted bp-x-stats','♡ '+(tweet.likes || '0')+'    ↩ '+countFor(tweet)+'    ↻ '+(tweet.reposts || '0')));
+        const source={witness:'目擊者敘述',media:'媒體資訊',hearsay:'轉述／傳聞',unknown:'來源未明'}[tweet.sourceKind];
+        if(source)row.append($('small','bp-x-source',source));
+      }
+      if(openButton)row.append(button('查看貼文與留言 · '+countFor(tweet),'x-post:'+tweet.id,'bp-x-open'));
+      return row;
+    };
+    if(subpage.startsWith('post:') && opened){
+      add(area,appHeader('貼文與回覆',true),renderPost(opened,false,false));
+      const responses=repliesFor(opened);
+      const heading=$('h3','bp-x-feed-heading','回覆 · '+responses.length);
+      area.append(heading);
+      if(!responses.length)area.append($('p','bp-muted bp-x-no-replies','目前還沒有回覆。'));
+      responses.forEach(item=>area.append(renderPost(item,true,false)));
+      if(!accessFor({app:'x',id:opened.id}).locked){
+        const form=$('form','bp-x-composer');form.dataset.phoneForm='x-reply';
+        const input=$('textarea');input.name='text';input.rows=2;input.maxLength=1200;
+        input.placeholder='回覆這則貼文…';input.setAttribute('aria-label','回覆 X 貼文');input.required=true;
+        const send=$('button','', '傳送至故事');send.type='submit';
+        add(form,input,send);area.append(form);
+      }else renderGate(area,{app:'x',id:opened.id});
+      return;
+    }
+    add(area,appHeader('X · 動態',true));
+    const banner=$('div','bp-x-banner');
+    const profile=$('div','bp-x-profile');
+    add(profile,$('h2','','世界動態'),$('div','bp-muted','故事中的公開貼文與討論'));
+    add(area,banner,profile);
+    const roots=items.filter(item=>!item.replyTo || !ids.has(item.replyTo));
+    if(!roots.length)emptyState(area,'目前沒有貼文','故事中出現的新貼文會顯示在這裡。');
+    roots.forEach(tweet=>area.append(renderPost(tweet,false,true)));
   }
   function renderInstagram() {
     add(screen,statusbar(true));
@@ -575,15 +616,21 @@
     if(audio){if(playing) void audio.play().catch(()=>{playing=false;render();});else audio.pause();}
     render();
   }
-  function sendToStory(text, medium) {
+  function sendToStory(text, medium, post=null) {
     if (!App.config || typeof App.sendMessage !== 'function') return;
     if (App.__requestPending) { window.BAOFeedback?.notify?.('故事仍在回覆中，請稍後再傳送。','error');return; }
     const composer=document.getElementById('user-input');
     if (!composer) return;
     if (composer.value.trim() && !window.confirm('目前故事輸入框有尚未送出的內容，要用手機訊息取代嗎？')) return;
-    const recipient=medium.startsWith('Instagram') ? (config.instagram.callerName||displayName()) : threadName(selectedThread());
-    const threadContext=medium==='KakaoTalk' && selectedThread() ? '｜聊天室 ID：'+selectedThread().id : '';
-    composer.value='【'+medium+'｜對 '+recipient+' 發送訊息'+threadContext+'】'+text;
+    if(medium==='X' && post){
+      const author=post.authorName || post.authorHandle || config.userName || '使用者';
+      const quoted=post.text.replace(/\s+/g,' ').slice(0,120);
+      composer.value='【X｜回覆貼文 ID：'+post.id+'｜發文者：'+author+'｜原文：'+quoted+'】'+text;
+    }else{
+      const recipient=medium.startsWith('Instagram') ? (config.instagram.callerName||displayName()) : threadName(selectedThread());
+      const threadContext=medium==='KakaoTalk' && selectedThread() ? '｜聊天室 ID：'+selectedThread().id : '';
+      composer.value='【'+medium+'｜對 '+recipient+' 發送訊息'+threadContext+'】'+text;
+    }
     close();
     void App.sendMessage();
   }
@@ -598,6 +645,11 @@
     }
     const input=form.elements.namedItem('text');const value=input?.value.trim();
     if(!value)return;
+    if(form.dataset.phoneForm==='x-reply'){
+      const post=config.tweets.find(item=>subpage==='post:'+item.id);
+      if(post && !accessFor({app:'x',id:post.id}).locked)sendToStory(value,'X',post);
+      return;
+    }
     sendToStory(value,form.dataset.phoneForm==='video'?'Instagram 視訊':'KakaoTalk');
   }
   function onAction(e) {
@@ -613,7 +665,7 @@
     if (action==='notifications'){page='notifications';subpage='';render();return;}
     if (action==='back') {
       if(page==='spotify' && expanded){expanded=false;return render();}
-      if(['kakao','photos','notes'].includes(page) && subpage){subpage='';return render();}
+      if(['kakao','photos','notes','x'].includes(page) && subpage){subpage='';return render();}
       return enterHome();
     }
     if (action.startsWith('app:')) {
@@ -631,6 +683,14 @@
     if (action.startsWith('document:') && ['photos','notes'].includes(page)) {
       const item=itemsFor(page)[Number(action.slice(9))];
       if(item)enterTarget(page,item.id);return;
+    }
+    if (action.startsWith('x-post:')){
+      const id=action.slice(7);
+      const post=itemsFor('x').find(item=>item.id===id);
+      if(!post)return;
+      const access=accessFor({app:'x',id});
+      if(!access.locked && !commitOpen({app:'x',id}))return;
+      page='x';subpage='post:'+id;render();return;
     }
     if (action==='hangup')return enterHome();
     if (action==='accept'){clearTimers(); subpage='video';return render();}
