@@ -137,7 +137,7 @@
     '手機 UI 是既有故事的呈現方式，不是新世界。不得為了更新手機而增加事件密度、讓 NPC 全知，或代玩家編造未說過的話。',
     '只有本輪故事確實產生此手機主人可合理看見的新訊息、通話、貼文或日程時，才在故事正文結束後附加一次下列資料區塊；沒有變動時絕對不要輸出。',
     OPEN,
-    '{"chat":[{"from":"them","time":"23:41","text":"..."}],"tweets":[{"id":"school-event-1","authorId":"npc-a","authorName":"某同學","authorHandle":"@someone","text":"...","date":"今天","eventId":"已知事件ID","sourceKind":"hearsay"},{"id":"school-reply-1","replyTo":"school-event-1","authorId":"npc-b","authorName":"另一位同學","text":"我看到的不是這樣","date":"今天"}],"calls":[{"group":"今天","items":[{"name":"...","type":"未接","time":"23:40","count":"1"}]}]}',
+    '{"chat":[{"from":"them","time":"23:41","text":"..."}],"tweets":[{"id":"school-event-1","authorId":"npc-a","authorName":"某同學","authorHandle":"@someone","text":"...","date":"今天","eventId":"已知事件ID","sourceKind":"hearsay"},{"id":"school-reply-1","replyTo":"school-event-1","authorId":"npc-b","authorName":"另一位同學","text":"我看到的不是這樣","date":"今天"}],"calls":[{"group":"今天","items":[{"name":"...","type":"未接","time":"23:40","count":"1"}]}],"events":[{"time":"明天","title":"..."}],"instagram":{"messages":[{"from":"them","text":"...","delay":0}]}}',
     CLOSE,
     '可選擴充：contacts:[{id,name,avatar}]；threads:[{id,name,participants:[聯絡人ID],messages:[{from,senderId,time,text}]}]；photos:[{id,src,title,caption}]；notes:[{id,title,text}]；storyTime、storyDate 為故事內顯示時間與日期。',
     '以上欄位同樣放進該 JSON 區塊。沿用人物覆寫中的 ID；多人或群聊請用 threads，勿混入主要聯絡人的 chat。新聊天室須提供 name 與 participants；既有聊天室只附新訊息。照片與筆記依 ID 更新，照片只能使用故事已提供的真實圖片網址，不得編造網址。照片與筆記只屬於手機主人可取得的資料。',
