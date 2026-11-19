@@ -410,7 +410,7 @@
     const ids=new Set(config.tweets.map(item=>item.id));
     const lookup=id=>items.find(item=>item.id===id);
     const opened=subpage.startsWith('post:') ? lookup(subpage.slice(5)) : null;
-    const postLabel=tweet=>tweet.authorName || config.userName || '使用者';
+    const postLabel=tweet=>tweet.authorName || config.contacts.find(c=>c.id===tweet.authorId)?.name || tweet.authorId || config.userName || '使用者';
     const postHandle=tweet=>tweet.authorHandle || (tweet.authorId ? '@'+tweet.authorId : config.twitterHandle || '@user');
     const repliesFor=tweet=>items.filter(item=>item.replyTo===tweet.id);
     const countFor=tweet=>{
