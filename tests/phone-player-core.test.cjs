@@ -137,3 +137,33 @@ test('unread incoming content stays out of the snapshot while explicit outgoing 
   assert.doesNotMatch(snapshot,/這句還沒被玩家讀到/);
   assert.doesNotMatch(snapshot,/這份筆記也還沒讀/);
 });
+
+
+test('X context includes only an opened post, not all posts when a notification was read', () => {
+  const phone={enabled:true,userName:'手機主人',apps:['x'],
+    tweets:[
+      {id:'seen',authorName:'目擊者',text:'我親眼看到校慶舞台'},
+      {id:'unread',authorName:'路人',text:'不該提前透露的細節'}
+    ]};
+  const story={phoneUI:{version:1,notifications:[{id:'notice',app:'x',targetId:'',read:true}]}};
+  const before=Core.contextSnapshot(story,phone);
+  assert.doesNotMatch(before,/我親眼看到校慶舞台/);
+  assert.doesNotMatch(before,/不該提前透露的細節/);
+  story.phoneInteractions={version:1,read:['x:seen'],unlocked:[],fired:[]};
+  const after=Core.contextSnapshot(story,phone);
+  assert.match(after,/目擊者：我親眼看到校慶舞台/);
+  assert.doesNotMatch(after,/不該提前透露的細節/);
+  const meta=Core.ownerDescription(story,phone);
+  assert.match(meta,/X 貼文 ID/);
+  assert.match(meta,/"id":"seen"/);
+  assert.doesNotMatch(meta,/不該提前透露的細節/);
+});
+
+test('author-locked X post body remains outside model context even after local unlock', () => {
+  const phone={enabled:true,apps:['x'],tweets:[
+    {id:'private-tweet',text:'ONLY_LOCAL_SECRET',authorName:'角色'}
+  ],interactions:{version:1,locks:[{target:{app:'x',id:'private-tweet'},code:'1234'}]}};
+  const story={phoneInteractions:{version:1,read:['x:private-tweet'],unlocked:['x:private-tweet'],fired:[]}};
+  const result=Core.ownerDescription(story,phone);
+  assert.doesNotMatch(result,/ONLY_LOCAL_SECRET/);
+});

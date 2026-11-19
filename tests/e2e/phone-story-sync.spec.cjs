@@ -230,3 +230,70 @@ test('an older cached phone core still opens existing content without a notifica
   await page.locator('.bp-friend').last().click();
   await expect(page.locator('.bp-thread')).toContainText('開場原始訊息');
 });
+
+
+test('X renders separate NPC accounts and a reply thread, and routes player replies through story sending',async({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  await ready(page);
+  const before=await page.evaluate(({OPEN,CLOSE})=>{
+    Chat.add('user','今天校慶怎麼了？');
+    Chat.add('assistant','他們在 X 上聊起校慶。'+OPEN+JSON.stringify({tweets:[
+      {id:'festival-1',authorId:'a',authorName:'目擊者',authorHandle:'@witness',
+        eventId:'festival-event-1',sourceKind:'witness',text:'我看到校慶舞台上的衝突'},
+      {id:'festival-2',authorId:'b',authorName:'另一位同學',authorHandle:'@student',
+        text:'有人在討論校慶的照片'},
+      {id:'reply-1',replyTo:'festival-1',authorId:'c',authorName:'朋友',
+        text:'我聽說的版本不一樣'}
+    ]})+CLOSE);
+    App.saveStory(false);
+    return {prompt:App.buildSystemPrompt(),tweets:Storage.loadStory().state.phoneUI.tweets};
+  },{OPEN,CLOSE});
+  expect(before.tweets).toHaveLength(3);
+  expect(before.tweets[2].replyTo).toBe('festival-1');
+  expect(before.prompt).not.toContain('我看到校慶舞台上的衝突');
+  await page.locator('#bao-phone-launch').click();
+  await page.locator('.bp-home-handle').click();
+  await page.locator('.bp-apps .bp-icon-x').click();
+  await expect(page.locator('.bp-tweet')).toHaveCount(3); // authored legacy + two roots
+  await expect(page.locator('.bp-tweet').filter({hasText:'目擊者'})).toContainText('@witness');
+  await expect(page.locator('.bp-tweet').filter({hasText:'另一位同學'})).toHaveCount(1);
+  await expect(page.locator('.bp-x-comment')).toHaveCount(0);
+  await page.locator('[data-phone-action="x-post:festival-1"]').click();
+  await expect(page.locator('.bp-x-comment')).toContainText('我聽說的版本不一樣');
+  const read=await page.evaluate(()=>({
+    keys:GameState.current.phoneInteractions?.read || [],
+    saved:Storage.loadStory()?.state?.phoneInteractions?.read || [],
+    prompt:App.buildSystemPrompt()
+  }));
+  expect(read.keys).toContain('x:festival-1');
+  expect(read.saved).toContain('x:festival-1');
+  expect(read.prompt).toContain('目擊者：我看到校慶舞台上的衝突');
+  expect(read.prompt).not.toContain('我聽說的版本不一樣');
+  await page.evaluate(()=>{window.__xSent=[];App.sendMessage=()=>{
+    window.__xSent.push(document.getElementById('user-input').value);
+  };});
+  await page.locator('[data-phone-form="x-reply"] textarea').fill('我也在現場');
+  await page.locator('[data-phone-form="x-reply"] button').click();
+  expect(await page.evaluate(()=>window.__xSent)).toEqual([expect.stringContaining('回覆貼文 ID：festival-1')]);
+  expect((await page.evaluate(()=>window.__xSent[0]))).toContain('我也在現場');
+  await expect(page.locator('#bao-phone-stage')).toHaveCount(0);
+});
+
+test('X read state rolls back when story saving fails',async({page})=>{
+  await ready(page);
+  await page.evaluate(({OPEN,CLOSE})=>{
+    Chat.add('user','查看社群');
+    Chat.add('assistant','手機更新了。'+OPEN+JSON.stringify({tweets:[
+      {id:'new-post',authorName:'路人',text:'這則只有點開才會標記已讀'}
+    ]})+CLOSE);
+    App.saveStory(false);
+  },{OPEN,CLOSE});
+  await page.locator('#bao-phone-launch').click();
+  await page.locator('.bp-home-handle').click();
+  await page.locator('.bp-apps .bp-icon-x').click();
+  await page.evaluate(()=>{App.saveStory=()=>false;});
+  await page.locator('[data-phone-action="x-post:new-post"]').click();
+  await expect(page.locator('.bp-x-composer')).toHaveCount(0);
+  const after=await page.evaluate(()=>GameState.current.phoneInteractions?.read || []);
+  expect(after).not.toContain('x:new-post');
+});

@@ -66,6 +66,24 @@
 .bp-tweet{padding:17px 2px;border-top:1px solid #35363c;font-size:14px}
 .bp-tweet p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5}
 .bp-tweet .bp-muted{color:#85868c}
+
+.bp-x-post-header{display:flex;align-items:center;gap:10px;min-width:0}
+.bp-x-avatar{height:38px;width:38px;border-radius:50%;object-fit:cover;flex-shrink:0;background:#272932;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:650}
+.bp-x-byline{display:flex;flex-direction:column;min-width:0;gap:2px}
+.bp-x-byline strong,.bp-x-byline small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bp-x-byline small{font-size:12px}
+.bp-tweet .bp-x-post-body{margin:9px 0 6px 48px;line-height:1.58}
+.bp-tweet .bp-x-stats{margin:8px 0 0 48px;font-size:12px}
+.bp-x-source{display:block;margin:5px 0 0 48px;color:#a6a7b5;font-size:11px}
+.bp-x-open{display:block;min-height:44px;margin:8px 0 0 46px;padding:8px 10px;border:1px solid #41434d;border-radius:10px;background:transparent;color:#b4b8ee;font-size:12px;text-align:left;cursor:pointer}
+.bp-x-open:focus-visible,.bp-x-composer button:focus-visible{outline:2px solid #c1b3ff;outline-offset:3px}
+.bp-x-feed-heading{margin:18px 0 0;padding:10px 0;border-top:1px solid #35363c;font-size:15px}
+.bp-x-no-replies{padding:12px 0;font-size:13px}
+.bp-x-comment{padding-left:10px;border-left:2px solid #454354}
+.bp-x-composer{display:flex;flex-direction:column;gap:10px;margin:18px 0 0;padding-bottom:10px}
+.bp-x-composer textarea{width:100%;min-height:68px;resize:vertical;background:#17181d;border:1px solid #4a4a59;border-radius:12px;padding:12px;color:#fff;font:inherit}
+.bp-x-composer button{min-height:44px;align-self:flex-end;padding:10px 16px;border:0;border-radius:12px;background:#7164a0;color:#fff;font-weight:650}
+
 .bp-instagram,.bp-spotify{background:#080809;color:#fff}
 .bp-insta{height:100%;background:linear-gradient(180deg,#191825,#0a0a0f 58%,#030304);display:flex;align-items:center;flex-direction:column;padding:100px 20px 35px;text-align:center;position:relative}
 .bp-insta-avatar{width:126px;height:126px;border-radius:50%;object-fit:cover;animation:bp-breathe 2.4s ease-in-out infinite}

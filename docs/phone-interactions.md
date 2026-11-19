@@ -43,7 +43,7 @@
 | --- | --- |
 | version | 固定 1；未提供 interactions 或設 null 沿用舊手機玩法 |
 | locks | 最多 80 個，target 不得重複 |
-| target | `{app,id}`，app 只能是 notes、photos、kakao；內容 id 必須存在 |
+| target | `{app,id}`，app 可以是 notes、photos、kakao、x；內容 id 必須存在；X 貼文需要穩定 ID 才能引用 |
 | code | 選填，最多 128 字的**字串**；區分大小寫、不自動去空白，保留開頭的 0 |
 | hidden | true 時解鎖前不顯示；這種目標只能由事件解鎖 |
 | hint | 最多 300 字；只顯示給可見的鎖定項目 |
@@ -90,3 +90,24 @@ Creator MCP 0.19 同步 `phone_ui.interactions` 的結構與引用驗證，JSON�
 鎖定畫面與桌面列出未讀新動態。聊天室與文件使用原始 ID 開啟內容；隱藏項目不顯示通知，鎖定項目只顯示通用提示，解鎖前不清除未讀。已讀更新使用既有故事儲存流程，儲存失敗會還原。切換故事或恢復存檔不共用未讀狀態。
 
 手機空白頁面的「回到故事繼續」只關閉手機並聚焦原輸入框，不填入文字、不送出、不替玩家創造事件。
+
+
+## X 多角色動態牆與留言串（Phone 延伸）
+
+X 仍是同一個故事內的 Phone App，不是第二套世界模擬，也不會在開啟時自行呼叫模型。作者原始貼文與故事已接受回覆的 Phone 更新會合併顯示。
+
+```json
+{"tweets":[
+  {"id":"festival-1","authorId":"npc-a","authorName":"社團同學","authorHandle":"@club_a","text":"剛剛校慶發生一件事","date":"週日","eventId":"festival-event-1","sourceKind":"witness"},
+  {"id":"festival-reply-1","replyTo":"festival-1","authorId":"npc-b","authorName":"另一位學生","authorHandle":"@school_b","text":"我聽到的版本不一樣","sourceKind":"hearsay"}
+]}
+```
+
+- 每個 tweets 項目可以是原貼文或留言；留言透過 replyTo 引用父貼文 id，不使用獨立留言資料庫。舊版沒有 ID 的貼文仍可顯示；故事更新缺 ID 時，依已接受訊息產生可重播的 ID。
+- authorId、authorName、authorHandle、avatar 為選填。舊版僅有 text/date/likes/replies/reposts 的貼文仍依手機主人顯示；replies 原本的數字統計欄位維持相同語意。
+- eventId 僅參照已知故事事件，不新增世界真相或自動改變 NPC 關係。sourceKind 可為 witness／media／hearsay／unknown；它是作者或模型提供的敘述來源標籤，不證明其陳述真實。
+- 點進特定貼文才記錄 phoneInteractions.read 中的 x:貼文ID；單純清除 X 通知不算看過貼文。下一輪主故事最多帶入一則已讀貼文摘要，未讀／作者鎖定正文不回傳。
+- 玩家回覆走既有 App.sendMessage()；只有主故事回覆產生、且被接受的 Phone 更新才會增添留言，不預先假造 NPC 回覆。模型必須為玩家明確送出的 X 回覆標記 from:me；自己的回覆不產生新貼文通知。
+- 既有 interactions.events 可將 X 閱讀設為 when:{action:read,target:{app:x,id:festival-1}}，再解鎖其他 App 線索。密碼、存檔失敗回復、分支與重載沿用原本規則。
+
+本階段不提供背景社群模擬、自動刷新、外部 X API、多人登入或第二次付費模型請求。

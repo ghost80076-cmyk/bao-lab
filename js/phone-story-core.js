@@ -31,7 +31,11 @@
     });
     for (const key of ['storyTime','storyDate']) if (normalized[key].trim()) patch[key] = normalized[key];
     if (Array.isArray(raw.chat)) patch.chat = PhoneCore.normalize({chat:raw.chat}).chat.slice(0,5).filter(item => item.text.trim());
-    if (Array.isArray(raw.tweets)) patch.tweets = PhoneCore.normalize({tweets:raw.tweets}).tweets.slice(0,3).filter(item => item.text.trim());
+    if (Array.isArray(raw.tweets)) patch.tweets = PhoneCore.normalize({tweets:raw.tweets}).tweets.slice(0,3)
+      .map((tweet,index) => ({...tweet,
+        // Missing IDs receive a stable message-owned ID at apply-time.
+        id:raw.tweets[index] && typeof raw.tweets[index] === 'object' && raw.tweets[index].id ? tweet.id : ''
+      })).filter(item => item.text.trim());
     if (Array.isArray(raw.calls)) patch.calls = PhoneCore.normalize({calls:raw.calls}).calls.slice(0,3).filter(item => item.items.length);
     if (Array.isArray(raw.events)) patch.events = safeEvents(raw.events);
     if (object(raw.instagram) && Array.isArray(raw.instagram.messages)) {
@@ -70,7 +74,7 @@
     const add=(app,targetId,label)=>items.push({id:sourceId+':'+app+':'+targetId,app,targetId,label:String(label).slice(0,100),read:false});
     if (patch.chat?.some(item=>item.from !== 'me')) add('kakao','','收到新的手機訊息');
     for (const thread of patch.threads || []) if (thread.messages.some(item=>item.from !== 'me')) add('kakao',thread.id,'聊天室有新訊息');
-    if (patch.tweets?.length) add('x','','有新的貼文');
+    if (patch.tweets?.some(tweet => tweet.from !== 'me')) add('x','','有新的貼文或回覆');
     if (patch.calls?.length) add('phone','','通話紀錄已更新');
     // Instagram currently presents scripted video overlays, not an inbox.
     // Overlay captions must not imply a new incoming call or message.
@@ -90,9 +94,14 @@
     const result = empty();
     result.seenIds = bound([...seenIds,id],60);
     result.notifications = bound([...notifications(prior),...newNotifications(patch,id)],40);
-    for (const [key,max] of [['chat',150],['tweets',80],['calls',25],['events',8]]) {
+    for (const [key,max] of [['chat',150],['calls',25],['events',8]]) {
       result[key] = bound([...(Array.isArray(prior[key]) ? prior[key] : []), ...(Array.isArray(patch[key]) ? patch[key] : [])],max);
     }
+    const sourceKey = id.replace(/[^a-zA-Z0-9_-]/g,'').slice(0,48) || 'message';
+    result.tweets = bound([...(Array.isArray(prior.tweets) ? prior.tweets : []),
+      ...(patch.tweets || []).map((tweet,index) => ({
+        ...tweet, id:tweet.id || 'turn-' + sourceKey + '-' + index
+      }))],80);
     result.instagram.messages = bound([
       ...(Array.isArray(prior.instagram?.messages) ? prior.instagram.messages : []),
       ...(Array.isArray(patch.instagram?.messages) ? patch.instagram.messages : [])
@@ -128,11 +137,12 @@
     '手機 UI 是既有故事的呈現方式，不是新世界。不得為了更新手機而增加事件密度、讓 NPC 全知，或代玩家編造未說過的話。',
     '只有本輪故事確實產生此手機主人可合理看見的新訊息、通話、貼文或日程時，才在故事正文結束後附加一次下列資料區塊；沒有變動時絕對不要輸出。',
     OPEN,
-    '{"chat":[{"from":"them","time":"23:41","text":"..."}],"tweets":[{"text":"...","date":"今天"}],"calls":[{"group":"今天","items":[{"name":"...","type":"未接","time":"23:40","count":"1"}]}],"events":[{"time":"明天","title":"..."}],"instagram":{"messages":[{"from":"them","text":"...","delay":0}]}}',
+    '{"chat":[{"from":"them","time":"23:41","text":"..."}],"tweets":[{"id":"school-event-1","authorId":"npc-a","authorName":"某同學","authorHandle":"@someone","text":"...","date":"今天","eventId":"已知事件ID","sourceKind":"hearsay"},{"id":"school-reply-1","replyTo":"school-event-1","authorId":"npc-b","authorName":"另一位同學","text":"我看到的不是這樣","date":"今天"}],"calls":[{"group":"今天","items":[{"name":"...","type":"未接","time":"23:40","count":"1"}]}],"events":[{"time":"明天","title":"..."}],"instagram":{"messages":[{"from":"them","text":"...","delay":0}]}}',
     CLOSE,
     '可選擴充：contacts:[{id,name,avatar}]；threads:[{id,name,participants:[聯絡人ID],messages:[{from,senderId,time,text}]}]；photos:[{id,src,title,caption}]；notes:[{id,title,text}]；storyTime、storyDate 為故事內顯示時間與日期。',
     '以上欄位同樣放進該 JSON 區塊。沿用人物覆寫中的 ID；多人或群聊請用 threads，勿混入主要聯絡人的 chat。新聊天室須提供 name 與 participants；既有聊天室只附新訊息。照片與筆記依 ID 更新，照片只能使用故事已提供的真實圖片網址，不得編造網址。照片與筆記只屬於手機主人可取得的資料。',
-    '只保留真正新增的欄位和紀錄；不要重複既有內容。上述是 JSON 格式範例，不是實際事件。from=me 只能記錄玩家明確提供過的訊息。區塊外照常寫故事，且不要附任何 HTML/JavaScript。'
+    'X 的 tweets 使用 id 指向貼文，replyTo 引用已存在的貼文 ID 即為留言；每個 NPC 可有各自的 authorId、authorName、authorHandle。eventId 僅引用故事已確認的事件 ID；sourceKind 可用 witness/media/hearsay/unknown，沒有根據就省略。不可讓角色知道沒接觸過的私密事件、不可把傳聞當成事實，也不必讓所有貼文圍繞玩家。舊版只有 text/date/replies 數字的貼文仍有效。',
+    '只保留真正新增的欄位和紀錄；不要重複既有內容。上述是 JSON 格式範例，不是實際事件。X 的 from=me 和聊天 from=me 都只能記錄玩家明確提供過的訊息；玩家在 X 發送的回覆須依所給的貼文 ID、內容建立對應 replyTo，不能偽造玩家發言。區塊外照常寫故事，且不要附任何 HTML/JavaScript。'
   ].join('\n');
   return Object.freeze({OPEN,CLOSE,extract,normalizePatch,apply,mergeDisplay,notifications,empty,PROMPT});
 });

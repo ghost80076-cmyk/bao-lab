@@ -84,10 +84,23 @@
         }))
       })),
       chat: messages(value.chat),
-      tweets: arr(value.tweets, 80).map(item => typeof item === 'string'
-        ? { text: txt(item, 2000), date: '', likes: '', replies: '', reposts: '' }
-        : obj(item) ? { text: txt(item.text, 2000), date: txt(item.date, 40),
-          likes: txt(item.likes, 20), replies: txt(item.replies, 20), reposts: txt(item.reposts, 20) } : null).filter(Boolean),
+      // Old string/count-only tweets remain valid. A reply is a separate tweet
+      // referencing its parent ID, so story updates stay append-only.
+      tweets: arr(value.tweets, 80).map((entry, index) => {
+        const item = typeof entry === 'string' ? {text:entry} : obj(entry) ? entry : null;
+        if (!item) return null;
+        return {
+          id:id(item.id) || 'legacy-' + (index + 1),
+          authorId:id(item.authorId), authorName:txt(item.authorName, 80),
+          authorHandle:txt(item.authorHandle, 80), avatar:media(item.avatar),
+          replyTo:id(item.replyTo), eventId:id(item.eventId),
+          sourceKind:['witness','media','hearsay','unknown'].includes(item.sourceKind) ? item.sourceKind : '',
+          from:['me','我','나'].includes(item.from) ? 'me' : 'them',
+          text:txt(item.text, 2000), date:txt(item.date, 40),
+          likes:txt(item.likes, 20), replies:txt(item.replies, 20),
+          reposts:txt(item.reposts, 20)
+        };
+      }).filter(item => item && item.text.trim()),
       instagram: {
         callerName: txt(ig.callerName || value.contactName, 80), avatar: media(ig.avatar),
         video: media(ig.video), selfVideo: media(ig.selfVideo),
