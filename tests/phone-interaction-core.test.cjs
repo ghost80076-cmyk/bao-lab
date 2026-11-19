@@ -105,3 +105,23 @@ test('invalid conditions remain closed after normalization instead of dropping r
     assert.equal(Phone.normalize(phone).interactions.invalid,true);
   }
 });
+
+
+test('reading a specific X post can unlock a cross-App clue without a new model call',()=>{
+  const phone=Phone.normalize({apps:['x','notes'],
+    tweets:[{id:'witness-post',authorName:'目擊者',text:'剛剛發生的事'}],
+    notes:[{id:'clue',title:'後續資料',text:'隱藏線索'}],
+    interactions:{version:1,
+      locks:[{target:{app:'notes',id:'clue'},hidden:true}],
+      events:[{id:'social-unlock',when:{action:'read',target:{app:'x',id:'witness-post'}},
+        unlock:[{app:'notes',id:'clue'}],notification:'線索已開啟'}]
+    }});
+  assert.deepEqual(Core.validate(phone),[]);
+  assert.equal(Core.access(phone,null,{app:'notes',id:'clue'}).hidden,true);
+  const result=Core.open(phone,null,{app:'x',id:'witness-post'});
+  assert.equal(result.ok,true);
+  assert.deepEqual(result.progress.read,['x:witness-post']);
+  assert.deepEqual(result.notifications,['線索已開啟']);
+  assert.equal(Core.access(phone,result.progress,{app:'notes',id:'clue'}).hidden,false);
+  assert.equal(Core.open(phone,result.progress,{app:'x',id:'witness-post'}).changed,false);
+});
