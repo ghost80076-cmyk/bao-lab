@@ -31,8 +31,10 @@
   };
 
   const ensureStyles = () => {
-    ["css/brand-home.css", "css/brand-community.css", "css/first-run-desktop.css", "css/bao-cinematic-home.css?v=5"].forEach(href => {
-      if (document.querySelector(`link[href="${href}"]`)) return;
+    ["css/brand-home.css", "css/brand-community.css", "css/first-run-desktop.css", "css/bao-cinematic-home.css?v=6"].forEach(href => {
+      // The HTML preload can use a cache-busting version; never append an
+      // older copy of the same stylesheet after first paint.
+      if (document.querySelector(`link[rel="stylesheet"][href^="${href.split("?")[0]}"]`)) return;
       const link = document.createElement("link");
       link.rel = "stylesheet";
       link.href = href;
