@@ -6,8 +6,8 @@
 })(typeof window !== 'undefined' ? window : null, function() {
   'use strict';
   const object = value => !!value && typeof value === 'object' && !Array.isArray(value);
-  const apps = ['kakao','photos','notes'];
-  const fields = {kakao:'threads',photos:'photos',notes:'notes'};
+  const apps = ['kakao','photos','notes','x'];
+  const fields = {kakao:'threads',photos:'photos',notes:'notes',x:'tweets'};
   const list = (value,max) => Array.isArray(value) ? value.slice(0,max) : [];
   const text = (value,max) => String(value ?? '').slice(0,max);
   const target = value => object(value) && apps.includes(value.app) && typeof value.id === 'string' && value.id.trim()
