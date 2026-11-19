@@ -286,16 +286,19 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/device-transfer.js?v=2"))
     .then(() => loadBAOScript("js/author-diagnostics.js"))
     .catch(err => console.warn("BAO/LAB character library, import, device transfer or author diagnostics failed to load:", err));
-  loadBAOScript("js/bao-character.js?v=1")
+  // Player navigation and builder appearance are part of the first usable UI.
+  // Do not make their initialization wait for mascot/Stage/reader enhancements.
+  const playerPresentationReady = loadBAOScript("js/bao-character.js?v=1")
     .then(() => loadBAOScript("js/brand-ui.js?v=12"))
+    .then(() => loadBAOScript("js/player-shell-v2.js?v=15"))
+    .then(() => loadBAOScript("js/player-builder-v2.js?v=9"));
+  playerPresentationReady
     .then(() => new Promise(resolve => setTimeout(resolve, 100)))
     .then(() => loadBAOScript("js/bao-guide.js?v=4"))
     .then(() => loadBAOScript("js/bao-mascot.js?v=6"))
     .then(() => loadBAOOptionalGroup("stage-capabilities", ["js/stage-capability-core.js?v=3", "js/stage-capability.js?v=3"]))
     .then(() => loadBAOScript("js/reader-context.js?v=7"))
     .then(() => loadBAOScript("js/bao-visual-ui.js?v=22"))
-    .then(() => loadBAOScript("js/player-shell-v2.js?v=15"))
-    .then(() => loadBAOScript("js/player-builder-v2.js?v=9"))
     .then(() => loadBAOScript("js/quick-start-mode.js?v=3"))
     .then(() => loadBAOScript("js/story-start-readiness-core.js"))
     .then(() => loadBAOScript("js/story-start-readiness.js?v=2"))
