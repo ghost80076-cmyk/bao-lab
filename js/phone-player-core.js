@@ -73,7 +73,8 @@
     const ids = {
       kakao:new Set((config.threads || []).map(item=>item.id)),
       photos:new Set((config.photos || []).map(item=>item.id)),
-      notes:new Set((config.notes || []).map(item=>item.id))
+      notes:new Set((config.notes || []).map(item=>item.id)),
+      x:new Set((config.tweets || []).map(item=>item.id))
     };
     return notificationList(story).filter(item => {
       if (!item || !config.apps?.includes(item.app)) return false;
@@ -155,10 +156,12 @@
         (caption?'：'+caption:''));
     }
 
-    if(readNoticeTarget(story,'x','') && config.tweets?.length){
-      const tweet=config.tweets.at(-1);
-      const body=snapshotText(tweet?.text,180);
-      if(body)lines.push('最近已讀貼文：'+body);
+    // A cleared X notification does not prove that any particular post was read.
+    const recentTweet=(config.tweets || []).slice().reverse()
+      .find(item=>targetWasRead(story,'x',item.id) && canIncludeBody('x',item.id));
+    if(recentTweet){
+      const body=snapshotText(recentTweet.text,180);
+      if(body)lines.push('最近已讀貼文：'+snapshotText(recentTweet.authorName || recentTweet.authorHandle || config.userName || '使用者',80)+'：'+body);
     }
     if(readNoticeTarget(story,'phone','') && config.calls?.length){
       const group=config.calls.at(-1),call=group?.items?.at(-1);
@@ -181,6 +184,7 @@
       '主要聯絡人：'+contact,
       '聯絡人 ID：'+JSON.stringify(config.contacts.map(({id,name})=>({id,name}))),
       '聊天室 ID：'+JSON.stringify(config.threads.map(({id,name,participants})=>({id,name,participants}))),
+      ...(config.apps.includes('x') && config.tweets.length ? ['X 貼文 ID：'+JSON.stringify(config.tweets.slice(-8).map(({id,authorId,authorName,replyTo,eventId})=>({id,authorId,authorName,replyTo,eventId})))] : []),
       '照片 ID：'+JSON.stringify(config.photos.map(({id,title})=>({id,title}))),
       '筆記 ID：'+JSON.stringify(config.notes.map(({id,title})=>({id,title}))),
       ...(config.interactions || raw?.interactions ? ['手機機關進度：'+JSON.stringify(Interactions?.progress(raw,story?.phoneInteractions))] : []),
