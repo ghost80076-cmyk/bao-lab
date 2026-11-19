@@ -71,8 +71,9 @@ test('character studio separates draft, local test version and public lifecycle 
 
 test('known public IDs are labeled as public without pretending the draft was published here', async ({ page }) => {
   await page.goto('./character-studio.html');
-  await page.waitForFunction(() => Boolean(window.BAOCharacterStudioLifecycle));
-
+  await page.waitForFunction(() => Boolean(window.BAOCharacterStudioLifecycle && window.BAOStudioSimpleCreate));
+  // ID remains advanced, while the public catalog lifecycle still uses it.
+  await page.locator('#studio-simple-open-full').click();
   await page.locator('[name="id"]').fill('linchenfeng');
   await expect.poll(
     () => page.locator('#studio-lifecycle [data-lifecycle-stage="publication"] [data-lifecycle-value]').textContent(),

@@ -8,6 +8,7 @@ for (const width of [390, 1280]) {
       window.BAOStudioRehearsal && window.BAOCharacterStudio && window.BAOCharacterStudioFlow
     ));
 
+    await page.locator('#studio-simple-open-full').click();
     await page.locator('[name="name"]').fill('雨港試演作品');
     await page.locator('[name="id"]').fill('creator-rehearsal-' + width);
     await page.locator('[name="description"]').fill('驗證作者可從創作室精準前往本機作品。');
