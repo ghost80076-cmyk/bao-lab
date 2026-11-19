@@ -136,7 +136,8 @@ test('studio phone builder works without JSON and expanded references stay insid
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({width:390,height:844});
   await page.goto('/character-studio.html');
-  await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOCharacterStudioFlow && window.BAOCharacterStudioPhoneBuilder);
+  await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOCharacterStudioFlow && window.BAOCharacterStudioPhoneBuilder && window.BAOStudioSimpleCreate);
+  await page.locator('#studio-simple-open-full').click();
   await page.locator('#studio-flow-shell [data-flow-step="appearance"]').click();
   await page.locator('[name=phone_ui_enabled]').check();
   await expect(page.locator('[data-phone-builder]')).toBeVisible();
@@ -194,7 +195,8 @@ test('studio author can create a multi-contact group chat without editing JSON',
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({width:390,height:844});
   await page.goto('/character-studio.html');
-  await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOCharacterStudioFlow && window.BAOCharacterStudioPhoneBuilder);
+  await page.waitForFunction(()=>window.BAOCharacterStudio && window.BAOCharacterStudioFlow && window.BAOCharacterStudioPhoneBuilder && window.BAOStudioSimpleCreate);
+  await page.locator('#studio-simple-open-full').click();
   await page.locator('#studio-flow-shell [data-flow-step="appearance"]').click();
   await page.locator('[name=phone_ui_enabled]').check();
   await page.locator('[name=phone_userName]').fill('玩家');
