@@ -67,6 +67,7 @@ test.describe('Player 2.0 shell', () => {
       const create = page.locator('.topbar nav a.bao-create-nav');
       await expect(create).toBeVisible();
       await expect(create).toHaveAttribute('href', 'character-studio.html');
+      await expect(create).toHaveText('創卡');
       const rect = await create.boundingBox();
       expect(rect).not.toBeNull();
       expect(rect.x).toBeGreaterThanOrEqual(0);
