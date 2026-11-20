@@ -1,5 +1,5 @@
 (() => {
-  const DISCORD_INVITE = "https://discord.gg/N3XpAhwTN";
+  const DISCORD_INVITE = "https://discord.gg/VcQVf5qdS5";
   const LINE_INVITE = "https://line.me/ti/g2/MUhrfagH6_jr76izNfBK7FBUdYZY30Jh9ml24Q?utm_source=invitation&utm_medium=link_copy&utm_campaign=default";
   const DISCORD_ICON = '<img src="assets/discord-mark.svg" width="21" height="21" alt="">';
   const LINE_ICON = '<span class="brand-line-icon" aria-hidden="true">LINE</span>';

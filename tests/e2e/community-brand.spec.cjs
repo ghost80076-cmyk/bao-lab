@@ -1,9 +1,14 @@
 const { test, expect } = require('@playwright/test');
 
-const DISCORD_INVITE = 'https://discord.gg/N3XpAhwTN';
+const DISCORD_INVITE = 'https://discord.gg/VcQVf5qdS5';
 const LINE_INVITE = 'https://line.me/ti/g2/MUhrfagH6_jr76izNfBK7FBUdYZY30Jh9ml24Q?utm_source=invitation&utm_medium=link_copy&utm_campaign=default';
 
 test.describe('YoruBay official identity and concise community entry', () => {
+  test('lights support page links to the current official Discord invite', async ({ page }) => {
+    await page.goto('/lights.html');
+    await expect(page.locator('a.lights-primary')).toHaveAttribute('href', DISCORD_INVITE);
+  });
+
   test('Cinematic Night homepage keeps the character first and mascot subtle', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('#home-view .brand-hero h1')).toContainText('今晚，想走進');
