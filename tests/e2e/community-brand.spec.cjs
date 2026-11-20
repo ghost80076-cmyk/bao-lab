@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-const DISCORD_INVITE = 'https://discord.gg/N3XpAhwTN';
+const DISCORD_INVITE = 'https://discord.gg/VcQVf5qdS5';
 const LINE_INVITE = 'https://line.me/ti/g2/MUhrfagH6_jr76izNfBK7FBUdYZY30Jh9ml24Q?utm_source=invitation&utm_medium=link_copy&utm_campaign=default';
 
 test.describe('YoruBay official identity and concise community entry', () => {
