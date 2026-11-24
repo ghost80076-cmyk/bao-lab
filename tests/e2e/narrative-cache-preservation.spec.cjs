@@ -403,6 +403,10 @@ for (const width of [390, 1440]) {
   test(`scene fidelity drafts, toggles and saved reload preserve story contracts at ${width}px`, async ({ page }) => {
     await setup(page, width);
     const before = await page.evaluate(() => preferenceSnapshot());
+    expect(before.messages.match(/【玩家排版偏好】/g)).toHaveLength(1);
+    const sceneBefore = await page.evaluate(() => ({
+      config: App.config.scenePresentation, current: BAOSceneStoryPreferences.current()
+    }));
     await page.evaluate(() => BAONarrativeSettings.open());
     const option = page.locator('[data-story-extra="scene_fidelity"]');
     await expect(option).not.toBeChecked();
@@ -445,6 +449,9 @@ for (const width of [390, 1440]) {
       return { schema: save.schema, version: save.version, extras: App.config.narrative.storyExtras };
     });
     expect(restored).toEqual({ ...shape, extras: ['threads', 'daily', 'scene_fidelity'] });
+    expect(await page.evaluate(() => ({
+      config: App.config.scenePresentation, current: BAOSceneStoryPreferences.current()
+    }))).toEqual(sceneBefore);
     await page.evaluate(() => BAONarrativeSettings.open());
     await expect(option).toBeChecked();
     await option.uncheck();

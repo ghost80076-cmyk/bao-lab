@@ -60,6 +60,8 @@ increasing(index, [
   'src="js/chat.js',
   'src="js/character.js?v=11"',
   'src="js/app.js',
+  // Install the base prompt before chat-markup can asynchronously wrap it.
+  'src="js/character-ui.js?v=8"',
   'src="js/chat-markup.js?v=10"',
   'src="js/story-maintenance-lock.js?v=2"',
   'src="js/site-ui.js'
