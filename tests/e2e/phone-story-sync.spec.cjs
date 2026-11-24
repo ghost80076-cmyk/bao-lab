@@ -297,3 +297,70 @@ test('X read state rolls back when story saving fails',async({page})=>{
   const after=await page.evaluate(()=>GameState.current.phoneInteractions?.read || []);
   expect(after).not.toContain('x:new-post');
 });
+
+
+test('X second-level replies are navigable and read individually without marking descendants as read',async({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  await ready(page);
+  await page.evaluate(({OPEN,CLOSE})=>{
+    Chat.add('user','看看 X 留言');
+    Chat.add('assistant','有人討論起這件事。'+OPEN+JSON.stringify({tweets:[
+      {id:'x-root',authorName:'發文者',text:'校慶話題'},
+      {id:'x-reply-1',replyTo:'x-root',authorName:'同學甲',text:'第一層不同意'},
+      {id:'x-reply-2',replyTo:'x-reply-1',authorName:'同學乙',text:'第二層想補充'}
+    ]})+CLOSE);
+    App.saveStory(false);
+  },{OPEN,CLOSE});
+  await page.locator('#bao-phone-launch').click();
+  await page.locator('.bp-home-handle').click();
+  await page.locator('.bp-apps .bp-icon-x').click();
+  await expect(page.locator('.bp-tweet')).toHaveCount(2); // one legacy post and one root
+  await page.locator('[data-phone-action="x-post:x-root"]').click();
+  await expect(page.locator('.bp-x-comment')).toContainText('第一層不同意');
+  await expect(page.locator('.bp-x-comment')).not.toContainText('第二層想補充');
+  await page.locator('[data-phone-action="x-post:x-reply-1"]').click();
+  await expect(page.locator('.bp-x-comment')).toContainText('第二層想補充');
+  const afterFirst=await page.evaluate(()=>({
+    read:GameState.current.phoneInteractions?.read||[],
+    prompt:App.buildSystemPrompt()
+  }));
+  expect(afterFirst.read).toContain('x:x-root');
+  expect(afterFirst.read).toContain('x:x-reply-1');
+  expect(afterFirst.read).not.toContain('x:x-reply-2');
+  expect(afterFirst.prompt).toContain('同學甲：第一層不同意');
+  expect(afterFirst.prompt).not.toContain('第二層想補充');
+  await page.locator('[data-phone-action="x-post:x-reply-2"]').click();
+  const afterSecond=await page.evaluate(()=>GameState.current.phoneInteractions?.read||[]);
+  expect(afterSecond).toContain('x:x-reply-2');
+  await expect(page.locator('.bp-x-composer')).toBeVisible();
+});
+
+test('X replies to a hidden parent remain visible without exposing that parent',async({page})=>{
+  await ready(page);
+  await page.evaluate(()=>{
+    App.activeCharacter.phone_ui=BAOPhoneUICore.normalize({
+      enabled:true,userName:'角色手機',apps:['x'],
+      tweets:[
+        {id:'secret-parent',authorName:'內部角色',text:'ONLY_SECRET_PARENT_TEXT'},
+        {id:'public-reply',replyTo:'secret-parent',authorName:'公開帳號',text:'公開回覆仍能獨立閱讀'}
+      ],
+      interactions:{version:1,locks:[
+        {target:{app:'x',id:'secret-parent'},hidden:true}
+      ],events:[]}
+    });
+    App.renderChatShell(false);
+  });
+  await page.locator('#bao-phone-launch').click();
+  await page.locator('.bp-home-handle').click();
+  await page.locator('.bp-apps .bp-icon-x').click();
+  await expect(page.locator('.bp-tweet')).toHaveCount(1);
+  await expect(page.locator('.bp-tweet')).toContainText('公開回覆仍能獨立閱讀');
+  await expect(page.locator('#bao-phone-stage')).not.toContainText('ONLY_SECRET_PARENT_TEXT');
+  await page.locator('[data-phone-action="x-post:public-reply"]').click();
+  const info=await page.evaluate(()=>({
+    read:GameState.current.phoneInteractions?.read||[],
+    prompt:App.buildSystemPrompt()
+  }));
+  expect(info.read).toContain('x:public-reply');
+  expect(info.prompt).not.toContain('ONLY_SECRET_PARENT_TEXT');
+});
