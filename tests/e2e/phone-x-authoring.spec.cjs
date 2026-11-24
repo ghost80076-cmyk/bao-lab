@@ -43,3 +43,32 @@ test('studio X form creates multi-author posts, replies and retains old data on 
   expect(after.tweets[2].replyTo).toBe(first.id);
   expect(after.tweets[1].sourceKind).toBe('witness');
 });
+
+test('deleting a post also removes descendant replies and related read locks',async({page})=>{
+  await page.goto('/character-studio.html');
+  await page.waitForFunction(()=>window.BAOCharacterStudioPhoneBuilder && window.BAOStudioSimpleCreate);
+  await page.getByRole('button',{name:'全部欄位'}).click();
+  await page.locator('[name=phone_ui_enabled]').check();
+  await page.locator('.studio-phone-raw > summary').click();
+  await page.locator('[name=phone_ui_json]').fill(JSON.stringify({
+    userName:'故事主人',tweets:[
+      '原有貼文',
+      {id:'root-1',authorName:'社團',text:'開場公告'},
+      {id:'reply-1',replyTo:'root-1',authorName:'學生',text:'第一層回覆'},
+      {id:'reply-2',replyTo:'reply-1',authorName:'朋友',text:'第二層回覆'},
+      {id:'root-2',authorName:'校方',text:'其他內容'}
+    ],notes:[{id:'keep',title:'備忘錄',text:'保留'}],
+    interactions:{version:1,locks:[{target:{app:'x',id:'reply-1'},code:'0427'}],
+      events:[{id:'ref-post',when:{action:'read',target:{app:'x',id:'root-1'}},
+        unlock:[{app:'x',id:'reply-1'}],notification:'更新'}]}
+  }));
+  await expect(page.locator('[data-phone-x-list] li')).toHaveCount(5);
+  await page.locator('[data-phone-x-list] li').filter({hasText:'開場公告'}).getByRole('button',{name:/移除/}).click();
+  const raw=JSON.parse(await page.locator('[name=phone_ui_json]').inputValue());
+  expect(raw.tweets.map(item=>typeof item==='string'?item:item.id)).toEqual(['原有貼文','root-2']);
+  expect(raw.interactions.locks).toHaveLength(0);
+  expect(raw.interactions.events).toHaveLength(0);
+  expect(raw.notes).toHaveLength(1);
+  const normalized=await page.evaluate(()=>BAOCharacterStudio.toExport().presentation.phone_ui);
+  expect(normalized.tweets.map(tweet=>tweet.text)).toEqual(['原有貼文','其他內容']);
+});
