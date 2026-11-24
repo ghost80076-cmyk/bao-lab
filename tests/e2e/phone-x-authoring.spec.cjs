@@ -72,3 +72,27 @@ test('deleting a post also removes descendant replies and related read locks',as
   const normalized=await page.evaluate(()=>BAOCharacterStudio.toExport().presentation.phone_ui);
   expect(normalized.tweets.map(tweet=>tweet.text)).toEqual(['原有貼文','其他內容']);
 });
+
+test('studio X composer may reply to an existing reply without rewriting earlier posts',async({page})=>{
+  await page.goto('/character-studio.html');
+  await page.waitForFunction(()=>window.BAOCharacterStudioPhoneBuilder && window.BAOStudioSimpleCreate);
+  await page.getByRole('button',{name:'全部欄位'}).click();
+  await page.locator('[name=phone_ui_enabled]').check();
+  await page.locator('.studio-phone-raw > summary').click();
+  await page.locator('[name=phone_ui_json]').fill(JSON.stringify({
+    apps:['x'],tweets:[
+      {id:'parent',authorName:'社團',text:'原貼文'},
+      {id:'comment',replyTo:'parent',authorName:'同學甲',text:'第一層留言'}
+    ]
+  }));
+  await expect(page.locator('[data-phone-x-reply] option[value="comment"]')).toHaveCount(1);
+  await page.locator('[data-phone-x-author]').fill('同學乙');
+  await page.locator('[data-phone-x-text]').fill('回覆第一層的意見');
+  await page.locator('[data-phone-x-reply]').selectOption('comment');
+  await page.locator('[data-phone-add-x-post]').click();
+  const phone=await page.evaluate(()=>BAOCharacterStudio.toExport().presentation.phone_ui);
+  expect(phone.tweets).toHaveLength(3);
+  expect(phone.tweets[0].text).toBe('原貼文');
+  expect(phone.tweets[1].replyTo).toBe('parent');
+  expect(phone.tweets[2]).toMatchObject({authorName:'同學乙',replyTo:'comment',text:'回覆第一層的意見'});
+});
