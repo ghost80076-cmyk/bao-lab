@@ -69,28 +69,33 @@
       await new Promise(resolve => window.requestAnimationFrame(resolve));
       if (!correct()) return;
     }
-    // Font/shell sizing and late async scroll restores may finish after the
-    // first two frames. ResizeObserver alone misses scrollTop changes that do
-    // not resize the element (e.g. another shell callback restores an offset).
-    // Briefly recheck the *actual* viewport without holding the anchor after
-    // any player gesture or another story operation.
-    const events = ["wheel", "touchstart", "pointerdown", "keydown"];
-    const observer = typeof ResizeObserver === "function"
-      ? new ResizeObserver(() => { if (!correct()) cleanup(); }) : null;
-    let timer = null, pulse = null;
-    const cleanup = () => {
-      observer?.disconnect();
-      clearTimeout(timer);
-      clearInterval(pulse);
-      events.forEach(type => document.removeEventListener(type, cleanup, true));
-      if (stopReaderPositioning === cleanup) stopReaderPositioning = () => {};
-    };
-    stopReaderPositioning = cleanup;
-    events.forEach(type => document.addEventListener(type, cleanup, { capture:true, passive:true }));
-    observer?.observe(stream);
-    observer?.observe(target);
-    pulse = setInterval(() => { if (!correct()) cleanup(); }, 80);
-    timer = setTimeout(cleanup, 1500);
+    // A late shell callback can restore an old scrollTop without resizing the
+    // scrollport. Wait for a short mobile layout settle *within this awaited
+    // operation*, instead of keeping an interval active after restore() returns:
+    // the caller and player must be free to change reading position afterward.
+    if (window.matchMedia("(max-width: 820px)").matches) {
+      for (let pass = 0; pass < 4; pass++) {
+        await new Promise(resolve => setTimeout(resolve, 80));
+        if (!correct()) return;
+      }
+    }
+    // Genuine later element resizes are still followed briefly. Player input
+    // releases this observer so it never takes ownership of manual scrolling.
+    if (typeof ResizeObserver === "function") {
+      const events = ["wheel", "touchstart", "pointerdown", "keydown"];
+      const observer = new ResizeObserver(() => { if (!correct()) cleanup(); });
+      const cleanup = () => {
+        observer.disconnect();
+        clearTimeout(timer);
+        events.forEach(type => document.removeEventListener(type, cleanup, true));
+        if (stopReaderPositioning === cleanup) stopReaderPositioning = () => {};
+      };
+      const timer = setTimeout(cleanup, 1500);
+      stopReaderPositioning = cleanup;
+      events.forEach(type => document.addEventListener(type, cleanup, { capture:true, passive:true }));
+      observer.observe(stream);
+      observer.observe(target);
+    }
   };
   const dateValue = chapter => Date.parse(chapter?.createdAt || chapter?.updatedAt || "") || 0;
   const compareChapters = (a, b) => dateValue(a) - dateValue(b)
