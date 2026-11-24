@@ -69,23 +69,28 @@
       await new Promise(resolve => window.requestAnimationFrame(resolve));
       if (!correct()) return;
     }
-    // Font/shell sizing may finish later. Follow those changes briefly, but
-    // release the anchor before any player gesture can move the reader.
-    if (typeof ResizeObserver === "function") {
-      const events = ["wheel", "touchstart", "pointerdown", "keydown"];
-      const observer = new ResizeObserver(() => { if (!correct()) cleanup(); });
-      const cleanup = () => {
-        observer.disconnect();
-        clearTimeout(timer);
-        events.forEach(type => document.removeEventListener(type, cleanup, true));
-        if (stopReaderPositioning === cleanup) stopReaderPositioning = () => {};
-      };
-      const timer = setTimeout(cleanup, 1500);
-      stopReaderPositioning = cleanup;
-      events.forEach(type => document.addEventListener(type, cleanup, { capture:true, passive:true }));
-      observer.observe(stream);
-      observer.observe(target);
-    }
+    // Font/shell sizing and late async scroll restores may finish after the
+    // first two frames. ResizeObserver alone misses scrollTop changes that do
+    // not resize the element (e.g. another shell callback restores an offset).
+    // Briefly recheck the *actual* viewport without holding the anchor after
+    // any player gesture or another story operation.
+    const events = ["wheel", "touchstart", "pointerdown", "keydown"];
+    const observer = typeof ResizeObserver === "function"
+      ? new ResizeObserver(() => { if (!correct()) cleanup(); }) : null;
+    let timer = null, pulse = null;
+    const cleanup = () => {
+      observer?.disconnect();
+      clearTimeout(timer);
+      clearInterval(pulse);
+      events.forEach(type => document.removeEventListener(type, cleanup, true));
+      if (stopReaderPositioning === cleanup) stopReaderPositioning = () => {};
+    };
+    stopReaderPositioning = cleanup;
+    events.forEach(type => document.addEventListener(type, cleanup, { capture:true, passive:true }));
+    observer?.observe(stream);
+    observer?.observe(target);
+    pulse = setInterval(() => { if (!correct()) cleanup(); }, 80);
+    timer = setTimeout(cleanup, 1500);
   };
   const dateValue = chapter => Date.parse(chapter?.createdAt || chapter?.updatedAt || "") || 0;
   const compareChapters = (a, b) => dateValue(a) - dateValue(b)
