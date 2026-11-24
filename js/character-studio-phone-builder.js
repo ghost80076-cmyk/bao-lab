@@ -9,7 +9,7 @@
   if(!form||!raw||!enabled||!builder||!core||window.BAOCharacterStudioPhoneBuilder)return;
 
   const appLabels={phone:'通話',kakao:'聊天室',x:'X',instagram:'Instagram',spotify:'Spotify',photos:'相簿',notes:'備忘錄'};
-  const targetLabels={kakao:'聊天室',photos:'照片',notes:'備忘錄'};
+  const targetLabels={kakao:'聊天室',photos:'照片',notes:'備忘錄',x:'X 貼文'};
   const q=s=>builder.querySelector(s),qa=s=>[...builder.querySelectorAll(s)];
   const safeArray=v=>Array.isArray(v)?v:[];
   let writing=false,serial=0;
@@ -25,7 +25,7 @@
     return candidate.slice(0,80);
   };
   const targetKey=t=>t?.app&&t?.id?t.app+'|'+t.id:'';
-  const parseTarget=value=>{const parts=String(value||'').split('|'),app=parts.shift(),id=parts.join('|');return ['kakao','photos','notes'].includes(app)&&id?{app,id}:null;};
+  const parseTarget=value=>{const parts=String(value||'').split('|'),app=parts.shift(),id=parts.join('|');return ['kakao','photos','notes','x'].includes(app)&&id?{app,id}:null;};
   const sameTarget=(a,b)=>a?.app===b?.app&&a?.id===b?.id;
   const ensureInteractions=data=>{
     if(!data.interactions||data.interactions.version!==1||data.interactions.invalid)data.interactions={version:1,locks:[],events:[]};
@@ -44,7 +44,8 @@
   const targets=data=>[
     ...safeArray(data.threads).map(item=>({app:'kakao',id:item.id,label:'聊天室 · '+(item.name||item.id)})),
     ...safeArray(data.photos).map(item=>({app:'photos',id:item.id,label:'照片 · '+(item.title||item.id)})),
-    ...safeArray(data.notes).map(item=>({app:'notes',id:item.id,label:'備忘錄 · '+(item.title||item.id)}))
+    ...safeArray(data.notes).map(item=>({app:'notes',id:item.id,label:'備忘錄 · '+(item.title||item.id)})),
+    ...safeArray(data.tweets).filter(item=>item && typeof item==='object' && item.id).map(item=>({app:'x',id:item.id,label:'X 貼文 · '+(item.authorName||item.authorHandle||item.id)}))
   ].filter(item=>item.id);
   const eventReferences=(event,target)=>sameTarget(event?.when?.target,target)||safeArray(event?.requires).some(item=>sameTarget(item?.target,target))||safeArray(event?.unlock).some(item=>sameTarget(item,target));
 
@@ -120,10 +121,48 @@
       const next=parse();if(!next)return;next.photos=safeArray(next.photos).filter(item=>item.id!==photo.id);cleanupTarget(next,{app:'photos',id:photo.id});write(next,'已移除照片「'+(photo.title||photo.id)+'」。');
     })));
   }
+
+  function renderX(data){
+    const list=q('[data-phone-x-list]'),reply=q('[data-phone-x-reply]');
+    if(!list||!reply)return;
+    list.replaceChildren();
+    const previous=reply.value;
+    reply.replaceChildren(option('','新貼文，不是回覆'));
+    const posts=safeArray(data.tweets);
+    posts.forEach((value,index)=>{
+      const post=value && typeof value==='object' && !Array.isArray(value)?value:{text:typeof value==='string'?value:''};
+      const author=post.authorName||post.authorHandle||data.userName||'未指定作者';
+      const body=String(post.text||'');
+      if(post.id && !post.replyTo)reply.append(option(post.id,author+' · '+body.slice(0,38)));
+      const parent=posts.find(item=>item && typeof item==='object' && item.id===post.replyTo);
+      const title=post.replyTo?'↳ '+author+' 回覆 '+(parent?.authorName||parent?.authorHandle||post.replyTo):author;
+      list.append(listItem(title,(post.authorHandle?post.authorHandle+' · ':'')+body.slice(0,62),()=>{
+        const next=parse();if(!next)return;
+        const entries=safeArray(next.tweets),target=entries[index],removed=new Set();
+        if(target && typeof target==='object' && target.id){
+          removed.add(target.id);
+          let extended=true;
+          while(extended){
+            extended=false;
+            entries.forEach(item=>{
+              if(item && typeof item==='object' && item.id && removed.has(item.replyTo) && !removed.has(item.id)){
+                removed.add(item.id);extended=true;
+              }
+            });
+          }
+        }
+        next.tweets=entries.filter((item,i)=>i!==index && !(item && typeof item==='object' && removed.has(item.id)));
+        removed.forEach(id=>cleanupTarget(next,{app:'x',id}));
+        write(next,'已移除這則貼文及直接或間接回覆，相關閱讀機關也已清理。');
+      }));
+    });
+    if(previous && [...reply.options].some(item=>item.value===previous))reply.value=previous;
+  }
+
   function renderMechanisms(data){
     const all=targets(data),lockTarget=q('[data-phone-lock-target]'),source=q('[data-phone-event-source]'),unlock=q('[data-phone-event-unlock]');
     for(const select of [lockTarget,source,unlock])select?.replaceChildren();
-    const placeholder=all.length?'選擇內容':'請先建立聊天室、照片或備忘錄';
+    const placeholder=all.length?'選擇內容':'請先建立聊天室、X 貼文、照片或備忘錄';
     lockTarget?.append(option('',placeholder));source?.append(option('',placeholder));
     all.forEach(item=>{lockTarget?.append(option(targetKey(item),item.label));source?.append(option(targetKey(item),item.label));});
     const interactions=data.interactions?.version===1?data.interactions:{locks:[],events:[]};
@@ -147,7 +186,7 @@
   function render(){
     builder.hidden=!enabled.checked;if(!enabled.checked)return;
     const data=parse(true);if(!data){setStatus('進階 JSON 目前格式不完整；修正後一般表單會重新同步。','warn');return;}
-    renderApps(data);renderContacts(data);renderThreads(data);renderNotes(data);renderPhotos(data);renderMechanisms(data);
+    renderApps(data);renderContacts(data);renderThreads(data);renderNotes(data);renderPhotos(data);renderX(data);renderMechanisms(data);
     if(!writing)setStatus('一般作者模式已同步到目前的手機資料。');
   }
 
@@ -209,6 +248,32 @@
     data.photos=safeArray(data.photos);data.photos.push({id:nextId('photo',title,data.photos),src,title,caption});ensureApp(data,'photos');
     q('[data-phone-photo-src]').value='';q('[data-phone-photo-title]').value='';q('[data-phone-photo-caption]').value='';write(data,'已加入照片「'+title+'」。');
   });
+
+  q('[data-phone-add-x-post]')?.addEventListener('click',()=>{
+    const data=parse();if(!data)return;
+    const authorName=q('[data-phone-x-author]').value.trim();
+    const authorHandle=q('[data-phone-x-handle]').value.trim();
+    const body=q('[data-phone-x-text]').value.trim();
+    const date=q('[data-phone-x-date]').value.trim();
+    const replyTo=q('[data-phone-x-reply]').value;
+    const sourceKind=q('[data-phone-x-source]').value;
+    const eventId=q('[data-phone-x-event]').value.trim();
+    if(!authorName || !body)return setStatus('請填寫發文者名稱和貼文內容。','warn');
+    const posts=safeArray(data.tweets);
+    if(posts.length>=80)return setStatus('X 最多保存 80 則初始貼文及回覆；請先整理已有內容。','warn');
+    if(replyTo && !posts.some(item=>item && typeof item==='object' && item.id===replyTo && !item.replyTo))
+      return setStatus('回覆目標不存在，請重新選擇貼文。','warn');
+    const item={id:nextId('tweet',body.slice(0,26),posts),authorName,authorHandle,text:body,date};
+    if(replyTo)item.replyTo=replyTo;
+    if(sourceKind)item.sourceKind=sourceKind;
+    if(eventId)item.eventId=eventId;
+    data.tweets=[...posts,item];ensureApp(data,'x');
+    for(const selector of ['[data-phone-x-text]','[data-phone-x-date]','[data-phone-x-event]'])q(selector).value='';
+    q('[data-phone-x-reply]').value='';
+    q('[data-phone-x-source]').value='';
+    write(data,'已加入「'+authorName+'」的 X '+(replyTo?'回覆':'貼文')+'。');
+  });
+
   q('[data-phone-add-lock]')?.addEventListener('click',()=>{
     const data=parse();if(!data)return;const target=parseTarget(q('[data-phone-lock-target]').value);if(!target)return setStatus('請先選擇要鎖定的內容。','warn');
     const config=ensureInteractions(data);if(config.locks.some(item=>sameTarget(item.target,target)))return setStatus('這份內容已經設定鎖定。','warn');

@@ -46,6 +46,16 @@
 .studio-phone-card h4,.studio-phone-mechanisms h4{margin:0;font-size:14px}
 .studio-phone-card-head small{font-size:10px!important;white-space:nowrap}
 .studio-phone-card button{min-height:39px}
+
+.studio-phone-x-card{grid-column:1/-1}
+.studio-phone-x-card>.note{margin:0;line-height:1.65}
+.studio-phone-x-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.studio-phone-x-advanced{min-width:0;padding:11px 12px;border:1px solid var(--yoru-card-border,rgba(241,232,218,.075));border-radius:11px;background:rgba(255,255,255,.018)}
+.studio-phone-x-advanced>summary{cursor:pointer;font-size:12px;font-weight:700}
+.studio-phone-x-advanced[open]{display:grid;gap:10px}
+.studio-phone-x-advanced .note{margin:0}
+@media(max-width:600px){.studio-phone-x-fields{grid-template-columns:minmax(0,1fr)}}
+
 .studio-phone-participants{min-width:0;margin:0;padding:11px;border:1px solid rgba(241,232,218,.075);border-radius:11px;background:rgba(0,0,0,.07)}
 .studio-phone-participants legend{padding:0 5px;color:#d9d2d7;font-size:12px;font-weight:750}
 .studio-phone-participants>[data-phone-thread-participants]{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-bottom:7px}
