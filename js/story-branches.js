@@ -69,8 +69,18 @@
       await new Promise(resolve => window.requestAnimationFrame(resolve));
       if (!correct()) return;
     }
-    // Font/shell sizing may finish later. Follow those changes briefly, but
-    // release the anchor before any player gesture can move the reader.
+    // A late shell callback can restore an old scrollTop without resizing the
+    // scrollport. Wait for a short mobile layout settle *within this awaited
+    // operation*, instead of keeping an interval active after restore() returns:
+    // the caller and player must be free to change reading position afterward.
+    if (window.matchMedia("(max-width: 820px)").matches) {
+      for (let pass = 0; pass < 4; pass++) {
+        await new Promise(resolve => setTimeout(resolve, 80));
+        if (!correct()) return;
+      }
+    }
+    // Genuine later element resizes are still followed briefly. Player input
+    // releases this observer so it never takes ownership of manual scrolling.
     if (typeof ResizeObserver === "function") {
       const events = ["wheel", "touchstart", "pointerdown", "keydown"];
       const observer = new ResizeObserver(() => { if (!correct()) cleanup(); });

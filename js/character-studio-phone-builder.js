@@ -133,7 +133,7 @@
       const post=value && typeof value==='object' && !Array.isArray(value)?value:{text:typeof value==='string'?value:''};
       const author=post.authorName||post.authorHandle||data.userName||'未指定作者';
       const body=String(post.text||'');
-      if(post.id && !post.replyTo)reply.append(option(post.id,author+' · '+body.slice(0,38)));
+      if(post.id)reply.append(option(post.id,(post.replyTo?'↳ ':'')+author+' · '+body.slice(0,38)));
       const parent=posts.find(item=>item && typeof item==='object' && item.id===post.replyTo);
       const title=post.replyTo?'↳ '+author+' 回覆 '+(parent?.authorName||parent?.authorHandle||post.replyTo):author;
       list.append(listItem(title,(post.authorHandle?post.authorHandle+' · ':'')+body.slice(0,62),()=>{
@@ -261,7 +261,7 @@
     if(!authorName || !body)return setStatus('請填寫發文者名稱和貼文內容。','warn');
     const posts=safeArray(data.tweets);
     if(posts.length>=80)return setStatus('X 最多保存 80 則初始貼文及回覆；請先整理已有內容。','warn');
-    if(replyTo && !posts.some(item=>item && typeof item==='object' && item.id===replyTo && !item.replyTo))
+    if(replyTo && !posts.some(item=>item && typeof item==='object' && item.id===replyTo))
       return setStatus('回覆目標不存在，請重新選擇貼文。','warn');
     const item={id:nextId('tweet',body.slice(0,26),posts),authorName,authorHandle,text:body,date};
     if(replyTo)item.replyTo=replyTo;
