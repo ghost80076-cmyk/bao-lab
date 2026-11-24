@@ -407,7 +407,8 @@
   }
   function renderX(area) {
     const items=itemsFor('x');
-    const ids=new Set(config.tweets.map(item=>item.id));
+    // An invisible parent must not swallow replies that are visible on their own.
+    const ids=new Set(items.map(item=>item.id));
     const lookup=id=>items.find(item=>item.id===id);
     const opened=subpage.startsWith('post:') ? lookup(subpage.slice(5)) : null;
     const postLabel=tweet=>tweet.authorName || config.contacts.find(c=>c.id===tweet.authorId)?.name || tweet.authorId || config.userName || '使用者';
@@ -433,7 +434,7 @@
         const source={witness:'目擊者敘述',media:'媒體資訊',hearsay:'轉述／傳聞',unknown:'來源未明'}[tweet.sourceKind];
         if(source)row.append($('small','bp-x-source',source));
       }
-      if(openButton)row.append(button('查看貼文與留言 · '+countFor(tweet),'x-post:'+tweet.id,'bp-x-open'));
+      if(openButton)row.append(button((reply?'查看這則回覆及後續留言 · ':'查看貼文與留言 · ')+countFor(tweet),'x-post:'+tweet.id,'bp-x-open'));
       return row;
     };
     if(subpage.startsWith('post:') && opened){
@@ -442,7 +443,9 @@
       const heading=$('h3','bp-x-feed-heading','回覆 · '+responses.length);
       area.append(heading);
       if(!responses.length)area.append($('p','bp-muted bp-x-no-replies','目前還沒有回覆。'));
-      responses.forEach(item=>area.append(renderPost(item,true,false)));
+      // Every reply is addressable, including replies to replies. Opening it
+      // records only that specific post as read through the existing save flow.
+      responses.forEach(item=>area.append(renderPost(item,true,true)));
       if(!accessFor({app:'x',id:opened.id}).locked){
         const form=$('form','bp-x-composer');form.dataset.phoneForm='x-reply';
         const input=$('textarea');input.name='text';input.rows=2;input.maxLength=1200;
