@@ -8,7 +8,7 @@
 <title>角色卡創作室｜夜灣 YoruBay</title>
 <link rel="icon" type="image/svg+xml" href="assets/bao-mark.svg">
 <link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/character-studio.css?v=6">
+<link rel="stylesheet" href="css/character-studio.css?v=7">
 <link rel="stylesheet" href="css/character-studio-simple.css?v=1">
 <link rel="stylesheet" href="css/character-studio-lifecycle.css?v=2">
 <link rel="stylesheet" href="css/bao-brand-v2.css">
@@ -31,7 +31,7 @@
 <div class="studio-grid"><label>角色／作品名稱 <span class="required">*</span><input name="name" maxlength="100" required placeholder="例：自主 NPC 世界"></label><label>角色 ID <span class="required">*</span><input name="id" maxlength="64" pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,63}" required placeholder="例：my-original-world"><small>英數、底線或連字號；加入角色庫後不建議更改。</small></label><label>作品取向<select name="category"><option value="general">一般向</option><option value="female">女性向</option><option value="male">男性向</option></select><small>這裡描述作品主要受眾，不是角色性別；沒有明確取向就選一般向。</small></label><label>內容分級<select name="rating"><option value="general">一般內容</option><option value="adult">成人內容（18+）</option></select><small>成人內容只會在玩家主動開啟成人模式後顯示。</small></label><label>敘事類型<select name="mode"><option value="immersive">單角色沉浸</option><option value="world">世界／多 NPC 模擬</option></select></label></div>
 <label>作品簡介<textarea name="description" rows="2" maxlength="3000" placeholder="顯示在探索角色與詳情頁的文字"></textarea></label>
 <section aria-label="手機介面設定" class="studio-phone-settings">
-<div class="studio-phone-heading"><div><h3>手機互動介面</h3><p class="note">這是故事內的模擬手機，不是正文的角色頭像對話模式。不需要會 JSON。先勾選啟用，再用下面的表單加入 App、聯絡人、聊天室、相簿與備忘錄；夜灣會自動整理成角色卡資料。</p></div><span>選配</span></div>
+<div class="studio-phone-heading"><div><h3>手機互動介面</h3><p class="note">這是故事內的模擬手機，不是正文的角色頭像對話模式。不需要會 JSON。先勾選啟用，再用下面的表單加入 App、聯絡人、聊天室、X 貼文、相簿與備忘錄；夜灣會自動整理成角色卡資料。</p></div><span>選配</span></div>
 <label class="studio-phone-enable"><input type="checkbox" name="phone_ui_enabled"> 這張作品使用手機介面</label>
 <div class="studio-phone-builder" data-phone-builder hidden>
 <div class="studio-grid">
@@ -96,11 +96,32 @@
 <button type="button" class="secondary" data-phone-add-photo>＋ 加入照片</button>
 <ul class="studio-phone-list" data-phone-photo-list></ul>
 </section>
+<section class="studio-phone-card studio-phone-x-card" aria-labelledby="phone-x-posts-title">
+<div class="studio-phone-card-head"><div><span>05</span><h4 id="phone-x-posts-title">X｜世界社群</h4></div><small>多帳號與回覆</small></div>
+<p class="note">建立故事開始前就存在的貼文，讓不同 NPC 有自己的帳號與立場。這些是作品的初始內容，不會自動產生新世界事件。</p>
+<div class="studio-phone-x-fields">
+<label>發文者名稱 <input data-phone-x-author maxlength="80" placeholder="例：社團同學（必填）"></label>
+<label>X 帳號（選填）<input data-phone-x-handle maxlength="80" placeholder="例：@club_news"></label>
+<label>發表時間（選填）<input data-phone-x-date maxlength="40" placeholder="例：週日 09:18"></label>
+<label>回覆哪一篇？（選填）<select data-phone-x-reply><option value="">新貼文，不是回覆</option></select></label>
+</div>
+<label>貼文內容 <textarea data-phone-x-text rows="3" maxlength="2000" placeholder="這個 NPC 想發表什麼？"></textarea></label>
+<details class="studio-phone-x-advanced">
+<summary>資訊來源與世界事件（選填）</summary>
+<div class="studio-phone-x-fields">
+<label>資訊來源<select data-phone-x-source><option value="">未指定</option><option value="witness">親眼目睹</option><option value="media">看到照片／媒體</option><option value="hearsay">聽別人轉述</option><option value="unknown">來源不明</option></select></label>
+<label>已存在的故事事件 ID<input data-phone-x-event maxlength="80" placeholder="例：festival-event-1"></label>
+</div>
+<p class="note">來源只標記 NPC 的資訊管道，不代表他的說法必然正確；事件 ID 只能參照已設定的世界事件。</p>
+</details>
+<button type="button" class="secondary" data-phone-add-x-post>＋ 加入 X 貼文／回覆</button>
+<ul class="studio-phone-list" data-phone-x-list aria-label="已加入的 X 貼文與回覆"></ul>
+</section>
 </div>
 
 <details class="studio-phone-mechanisms">
 <summary>故事機關（選填）｜密碼、讀取後解鎖</summary>
-<p class="note">先建立聊天室、照片或備忘錄，再從下拉選單選目標。你不需要填 app、id、version 這些工程欄位。</p>
+<p class="note">先建立聊天室、X 貼文、照片或備忘錄，再從下拉選單選目標。你不需要填 app、id、version 這些工程欄位。</p>
 <div class="studio-phone-mechanism-grid">
 <section>
 <h4>設定密碼／隱藏內容</h4>
@@ -239,8 +260,8 @@
 </form><section id="studio-preview" class="studio-preview hidden" aria-label="角色卡預覽"><h3>本機預覽（不會呼叫 AI）</h3><img id="studio-preview-image" alt="角色圖片預覽" src="assets/bao-bun.svg"><h4 id="studio-preview-name"></h4><p id="studio-preview-description"></p><div class="studio-preview-label">初始訊息</div><p id="studio-preview-greeting"></p><div class="studio-preview-label">核心設定摘要</div><p id="studio-preview-prompt"></p></section>
 </section></div>
 </main><footer><b>夜灣 YoruBay</b><span>本機製作 · 自主備份 · 選擇是否分享</span></footer></div>
-<script src="js/phone-interaction-core.js?v=1"></script>
-<script src="js/phone-ui-core.js?v=4"></script>
+<script src="js/phone-interaction-core.js?v=2"></script>
+<script src="js/phone-ui-core.js?v=5"></script>
 <script src="js/avatar-chat-core.js?v=1"></script>
 <script src="js/portrait-input.js?v=1"></script>
 <script src="js/character.js?v=8"></script>
@@ -261,7 +282,7 @@
 <script src="js/gameplay-ui-preview-protocol-core.js?v=3"></script>
 <script src="js/gameplay-ui-preview-client.js?v=3"></script>
 <script src="js/character-studio-gameplay-composer.js?v=3"></script>
-<script src="js/character-studio-phone-builder.js?v=2"></script>
+<script src="js/character-studio-phone-builder.js?v=3"></script>
 <script src="js/character-studio-flow.js?v=9"></script>
 <script src="js/character-studio-worldbook-import.js?v=1"></script>
 <script src="js/npc-personality-helper-core.js?v=1"></script>
