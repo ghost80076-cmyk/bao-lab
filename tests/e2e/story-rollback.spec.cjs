@@ -195,6 +195,44 @@ test('reader corrects a clipped native alignment in a long mobile story', async 
   })).toBe(true);
 });
 
+test('reader corrects late scroll offset changes without resizing and releases after input', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openDemoStory(page);
+  const displaced = await page.evaluate(async () => {
+    Chat.messages = [];
+    for (let round = 0; round < 30; round++) {
+      Chat.add('user', `選擇 ${round}`);
+      Chat.add('assistant', '長篇故事閱讀定位。'.repeat(30));
+    }
+    App.renderChatShell(false);
+    await BAOStoryBranches.positionReader();
+    const stream = document.getElementById('chat-stream');
+    const before = stream.scrollTop;
+    // A deferred render/plugin may restore a stale offset without changing
+    // either observed element's size. This previously defeated ResizeObserver.
+    stream.scrollTop = Math.max(0, before - 120);
+    return before - stream.scrollTop;
+  });
+  expect(displaced).toBeGreaterThan(60);
+  await expect.poll(() => page.evaluate(() => {
+    const stream = document.getElementById('chat-stream');
+    const target = stream.querySelector('.message.assistant:last-child');
+    const bottom = Math.min(stream.getBoundingClientRect().bottom, innerHeight);
+    return target.getBoundingClientRect().bottom <= bottom + 2
+      && document.activeElement === target;
+  })).toBe(true);
+
+  // Once the player begins an action, stop anchoring so deliberate scrolling
+  // is not overwritten by the delayed correction loop.
+  await page.evaluate(() => {
+    document.dispatchEvent(new KeyboardEvent('keydown', { key:'PageUp', bubbles:true }));
+    document.getElementById('chat-stream').scrollTop = 500;
+  });
+  await page.waitForTimeout(200);
+  expect(await page.evaluate(() => document.getElementById('chat-stream').scrollTop))
+    .toBe(500);
+});
+
 for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
   for (const action of ['branch', 'rewind']) {
     test(`${action} in a long story lands at the selected reply (${viewport.width}px)`, async ({ page }) => {
