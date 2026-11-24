@@ -205,13 +205,18 @@ test('reader corrects late scroll offset changes without resizing and releases a
       Chat.add('assistant', '長篇故事閱讀定位。'.repeat(30));
     }
     App.renderChatShell(false);
-    await BAOStoryBranches.positionReader();
-    const stream = document.getElementById('chat-stream');
-    const before = stream.scrollTop;
-    // A deferred render/plugin may restore a stale offset without changing
-    // either observed element's size. This previously defeated ResizeObserver.
-    stream.scrollTop = Math.max(0, before - 120);
-    return before - stream.scrollTop;
+    let displaced = 0;
+    const positioning = BAOStoryBranches.positionReader();
+    // A deferred render/plugin may restore a stale offset *while* positioning
+    // without changing element sizes. The awaited operation must repair it.
+    window.setTimeout(() => {
+      const stream = document.getElementById('chat-stream');
+      const before = stream.scrollTop;
+      stream.scrollTop = Math.max(0, before - 120);
+      displaced = before - stream.scrollTop;
+    }, 120);
+    await positioning;
+    return displaced;
   });
   expect(displaced).toBeGreaterThan(60);
   await expect.poll(() => page.evaluate(() => {
@@ -222,8 +227,8 @@ test('reader corrects late scroll offset changes without resizing and releases a
       && document.activeElement === target;
   })).toBe(true);
 
-  // Once the player begins an action, stop anchoring so deliberate scrolling
-  // is not overwritten by the delayed correction loop.
+  // Once positioning resolves, deliberate scrolling must remain untouched.
+  // The resize observer still releases immediately on user input.
   await page.evaluate(() => {
     document.dispatchEvent(new KeyboardEvent('keydown', { key:'PageUp', bubbles:true }));
     document.getElementById('chat-stream').scrollTop = 500;
