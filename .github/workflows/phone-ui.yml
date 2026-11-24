@@ -13,6 +13,9 @@ on:
       - 'css/phone-ui.css'
       - 'js/character.js'
       - 'js/character-studio.js'
+      - 'js/character-studio-phone-builder.js'
+      - 'css/character-studio.css'
+      - 'tests/e2e/phone-x-authoring.spec.cjs'
       - 'index.html'
       - 'character-studio.html'
       - 'tests/phone-ui.test.cjs'
@@ -34,6 +37,9 @@ on:
       - 'css/phone-ui.css'
       - 'js/character.js'
       - 'js/character-studio.js'
+      - 'js/character-studio-phone-builder.js'
+      - 'css/character-studio.css'
+      - 'tests/e2e/phone-x-authoring.spec.cjs'
       - 'index.html'
       - 'character-studio.html'
       - 'tests/phone-ui.test.cjs'
@@ -64,6 +70,7 @@ jobs:
           node --check js/phone-player-core.js
           node --check js/phone-player-settings.js
           node --check js/character-studio.js
+          node --check js/character-studio-phone-builder.js
           node --check js/character.js
           node --test tests/phone-interaction-core.test.cjs tests/phone-ui.test.cjs tests/phone-story-core.test.cjs tests/phone-player-core.test.cjs
   browser:
@@ -79,7 +86,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx playwright test tests/e2e/phone-interactions.spec.cjs tests/e2e/phone-ui.spec.cjs tests/e2e/phone-story-sync.spec.cjs tests/e2e/phone-player-settings.spec.cjs --project=chromium
+      - run: npx playwright test tests/e2e/phone-interactions.spec.cjs tests/e2e/phone-ui.spec.cjs tests/e2e/phone-story-sync.spec.cjs tests/e2e/phone-player-settings.spec.cjs tests/e2e/phone-x-authoring.spec.cjs --project=chromium
 
       - name: Save phone browser results and responsive screenshots
         if: always()
