@@ -15,8 +15,8 @@ const plan = buildModelDeploymentPlan(registry);
 
 assert.equal(plan.schema, "yorubay-worker-model-deployment-plan/v1");
 assert.equal(plan.source_registry, "data/presets/models.json");
-assert.equal(plan.cloudflare.MODELS_JSON.entries.length, 11);
-assert.equal(plan.cloudflare.MODELS_JSON_EXTRA.entries.length, 15);
+assert.equal(plan.cloudflare.MODELS_JSON.entries.length, 15);
+assert.equal(plan.cloudflare.MODELS_JSON_EXTRA.entries.length, 11);
 assert.equal(plan.resolved_routes.length, 26);
 assert.equal(plan.aws.variable, "OPENROUTER_MODELS");
 assert.equal(plan.aws.entries.length, 21);
@@ -210,12 +210,17 @@ const rollout = fs.readdirSync(rolloutDir)
   .filter(name => name.endsWith(".json"))
   .sort()
   .flatMap(name => JSON.parse(fs.readFileSync(path.join(rolloutDir, name), "utf8")));
-const extraByKey = new Map(
-  plan.cloudflare.MODELS_JSON_EXTRA.entries.map(entry => [keyOf(entry), entry])
+const rolloutKeys = new Set(rollout.map(keyOf));
+assert.equal(rolloutKeys.size, rollout.length, "rollout entries must be unique");
+const rolloutByKey = new Map(
+  allEntries.filter(entry => rolloutKeys.has(keyOf(entry))).map(entry => [keyOf(entry), entry])
 );
-assert.equal(rollout.length, extraByKey.size);
+assert.equal(rollout.length, rolloutByKey.size, "all rollout entries must exist across both bindings");
 for (const entry of rollout) {
-  assert.deepEqual(extraByKey.get(keyOf(entry)), entry);
+  assert.deepEqual(rolloutByKey.get(keyOf(entry)), entry);
+}
+for (const entry of plan.cloudflare.MODELS_JSON_EXTRA.entries) {
+  assert.ok(rolloutKeys.has(keyOf(entry)), "every extra binding entry must have a rollout: " + keyOf(entry));
 }
 
 assert.equal(toMicrousd(0.00255, "test"), 2550);
@@ -257,6 +262,28 @@ assert.throws(
       }
     ),
   /prompt max price cannot be below input price/
+);
+
+for (const name of ["MODELS_JSON", "MODELS_JSON_EXTRA"]) {
+  assert.ok(Buffer.byteLength(plan.cloudflare[name].value_json, "utf8") <= 5000, name + " must stay below the Worker text binding limit");
+}
+for (const id of ["z-ai/glm-5.2","deepseek/deepseek-v4.1-flash-1017","google/gemini-4-hydrogen","google/gemini-4-neon"]) {
+  assert.ok(plan.cloudflare.MODELS_JSON.entries.some(entry => entry.model === id), id + " must move into the existing base binding");
+}
+assert.throws(
+  () => buildModelDeploymentPlan({
+    schema: "bao-model-registry/v1",
+    models: Array.from({ length: 12 }, (_, index) => {
+      const original = registry.models.find(model => model.id === "gpt-6-luna");
+      const route = original.routes.find(route => route.worker);
+      return {
+        id: "oversized-test-" + index,
+        routes: [{ ...route, model: "openai/oversized-pricing-" + index }],
+      };
+    }),
+  }),
+  /exceeds 5000-byte Cloudflare binding budget/,
+  "oversized binding must fail before deployment rather than after AWS apply"
 );
 
 console.log(

@@ -328,7 +328,7 @@
           },
           "docs_url": "https://openrouter.ai/google/gemini-4-hydrogen",
           "worker": {
-            "binding": "MODELS_JSON_EXTRA",
+            "binding": "MODELS_JSON",
             "aws_openrouter_relay": true,
             "openrouter_max_price": {
               "prompt": 1.5,
@@ -464,7 +464,7 @@
           },
           "docs_url": "https://openrouter.ai/google/gemini-4-neon",
           "worker": {
-            "binding": "MODELS_JSON_EXTRA",
+            "binding": "MODELS_JSON",
             "aws_openrouter_relay": true,
             "openrouter_max_price": {
               "prompt": 3,
@@ -1157,7 +1157,7 @@
           },
           "docs_url": "https://openrouter.ai/z-ai/glm-5.2",
           "worker": {
-            "binding": "MODELS_JSON_EXTRA",
+            "binding": "MODELS_JSON",
             "aws_openrouter_relay": true,
             "openrouter_max_price": {
               "prompt": 1.4,
@@ -1244,7 +1244,7 @@
           },
           "docs_url": "https://openrouter.ai/deepseek/deepseek-v4.1-flash-1017",
           "worker": {
-            "binding": "MODELS_JSON_EXTRA",
+            "binding": "MODELS_JSON",
             "aws_openrouter_relay": true,
             "openrouter_max_price": {
               "prompt": 0.3,
