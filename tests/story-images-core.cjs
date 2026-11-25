@@ -14,8 +14,14 @@ cloud.visionConfirmedRoute = Core.routeKey(cloud);
 assert.equal(Core.capability(cloud),'confirmed');
 assert.equal(Core.capability({...cloud,model:'another-model'}),'unknown');
 assert.equal(Core.capability({...cloud,baseUrl:'https://other.test'}),'unknown');
-for (const config of [{...cloud,type:'bao-credits'},{...cloud,model:'deepseek-chat'},{...cloud,protocol:'anthropic'}]) assert.throws(()=>Core.assertCapability(config));
+for (const config of [{...cloud,type:'bao-credits'},{...cloud,model:'deepseek-chat'},{...cloud,model:'gpt-3.5-turbo'},{...cloud,route:'bao-credits'},{...cloud,protocol:'anthropic'}]) assert.throws(()=>Core.assertCapability(config));
 assert.equal(Core.capability({model:'gpt-4o',baseUrl:'https://api.openai.com/v1/chat/completions'}),'supported');
+// Reject oversized encoded dimensions before any browser pixel allocation.
+const png = Buffer.from(image.data.split(',')[1], 'base64');
+assert.deepEqual(Core.dimensions(png.buffer.slice(png.byteOffset, png.byteOffset+png.length),'image/png'),{width:1,height:1});
+const bomb=Buffer.from(png);bomb.writeUInt32BE(50000,16);bomb.writeUInt32BE(50000,20);
+assert.throws(()=>Core.dimensions(bomb.buffer.slice(bomb.byteOffset,bomb.byteOffset+bomb.length),'image/png'),/3,200/);
+assert.throws(()=>Core.dimensions(new ArrayBuffer(0),'image/jpeg'),/無法解碼/);
 const messages = [{role:'system',content:'Existing world and player agency rules'},{role:'user',content:'Only A can see this room.'}];
 const original = JSON.stringify(messages);
 const calls = [], inspected = [];

@@ -123,3 +123,34 @@ test('IDB and quota failure retain image turn and backup, retry recovers',async(
   });
   expect(result.failed).toBe(false);expect(result.priorIntact).toBe(true);expect(result.retry).toBe(true);expect(result.image).toBe(result.reloaded);expect(result.length).toBe(5);
 });
+
+const formatFixtures={"image/jpeg": "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAQACADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDziiiiuw9wKKKKAP/Z", "image/webp": "UklGRj4AAABXRUJQVlA4IDIAAACwAgCdASogABAAPm0skkWkIqGYBABABsSgC06C0kAA/vS+7natj7Pv9Xfnb9T544jQAA=="};
+test('JPEG and WebP decode locally; huge dimensions and file size preserve drafts',async({page})=>{
+  const requests=await setup(page);
+  for (const [mime,data] of Object.entries(formatFixtures)) {
+    await page.locator('#story-image-file').setInputFiles({name:'image.'+mime.split('/')[1],mimeType:mime,buffer:Buffer.from(data,'base64')});
+    await expect(page.locator('#story-image-status')).toContainText('圖片已準備好');
+  }
+  const prior=await page.locator('#story-image-panel img').getAttribute('src');
+  await page.locator('#user-input').fill('仍保留');
+  await page.locator('#story-image-file').setInputFiles({name:'huge.jpg',mimeType:'image/jpeg',buffer:Buffer.alloc(8*1024*1024+1)});
+  await expect(page.locator('#story-image-status')).toContainText('8 MB');
+  await expect(page.locator('#user-input')).toHaveValue('仍保留');
+  expect(await page.locator('#story-image-panel img').getAttribute('src')).toBe(prior);
+  expect(requests).toHaveLength(0);
+});
+test('long story image turn keeps the player reading anchor',async({page})=>{
+  await setup(page,390);
+  await page.evaluate(()=>{
+    for(let i=0;i<60;i++){Chat.add('user','歷史問題 '+i);Chat.add('assistant',('長篇正文與已知情節。\n').repeat(30))}
+    App.renderChatShell(false);
+  });
+  await select(page);await send(page);
+  await expect(page.locator('#chat-stream .story-message-image')).toHaveCount(1);
+  const geometry=await page.evaluate(()=>{
+    const stream=document.getElementById('chat-stream'),reader=stream.getBoundingClientRect();
+    const player=[...stream.querySelectorAll(':scope > .message.user')].at(-1).getBoundingClientRect();
+    return {top:player.top-reader.top,overflow:document.documentElement.scrollWidth>innerWidth};
+  });
+  expect(geometry.overflow).toBe(false);expect(geometry.top).toBeGreaterThanOrEqual(-1);expect(geometry.top).toBeLessThan(60);
+});

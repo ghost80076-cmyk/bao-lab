@@ -5,7 +5,7 @@
   if (root) root.BAOStoryImagesCore = api;
 })(typeof window !== 'undefined' ? window : null, function() {
   'use strict';
-  const MAX_DATA = 280000, MAX_TOTAL = 2800000, MAX_COUNT = 20, MAX_EDGE = 1280;
+  const MAX_DATA = 270000, MAX_TOTAL = 2700000, MAX_COUNT = 20, MAX_EDGE = 1280;
   const failure = text => Object.assign(new Error(text), { code: 'BAO_IMAGE_INVALID' });
   function dimensions(buffer, mime) {
     const bytes = new Uint8Array(buffer), view = new DataView(buffer);
@@ -63,9 +63,11 @@
   function capability(config = {}) {
     const model = String(config.model || '').toLowerCase();
     const protocol = config.protocol || (config.type === 'gemini' ? 'gemini' : config.type === 'anthropic' ? 'anthropic' : 'openai');
-    if (config.type === 'bao-credits' || config.route === 'hosted') return 'hosted';
+    if (config.type === 'bao-credits' || ['hosted', 'bao-credits'].includes(config.route)) return 'hosted';
     if (!['openai', 'gemini'].includes(protocol)) return 'protocol';
-    if (/^(?:[^/]+\/)?(?:deepseek-chat|deepseek-reasoner|gpt-3\.5(?:-|$)|gpt-4-turbo-preview|o1-mini|o3-mini|o4-mini-deep-research)(?:$|:)/.test(model)) return 'unsupported';
+    const leaf = model.replace(/^[^/]+\//, '');
+    if (/^(?:deepseek-chat|deepseek-reasoner|gpt-4-turbo-preview|o1-mini|o3-mini|o4-mini-deep-research)(?:$|:|-\d{4})/.test(leaf)
+        || /^gpt-3\.5(?:-|$)/.test(leaf)) return 'unsupported';
     let host = '';
     try { host = new URL(config.baseUrl).hostname; } catch {}
     if (host === 'api.openai.com' && /^(gpt-4o(?:-mini)?|gpt-4\.1(?:-mini|-nano)?|gpt-5(?:\.\d+)?(?:-mini|-nano)?|gpt-6\.2-astra)(?:$|-\d{4}-\d{2}-\d{2}$)/.test(model)) return 'supported';
