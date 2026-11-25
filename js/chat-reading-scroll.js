@@ -17,6 +17,9 @@
   // completion; restoring here prevents that jump without changing its data flow.
   const readingPositionWrapper = async (next, config, ...args) => {
     const turn = isStoryRequest(config) ? activeTurn : null;
+    // Revision preflight can append the player bubble asynchronously. Acquire
+    // it at actual main-request dispatch if it did not exist on the first call.
+    if (turn?.isCurrent()) turn.anchor();
     try { return await next(config, ...args); }
     finally {
       if (turn && activeTurn === turn && turn.isCurrent()) turn.beforeCommitTop = stream.scrollTop;
@@ -46,11 +49,10 @@
     const before = new Set(userMessages());
     const turn = { beforeCommitTop: null, player: null, pending: null, isCurrent };
     activeTurn = turn;
-    let operation;
-    try { operation = next(...args); }
-    catch (error) { activeTurn = null; throw error; }
-    const player = userMessages().find(node => !before.has(node));
-    if (player) {
+    turn.anchor = () => {
+      if (turn.player || !isCurrent()) return;
+      const player = userMessages().find(node => !before.has(node));
+      if (!player) return;
       turn.player = player;
       // Allow the player message to reach the top even while the response is
       // just a short "generating" placeholder. Once committed, remove the
@@ -64,12 +66,14 @@
       const target = stream.scrollTop + player.getBoundingClientRect().top
         - stream.getBoundingClientRect().top - 8;
       stream.scrollTop = Math.max(0, target);
-    } else {
-      activeTurn = null;
-    }
+    };
+    let operation;
+    try { operation = next(...args); }
+    catch (error) { activeTurn = null; throw error; }
+    turn.anchor();
     try { return await operation; }
     finally {
-      if (isCurrent() && player?.isConnected && turn.beforeCommitTop !== null) {
+      if (isCurrent() && turn.player?.isConnected && turn.beforeCommitTop !== null) {
         stream.scrollTop = turn.beforeCommitTop;
       }
       if (isCurrent() && turn.pending?.isConnected) turn.pending.style.minHeight = '';

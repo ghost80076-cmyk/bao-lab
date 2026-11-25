@@ -5,7 +5,7 @@ const path = require('node:path');
 const source = fs.readFileSync(path.join(__dirname, '..', 'js', 'chat-reading-scroll.js'), 'utf8');
 const streaming = fs.readFileSync(path.join(__dirname, '..', 'js', 'streaming-ui.js'), 'utf8');
 
-function harness({ fail = false, empty = false } = {}) {
+function harness({ fail = false, empty = false, deferred = false } = {}) {
   let resolveAPI;
   let called = 0;
   const pending = { classList: { contains: x => x === 'assistant' }, style: {}, isConnected: true,
@@ -20,6 +20,7 @@ function harness({ fail = false, empty = false } = {}) {
   const app = { sendMessage: async () => {
     called++;
     if (empty) return 'no-op';
+    if (deferred) await Promise.resolve(); // Existing revisionQueue preflight.
     const player = { isConnected: true, nextElementSibling: pending,
       getBoundingClientRect: () => ({ top: 350 - stream.scrollTop }) };
     users.push(player);
@@ -58,6 +59,17 @@ async function main() {
     assert.equal(h.stream.scrollTop, 99, 'completion does not steal player scroll');
     assert.equal(h.pending.style.minHeight, '', 'temporary reading space removed');
     assert.equal(h.called(), 1, 'original send invoked exactly once');
+  }
+  {
+    const h = harness({ deferred: true });
+    const task = h.app.sendMessage();
+    await Promise.resolve(); await Promise.resolve();
+    assert.equal(h.stream.scrollTop, 242, 'async preflight must acquire the player anchor before dispatch');
+    h.stream.scrollTop = 99;
+    h.complete('new story');
+    await task;
+    assert.equal(h.stream.scrollTop, 99, 'async preflight preserves manual reading on completion');
+    assert.equal(h.pending.style.minHeight, '');
   }
   {
     const h = harness({ fail: true });
