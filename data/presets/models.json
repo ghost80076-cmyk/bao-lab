@@ -468,6 +468,54 @@
       ]
     },
     {
+      "id": "claude-haiku-5.5",
+      "name": "Claude Haiku 5.5",
+      "routes": [
+        {
+          "badge": "新版",
+          "use_case": "超過100K Token有較高長上下文費率；只開放 BYOK",
+          "pricing": {
+            "input": 0.1,
+            "output": 0.5,
+            "cache": 0.01,
+            "cache_write": 0.2,
+            "note": "超過100K Token有較高長上下文費率；只開放 BYOK"
+          },
+          "id": "anthropic-official",
+          "provider": "anthropic",
+          "provider_label": "Anthropic Claude 官方",
+          "route": "official",
+          "protocol": "anthropic",
+          "label": "Claude Haiku 5.5 · 官方",
+          "model": "claude-haiku-5-5",
+          "base_url": "https://api.anthropic.com/v1/messages",
+          "cache": "explicit",
+          "docs_url": "https://platform.claude.com/docs/en/models/haiku-5-5/overview"
+        },
+        {
+          "badge": "新版",
+          "use_case": "超過100K Token有較高長上下文費率；只開放 BYOK",
+          "pricing": {
+            "input": 0.1,
+            "output": 0.5,
+            "cache": 0.01,
+            "cache_write": 0.2,
+            "note": "超過100K Token有較高長上下文費率；只開放 BYOK"
+          },
+          "id": "openrouter",
+          "provider": "openrouter",
+          "provider_label": "OpenRouter",
+          "route": "router",
+          "protocol": "openai",
+          "label": "OR · Claude Haiku 5.5",
+          "model": "anthropic/claude-haiku-5.5",
+          "base_url": "https://openrouter.ai/api/v1/chat/completions",
+          "cache": "provider-dependent",
+          "docs_url": "https://openrouter.ai/anthropic/claude-haiku-5.5"
+        }
+      ]
+    },
+    {
       "id": "claude-haiku-4.5",
       "name": "Claude Haiku 4.5",
       "routes": [
@@ -805,6 +853,54 @@
         "use_case": "保留既有玩家故事與模型選擇；即使官方退役前後狀態改變，也先不從夜灣選單移除",
         "order": 70
       }
+    },
+    {
+      "id": "claude-fable-5.2",
+      "name": "Claude Fable 5.2",
+      "routes": [
+        {
+          "badge": "新版",
+          "use_case": "高階高成本推理；只開放 BYOK",
+          "pricing": {
+            "input": 8,
+            "output": 40,
+            "cache": 0.2,
+            "cache_write": 16,
+            "note": "高階高成本推理；只開放 BYOK"
+          },
+          "id": "anthropic-official",
+          "provider": "anthropic",
+          "provider_label": "Anthropic Claude 官方",
+          "route": "official",
+          "protocol": "anthropic",
+          "label": "Claude Fable 5.2 · 官方",
+          "model": "claude-fable-5-2",
+          "base_url": "https://api.anthropic.com/v1/messages",
+          "cache": "explicit",
+          "docs_url": "https://platform.claude.com/docs/en/models/fable-5-2/overview"
+        },
+        {
+          "badge": "新版",
+          "use_case": "高階高成本推理；只開放 BYOK",
+          "pricing": {
+            "input": 8,
+            "output": 40,
+            "cache": 0.2,
+            "cache_write": 16,
+            "note": "高階高成本推理；只開放 BYOK"
+          },
+          "id": "openrouter",
+          "provider": "openrouter",
+          "provider_label": "OpenRouter",
+          "route": "router",
+          "protocol": "openai",
+          "label": "OR · Claude Fable 5.2",
+          "model": "anthropic/claude-fable-5.2",
+          "base_url": "https://openrouter.ai/api/v1/chat/completions",
+          "cache": "provider-dependent",
+          "docs_url": "https://openrouter.ai/anthropic/claude-fable-5.2"
+        }
+      ]
     },
     {
       "id": "claude-opus-5.5",
