@@ -287,6 +287,50 @@
       }
     },
     {
+      "id": "gemini-4-neon",
+      "name": "Gemini 4 Neon",
+      "routes": [
+        {
+          "id": "google-official",
+          "provider": "gemini",
+          "provider_label": "Google Gemini 官方",
+          "route": "official",
+          "protocol": "gemini",
+          "label": "Gemini 4 Neon · 官方",
+          "model": "gemini-4-neon",
+          "base_url": "https://generativelanguage.googleapis.com/v1beta/models",
+          "badge": "新旗艦",
+          "use_case": "Gemini 4 Neon；僅支援隱式快取與 thinking_level，不支援舊 thinking_budget。",
+          "cache": "automatic",
+          "pricing": {
+            "input": 3,
+            "output": 15,
+            "cache": 0.15
+          },
+          "docs_url": "https://ai.google.dev/gemini-api/docs/pricing"
+        },
+        {
+          "id": "openrouter",
+          "provider": "openrouter",
+          "provider_label": "OpenRouter",
+          "route": "router",
+          "protocol": "openai",
+          "label": "OR · Gemini 4 Neon",
+          "model": "google/gemini-4-neon",
+          "base_url": "https://openrouter.ai/api/v1/chat/completions",
+          "badge": "新旗艦",
+          "use_case": "玩家自備 OpenRouter API Key；路由供應商價格不同。",
+          "cache": "provider-dependent",
+          "pricing": {
+            "input": 3,
+            "output": 15,
+            "cache": 0.15
+          },
+          "docs_url": "https://openrouter.ai/google/gemini-4-neon"
+        }
+      ]
+    },
+    {
       "id": "gemini-2.5-flash",
       "name": "Gemini 2.5 Flash",
       "routes": [
