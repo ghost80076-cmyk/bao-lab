@@ -889,7 +889,7 @@
       "hosted": {
         "route_id": "openrouter-hosted",
         "tier": "舊版相容",
-        "label": "【官方將退役】Claude Sonnet 4.5",
+        "label": "【即將退役】Claude Sonnet 4.5",
         "use_case": "官方 API 預定 2026/11/30 退役；舊故事保留模型 ID，建議新玩家使用 Sonnet 5.5，OpenRouter 可用性須另行確認。",
         "order": 70
       }
