@@ -148,7 +148,7 @@
       bubble.innerHTML = BAOChatMarkup.sanitize(content);
       bubble.classList.add("authored-rich-message");
     } else {
-      bubble.innerHTML = App.formatMessage(content);
+      bubble.innerHTML = App.formatMessage(content) + (window.BAOStoryImages?.html?.(message.storyImage) || "");
       bubble.classList.remove("authored-rich-message");
     }
   };
@@ -615,7 +615,8 @@
   const originalContext = Chat.context.bind(Chat);
   Chat.context = async function(config) {
     const list = await originalContext(config);
-    return (list || []).map(message => ({ role: message.role, content: String(message.content || "") }));
+    return (list || []).map(message => ({ role: message.role, content: String(message.content || ""),
+      ...(message.storyImage ? { hasStoryImage: true } : {}) }));
   };
 
   const originalRenderChatShell = App.renderChatShell.bind(App);

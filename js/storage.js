@@ -106,6 +106,7 @@ const Storage = {
     const safeConfig = this.scrubSecrets(this.clone(App.config || {}));
     const state = this.scrubSecrets(this.clone(GameState.current || {}));
     const chatMessages = window.Chat?.ensureMessageIds ? Chat.ensureMessageIds() : (Chat.messages || []);
+    window.BAOStoryImagesCore?.validateMessages(chatMessages);
     if (state && typeof state === "object") state.config = safeConfig;
     return {
       schema: this.storySchema,
@@ -175,6 +176,7 @@ const Storage = {
     const savedAt = Number.isNaN(Date.parse(clean.savedAt)) ? new Date().toISOString() : clean.savedAt;
     clean.chat.messages = (Array.isArray(clean.chat.messages) ? clean.chat.messages : [])
       .map(message => ({ ...message, createdAt: message?.createdAt || savedAt }));
+    window.BAOStoryImagesCore?.validateMessages(clean.chat.messages);
     if (window.Chat?.ensureMessageIds) clean.chat.messages = Chat.ensureMessageIds(clean.chat.messages);
     return clean;
   },

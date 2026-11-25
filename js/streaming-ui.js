@@ -59,7 +59,8 @@
       if (bubble.querySelector(".story-inline-editor")) continue;
       const source = String(message.content || "");
       if (message.role === "user") {
-        const html = window.BAOAvatarChat?.enabled?.() ? window.BAOAvatarChat.render(source, 'user') : App.formatMessage(source);
+        const html = (window.BAOAvatarChat?.enabled?.() ? window.BAOAvatarChat.render(source, 'user') : App.formatMessage(source))
+          + (window.BAOStoryImages?.html?.(message.storyImage) || '');
         if (bubble.innerHTML !== html) bubble.innerHTML = html;
         continue;
       }
@@ -170,9 +171,9 @@
   API.__streamingUIPatched = true;
 
   // Keep the scroll-only adapter separate from the HTML and story renderers.
-  if (document.head?.append && !document.querySelector('script[src="js/chat-reading-scroll.js?v=3"]')) {
+  if (document.head?.append && !document.querySelector('script[src="js/chat-reading-scroll.js?v=4"]')) {
     const script = document.createElement('script');
-    script.src = 'js/chat-reading-scroll.js?v=3';
+    script.src = 'js/chat-reading-scroll.js?v=4';
     script.onerror = () => console.warn('BAO/LAB reading position controller failed to load');
     document.head.append(script);
   }

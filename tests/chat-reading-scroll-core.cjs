@@ -5,11 +5,11 @@ const path = require('node:path');
 const source = fs.readFileSync(path.join(__dirname, '..', 'js', 'chat-reading-scroll.js'), 'utf8');
 const streaming = fs.readFileSync(path.join(__dirname, '..', 'js', 'streaming-ui.js'), 'utf8');
 
-function harness({ fail = false, empty = false } = {}) {
+function harness({ fail = false, empty = false, deferred = false, hiddenLoading = false } = {}) {
   let resolveAPI;
   let called = 0;
   const pending = { classList: { contains: x => x === 'assistant' }, style: {}, isConnected: true,
-    querySelector: x => x === '.bubble' ? { textContent: '正在生成……' } : null };
+    querySelector: x => x === '.bubble' ? { textContent: hiddenLoading ? '' : '正在生成……' } : null };
   const users = [];
   const stream = { scrollTop: 0, scrollHeight: 5000, clientHeight: 420,
     getBoundingClientRect: () => ({ top: 100 }),
@@ -17,9 +17,10 @@ function harness({ fail = false, empty = false } = {}) {
   const chat = { classList: { contains: x => x === 'active' } };
   const input = { value: empty ? '' : '我走過去。' };
   const api = { send: async () => new Promise(resolve => { resolveAPI = resolve; }) };
-  const app = { sendMessage: async () => {
+  const app = { __requestPending: hiddenLoading, sendMessage: async () => {
     called++;
     if (empty) return 'no-op';
+    if (deferred) await Promise.resolve(); // Existing revisionQueue preflight.
     const player = { isConnected: true, nextElementSibling: pending,
       getBoundingClientRect: () => ({ top: 350 - stream.scrollTop }) };
     users.push(player);
@@ -58,6 +59,25 @@ async function main() {
     assert.equal(h.stream.scrollTop, 99, 'completion does not steal player scroll');
     assert.equal(h.pending.style.minHeight, '', 'temporary reading space removed');
     assert.equal(h.called(), 1, 'original send invoked exactly once');
+  }
+  {
+    const h = harness({ deferred: true });
+    const task = h.app.sendMessage();
+    await Promise.resolve(); await Promise.resolve();
+    assert.equal(h.stream.scrollTop, 242, 'async preflight must acquire the player anchor before dispatch');
+    h.stream.scrollTop = 99;
+    h.complete('new story');
+    await task;
+    assert.equal(h.stream.scrollTop, 99, 'async preflight preserves manual reading on completion');
+    assert.equal(h.pending.style.minHeight, '');
+  }
+  {
+    const h = harness({ deferred: true, hiddenLoading: true });
+    const task = h.app.sendMessage();
+    await Promise.resolve(); await Promise.resolve();
+    assert.equal(h.pending.style.minHeight, '420px', 'system notice may hide loading text without removing reading space');
+    h.complete('reply');await task;
+    assert.equal(h.pending.style.minHeight, '');
   }
   {
     const h = harness({ fail: true });

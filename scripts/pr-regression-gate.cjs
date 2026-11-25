@@ -10,6 +10,10 @@ const GROUPS = [
     'tests/app-startup-navigation-core.cjs',
     'tests/story-integrity-core.cjs'
   ] },
+  { id: 'story-images', patterns: [/^js\/story-images/, /^css\/story-images/, /^tests\/(?:e2e\/)?story-images/], tests: [
+    'tests/story-images-core.cjs', 'tests/story-images-storage-core.cjs', 'tests/story-message-storage-core.cjs',
+    'tests/api-ordered-pipeline-integration.cjs', 'tests/narrative-prompt-pipeline-core.cjs', 'tests/request-lifecycle-core.cjs'
+  ] },
   { id: 'discussion-settings', patterns: [/^js\/story-discussion/, /^css\/story-discussion/, /^tests\/story-discussion/], tests: [
     'tests/story-discussion-core.cjs', 'tests/story-revision-pipeline-core.cjs',
     'tests/story-backup-core.cjs', 'tests/context-pack-resume-core.cjs', 'tests/request-lifecycle-core.cjs'
