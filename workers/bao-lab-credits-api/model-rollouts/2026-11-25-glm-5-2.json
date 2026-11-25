@@ -1,0 +1,11 @@
+[
+  {
+    "provider": "openrouter",
+    "model": "z-ai/glm-5.2",
+    "input_microusd_per_million": 1400000,
+    "output_microusd_per_million": 4400000,
+    "cache_read_microusd_per_million": 260000,
+    "openrouter_max_prompt_microusd_per_million": 1400000,
+    "openrouter_max_completion_microusd_per_million": 4400000
+  }
+]
