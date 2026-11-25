@@ -70,7 +70,7 @@
     if (this.config?.demoMode) return next(...args);
     const text = document.getElementById("user-input")?.value.trim();
     const accountReady = Boolean(window.BAOCreditsPilot?.isAccountReady?.(this.config?.api));
-    if (!text || (!this.config?.api?.key && !accountReady)) return next(...args);
+    if ((!text && !window.BAOStoryImages?.hasDraft?.()) || (!this.config?.api?.key && !accountReady)) return next(...args);
     if (this.__requestPending) return;
 
     const controller = new AbortController();

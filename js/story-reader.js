@@ -148,7 +148,7 @@
       bubble.innerHTML = BAOChatMarkup.sanitize(content);
       bubble.classList.add("authored-rich-message");
     } else {
-      bubble.innerHTML = App.formatMessage(content);
+      bubble.innerHTML = App.formatMessage(content) + (window.BAOStoryImages?.html?.(message.storyImage) || "");
       bubble.classList.remove("authored-rich-message");
     }
   };

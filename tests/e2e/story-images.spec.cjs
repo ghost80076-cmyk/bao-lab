@@ -1,0 +1,125 @@
+const {test,expect}=require('@playwright/test');
+async function ready(page) {
+  await page.waitForFunction(()=>window.BAOExtensionLoadHealth?.snapshot().story==='ready'
+    && BAOExtensionLoadHealth.snapshot().world==='ready' && Storage.status().ready && window.BAOStoryImages && window.BAOStoryBackup);
+}
+async function setup(page,width=390) {
+  await page.setViewportSize({width,height:900});
+  const requests=[];
+  await page.route('https://vision.example.test/**',async route=>{
+    if (route.request().method()==='OPTIONS') return route.fulfill({status:204,headers:{'access-control-allow-origin':'*','access-control-allow-headers':'*'}});
+    requests.push(route.request().postDataJSON());
+    await route.fulfill({contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify({choices:[{message:{content:'A 看著照片，指出門邊的陰影。B 尚未見過照片。'},finish_reason:'stop'}],usage:{prompt_tokens:120,completion_tokens:20,total_tokens:140}})});
+  });
+  await page.goto('/');await ready(page);
+  await page.evaluate(()=>{
+    App.activeCharacter=App.characters[0];
+    App.config={narrativeMode:'world',displayMode:'text',persona:{name:'旅人'},api:{type:'custom',protocol:'openai',model:'fixture-vision',key:'FAKE-TEST-KEY',baseUrl:'https://vision.example.test/v1/chat/completions'},memory:{mode:'rounds',maxRounds:20,maxContext:32000},cost:{enabled:false}};
+    App.config.api.visionConfirmedRoute=BAOStoryImagesCore.routeKey(App.config.api);
+    Chat.reset();GameState.create(App.activeCharacter,App.config);
+    Chat.add('assistant','故事開始。');App.showView('chat');App.renderChatShell(false);
+  });
+  return requests;
+}
+async function select(page,color='red') {
+  // Generate the fixture through each real browser's encoder, not image mocks.
+  const data=await page.evaluate(color=>{const c=document.createElement('canvas');c.width=1600;c.height=800;const x=c.getContext('2d');x.fillStyle=color;x.fillRect(0,0,1600,800);return c.toDataURL('image/png').split(',')[1]},color);
+  await page.locator('#story-image-file').setInputFiles({name:'room.png',mimeType:'image/png',buffer:Buffer.from(data,'base64')});
+  await expect(page.locator('#story-image-status')).toContainText('圖片已準備好');
+}
+async function send(page,text='只有 A 看到這張房間照片，哪裡不對勁？') {
+  await page.locator('#user-input').fill(text);
+  await page.locator('[data-send-message]').click();
+  await page.waitForFunction(()=>!App.__requestPending && Chat.messages.at(-1)?.role==='assistant' && Chat.messages.length>=3);
+  expect(await page.evaluate(()=>BAOStorageWriteGuard.whenIdle())).toBe(true);
+}
+for (const width of [320,390,834,1440]) test(`select replace remove send and portable story at ${width}px`,async({page})=>{
+  const requests=await setup(page,width);
+  await page.locator('#user-input').fill('草稿保留');
+  await select(page);
+  const first=await page.locator('#story-image-panel img').getAttribute('src');
+  expect(requests).toHaveLength(0);
+  await select(page,'blue');
+  expect(await page.locator('#story-image-panel img').getAttribute('src')).not.toBe(first);
+  await page.locator('[data-image-remove]').click();
+  await expect(page.locator('#story-image-panel')).toBeHidden();
+  await expect(page.locator('#user-input')).toHaveValue('草稿保留');
+  await select(page);
+  const geometry=await page.evaluate(()=>{
+    const pick=document.getElementById('story-image-pick').getBoundingClientRect(),input=document.getElementById('user-input').getBoundingClientRect();
+    return {overflow:document.documentElement.scrollWidth>innerWidth,pick:[pick.width,pick.height],inputBottom:input.bottom};
+  });
+  expect(geometry.overflow).toBe(false);expect(geometry.pick[0]).toBeGreaterThanOrEqual(44);expect(geometry.pick[1]).toBeGreaterThanOrEqual(44);expect(geometry.inputBottom).toBeLessThanOrEqual(902);
+  await test.info().attach('image-preview-'+width,{body:await page.screenshot(),contentType:'image/png'});
+  await send(page,width===320?'':'只有 A 看到這張房間照片，哪裡不對勁？');
+  const request=requests.find(r=>Array.isArray(r.messages?.at(-1)?.content));
+  expect(request.messages.at(-1).content[1].image_url.url).toMatch(/^data:image\/jpeg;base64,/);
+  await expect(page.locator('#chat-stream .story-message-image')).toHaveCount(1);
+  await expect(page.locator('#story-image-panel')).toBeHidden();
+  const saved=await page.evaluate(async()=>{
+    const save=Storage.loadStory();
+    const bundle=await BAOStoryBackup.buildBundle();
+    const imported=await BAOStoryBackup.importBundle(JSON.parse(JSON.stringify(bundle)));
+    return {image:save.chat.messages.find(m=>m.storyImage).storyImage,imported:imported.payload.chat.messages.find(m=>m.storyImage).storyImage,
+      backupHasKey:JSON.stringify(bundle).includes('FAKE-TEST-KEY')};
+  });
+  expect(saved.imported).toEqual(saved.image);expect(saved.image.width).toBe(1280);expect(saved.backupHasKey).toBe(false);
+  await page.reload();await ready(page);
+  await page.evaluate(()=>{Storage.restoreStory(Storage.loadStory());App.config.api.key='FAKE-TEST-KEY';App.showView('chat');App.renderChatShell(false)});
+  await expect(page.locator('#chat-stream .story-message-image')).toHaveCount(1);
+  await page.evaluate(()=>{App.config.dialogueMode='avatar_chat';BAOAvatarChat.refresh()});
+  await expect(page.locator('#chat-stream .story-message-image')).toHaveCount(1);
+  const count=requests.length;
+  await send(page,'繼續對話');
+  expect(requests.slice(count).every(r=>r.messages.every(m=>typeof m.content==='string'))).toBe(true);
+});
+test('unsupported model, broken input and provider failure retain draft without story mutation',async({page})=>{
+  const requests=await setup(page);
+  await select(page);await page.locator('#user-input').fill('不要遺失的文字');
+  await page.evaluate(()=>{App.config.api.model='deepseek-chat'});
+  await page.locator('[data-send-message]').click();
+  await expect(page.locator('#story-image-status')).toContainText('不支援圖片');
+  expect(requests).toHaveLength(0);expect(await page.evaluate(()=>Chat.messages.length)).toBe(1);
+  await page.locator('#story-image-file').setInputFiles({name:'broken.png',mimeType:'image/png',buffer:Buffer.from('broken')});
+  await expect(page.locator('#story-image-status')).toContainText('無法解碼');
+  await expect(page.locator('#story-image-panel img')).toBeVisible();
+  await page.evaluate(()=>{App.config.api.model='fixture-vision'});
+  await page.route('https://vision.example.test/**',route=>route.fulfill({status:400,contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify({error:{message:'unsupported image input'}})}));
+  await page.locator('[data-send-message]').click();
+  await expect(page.locator('#chat-stream')).toContainText('圖片請求失敗');
+  await expect(page.locator('#user-input')).toHaveValue('不要遺失的文字');
+  await expect(page.locator('#story-image-panel img')).toBeVisible();
+  expect(await page.evaluate(()=>Chat.messages.length)).toBe(1);
+});
+test('branch rollback and other stories keep attachment ownership',async({page})=>{
+  await setup(page);await select(page);await send(page);
+  const result=await page.evaluate(async()=>{
+    const original=Storage.loadStory(),refs=BAOStoryLibrary.refs(),image=Chat.messages[1].storyImage.data;
+    const branch=await BAOStoryLibrary.createBranch(Chat.messages.at(-1).id,'圖片分支');
+    await BAOStoryBranches.restore(branch._library.storyId,branch._library.chapterId);
+    const branchImage=Chat.messages[1].storyImage.data;
+    Chat.add('user','分支後的文字');Chat.add('assistant','只存在分支');App.saveStory(false);await BAOStorageWriteGuard.whenIdle();
+    await BAOStoryBranches.restore(original._library.storyId,original._library.chapterId);
+    const returned={image:Chat.messages[1].storyImage.data,length:Chat.messages.length};
+    Chat.reset();GameState.create(App.activeCharacter,App.config);App.renderChatShell(false);
+    return {image,branchImage,returned,otherDraft:BAOStoryImages.hasDraft(),otherImages:document.querySelectorAll('.story-message-image').length};
+  });
+  expect(result.branchImage).toBe(result.image);expect(result.returned).toEqual({image:result.image,length:3});expect(result.otherDraft).toBe(false);expect(result.otherImages).toBe(0);
+});
+test('IDB and quota failure retain image turn and backup, retry recovers',async({page})=>{
+  await setup(page);await select(page);await send(page);
+  const result=await page.evaluate(async()=>{
+    const before=JSON.stringify(await Storage._getAllRecords());
+    const idb=Storage._persistOperationIndexedDB,fallback=Storage._persistFallbackSnapshot;
+    Storage._persistOperationIndexedDB=async()=>{throw new Error('fixture denied')};
+    Storage._persistFallbackSnapshot=()=>{throw new DOMException('full','QuotaExceededError')};
+    Chat.add('user','後續文字');Chat.add('assistant','後續回覆');
+    App.saveStory(false);const failed=await BAOStorageWriteGuard.whenIdle();
+    const backup=Storage.buildStoryPayload();
+    const durable=JSON.stringify(await Storage._getAllRecords());
+    Storage._persistOperationIndexedDB=idb;Storage._persistFallbackSnapshot=fallback;
+    await BAOStorageWriteGuard.retry();const retry=await BAOStorageWriteGuard.whenIdle();
+    return {failed,retry,priorIntact:before===durable,image:backup.chat.messages[1].storyImage.data,reloaded:Storage.loadStory().chat.messages[1].storyImage.data,length:Chat.messages.length};
+  });
+  expect(result.failed).toBe(false);expect(result.priorIntact).toBe(true);expect(result.retry).toBe(true);expect(result.image).toBe(result.reloaded);expect(result.length).toBe(5);
+});

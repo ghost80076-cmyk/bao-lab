@@ -221,6 +221,7 @@ const API = {
     "chat:request-usage": 120,
     "context-inspector:request": 125,
     "request-ledger:dispatch": 128,
+    "story-images:provider-input": 129,
     "lm-studio:local-transport": 130,
     "credits-pilot:hosted-transport": 140
   }),
@@ -398,7 +399,7 @@ const API = {
     const streaming = this.shouldStream(config);
     const url = `${baseUrl}/${encodeURIComponent(config.model)}:${streaming ? "streamGenerateContent?alt=sse" : "generateContent"}`;
     const systemText = messages.filter(m => m.role === "system").map(m => this.contentToText(m.content)).filter(Boolean).join("\n\n");
-    const contents = messages.filter(m => m.role !== "system").map(m => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: this.contentToText(m.content) }] }));
+    const contents = messages.filter(m => m.role !== "system").map(m => ({ role: m.role === "assistant" ? "model" : "user", parts: window.BAOStoryImagesCore?.geminiParts ? window.BAOStoryImagesCore.geminiParts(m.content) : [{ text: this.contentToText(m.content) }] }));
     if (!contents.length) throw new Error("沒有可傳送給 Gemini 的對話內容。");
     const payload = { contents };
     if (systemText) payload.systemInstruction = { parts: [{ text: systemText }] };

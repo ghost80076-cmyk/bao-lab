@@ -5,6 +5,10 @@ const { spawnSync } = require('node:child_process');
 const ROOT = path.resolve(__dirname, '..');
 // Cross-feature contracts augment (never replace) the normal core and browser jobs.
 const GROUPS = [
+  { id: 'story-images', patterns: [/^js\/story-images/, /^css\/story-images/, /^tests\/(?:e2e\/)?story-images/], tests: [
+    'tests/story-images-core.cjs', 'tests/story-images-storage-core.cjs', 'tests/story-message-storage-core.cjs',
+    'tests/api-ordered-pipeline-integration.cjs', 'tests/narrative-prompt-pipeline-core.cjs', 'tests/request-lifecycle-core.cjs'
+  ] },
   { id: 'baseline', patterns: [], tests: [
     'tests/frontend-extension-contract.cjs',
     'tests/app-startup-navigation-core.cjs',

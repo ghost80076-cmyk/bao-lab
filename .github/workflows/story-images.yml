@@ -1,0 +1,55 @@
+name: Story images acceptance
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'js/**'
+      - 'css/story-images.css'
+      - 'tests/**'
+      - 'index.html'
+      - '.github/workflows/story-images.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'js/story-images*'
+      - 'tests/e2e/story-images.spec.cjs'
+      - '.github/workflows/story-images.yml'
+permissions:
+  contents: read
+concurrency:
+  group: story-images-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  cross-browser:
+    name: Story images · ${{ matrix.browser }}
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Image flows and connected storage, reading and prompt contracts
+        run: >-
+          npx playwright test
+          tests/e2e/story-images.spec.cjs
+          tests/e2e/story-save-acceptance.spec.cjs
+          tests/e2e/storage-operation-recovery.spec.cjs
+          tests/e2e/narrative-cache-preservation.spec.cjs
+          --project=${{ matrix.browser }} --workers=2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: story-images-${{ matrix.browser }}
+          path: |
+            test-results/
+            playwright-report/

@@ -40,7 +40,7 @@
     const input = document.getElementById('user-input');
     // Non-send operations, offline preview, and nested requests retain their
     // existing behavior. No change to prompts, storage, aborts, or provider calls.
-    if (!chat.classList.contains('active') || !input?.value.trim() || activeTurn) {
+    if (!chat.classList.contains('active') || (!input?.value.trim() && !window.BAOStoryImages?.hasDraft?.()) || activeTurn) {
       return next(...args);
     }
     const before = new Set(userMessages());
