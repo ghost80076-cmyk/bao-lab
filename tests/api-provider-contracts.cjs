@@ -140,6 +140,14 @@ const lastRequest = () => requests.at(-1);
   assert.equal(lastRequest().body.generationConfig.thinkingConfig, undefined, 'unconfigured memory requests must not hardcode a model-name-specific thinking level');
   await API.send({ type: "gemini", protocol: "gemini", model: "gemini-future-model", baseUrl: "https://generativelanguage.googleapis.com/v1beta/models", key: "GEMINI-SECRET", __memoryTask: true, __memoryThinking: { thinkingLevel: "low" } }, messages);
   assert.equal(lastRequest().body.generationConfig.thinkingConfig.thinkingLevel, 'low', 'registered memory policy must apply to future model IDs without hardcoded name checks');
+
+  await API.send({ type: "gemini", protocol: "gemini", model: "gemini-4-neon", key: "GEMINI-SECRET", __memoryTask: true, __memoryThinking: { thinkingBudget: 512, thinkingLevel: "minimal" } }, messages);
+  assert.deepEqual(lastRequest().body.generationConfig.thinkingConfig, { thinkingLevel: "LOW" }, "Gemini 4 memory requests must discard unsupported budget/minimal settings");
+  await API.send({ type: "gemini", protocol: "gemini", model: "gemini-4-neon", key: "GEMINI-SECRET", __memoryTask: true, __memoryThinking: { thinkingLevel: "xhigh" } }, messages);
+  assert.deepEqual(lastRequest().body.generationConfig.thinkingConfig, { thinkingLevel: "XHIGH" }, "Neon supports XHIGH on GenerateContent");
+  await API.send({ type: "gemini", protocol: "gemini", model: "gemini-4-carbon", key: "GEMINI-SECRET", __stateTask: true }, messages);
+  assert.deepEqual(lastRequest().body.generationConfig.thinkingConfig, { thinkingLevel: "LOW" }, "Gemini 4 status should use supported GenerateContent enum");
+
   responseData = { candidates:[{content:{parts:[{text:'partial'}]},finishReason:'MAX_TOKENS'}],usageMetadata:{promptTokenCount:100,candidatesTokenCount:1796,thoughtsTokenCount:6396,totalTokenCount:8292} };
   const truncatedMemory = await API.send({type:'gemini',protocol:'gemini',model:'gemini-3.1-pro-preview',key:'mock',__memoryTask:true,maxOutputTokens:16384},messages);
   assert.equal(lastRequest().body.generationConfig.maxOutputTokens,16384);
