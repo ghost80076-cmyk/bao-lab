@@ -58,8 +58,10 @@
       // just a short "generating" placeholder. Once committed, remove the
       // temporary reading space; short responses may naturally sit lower.
       const pending = player.nextElementSibling;
+      // System notices intentionally clear the loading sentence. Request state
+      // still identifies this uncommitted response; do not depend on its text.
       if (pending?.classList.contains('assistant') &&
-          pending.querySelector('.bubble')?.textContent?.trim() === '正在生成……') {
+          (this.__requestPending || pending.querySelector('.bubble')?.textContent?.trim() === '正在生成……')) {
         turn.pending = pending;
         pending.style.minHeight = `${Math.max(0, stream.clientHeight)}px`;
       }
