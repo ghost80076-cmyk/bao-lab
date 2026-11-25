@@ -157,6 +157,17 @@ test('long story image turn keeps the player reading anchor',async({page})=>{
   await page.evaluate(()=>{
     for(let i=0;i<60;i++){Chat.add('user','歷史問題 '+i);Chat.add('assistant',('長篇正文與已知情節。\n').repeat(30))}
     App.renderChatShell(false);
+    window.__imageReadingEvidence=[];
+    const record=stage=>{
+      const stream=document.getElementById('chat-stream'),player=[...stream.querySelectorAll(':scope > .message.user')].at(-1);
+      const img=player?.querySelector('img');
+      window.__imageReadingEvidence.push({stage,scroll:stream.scrollTop,height:stream.clientHeight,full:stream.scrollHeight,
+        playerTop:player?.getBoundingClientRect().top-stream.getBoundingClientRect().top,imageHeight:img?.getBoundingClientRect().height,complete:img?.complete});
+    };
+    API.wrapSend('image-test:reading-evidence',async(next,config,...args)=>{
+      if(config.__memoryTask||config.__stateTask||config.__storyTool)return next(config,...args);
+      record('dispatch');try{return await next(config,...args)}finally{record('response')}
+    });
   });
   await select(page);await send(page);
   await expect(page.locator('#chat-stream .story-message-image')).toHaveCount(1);
@@ -165,6 +176,7 @@ test('long story image turn keeps the player reading anchor',async({page})=>{
     const player=[...stream.querySelectorAll(':scope > .message.user')].at(-1).getBoundingClientRect();
     return {top:player.top-reader.top,overflow:document.documentElement.scrollWidth>innerWidth};
   });
+  console.log('IMAGE_READING_EVIDENCE',JSON.stringify({stages:await page.evaluate(()=>window.__imageReadingEvidence),final:geometry}));
   expect(geometry.overflow).toBe(false);expect(geometry.top).toBeGreaterThanOrEqual(-1);expect(geometry.top).toBeLessThan(60);
 });
 
