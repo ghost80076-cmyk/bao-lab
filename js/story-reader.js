@@ -615,7 +615,8 @@
   const originalContext = Chat.context.bind(Chat);
   Chat.context = async function(config) {
     const list = await originalContext(config);
-    return (list || []).map(message => ({ role: message.role, content: String(message.content || "") }));
+    return (list || []).map(message => ({ role: message.role, content: String(message.content || ""),
+      ...(message.storyImage ? { hasStoryImage: true } : {}) }));
   };
 
   const originalRenderChatShell = App.renderChatShell.bind(App);

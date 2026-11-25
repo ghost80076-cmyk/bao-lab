@@ -59,7 +59,8 @@
       if (bubble.querySelector(".story-inline-editor")) continue;
       const source = String(message.content || "");
       if (message.role === "user") {
-        const html = window.BAOAvatarChat?.enabled?.() ? window.BAOAvatarChat.render(source, 'user') : App.formatMessage(source);
+        const html = (window.BAOAvatarChat?.enabled?.() ? window.BAOAvatarChat.render(source, 'user') : App.formatMessage(source))
+          + (window.BAOStoryImages?.html?.(message.storyImage) || '');
         if (bubble.innerHTML !== html) bubble.innerHTML = html;
         continue;
       }

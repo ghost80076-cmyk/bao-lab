@@ -44,7 +44,7 @@
     const input = document.createElement('input'); input.type = 'file'; input.hidden = true;
     input.id = 'story-image-file'; input.accept = 'image/jpeg,image/png,image/webp';
     const panel = document.createElement('div'); panel.id = 'story-image-panel'; panel.hidden = true;
-    panel.innerHTML = '<img alt="待傳送圖片預覽" hidden><div><button type="button" class="secondary" data-image-remove>移除圖片</button><label hidden><input type="checkbox">我已確認目前模型與中轉支援 Vision 圖片輸入</label><small>圖片保存在本機；按送出才交給所選模型供應商（本地模型則留在本地端點）。圖片可能增加 Token 費用，依模型與解析度計費。每次 1 張、原檔 8 MB 內，縮至最長 1280px；每段最多 20 張。舊圖片不會每輪重送；需再檢視時請重新選圖。請在文字中說明誰能看到圖片。</small></div>';
+    panel.innerHTML = '<img alt="待傳送圖片預覽" hidden><div><button type="button" class="secondary" data-image-remove>移除圖片</button><label hidden><input type="checkbox">我已確認目前模型與中轉支援 Vision 圖片輸入</label><small>圖片隨故事保存在本機（若啟用 Drive 同步，亦會隨備份同步）；按送出才交給所選模型供應商（本地模型則留在本地端點）。圖片可能增加 Token 費用，依模型與解析度計費。每次 1 張、原檔 8 MB 內，縮至最長 1280px；每段最多 20 張。舊圖片不會每輪重送；需再檢視時請重新選圖。請在文字中說明誰能看到圖片。</small></div>';
     const notice = document.createElement('p'); notice.id = 'story-image-status'; notice.hidden = true; notice.setAttribute('aria-live', 'polite');
     composer.prepend(panel, notice, pick, input);
     pick.addEventListener('click', () => { if (!App.__requestPending) input.click(); });
@@ -125,6 +125,7 @@
   };
   API.wrapSend('story-images:provider-input', async (next, config, messages, ...rest) => {
     const record = requests.get(config?.__storyImageTicket);
+    if (config?.__storyImageTicket && !record) throw new Error('圖片請求已結束，請由輸入區重新送出。');
     if (!record) return next(config, messages, ...rest);
     if (config.__memoryTask || config.__stateTask || config.__auxiliaryTask || config.__storyTool || config.__connectionTest
         || record.route !== Core.routeKey(config)) throw new Error('圖片請求路由已變更，已停止傳送，請重新確認模型。');
@@ -141,13 +142,16 @@
       if (error?.code === 'BAO_ABORTED') throw error;
       // Providers can echo request data in errors; never expose image bytes.
       const raw = String(error?.message || '');
-      const reason = /quota|rate limit|額度|餘額|太頻繁/i.test(raw) ? '額度不足或請求頻率受限。'
+      const reason = error?.code === 'BAO_PROVIDER_BLOCKED' ? '供應商拒絕此次內容。'
+        : /quota|rate limit|額度|餘額|太頻繁/i.test(raw) ? '額度不足或請求頻率受限。'
         : /API Key|驗證|權限|authentication/i.test(raw) ? '連線金鑰或模型權限驗證失敗。'
         : /vision|image|multimodal|圖片/i.test(raw) ? '模型或中轉拒絕圖片輸入，請確認 Vision 支援。'
         : /Network|CORS|無法連線/i.test(raw) ? '無法連線至所選端點，請檢查網路與 CORS。'
         : '供應商未完成圖片回覆，請檢查連線及模型支援。';
       const safe = new Error(`圖片請求失敗：${reason}可移除圖片後重試；圖片與文字已保留。`);
-      safe.code = 'BAO_IMAGE_REQUEST_FAILED';
+      safe.code = error?.code === 'BAO_PROVIDER_BLOCKED' ? 'BAO_PROVIDER_BLOCKED' : 'BAO_IMAGE_REQUEST_FAILED';
+      if (error?.usage) safe.usage = Object.fromEntries(Object.entries(error.usage).filter(([,value]) => typeof value === 'number' && Number.isFinite(value)));
+      if (['content_policy_violation','refusal'].includes(error?.providerErrorType)) safe.providerErrorType = error.providerErrorType;
       throw safe;
     } finally { requests.delete(config.__storyImageTicket); }
   });

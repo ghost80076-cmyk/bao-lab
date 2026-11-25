@@ -102,7 +102,7 @@
     if (parts.memory) memorySystems.push(parts.memory);
     earlier.forEach(message => {
       if (message.role === "system") memorySystems.push(String(message.content || ""));
-      else history.push({ role: message.role, content: String(message.content || "") + (message.storyImage ? "\n【歷史圖片未重送；僅參考當時文字回覆已記錄的觀察，不推測未記錄的圖片細節。】" : "") });
+      else history.push({ role: message.role, content: String(message.content || "") + (message.storyImage || message.hasStoryImage ? "\n【歷史圖片未重送；僅參考當時文字回覆已記錄的觀察，不推測未記錄的圖片細節。】" : "") });
     });
     const messages = [{ role: "system", content: parts.stable }];
     if (memorySystems.length) messages.push({ role: "system", content: memorySystems.join("\n\n") });

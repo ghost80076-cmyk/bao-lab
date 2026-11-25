@@ -134,6 +134,14 @@ assert.equal(
   await API.send({ __stateTask: true }, [{ role: "user", content: "state" }]);
   assert.equal(received.config.stream, undefined, "state request must not be forced into UI streaming");
 
+  // Reproduce the post-stream repaint that previously erased a persisted image.
+  const photo = { data: 'fixture-image' };
+  Chat.messages = [{ role: 'user', content: 'Look here', storyImage: photo }];
+  global.BAOStoryImages = { html(image) { assert.equal(image, photo); return '<img class="story-message-image">'; } };
+  stream.querySelectorAll = () => [{ dataset: {}, classList: { contains: role => role === 'user' }, querySelector: () => bubble }];
+  App.renderChatShell(false);
+  assert.equal(bubble.innerHTML, 'Look here<img class="story-message-image">');
+
   console.log("streaming-ui-wrapper: main-story streaming isolated from helper requests");
 })().catch(error => {
   console.error(error);

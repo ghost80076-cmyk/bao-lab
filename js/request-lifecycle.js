@@ -67,6 +67,10 @@
       return; // No text is cleared and no provider request is sent.
     }
     if (this.__exitHandoff) return;
+    if (window.BAOStoryImages?.hasDraft?.() && (this.config?.demoMode || this.config?.offlineWorldPreview)) {
+      window.BAOStoryImages.status('離線預覽無法理解圖片，請先設定 Vision 模型或移除圖片。', true);
+      return;
+    }
     if (this.config?.demoMode) return next(...args);
     const text = document.getElementById("user-input")?.value.trim();
     const accountReady = Boolean(window.BAOCreditsPilot?.isAccountReady?.(this.config?.api));

@@ -1,4 +1,5 @@
 const {test,expect}=require('@playwright/test');
+if (process.env.STORY_IMAGES_BASE_URL) test.use({baseURL:process.env.STORY_IMAGES_BASE_URL});
 async function ready(page) {
   await page.waitForFunction(()=>window.BAOExtensionLoadHealth?.snapshot().story==='ready'
     && BAOExtensionLoadHealth.snapshot().world==='ready' && Storage.status().ready && window.BAOStoryImages && window.BAOStoryBackup);
@@ -28,9 +29,10 @@ async function select(page,color='red') {
   await expect(page.locator('#story-image-status')).toContainText('圖片已準備好');
 }
 async function send(page,text='只有 A 看到這張房間照片，哪裡不對勁？') {
+  const before=await page.evaluate(()=>Chat.messages.length);
   await page.locator('#user-input').fill(text);
   await page.locator('[data-send-message]').click();
-  await page.waitForFunction(()=>!App.__requestPending && Chat.messages.at(-1)?.role==='assistant' && Chat.messages.length>=3);
+  await page.waitForFunction(before=>!App.__requestPending && Chat.messages.at(-1)?.role==='assistant' && Chat.messages.length>=before+2,before);
   expect(await page.evaluate(()=>BAOStorageWriteGuard.whenIdle())).toBe(true);
 }
 for (const width of [320,390,834,1440]) test(`select replace remove send and portable story at ${width}px`,async({page})=>{
@@ -72,6 +74,7 @@ for (const width of [320,390,834,1440]) test(`select replace remove send and por
   const count=requests.length;
   await send(page,'繼續對話');
   expect(requests.slice(count).every(r=>r.messages.every(m=>typeof m.content==='string'))).toBe(true);
+  expect(requests.slice(count).some(r=>r.messages.some(m=>m.content.includes('歷史圖片未重送')))).toBe(true);
 });
 test('unsupported model, broken input and provider failure retain draft without story mutation',async({page})=>{
   const requests=await setup(page);
@@ -86,7 +89,7 @@ test('unsupported model, broken input and provider failure retain draft without 
   await page.evaluate(()=>{App.config.api.model='fixture-vision'});
   await page.route('https://vision.example.test/**',route=>route.fulfill({status:400,contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify({error:{message:'unsupported image input'}})}));
   await page.locator('[data-send-message]').click();
-  await expect(page.locator('#chat-stream')).toContainText('圖片請求失敗');
+  await expect(page.locator('#bao-chat-send-feedback')).toContainText('圖片請求失敗');
   await expect(page.locator('#user-input')).toHaveValue('不要遺失的文字');
   await expect(page.locator('#story-image-panel img')).toBeVisible();
   expect(await page.evaluate(()=>Chat.messages.length)).toBe(1);
@@ -110,14 +113,21 @@ test('IDB and quota failure retain image turn and backup, retry recovers',async(
   await setup(page);await select(page);await send(page);
   const result=await page.evaluate(async()=>{
     const before=JSON.stringify(await Storage._getAllRecords());
-    const idb=Storage._persistOperationIndexedDB,fallback=Storage._persistFallbackSnapshot;
+    const idb=Storage._persistOperationIndexedDB,fallback=Storage._persistFallbackSnapshot,library=BAOStoryLibrary.persist;
     Storage._persistOperationIndexedDB=async()=>{throw new Error('fixture denied')};
     Storage._persistFallbackSnapshot=()=>{throw new DOMException('full','QuotaExceededError')};
+    BAOStoryLibrary.persist=async()=>{throw new Error('fixture library denied')};
     Chat.add('user','後續文字');Chat.add('assistant','後續回覆');
     App.saveStory(false);const failed=await BAOStorageWriteGuard.whenIdle();
     const backup=Storage.buildStoryPayload();
-    const durable=JSON.stringify(await Storage._getAllRecords());
-    Storage._persistOperationIndexedDB=idb;Storage._persistFallbackSnapshot=fallback;
+    // The failure closes Storage._db; its cache-oriented helper now returns [].
+    // Open a fresh read-only connection to assert the actual durable records.
+    const db=await Storage._openDatabase();
+    const durable=JSON.stringify(await new Promise((resolve,reject)=>{
+      const read=db.transaction(Storage.dbStore,'readonly').objectStore(Storage.dbStore).getAll();
+      read.onsuccess=()=>resolve(read.result);read.onerror=()=>reject(read.error);
+    }));db.close();
+    Storage._persistOperationIndexedDB=idb;Storage._persistFallbackSnapshot=fallback;BAOStoryLibrary.persist=library;
     await BAOStorageWriteGuard.retry();const retry=await BAOStorageWriteGuard.whenIdle();
     return {failed,retry,priorIntact:before===durable,image:backup.chat.messages[1].storyImage.data,reloaded:Storage.loadStory().chat.messages[1].storyImage.data,length:Chat.messages.length};
   });
@@ -153,4 +163,34 @@ test('long story image turn keeps the player reading anchor',async({page})=>{
     return {top:player.top-reader.top,overflow:document.documentElement.scrollWidth>innerWidth};
   });
   expect(geometry.overflow).toBe(false);expect(geometry.top).toBeGreaterThanOrEqual(-1);expect(geometry.top).toBeLessThan(60);
+});
+
+test('offline preview and unconfirmed route never pretend to see a photo',async({page})=>{
+  const requests=await setup(page);await select(page);
+  await page.locator('#user-input').fill('看得到嗎？');
+  await page.evaluate(()=>{App.config.demoMode=true});
+  await page.locator('[data-send-message]').click();
+  await expect(page.locator('#story-image-status')).toContainText('離線預覽無法理解圖片');
+  await page.evaluate(()=>{App.config.demoMode=false;delete App.config.api.visionConfirmedRoute});
+  await page.locator('[data-send-message]').click();
+  await expect(page.locator('#story-image-status')).toContainText('尚未確認');
+  await expect(page.locator('#story-image-panel input[type="checkbox"]')).toBeVisible();
+  expect(requests).toHaveLength(0);
+  expect(await page.evaluate(()=>Chat.messages.length)).toBe(1);
+  await expect(page.locator('#user-input')).toHaveValue('看得到嗎？');
+  await page.locator('#story-image-panel input[type="checkbox"]').check();
+  await send(page,'只有 A 看照片');
+  expect(requests.some(r=>Array.isArray(r.messages.at(-1).content))).toBe(true);
+});
+
+test('image preview leaves the composer usable in a short phone viewport',async({page})=>{
+  await setup(page,390);await page.setViewportSize({width:390,height:420});
+  await select(page);
+  const geometry=await page.evaluate(()=>{
+    const input=document.getElementById('user-input').getBoundingClientRect();
+    const send=document.querySelector('[data-send-message]').getBoundingClientRect();
+    const point=document.elementFromPoint(input.x+input.width/2,input.y+input.height/2);
+    return {inputBottom:input.bottom,inputTop:input.top,sendBottom:send.bottom,hit:point===document.getElementById('user-input'),overflow:document.documentElement.scrollWidth>innerWidth};
+  });
+  expect(geometry.inputTop).toBeGreaterThanOrEqual(0);expect(geometry.inputBottom).toBeLessThanOrEqual(422);expect(geometry.sendBottom).toBeLessThanOrEqual(422);expect(geometry.hit).toBe(true);expect(geometry.overflow).toBe(false);
 });

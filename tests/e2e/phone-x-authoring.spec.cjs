@@ -39,6 +39,9 @@ test('studio X form creates multi-author posts, replies and retains old data on 
   await page.waitForFunction(()=>window.BAOCharacterStudioPhoneBuilder && window.BAOStudioSimpleCreate);
   await page.getByRole('button',{name:'全部欄位'}).click();
   await page.locator('.studio-draft').filter({hasText:'校慶社群'}).click();
+  // Selecting a draft awaits IndexedDB before showCard restores the form.
+  await expect(page.locator('[name=id]')).toHaveValue('x-posts-e2e');
+  await expect(page.locator('[name=phone_ui_enabled]')).toBeChecked();
   const after=await page.evaluate(()=>BAOCharacterStudio.toExport().presentation.phone_ui);
   expect(after.tweets[2].replyTo).toBe(first.id);
   expect(after.tweets[1].sourceKind).toBe('witness');
