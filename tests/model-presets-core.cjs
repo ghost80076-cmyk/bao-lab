@@ -164,6 +164,10 @@ assert.equal(requireModel('claude-sonnet-4.5').deprecated.retirement,'2026-11-30
 
 const hosted = registry.models.filter(model => model.hosted).sort((a, b) => a.hosted.order - b.hosted.order);
 assert.equal(hosted.length, 23, 'expected twenty-three curated YoruBay hosted models');
+for (const model of hosted) {
+  assert.doesNotMatch(model.hosted.label, /OpenRouter|官方|自訂|Base URL/, `${model.id}: hosted labels must never expose provider connection modes`);
+}
+assert.match(requireModel('claude-sonnet-4.5').hosted.label, /退役/, 'legacy Sonnet retirement warning stays visible');
 const hostedResolved = hosted.map(model => {
   const route = model.routes.find(item => item.id === model.hosted.route_id);
   assert.ok(route, `${model.id} hosted route must resolve inside the same logical model`);
