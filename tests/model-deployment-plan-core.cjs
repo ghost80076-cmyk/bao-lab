@@ -210,12 +210,17 @@ const rollout = fs.readdirSync(rolloutDir)
   .filter(name => name.endsWith(".json"))
   .sort()
   .flatMap(name => JSON.parse(fs.readFileSync(path.join(rolloutDir, name), "utf8")));
-const extraByKey = new Map(
-  allEntries.filter(entry => entry.provider === "openrouter").map(entry => [keyOf(entry), entry])
+const rolloutKeys = new Set(rollout.map(keyOf));
+assert.equal(rolloutKeys.size, rollout.length, "rollout entries must be unique");
+const rolloutByKey = new Map(
+  allEntries.filter(entry => rolloutKeys.has(keyOf(entry))).map(entry => [keyOf(entry), entry])
 );
-assert.equal(rollout.length, extraByKey.size);
+assert.equal(rollout.length, rolloutByKey.size, "all rollout entries must exist across both bindings");
 for (const entry of rollout) {
-  assert.deepEqual(extraByKey.get(keyOf(entry)), entry);
+  assert.deepEqual(rolloutByKey.get(keyOf(entry)), entry);
+}
+for (const entry of plan.cloudflare.MODELS_JSON_EXTRA.entries) {
+  assert.ok(rolloutKeys.has(keyOf(entry)), "every extra binding entry must have a rollout: " + keyOf(entry));
 }
 
 assert.equal(toMicrousd(0.00255, "test"), 2550);
