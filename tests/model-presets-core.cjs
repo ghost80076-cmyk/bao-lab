@@ -121,8 +121,23 @@ assert.equal(zai.base_url, 'https://api.z.ai/api/paas/v4/chat/completions');
 assert.equal(zai.cache, 'automatic');
 assert.equal(zai.pricing, null, 'Z.AI volatile pricing must not be hardcoded');
 
+const glmOfficial = requireRoute('glm-5.2', 'zai-official');
+assert.equal(glmOfficial.provider, 'zai');
+assert.equal(glmOfficial.model, 'glm-5.2');
+assert.equal(glmOfficial.base_url, zai.base_url);
+assert.equal(glmOfficial.protocol, 'openai');
+assert.equal(glmOfficial.cache, 'automatic');
+assert.deepEqual([glmOfficial.pricing.input, glmOfficial.pricing.output, glmOfficial.pricing.cache], [1.4, 4.4, 0.26]);
+const glmRouter = requireRoute('glm-5.2', 'openrouter');
+assert.equal(glmRouter.model, 'z-ai/glm-5.2');
+assert.equal(glmRouter.worker.binding, 'MODELS_JSON_EXTRA');
+assert.equal(glmRouter.worker.aws_openrouter_relay, true);
+assert.deepEqual(glmRouter.worker.openrouter_max_price, { prompt: 1.4, completion: 4.4 });
+assert.deepEqual(requireModel('glm-5.2').capabilities, { contextWindowTokens: 1000000, maxOutputTokens: 131072 });
+assert.equal(requireModel('glm-5.2').hosted.route_id, 'openrouter');
+
 const hosted = registry.models.filter(model => model.hosted).sort((a, b) => a.hosted.order - b.hosted.order);
-assert.equal(hosted.length, 17, 'expected seventeen curated YoruBay hosted models');
+assert.equal(hosted.length, 18, 'expected eighteen curated YoruBay hosted models');
 const hostedResolved = hosted.map(model => {
   const route = model.routes.find(item => item.id === model.hosted.route_id);
   assert.ok(route, `${model.id} hosted route must resolve inside the same logical model`);
@@ -137,6 +152,7 @@ assert.deepEqual(hostedResolved, [
   { id: 'gemini-3-flash', provider: 'gemini', model: 'gemini-3-flash-preview' },
   { id: 'gemini-3.8-flash', provider: 'gemini', model: 'gemini-3.8-flash' },
   { id: 'minimax-m3', provider: 'openrouter', model: 'minimax/minimax-m3' },
+  { id: 'glm-5.2', provider: 'openrouter', model: 'z-ai/glm-5.2' },
   { id: 'gpt-5.6-luna', provider: 'openrouter', model: 'openai/gpt-5.6-luna' },
   { id: 'grok-4.5', provider: 'openrouter', model: 'x-ai/grok-4.5' },
   { id: 'gemini-3.1-pro', provider: 'gemini', model: 'gemini-3.1-pro-preview' },
