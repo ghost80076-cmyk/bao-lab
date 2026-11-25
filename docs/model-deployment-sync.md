@@ -45,3 +45,11 @@ the AWS relay's `OPENROUTER_MODELS` process environment.
 - A service health check here validates `systemctl is-active` and the live
   process allowlist. It does not prove the upstream provider will successfully
   answer a paid inference request.
+
+## Cloudflare per-binding text capacity (2026-11-26)
+- One `plain_text` model JSON binding is limited to roughly 5.1 KB by Cloudflare.
+- `build-model-deployment-plan.cjs` now fails at 5000 UTF-8 bytes per binding, before a real AWS or Cloudflare update.
+- The new GLM-5.2, DeepSeek V4.1, Gemini 4 Hydrogen and Neon entries have been rebalanced to the existing `MODELS_JSON` binding. The two new GPT-6 hosted models remain in `MODELS_JSON_EXTRA`.
+- This rebalancing does not remove model IDs, alter billing rates, change Worker runtime code, or modify credentials.
+- If apply fails following a completed AWS update, verify automatic AWS compensation before rerunning.
+- After merging a capacity repair, run a **new main dry-run** and use its fresh `REVIEWED_MAIN_SHA` and `CURRENT_SHA256`. Never reuse values from a prior commit.

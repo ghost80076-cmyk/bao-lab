@@ -130,7 +130,7 @@ assert.equal(glmOfficial.cache, 'automatic');
 assert.deepEqual([glmOfficial.pricing.input, glmOfficial.pricing.output, glmOfficial.pricing.cache], [1.4, 4.4, 0.26]);
 const glmRouter = requireRoute('glm-5.2', 'openrouter');
 assert.equal(glmRouter.model, 'z-ai/glm-5.2');
-assert.equal(glmRouter.worker.binding, 'MODELS_JSON_EXTRA');
+assert.equal(glmRouter.worker.binding, 'MODELS_JSON');
 assert.equal(glmRouter.worker.aws_openrouter_relay, true);
 assert.deepEqual(glmRouter.worker.openrouter_max_price, { prompt: 1.4, completion: 4.4 });
 assert.deepEqual(requireModel('glm-5.2').capabilities, { contextWindowTokens: 1000000, maxOutputTokens: 131072 });

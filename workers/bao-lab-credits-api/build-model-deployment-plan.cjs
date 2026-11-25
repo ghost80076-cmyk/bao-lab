@@ -218,6 +218,19 @@ function buildModelDeploymentPlan(registry) {
   }
 
   const uniqueRelayModels = [...new Set(relayModels)];
+  // Cloudflare limits a single text binding to ~5 KiB. Fail locally with
+  // a safety margin before any AWS allowlist or Worker deployment changes.
+  const MAX_BINDING_BYTES = 5000;
+  const cloudflare = Object.fromEntries(
+    Object.entries(bindings).map(([name, entries]) => {
+      const value_json = JSON.stringify(entries);
+      const bytes = Buffer.byteLength(value_json, "utf8");
+      if (bytes > MAX_BINDING_BYTES) {
+        throw new Error(`${name} exceeds ${MAX_BINDING_BYTES}-byte Cloudflare binding budget (${bytes} bytes); rebalance registry worker.binding entries`);
+      }
+      return [name, { entries, value_json }];
+    })
+  );
 
   return {
     schema: "yorubay-worker-model-deployment-plan/v1",
@@ -230,16 +243,7 @@ function buildModelDeploymentPlan(registry) {
       provider: route.entry.provider,
       model: route.entry.model,
     })),
-    cloudflare: {
-      MODELS_JSON: {
-        entries: bindings.MODELS_JSON,
-        value_json: JSON.stringify(bindings.MODELS_JSON),
-      },
-      MODELS_JSON_EXTRA: {
-        entries: bindings.MODELS_JSON_EXTRA,
-        value_json: JSON.stringify(bindings.MODELS_JSON_EXTRA),
-      },
-    },
+    cloudflare,
     aws: {
       variable: "OPENROUTER_MODELS",
       entries: uniqueRelayModels,
