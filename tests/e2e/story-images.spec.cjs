@@ -49,9 +49,10 @@ for (const width of [320,390,834,1440]) test(`select replace remove send and por
   await select(page);
   const geometry=await page.evaluate(()=>{
     const pick=document.getElementById('story-image-pick').getBoundingClientRect(),input=document.getElementById('user-input').getBoundingClientRect();
-    return {overflow:document.documentElement.scrollWidth>innerWidth,pick:[pick.width,pick.height],inputBottom:input.bottom};
+    return {overflow:document.documentElement.scrollWidth>innerWidth,pick:[pick.width,pick.height],inputBottom:input.bottom,rowDifference:Math.abs(pick.bottom-input.bottom)};
   });
   expect(geometry.overflow).toBe(false);expect(geometry.pick[0]).toBeGreaterThanOrEqual(44);expect(geometry.pick[1]).toBeGreaterThanOrEqual(44);expect(geometry.inputBottom).toBeLessThanOrEqual(902);
+  expect(geometry.rowDifference).toBeLessThanOrEqual(2);
   await test.info().attach('image-preview-'+width,{body:await page.screenshot(),contentType:'image/png'});
   await send(page,width===320?'':'只有 A 看到這張房間照片，哪裡不對勁？');
   const request=requests.find(r=>Array.isArray(r.messages?.at(-1)?.content));

@@ -1,6 +1,7 @@
 #chat-view .composer { flex-wrap:wrap; }
 #chat-view #story-image-file[hidden] { display:none!important; }
-#chat-view #story-image-pick { min-width:44px; min-height:44px; padding:6px; flex:0 0 44px; }
+#chat-view #story-image-pick { min-width:44px; min-height:44px; padding:4px; flex:0 0 44px; font-size:12px; white-space:nowrap; align-self:flex-end; }
+#chat-view .composer:has(#story-image-pick) textarea { flex:1 1 0; width:0; min-width:0; }
 #chat-view #story-image-panel { order:-2; flex:0 0 100%; display:flex; gap:10px; max-height:115px; overflow:auto; font-size:12px; line-height:1.5; }
 #chat-view #story-image-panel[hidden], #chat-view #story-image-panel [hidden], #chat-view #story-image-status[hidden] { display:none!important; }
 #story-image-panel>img { width:72px; height:72px; object-fit:contain; flex:none; border-radius:8px; background:var(--yoru-tool); }
