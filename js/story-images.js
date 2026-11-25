@@ -44,7 +44,7 @@
     const input = document.createElement('input'); input.type = 'file'; input.hidden = true;
     input.id = 'story-image-file'; input.accept = 'image/jpeg,image/png,image/webp';
     const panel = document.createElement('div'); panel.id = 'story-image-panel'; panel.hidden = true;
-    panel.innerHTML = '<img alt="待傳送圖片預覽" hidden><div><button type="button" class="secondary" data-image-remove>移除圖片</button><label hidden><input type="checkbox">我已確認目前模型與中轉支援 Vision 圖片輸入</label><small>圖片隨故事保存在本機（若啟用 Drive 同步，亦會隨備份同步）；按送出才交給所選模型供應商（本地模型則留在本地端點）。圖片可能增加 Token 費用，依模型與解析度計費。每次 1 張、原檔 8 MB 內，縮至最長 1280px；每段最多 20 張。舊圖片不會每輪重送；需再檢視時請重新選圖。請在文字中說明誰能看到圖片。</small></div>';
+    panel.innerHTML = '<img alt="待傳送圖片預覽" hidden><div><button type="button" class="secondary" data-image-remove>移除圖片</button><label hidden><input type="checkbox">我已確認目前模型與中轉支援 Vision 圖片輸入</label><small>圖片隨故事保存在本機（若啟用 Drive 同步，亦會隨備份同步）；按送出才交給所選模型供應商（本地模型則留在本地端點）。圖片可能增加 Token 費用，依模型與解析度計費。每次 1 張、原檔 8 MB 內，縮至最長 1280px；每段最多 20 張／約 2 MB。舊圖片不會每輪重送；需再檢視時請重新選圖。請在文字中說明誰能看到圖片。</small></div>';
     const notice = document.createElement('p'); notice.id = 'story-image-status'; notice.hidden = true; notice.setAttribute('aria-live', 'polite');
     composer.prepend(panel, notice, pick, input);
     pick.addEventListener('click', () => { if (!App.__requestPending) input.click(); });

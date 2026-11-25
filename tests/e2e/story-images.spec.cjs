@@ -4,13 +4,13 @@ async function ready(page) {
   await page.waitForFunction(()=>window.BAOExtensionLoadHealth?.snapshot().story==='ready'
     && BAOExtensionLoadHealth.snapshot().world==='ready' && Storage.status().ready && window.BAOStoryImages && window.BAOStoryBackup);
 }
-async function setup(page,width=390) {
+async function setup(page,width=390,reply='A 看著照片，指出門邊的陰影。B 尚未見過照片。') {
   await page.setViewportSize({width,height:900});
   const requests=[];
   await page.route('https://vision.example.test/**',async route=>{
     if (route.request().method()==='OPTIONS') return route.fulfill({status:204,headers:{'access-control-allow-origin':'*','access-control-allow-headers':'*'}});
     requests.push(route.request().postDataJSON());
-    await route.fulfill({contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify({choices:[{message:{content:'A 看著照片，指出門邊的陰影。B 尚未見過照片。'},finish_reason:'stop'}],usage:{prompt_tokens:120,completion_tokens:20,total_tokens:140}})});
+    await route.fulfill({contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify({choices:[{message:{content:reply},finish_reason:'stop'}],usage:{prompt_tokens:120,completion_tokens:20,total_tokens:140}})});
   });
   await page.goto('/');await ready(page);
   await page.evaluate(()=>{
@@ -150,7 +150,9 @@ test('JPEG and WebP decode locally; huge dimensions and file size preserve draft
   expect(requests).toHaveLength(0);
 });
 test('long story image turn keeps the player reading anchor',async({page})=>{
-  await setup(page,390);
+  // The existing reader deliberately releases its placeholder after completion;
+  // short replies clamp naturally to the bottom. Exercise a genuinely long reply.
+  await setup(page,390,('A 只向看過照片的人描述門邊的陰影，等候玩家回應。\n').repeat(40));
   await page.evaluate(()=>{
     for(let i=0;i<60;i++){Chat.add('user','歷史問題 '+i);Chat.add('assistant',('長篇正文與已知情節。\n').repeat(30))}
     App.renderChatShell(false);

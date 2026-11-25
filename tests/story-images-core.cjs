@@ -20,12 +20,16 @@ assert.equal(Core.capability({model:'gpt-4o',baseUrl:'https://api.openai.com/v1/
 const png = Buffer.from(image.data.split(',')[1], 'base64');
 assert.deepEqual(Core.dimensions(png.buffer.slice(png.byteOffset, png.byteOffset+png.length),'image/png'),{width:1,height:1});
 const bomb=Buffer.from(png);bomb.writeUInt32BE(50000,16);bomb.writeUInt32BE(50000,20);
+assert.throws(()=>Core.validate({...image,data:'data:image/png;base64,'+bomb.toString('base64')}),/內容或尺寸/);
+assert.throws(()=>Core.validate({...image,width:2}),/內容或尺寸/);
+const mutable={...image};Core.validate(mutable);mutable.width=2;
+assert.throws(()=>Core.validate(mutable),/內容或尺寸/,'validation cache must not trust mutated metadata');
 assert.throws(()=>Core.dimensions(bomb.buffer.slice(bomb.byteOffset,bomb.byteOffset+bomb.length),'image/png'),/3,200/);
 assert.throws(()=>Core.dimensions(new ArrayBuffer(0),'image/jpeg'),/無法解碼/);
 const messages = [{role:'system',content:'Existing world and player agency rules'},{role:'user',content:'Only A can see this room.'}];
 const original = JSON.stringify(messages);
 const calls = [], inspected = [];
-const c = {console,URL,AbortController,TextDecoder,TextEncoder,setTimeout,clearTimeout,
+const c = {console,URL,atob,AbortController,TextDecoder,TextEncoder,setTimeout,clearTimeout,
   document:{getElementById:()=>null,querySelector:()=>null},
   GameState:{current:{}},App:{config:{api:cloud},wrapRenderChatShell(){}},
   fetch:async (url,init)=>{

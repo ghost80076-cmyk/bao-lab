@@ -6,6 +6,7 @@
 })(typeof window !== 'undefined' ? window : null, function() {
   'use strict';
   const MAX_DATA = 270000, MAX_TOTAL = 2700000, MAX_COUNT = 20, MAX_EDGE = 1280;
+  const checkedImages = new WeakMap();
   const failure = text => Object.assign(new Error(text), { code: 'BAO_IMAGE_INVALID' });
   function dimensions(buffer, mime) {
     const bytes = new Uint8Array(buffer), view = new DataView(buffer);
@@ -41,12 +42,24 @@
     return {width,height};
   }
   function validate(image) {
+    const checked = image && typeof image === 'object' && checkedImages.get(image);
+    if (checked && image.version === checked.version && image.data === checked.data
+        && image.width === checked.width && image.height === checked.height) return { ...checked };
     if (!image || image.version !== 1 || typeof image.data !== 'string' || image.data.length > MAX_DATA
         || !/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(image.data)
         || !Number.isInteger(image.width) || !Number.isInteger(image.height)
         || image.width < 1 || image.height < 1 || image.width > MAX_EDGE || image.height > MAX_EDGE)
       throw failure('圖片附件格式或大小不符；請重新選擇圖片，原有故事未被替換。');
-    return { version: 1, data: image.data, width: image.width, height: image.height };
+    // Portable imports must not disguise a huge encoded image with tiny metadata.
+    try {
+      const [header, encoded] = image.data.split(',');
+      const decoded = atob(encoded), bytes = Uint8Array.from(decoded, c => c.charCodeAt(0));
+      const actual = dimensions(bytes.buffer, header.slice(5, header.indexOf(';')));
+      if (actual.width !== image.width || actual.height !== image.height) throw new Error('dimension mismatch');
+    } catch { throw failure('圖片附件內容或尺寸不符；請重新選擇圖片，原有故事未被替換。'); }
+    const valid = { version: 1, data: image.data, width: image.width, height: image.height };
+    checkedImages.set(image, valid);
+    return { ...valid };
   }
   function validateMessages(messages) {
     let total = 0, count = 0;

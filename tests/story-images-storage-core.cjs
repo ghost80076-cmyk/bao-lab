@@ -3,9 +3,9 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const {Database} = require('./storage-multitab-core.cjs');
 const read = file => fs.readFileSync(require('node:path').join(__dirname,'../js',file),'utf8');
-const image = {version:1,width:1,height:1,data:'data:image/png;base64,aGVsbG8='};
+const image = {version:1,width:1,height:1,data:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wl6AAAAAElFTkSuQmCC'};
 function tab(db) {
-  const c={structuredClone,console:{warn(){}},localStorage:{getItem:()=>null,setItem(){},removeItem(){}}};
+  const c={structuredClone,atob,console:{warn(){}},localStorage:{getItem:()=>null,setItem(){},removeItem(){}}};
   c.window=c;vm.createContext(c);
   vm.runInContext(read('story-images-core.js'),c);
   vm.runInContext(read('storage.js').replace(/Storage\.init\(\);\s*$/,'')+'\nwindow.Storage=Storage;',c);
