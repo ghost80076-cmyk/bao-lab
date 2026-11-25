@@ -11,6 +11,32 @@
     && chat.classList.contains('active');
   const userMessages = () => [...stream.querySelectorAll(':scope > .message.user')];
   let activeTurn = null;
+  let releaseImageAnchor = () => {};
+  const relativeTop = node => node.getBoundingClientRect().top - stream.getBoundingClientRect().top;
+
+  // WebKit can reflow the preceding transcript when the reader decorates it.
+  // Follow the actual message through that repaint, releasing on player input.
+  function preserveImageAnchor(turn) {
+    if (!turn.player.querySelector?.('.story-message-image') || typeof MutationObserver !== 'function') return;
+    const correct = () => {
+      if (!turn.isCurrent() || !turn.player.isConnected || !chat.classList.contains('active')) return stop();
+      const delta = relativeTop(turn.player) - turn.beforeCommitOffset;
+      if (Math.abs(delta) > 1) stream.scrollTop += delta;
+    };
+    const observer = new MutationObserver(correct);
+    const events = ['wheel', 'pointerdown', 'touchstart', 'keydown'];
+    const stop = () => {
+      observer.disconnect();
+      clearTimeout(timer);
+      events.forEach(type => document.removeEventListener(type, stop, true));
+      releaseImageAnchor = () => {};
+    };
+    const timer = setTimeout(stop, 500);
+    releaseImageAnchor = stop;
+    events.forEach(type => document.addEventListener(type, stop, {capture:true, passive:true}));
+    observer.observe(stream, {childList:true, subtree:true});
+    correct();
+  }
 
   // Capture the player's *current* reading position just before App commits
   // the completed response. App's legacy sendMessage scrolls to the bottom at
@@ -22,7 +48,10 @@
     if (turn?.isCurrent()) turn.anchor();
     try { return await next(config, ...args); }
     finally {
-      if (turn && activeTurn === turn && turn.isCurrent()) turn.beforeCommitTop = stream.scrollTop;
+      if (turn && activeTurn === turn && turn.isCurrent() && turn.player) {
+        turn.beforeCommitTop = stream.scrollTop;
+        turn.beforeCommitOffset = relativeTop(turn.player);
+      }
     }
   };
   if (typeof API.wrapSend === 'function') {
@@ -46,6 +75,7 @@
     if (!chat.classList.contains('active') || (!input?.value.trim() && !window.BAOStoryImages?.hasDraft?.()) || activeTurn) {
       return next(...args);
     }
+    releaseImageAnchor();
     const before = new Set(userMessages());
     const turn = { beforeCommitTop: null, player: null, pending: null, isCurrent };
     activeTurn = turn;
@@ -75,10 +105,11 @@
     turn.anchor();
     try { return await operation; }
     finally {
-      if (isCurrent() && turn.player?.isConnected && turn.beforeCommitTop !== null) {
-        stream.scrollTop = turn.beforeCommitTop;
-      }
       if (isCurrent() && turn.pending?.isConnected) turn.pending.style.minHeight = '';
+      if (isCurrent() && turn.player?.isConnected && turn.beforeCommitTop !== null) {
+        stream.scrollTop += relativeTop(turn.player) - turn.beforeCommitOffset;
+        preserveImageAnchor(turn);
+      }
       if (activeTurn === turn) activeTurn = null;
     }
   };

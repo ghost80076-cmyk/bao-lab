@@ -814,6 +814,76 @@
       ]
     },
     {
+      "id": "glm-5.2",
+      "name": "GLM-5.2",
+      "capabilities": {
+        "contextWindowTokens": 1000000,
+        "maxOutputTokens": 131072
+      },
+      "routes": [
+        {
+          "id": "zai-official",
+          "provider": "zai",
+          "provider_label": "Z.AI / GLM 官方",
+          "route": "official",
+          "protocol": "openai",
+          "label": "GLM-5.2 · 長篇推理",
+          "model": "glm-5.2",
+          "base_url": "https://api.z.ai/api/paas/v4/chat/completions",
+          "badge": "長篇推理",
+          "use_case": "玩家自備 Z.AI API Key；長篇故事與世界模擬，純文字模型（不支援圖片輸入）。",
+          "cache": "automatic",
+          "pricing": {
+            "input": 1.4,
+            "output": 4.4,
+            "cache": 0.26,
+            "note": "Z.AI 官方公開按量價格（2026-11-25）。"
+          },
+          "docs_url": "https://docs.z.ai/guides/llm/glm-5.2"
+        },
+        {
+          "id": "openrouter",
+          "provider": "openrouter",
+          "provider_label": "OpenRouter",
+          "route": "router",
+          "protocol": "openai",
+          "label": "OR · GLM-5.2",
+          "model": "z-ai/glm-5.2",
+          "base_url": "https://openrouter.ai/api/v1/chat/completions",
+          "badge": "長篇推理",
+          "use_case": "玩家自備 OpenRouter API Key；純文字長篇推理，實際文風與限制由玩家自行比較。",
+          "cache": "provider-dependent",
+          "pricing": {
+            "input": 1.4,
+            "output": 4.4,
+            "cache": 0.26,
+            "note": "Z.ai 供應商代表價（2026-11-25）；OpenRouter 實際依路由供應商計價。夜灣 Hosted 使用獨立價格上限。"
+          },
+          "docs_url": "https://openrouter.ai/z-ai/glm-5.2",
+          "worker": {
+            "binding": "MODELS_JSON_EXTRA",
+            "aws_openrouter_relay": true,
+            "openrouter_max_price": {
+              "prompt": 1.4,
+              "completion": 4.4
+            },
+            "pricing": {
+              "input": 1.4,
+              "output": 4.4,
+              "cache": 0.26
+            }
+          }
+        }
+      ],
+      "hosted": {
+        "route_id": "openrouter",
+        "tier": "長篇推理",
+        "label": "【長篇推理】GLM-5.2",
+        "use_case": "玩家指定；純文字長篇故事與世界模擬，使用夜灣 OpenRouter 燈火路徑。",
+        "order": 52
+      }
+    },
+    {
       "id": "zai-custom",
       "name": "Z.AI / GLM",
       "routes": [

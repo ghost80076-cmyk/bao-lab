@@ -18,5 +18,5 @@
   #chat-view .composer:has(#story-image-panel:not([hidden])) #bao-mobile-composer-inspire { display:none!important; }
 }
 @media(max-width:360px) {
-  #chat-view .composer:has(#story-image-pick) { gap:2px!important; padding-inline:8px!important; }
+  #chat-view .composer:has(#story-image-pick) { gap:1px!important; padding-inline:3px!important; }
 }
