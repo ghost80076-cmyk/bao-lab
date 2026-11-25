@@ -287,6 +287,206 @@
       }
     },
     {
+      "id": "gemini-4-hydrogen",
+      "name": "Gemini 4 Hydrogen",
+      "routes": [
+        {
+          "id": "google-official",
+          "provider": "gemini",
+          "provider_label": "Google Gemini 官方",
+          "route": "official",
+          "protocol": "gemini",
+          "label": "Gemini 4 Hydrogen · 官方",
+          "model": "gemini-4-hydrogen",
+          "base_url": "https://generativelanguage.googleapis.com/v1beta/models",
+          "badge": "新版",
+          "use_case": "官方標準價；Gemini 4 僅隱式快取，thinking_budget 不支援。",
+          "cache": "automatic",
+          "pricing": {
+            "input": 1.5,
+            "output": 7.5,
+            "cache": 0.075
+          },
+          "docs_url": "https://ai.google.dev/gemini-api/docs/pricing"
+        },
+        {
+          "id": "openrouter",
+          "provider": "openrouter",
+          "provider_label": "OpenRouter",
+          "route": "router",
+          "protocol": "openai",
+          "label": "OR · Gemini 4 Hydrogen",
+          "model": "google/gemini-4-hydrogen",
+          "base_url": "https://openrouter.ai/api/v1/chat/completions",
+          "badge": "新版",
+          "use_case": "官方標準價；Gemini 4 僅隱式快取，thinking_budget 不支援。 OpenRouter 依供應商不同價格可能變動。",
+          "cache": "provider-dependent",
+          "pricing": {
+            "input": 1.5,
+            "output": 7.5,
+            "cache": 0.075
+          },
+          "docs_url": "https://openrouter.ai/google/gemini-4-hydrogen",
+          "worker": {
+            "binding": "MODELS_JSON_EXTRA",
+            "aws_openrouter_relay": true,
+            "openrouter_max_price": {
+              "prompt": 1.5,
+              "completion": 7.5
+            },
+            "pricing": {
+              "input": 1.5,
+              "output": 7.5,
+              "cache": 0.075
+            }
+          }
+        }
+      ],
+      "hosted": {
+        "route_id": "openrouter",
+        "tier": "Gemini 高效率",
+        "label": "【Gemini 高效率】Gemini 4 Hydrogen",
+        "use_case": "採 OpenRouter 燈火路由；需部署 Worker/AWS 白名單與付費連線驗收。",
+        "order": 41
+      }
+    },
+    {
+      "id": "gemini-4-carbon",
+      "name": "Gemini 4 Carbon",
+      "routes": [
+        {
+          "id": "google-official",
+          "provider": "gemini",
+          "provider_label": "Google Gemini 官方",
+          "route": "official",
+          "protocol": "gemini",
+          "label": "Gemini 4 Carbon · 官方",
+          "model": "gemini-4-carbon",
+          "base_url": "https://generativelanguage.googleapis.com/v1beta/models",
+          "badge": "新版",
+          "use_case": "官方 2026/11/30 前優惠 Input $2/M、Output $10/M；2026/12/1 起 $4/M、$20/M，為避免價格過期暫不寫死單價。",
+          "cache": "automatic",
+          "pricing": null,
+          "docs_url": "https://ai.google.dev/gemini-api/docs/pricing"
+        },
+        {
+          "id": "openrouter",
+          "provider": "openrouter",
+          "provider_label": "OpenRouter",
+          "route": "router",
+          "protocol": "openai",
+          "label": "OR · Gemini 4 Carbon",
+          "model": "google/gemini-4-carbon",
+          "base_url": "https://openrouter.ai/api/v1/chat/completions",
+          "badge": "新版",
+          "use_case": "官方 2026/11/30 前優惠 Input $2/M、Output $10/M；2026/12/1 起 $4/M、$20/M，為避免價格過期暫不寫死單價。 OpenRouter 依供應商不同價格可能變動。",
+          "cache": "provider-dependent",
+          "pricing": null,
+          "docs_url": "https://openrouter.ai/google/gemini-4-carbon"
+        }
+      ]
+    },
+    {
+      "id": "gemini-4-argon",
+      "name": "Gemini 4 Argon",
+      "routes": [
+        {
+          "id": "google-official",
+          "provider": "gemini",
+          "provider_label": "Google Gemini 官方",
+          "route": "official",
+          "protocol": "gemini",
+          "label": "Gemini 4 Argon · 官方",
+          "model": "gemini-4-argon",
+          "base_url": "https://generativelanguage.googleapis.com/v1beta/models",
+          "badge": "新版",
+          "use_case": "官方 2026/11/30 前優惠 Input $2/M、Output $10/M；2026/12/1 起 $4/M、$20/M，為避免價格過期暫不寫死單價。",
+          "cache": "automatic",
+          "pricing": null,
+          "docs_url": "https://ai.google.dev/gemini-api/docs/pricing"
+        },
+        {
+          "id": "openrouter",
+          "provider": "openrouter",
+          "provider_label": "OpenRouter",
+          "route": "router",
+          "protocol": "openai",
+          "label": "OR · Gemini 4 Argon",
+          "model": "google/gemini-4-argon",
+          "base_url": "https://openrouter.ai/api/v1/chat/completions",
+          "badge": "新版",
+          "use_case": "官方 2026/11/30 前優惠 Input $2/M、Output $10/M；2026/12/1 起 $4/M、$20/M，為避免價格過期暫不寫死單價。 OpenRouter 依供應商不同價格可能變動。",
+          "cache": "provider-dependent",
+          "pricing": null,
+          "docs_url": "https://openrouter.ai/google/gemini-4-argon"
+        }
+      ]
+    },
+    {
+      "id": "gemini-4-neon",
+      "name": "Gemini 4 Neon",
+      "routes": [
+        {
+          "id": "google-official",
+          "provider": "gemini",
+          "provider_label": "Google Gemini 官方",
+          "route": "official",
+          "protocol": "gemini",
+          "label": "Gemini 4 Neon · 官方",
+          "model": "gemini-4-neon",
+          "base_url": "https://generativelanguage.googleapis.com/v1beta/models",
+          "badge": "新旗艦",
+          "use_case": "Gemini 4 Neon；僅支援隱式快取與 thinking_level，不支援舊 thinking_budget。",
+          "cache": "automatic",
+          "pricing": {
+            "input": 3,
+            "output": 15,
+            "cache": 0.15
+          },
+          "docs_url": "https://ai.google.dev/gemini-api/docs/pricing"
+        },
+        {
+          "id": "openrouter",
+          "provider": "openrouter",
+          "provider_label": "OpenRouter",
+          "route": "router",
+          "protocol": "openai",
+          "label": "OR · Gemini 4 Neon",
+          "model": "google/gemini-4-neon",
+          "base_url": "https://openrouter.ai/api/v1/chat/completions",
+          "badge": "新旗艦",
+          "use_case": "玩家自備 OpenRouter API Key；路由供應商價格不同。",
+          "cache": "provider-dependent",
+          "pricing": {
+            "input": 3,
+            "output": 15,
+            "cache": 0.15
+          },
+          "docs_url": "https://openrouter.ai/google/gemini-4-neon",
+          "worker": {
+            "binding": "MODELS_JSON_EXTRA",
+            "aws_openrouter_relay": true,
+            "openrouter_max_price": {
+              "prompt": 3,
+              "completion": 15
+            },
+            "pricing": {
+              "input": 3,
+              "output": 15,
+              "cache": 0.15
+            }
+          }
+        }
+      ],
+      "hosted": {
+        "route_id": "openrouter",
+        "tier": "Gemini 旗艦",
+        "label": "【Gemini 旗艦】Gemini 4 Neon",
+        "use_case": "採 OpenRouter 燈火路由；需部署 Worker/AWS 白名單與付費連線驗收。",
+        "order": 46
+      }
+    },
+    {
       "id": "gemini-2.5-flash",
       "name": "Gemini 2.5 Flash",
       "routes": [
@@ -304,6 +504,54 @@
           "cache": "supported",
           "pricing": null,
           "docs_url": "https://ai.google.dev/gemini-api/docs/pricing"
+        }
+      ]
+    },
+    {
+      "id": "claude-haiku-5.5",
+      "name": "Claude Haiku 5.5",
+      "routes": [
+        {
+          "badge": "新版",
+          "use_case": "超過100K Token有較高長上下文費率；只開放 BYOK",
+          "pricing": {
+            "input": 0.1,
+            "output": 0.5,
+            "cache": 0.01,
+            "cache_write": 0.2,
+            "note": "超過100K Token有較高長上下文費率；只開放 BYOK"
+          },
+          "id": "anthropic-official",
+          "provider": "anthropic",
+          "provider_label": "Anthropic Claude 官方",
+          "route": "official",
+          "protocol": "anthropic",
+          "label": "Claude Haiku 5.5 · 官方",
+          "model": "claude-haiku-5-5",
+          "base_url": "https://api.anthropic.com/v1/messages",
+          "cache": "explicit",
+          "docs_url": "https://platform.claude.com/docs/en/models/haiku-5-5/overview"
+        },
+        {
+          "badge": "新版",
+          "use_case": "超過100K Token有較高長上下文費率；只開放 BYOK",
+          "pricing": {
+            "input": 0.1,
+            "output": 0.5,
+            "cache": 0.01,
+            "cache_write": 0.2,
+            "note": "超過100K Token有較高長上下文費率；只開放 BYOK"
+          },
+          "id": "openrouter",
+          "provider": "openrouter",
+          "provider_label": "OpenRouter",
+          "route": "router",
+          "protocol": "openai",
+          "label": "OR · Claude Haiku 5.5",
+          "model": "anthropic/claude-haiku-5.5",
+          "base_url": "https://openrouter.ai/api/v1/chat/completions",
+          "cache": "provider-dependent",
+          "docs_url": "https://openrouter.ai/anthropic/claude-haiku-5.5"
         }
       ]
     },
@@ -597,7 +845,7 @@
           "provider_label": "Anthropic Claude 官方",
           "route": "official",
           "protocol": "anthropic",
-          "label": "Claude Sonnet 4.5 · 即將退役",
+          "label": "Claude Sonnet 4.5 · 官方 11/30 退役",
           "model": "claude-sonnet-4-5",
           "base_url": "https://api.anthropic.com/v1/messages",
           "badge": "即將退役",
@@ -641,10 +889,58 @@
       "hosted": {
         "route_id": "openrouter-hosted",
         "tier": "舊版相容",
-        "label": "【舊版相容】Claude Sonnet 4.5",
-        "use_case": "保留既有玩家故事與模型選擇；即使官方退役前後狀態改變，也先不從夜灣選單移除",
+        "label": "【即將退役】Claude Sonnet 4.5",
+        "use_case": "官方 API 預定 2026/11/30 退役；舊故事保留模型 ID，建議新玩家使用 Sonnet 5.5，OpenRouter 可用性須另行確認。",
         "order": 70
       }
+    },
+    {
+      "id": "claude-fable-5.2",
+      "name": "Claude Fable 5.2",
+      "routes": [
+        {
+          "badge": "新版",
+          "use_case": "高階高成本推理；只開放 BYOK",
+          "pricing": {
+            "input": 8,
+            "output": 40,
+            "cache": 0.2,
+            "cache_write": 16,
+            "note": "高階高成本推理；只開放 BYOK"
+          },
+          "id": "anthropic-official",
+          "provider": "anthropic",
+          "provider_label": "Anthropic Claude 官方",
+          "route": "official",
+          "protocol": "anthropic",
+          "label": "Claude Fable 5.2 · 官方",
+          "model": "claude-fable-5-2",
+          "base_url": "https://api.anthropic.com/v1/messages",
+          "cache": "explicit",
+          "docs_url": "https://platform.claude.com/docs/en/models/fable-5-2/overview"
+        },
+        {
+          "badge": "新版",
+          "use_case": "高階高成本推理；只開放 BYOK",
+          "pricing": {
+            "input": 8,
+            "output": 40,
+            "cache": 0.2,
+            "cache_write": 16,
+            "note": "高階高成本推理；只開放 BYOK"
+          },
+          "id": "openrouter",
+          "provider": "openrouter",
+          "provider_label": "OpenRouter",
+          "route": "router",
+          "protocol": "openai",
+          "label": "OR · Claude Fable 5.2",
+          "model": "anthropic/claude-fable-5.2",
+          "base_url": "https://openrouter.ai/api/v1/chat/completions",
+          "cache": "provider-dependent",
+          "docs_url": "https://openrouter.ai/anthropic/claude-fable-5.2"
+        }
+      ]
     },
     {
       "id": "claude-opus-5.5",
@@ -905,6 +1201,72 @@
       ]
     },
     {
+      "id": "deepseek-v4.1-flash-1017",
+      "name": "DeepSeek V4.1 Flash 1017",
+      "routes": [
+        {
+          "id": "deepseek-official",
+          "provider": "deepseek",
+          "provider_label": "DeepSeek 官方",
+          "route": "official",
+          "protocol": "openai",
+          "label": "DeepSeek V4.1 Flash · 最新官方",
+          "model": "deepseek-flash",
+          "base_url": "https://api.deepseek.com/chat/completions",
+          "badge": "超省新版",
+          "use_case": "官方使用 deepseek-flash 代表 V4.1 Flash 1017，尖峰價格為離峰 2 倍。",
+          "cache": "automatic",
+          "pricing": {
+            "input": 0.15,
+            "output": 0.6,
+            "cache": 0.003,
+            "note": "離峰標準價；平日 01:00–04:00、06:00–10:00 UTC 尖峰 $0.30/$1.20、快取讀取 $0.006。"
+          },
+          "docs_url": "https://api-docs.deepseek.com/quick_start/pricing/"
+        },
+        {
+          "id": "openrouter",
+          "provider": "openrouter",
+          "provider_label": "OpenRouter",
+          "route": "router",
+          "protocol": "openai",
+          "label": "OR · DeepSeek V4.1 Flash 1017",
+          "model": "deepseek/deepseek-v4.1-flash-1017",
+          "base_url": "https://openrouter.ai/api/v1/chat/completions",
+          "badge": "超省新版",
+          "use_case": "新版獨立模型 ID，非 V4 Flash 0731 舊快照。OpenRouter 依供應商價格而變。",
+          "cache": "provider-dependent",
+          "pricing": {
+            "input": 0.036,
+            "output": 0.5,
+            "cache": 0.01,
+            "note": "代表價，OpenRouter 各提供商價格可能不同。"
+          },
+          "docs_url": "https://openrouter.ai/deepseek/deepseek-v4.1-flash-1017",
+          "worker": {
+            "binding": "MODELS_JSON_EXTRA",
+            "aws_openrouter_relay": true,
+            "openrouter_max_price": {
+              "prompt": 0.3,
+              "completion": 1.2
+            },
+            "pricing": {
+              "input": 0.036,
+              "output": 0.5,
+              "cache": 0.01
+            }
+          }
+        }
+      ],
+      "hosted": {
+        "route_id": "openrouter",
+        "tier": "超省新版",
+        "label": "【超省新版】DeepSeek V4.1 Flash 1017",
+        "use_case": "新主力；燈火成本以實際 provider cost 為主並受最大費率防護。",
+        "order": 11
+      }
+    },
+    {
       "id": "deepseek-v4-flash-0731",
       "name": "DeepSeek V4 Flash 0731",
       "routes": [
@@ -914,17 +1276,17 @@
           "provider_label": "DeepSeek 官方",
           "route": "official",
           "protocol": "openai",
-          "label": "DeepSeek V4 Flash · 高 CP",
+          "label": "DeepSeek V4 Flash · 舊版相容",
           "model": "deepseek-v4-flash",
           "base_url": "https://api.deepseek.com/chat/completions",
           "badge": "高 CP",
-          "use_case": "便宜長篇、推理、狀態模型",
+          "use_case": "舊 deepseek-v4-flash 已退役，官方會改由 V4.1 Flash 1017 應答，請新故事改用 deepseek-flash；既有存檔保留。",
           "cache": "automatic",
           "pricing": {
-            "input": 0.22,
-            "output": 0.66,
-            "cache": 0.007,
-            "note": "此處顯示離峰價；平日尖峰時段約為 2 倍。"
+            "input": 0.15,
+            "output": 0.6,
+            "cache": 0.003,
+            "note": "官方 V4.1 Flash 離峰價，工作日尖峰翻倍。"
           },
           "docs_url": "https://api-docs.deepseek.com/quick_start/pricing/"
         },
@@ -938,7 +1300,7 @@
           "model": "deepseek/deepseek-v4-flash-0731",
           "base_url": "https://openrouter.ai/api/v1/chat/completions",
           "badge": "高 CP",
-          "use_case": "便宜主聊天或輔助整理",
+          "use_case": "OpenRouter 舊版快照，保留舊故事相容；新故事推薦 V4.1 Flash 1017。",
           "cache": "provider-dependent",
           "pricing": {
             "input": 0.021,
@@ -966,7 +1328,7 @@
       "hosted": {
         "route_id": "openrouter",
         "tier": "超省長聊",
-        "label": "【超省長聊】DeepSeek V4 Flash 0731",
+        "label": "【舊版相容】DeepSeek V4 Flash 0731",
         "use_case": "低成本主聊天與長篇互動；適合希望把點數用得更久的玩家",
         "order": 10
       }
@@ -1217,6 +1579,262 @@
       }
     },
     {
+      "id": "gpt-6-luna",
+      "name": "GPT-6 Luna",
+      "routes": [
+        {
+          "id": "openai-official",
+          "provider": "openai",
+          "provider_label": "OpenAI 官方",
+          "route": "official",
+          "protocol": "openai",
+          "label": "GPT-6 Luna · 官方",
+          "model": "gpt-6-luna",
+          "base_url": "https://api.openai.com/v1/chat/completions",
+          "badge": "新主力",
+          "use_case": "OpenAI 官方 Standard 公開價；超過 272K 輸入 tokens 時長上下文整次加價，快取寫入價格視保留時間。",
+          "cache": "automatic",
+          "pricing": {
+            "input": 0.1,
+            "output": 0.5,
+            "cache": 0.01,
+            "cache_write": 0.25,
+            "note": "OpenAI 官方 Standard 公開價；超過 272K 輸入 tokens 時長上下文整次加價，快取寫入價格視保留時間。"
+          },
+          "docs_url": "https://developers.openai.com/api/docs/models/gpt-6-luna"
+        },
+        {
+          "id": "openrouter",
+          "provider": "openrouter",
+          "provider_label": "OpenRouter",
+          "route": "router",
+          "protocol": "openai",
+          "label": "OR · GPT-6 Luna",
+          "model": "openai/gpt-6-luna",
+          "base_url": "https://openrouter.ai/api/v1/chat/completions",
+          "badge": "新主力",
+          "use_case": "玩家自備 OpenRouter API Key；提供商路由價格可能不同。",
+          "cache": "provider-dependent",
+          "pricing": {
+            "input": 0.1,
+            "output": 0.5,
+            "cache": 0.01,
+            "cache_write": 0.25,
+            "note": "OpenAI 官方 Standard 公開價；超過 272K 輸入 tokens 時長上下文整次加價，快取寫入價格視保留時間。"
+          },
+          "docs_url": "https://openrouter.ai/openai/gpt-6-luna",
+          "worker": {
+            "binding": "MODELS_JSON_EXTRA",
+            "aws_openrouter_relay": true,
+            "openrouter_max_price": {
+              "prompt": 0.125,
+              "completion": 0.5
+            },
+            "pricing": {
+              "input": 0.1,
+              "output": 0.5,
+              "cache": 0.01,
+              "cache_write": 0.25
+            },
+            "long_context": {
+              "threshold_tokens": 272000,
+              "input": 0.2,
+              "output": 0.75,
+              "cache": 0.02,
+              "cache_write": 0.5,
+              "max_price": {
+                "prompt": 0.25,
+                "completion": 0.75
+              }
+            }
+          }
+        }
+      ],
+      "hosted": {
+        "route_id": "openrouter",
+        "tier": "超省 GPT",
+        "label": "【超省 GPT】GPT-6 Luna",
+        "use_case": "燈火正式環境需先同步 AWS/Worker 白名單並付費驗證，不可先宣稱已上線。",
+        "order": 54
+      }
+    },
+    {
+      "id": "gpt-6.1-terra",
+      "name": "GPT-6.1 Terra",
+      "routes": [
+        {
+          "id": "openai-official",
+          "provider": "openai",
+          "provider_label": "OpenAI 官方",
+          "route": "official",
+          "protocol": "openai",
+          "label": "GPT-6.1 Terra · 官方",
+          "model": "gpt-6.1-terra",
+          "base_url": "https://api.openai.com/v1/chat/completions",
+          "badge": "BYOK",
+          "use_case": "OpenAI 官方 Standard 公開價；超過 272K 輸入 tokens 時長上下文整次加價，快取寫入價格視保留時間。",
+          "cache": "automatic",
+          "pricing": {
+            "input": 1,
+            "output": 5,
+            "cache": 0.05,
+            "cache_write": 2.5,
+            "note": "OpenAI 官方 Standard 公開價；超過 272K 輸入 tokens 時長上下文整次加價，快取寫入價格視保留時間。"
+          },
+          "docs_url": "https://developers.openai.com/api/docs/models/gpt-6.1-terra"
+        },
+        {
+          "id": "openrouter",
+          "provider": "openrouter",
+          "provider_label": "OpenRouter",
+          "route": "router",
+          "protocol": "openai",
+          "label": "OR · GPT-6.1 Terra",
+          "model": "openai/gpt-6.1-terra",
+          "base_url": "https://openrouter.ai/api/v1/chat/completions",
+          "badge": "BYOK",
+          "use_case": "玩家自備 OpenRouter API Key；提供商路由價格可能不同。",
+          "cache": "provider-dependent",
+          "pricing": {
+            "input": 1,
+            "output": 5,
+            "cache": 0.05,
+            "cache_write": 2.5,
+            "note": "OpenAI 官方 Standard 公開價；超過 272K 輸入 tokens 時長上下文整次加價，快取寫入價格視保留時間。"
+          },
+          "docs_url": "https://openrouter.ai/openai/gpt-6.1-terra"
+        }
+      ]
+    },
+    {
+      "id": "gpt-6.2-sol",
+      "name": "GPT-6.2 Sol",
+      "routes": [
+        {
+          "id": "openai-official",
+          "provider": "openai",
+          "provider_label": "OpenAI 官方",
+          "route": "official",
+          "protocol": "openai",
+          "label": "GPT-6.2 Sol · 官方",
+          "model": "gpt-6.2-sol",
+          "base_url": "https://api.openai.com/v1/chat/completions",
+          "badge": "新主力",
+          "use_case": "OpenAI 官方 Standard 公開價；超過 272K 輸入 tokens 時長上下文整次加價，快取寫入價格視保留時間。 不可設定 reasoning_effort:none。",
+          "cache": "automatic",
+          "pricing": {
+            "input": 2,
+            "output": 10,
+            "cache": 0.1,
+            "cache_write": 5,
+            "note": "OpenAI 官方 Standard 公開價；超過 272K 輸入 tokens 時長上下文整次加價，快取寫入價格視保留時間。"
+          },
+          "docs_url": "https://developers.openai.com/api/docs/models/gpt-6.2-sol"
+        },
+        {
+          "id": "openrouter",
+          "provider": "openrouter",
+          "provider_label": "OpenRouter",
+          "route": "router",
+          "protocol": "openai",
+          "label": "OR · GPT-6.2 Sol",
+          "model": "openai/gpt-6.2-sol",
+          "base_url": "https://openrouter.ai/api/v1/chat/completions",
+          "badge": "新主力",
+          "use_case": "玩家自備 OpenRouter API Key；提供商路由價格可能不同。 不可設定 reasoning_effort:none。",
+          "cache": "provider-dependent",
+          "pricing": {
+            "input": 2,
+            "output": 10,
+            "cache": 0.1,
+            "cache_write": 5,
+            "note": "OpenAI 官方 Standard 公開價；超過 272K 輸入 tokens 時長上下文整次加價，快取寫入價格視保留時間。"
+          },
+          "docs_url": "https://openrouter.ai/openai/gpt-6.2-sol",
+          "worker": {
+            "binding": "MODELS_JSON_EXTRA",
+            "aws_openrouter_relay": true,
+            "openrouter_max_price": {
+              "prompt": 2.5,
+              "completion": 10
+            },
+            "pricing": {
+              "input": 2,
+              "output": 10,
+              "cache": 0.1,
+              "cache_write": 5
+            },
+            "long_context": {
+              "threshold_tokens": 272000,
+              "input": 4,
+              "output": 15,
+              "cache": 0.2,
+              "cache_write": 10,
+              "max_price": {
+                "prompt": 5,
+                "completion": 15
+              }
+            }
+          }
+        }
+      ],
+      "hosted": {
+        "route_id": "openrouter",
+        "tier": "GPT 主力",
+        "label": "【GPT 主力】GPT-6.2 Sol",
+        "use_case": "燈火正式環境需先同步 AWS/Worker 白名單並付費驗證，不可先宣稱已上線。",
+        "order": 57
+      }
+    },
+    {
+      "id": "gpt-6.2-astra",
+      "name": "GPT-6.2 Astra",
+      "routes": [
+        {
+          "id": "openai-official",
+          "provider": "openai",
+          "provider_label": "OpenAI 官方",
+          "route": "official",
+          "protocol": "openai",
+          "label": "GPT-6.2 Astra · 官方",
+          "model": "gpt-6.2-astra",
+          "base_url": "https://api.openai.com/v1/chat/completions",
+          "badge": "BYOK",
+          "use_case": "OpenAI 官方 Standard 公開價；超過 272K 輸入 tokens 時長上下文整次加價，快取寫入價格視保留時間。",
+          "cache": "automatic",
+          "pricing": {
+            "input": 8,
+            "output": 40,
+            "cache": 0.4,
+            "cache_write": 20,
+            "note": "OpenAI 官方 Standard 公開價；超過 272K 輸入 tokens 時長上下文整次加價，快取寫入價格視保留時間。"
+          },
+          "docs_url": "https://developers.openai.com/api/docs/models/gpt-6.2-astra"
+        },
+        {
+          "id": "openrouter",
+          "provider": "openrouter",
+          "provider_label": "OpenRouter",
+          "route": "router",
+          "protocol": "openai",
+          "label": "OR · GPT-6.2 Astra",
+          "model": "openai/gpt-6.2-astra",
+          "base_url": "https://openrouter.ai/api/v1/chat/completions",
+          "badge": "BYOK",
+          "use_case": "玩家自備 OpenRouter API Key；提供商路由價格可能不同。",
+          "cache": "provider-dependent",
+          "pricing": {
+            "input": 8,
+            "output": 40,
+            "cache": 0.4,
+            "cache_write": 20,
+            "note": "OpenAI 官方 Standard 公開價；超過 272K 輸入 tokens 時長上下文整次加價，快取寫入價格視保留時間。"
+          },
+          "docs_url": "https://openrouter.ai/openai/gpt-6.2-astra"
+        }
+      ]
+    },
+    {
       "id": "gpt-5.6-luna",
       "name": "GPT-5.6 Luna",
       "routes": [
@@ -1255,7 +1873,8 @@
           "pricing": {
             "input": 0.2,
             "output": 1.2,
-            "cache": 0.02
+            "cache": 0.02,
+            "note": "超過 272K 輸入 Token 時，整次請求輸入與快取 x2、輸出 x1.5；需進行分段計費。"
           },
           "docs_url": "https://openrouter.ai/openai/gpt-5.6-luna",
           "worker": {
@@ -1270,6 +1889,17 @@
               "output": 1.2,
               "cache": 0.02,
               "cache_write": 0.25
+            },
+            "long_context": {
+              "threshold_tokens": 272000,
+              "input": 0.4,
+              "output": 1.8,
+              "cache": 0.04,
+              "cache_write": 0.5,
+              "max_price": {
+                "prompt": 0.5,
+                "completion": 1.8
+              }
             }
           }
         }

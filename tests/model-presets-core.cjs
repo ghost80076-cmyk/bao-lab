@@ -109,7 +109,7 @@ assert.deepEqual([mimoRouter.pricing.input, mimoRouter.pricing.output, mimoRoute
 assert.deepEqual([mimoRouter.worker.pricing.input, mimoRouter.worker.pricing.output, mimoRouter.worker.pricing.cache, mimoRouter.worker.pricing.cache_write], [0.14, 0.28, 0.0028, 0.14]);
 assert.ok(!modelIds.includes('mimo-v2.5'), 'retired MiMo model must not remain in presets');
 assert.equal(requireRoute('qwen-3.7-flash', 'qwen-official').pricing.input, 0.03);
-assert.equal(requireRoute('deepseek-v4-flash-0731', 'deepseek-official').pricing.cache, 0.007);
+assert.equal(requireRoute('deepseek-v4-flash-0731', 'deepseek-official').pricing.cache, 0.003);
 assert.equal(requireRoute('minimax-m3', 'minimax-official').model, 'MiniMax-M3');
 
 const zai = requireRoute('zai-custom', 'zai-official');
@@ -136,8 +136,38 @@ assert.deepEqual(glmRouter.worker.openrouter_max_price, { prompt: 1.4, completio
 assert.deepEqual(requireModel('glm-5.2').capabilities, { contextWindowTokens: 1000000, maxOutputTokens: 131072 });
 assert.equal(requireModel('glm-5.2').hosted.route_id, 'openrouter');
 
+
+for(const [logical,route,upstream,router] of [
+ ['gemini-4-hydrogen','google-official','gemini-4-hydrogen','google/gemini-4-hydrogen'],
+ ['gemini-4-neon','google-official','gemini-4-neon','google/gemini-4-neon'],
+ ['gemini-4-carbon','google-official','gemini-4-carbon','google/gemini-4-carbon'],
+ ['gemini-4-argon','google-official','gemini-4-argon','google/gemini-4-argon'],
+ ['claude-haiku-5.5','anthropic-official','claude-haiku-5-5','anthropic/claude-haiku-5.5'],
+ ['claude-fable-5.2','anthropic-official','claude-fable-5-2','anthropic/claude-fable-5.2'],
+ ['gpt-6-luna','openai-official','gpt-6-luna','openai/gpt-6-luna'],
+ ['gpt-6.1-terra','openai-official','gpt-6.1-terra','openai/gpt-6.1-terra'],
+ ['gpt-6.2-sol','openai-official','gpt-6.2-sol','openai/gpt-6.2-sol'],
+ ['gpt-6.2-astra','openai-official','gpt-6.2-astra','openai/gpt-6.2-astra'],
+ ['deepseek-v4.1-flash-1017','deepseek-official','deepseek-flash','deepseek/deepseek-v4.1-flash-1017']
+]){
+ assert.equal(requireRoute(logical,route).model,upstream,logical+' official route');
+ assert.equal(requireRoute(logical,'openrouter').model,router,logical+' router route');
+}
+for(const id of ['gemini-4-carbon','gemini-4-argon','claude-haiku-5.5','claude-fable-5.2','gpt-6.1-terra','gpt-6.2-astra']){
+ assert.ok(!requireModel(id).hosted,id+' must not enter hosted billing before validation');
+}
+assert.equal(requireRoute('gemini-4-carbon','google-official').pricing,null);
+assert.equal(requireRoute('gemini-4-argon','openrouter').pricing,null);
+assert.equal(requireRoute('deepseek-v4-flash-0731','deepseek-official').pricing.input,.15);
+assert.equal(requireRoute('gpt-5.6-luna','openrouter').worker.long_context.threshold_tokens,272000);
+assert.equal(requireModel('claude-sonnet-4.5').deprecated.retirement,'2026-11-30');
+
 const hosted = registry.models.filter(model => model.hosted).sort((a, b) => a.hosted.order - b.hosted.order);
-assert.equal(hosted.length, 18, 'expected eighteen curated YoruBay hosted models');
+assert.equal(hosted.length, 23, 'expected twenty-three curated YoruBay hosted models');
+for (const model of hosted) {
+  assert.doesNotMatch(model.hosted.label, /OpenRouter|官方|自訂|Base URL/, `${model.id}: hosted labels must never expose provider connection modes`);
+}
+assert.match(requireModel('claude-sonnet-4.5').hosted.label, /退役/, 'legacy Sonnet retirement warning stays visible');
 const hostedResolved = hosted.map(model => {
   const route = model.routes.find(item => item.id === model.hosted.route_id);
   assert.ok(route, `${model.id} hosted route must resolve inside the same logical model`);
@@ -146,14 +176,19 @@ const hostedResolved = hosted.map(model => {
 });
 assert.deepEqual(hostedResolved, [
   { id: 'deepseek-v4-flash-0731', provider: 'openrouter', model: 'deepseek/deepseek-v4-flash-0731' },
+  { id: 'deepseek-v4.1-flash-1017', provider: 'openrouter', model: 'deepseek/deepseek-v4.1-flash-1017' },
   { id: 'qwen-3.7-flash', provider: 'openrouter', model: 'qwen/qwen3.7-flash' },
   { id: 'mimo-v2.6-flash', provider: 'openrouter', model: 'xiaomi/mimo-v2.6-flash' },
   { id: 'gemma-4-31b-it', provider: 'openrouter', model: 'google/gemma-4-31b-it' },
   { id: 'gemini-3-flash', provider: 'gemini', model: 'gemini-3-flash-preview' },
+  { id: 'gemini-4-hydrogen', provider: 'openrouter', model: 'google/gemini-4-hydrogen' },
   { id: 'gemini-3.8-flash', provider: 'gemini', model: 'gemini-3.8-flash' },
+  { id: 'gemini-4-neon', provider: 'openrouter', model: 'google/gemini-4-neon' },
   { id: 'minimax-m3', provider: 'openrouter', model: 'minimax/minimax-m3' },
   { id: 'glm-5.2', provider: 'openrouter', model: 'z-ai/glm-5.2' },
+  { id: 'gpt-6-luna', provider: 'openrouter', model: 'openai/gpt-6-luna' },
   { id: 'gpt-5.6-luna', provider: 'openrouter', model: 'openai/gpt-5.6-luna' },
+  { id: 'gpt-6.2-sol', provider: 'openrouter', model: 'openai/gpt-6.2-sol' },
   { id: 'grok-4.5', provider: 'openrouter', model: 'x-ai/grok-4.5' },
   { id: 'gemini-3.1-pro', provider: 'gemini', model: 'gemini-3.1-pro-preview' },
   { id: 'claude-haiku-4.5', provider: 'openrouter', model: 'anthropic/claude-haiku-4.5' },
@@ -163,7 +198,7 @@ assert.deepEqual(hostedResolved, [
   { id: 'claude-sonnet-4.6', provider: 'openrouter', model: 'anthropic/claude-sonnet-4.6' },
   { id: 'claude-opus-4.6', provider: 'openrouter', model: 'anthropic/claude-opus-4.6' },
   { id: 'claude-opus-5.5', provider: 'openrouter', model: 'anthropic/claude-opus-5.5' }
-], 'hosted list should preserve legacy choices while adding Gemini 3.8 and Claude 5.5');
+], 'hosted choices preserve old IDs and include reviewed new routes');
 
 const appSource = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
 assert.match(appSource, /modelRegistry:\s*null/);

@@ -307,54 +307,43 @@ test('propagates quota and provider-specific upstream errors without exposing pl
    return true;
  });
 });
-test('registers only the prioritized YoruBay hosted catalog without free or duplicate routes',()=>{
-  const s=build();s.app.populateAPIControls();s.app.populateAPIControls();
-  assert.equal(s.app.modelPresets.length,19);
-  assert.equal(s.app.modelPresets[0].provider,'gemini');
-  const added=s.app.modelPresets.slice(1);
-  assert.deepEqual(Array.from(added.map(p=>p.model)),[
-    'deepseek/deepseek-v4-flash-0731',
-    'qwen/qwen3.7-flash',
-    'xiaomi/mimo-v2.6-flash',
-    'google/gemma-4-31b-it',
-    'gemini-3-flash-preview',
-    'gemini-3.8-flash',
-    'minimax/minimax-m3',
-    'z-ai/glm-5.2',
-    'openai/gpt-5.6-luna',
-    'x-ai/grok-4.5',
-    'gemini-3.1-pro-preview',
-    'anthropic/claude-haiku-4.5',
-    'anthropic/claude-sonnet-4.5',
-    'anthropic/claude-sonnet-5',
-    'anthropic/claude-sonnet-5.5',
-    'anthropic/claude-sonnet-4.6',
-    'anthropic/claude-opus-4.6',
-    'anthropic/claude-opus-5.5'
-  ]);
-  assert.equal(added.every(p=>p.provider==='bao-credits'),true);
-  assert.equal(added.every(p=>p.provider_label==='夜灣燈火'),true);
-  assert.equal(added.every(p=>p.base_url===cfg.baseUrl),true);
-  assert.equal(added.some(p=>p.model==='openrouter/free'),false);
-  assert.equal(added.some(p=>p.model==='gemini-3.1-flash-lite'),false);
-  assert.equal(added.some(p=>p.model==='google/gemini-3.1-pro-preview'),false);
-  assert.equal(added.some(p=>p.model==='anthropic/claude-opus-4.5'),false);
-  assert.match(added[0].label,/超省長聊.*DeepSeek/);
-  assert.match(added[3].label,/高 CP RP.*Gemma 4 31B/);
-  assert.match(added[4].label,/日常主力.*Gemini 3 Flash/);
-  assert.match(added[5].label,/新主力.*Gemini 3\.8 Flash/);
-  assert.match(added[6].label,/長篇世界.*MiniMax M3/);
-  assert.match(added[7].label,/長篇推理.*GLM-5\.2/);
-  assert.match(added[8].label,/OpenAI 選擇.*GPT-5\.6 Luna/);
-  assert.match(added[9].label,/xAI 選擇.*Grok 4\.5/);
-  assert.match(added[11].label,/低成本 Claude.*Haiku 4\.5/);
-  assert.match(added[12].label,/舊版相容.*Sonnet 4\.5/);
-  assert.match(added[13].label,/新版備選.*Sonnet 5/);
-  assert.match(added[14].label,/Claude 主力.*Sonnet 5\.5/);
-  assert.match(added[15].label,/RP 高品質.*Sonnet 4\.6/);
-  assert.match(added[16].label,/豪華.*Opus 4\.6/);
-  assert.match(added[17].label,/旗艦.*Opus 5\.5/);
-  assert.equal(s.window.BAOCreditsPilot.models.length,18);
+test('registers only prioritized YoruBay hosted routes while keeping BYOK and saved models',()=>{
+ const s=build();s.app.populateAPIControls();s.app.populateAPIControls();
+ assert.equal(s.app.modelPresets.length,24);
+ assert.equal(s.app.modelPresets[0].provider,'gemini');
+ const added=s.app.modelPresets.slice(1);
+ assert.deepEqual(Array.from(added.map(p=>p.model)),[
+  'deepseek/deepseek-v4-flash-0731',
+  'deepseek/deepseek-v4.1-flash-1017',
+  'qwen/qwen3.7-flash',
+  'xiaomi/mimo-v2.6-flash',
+  'google/gemma-4-31b-it',
+  'gemini-3-flash-preview',
+  'google/gemini-4-hydrogen',
+  'gemini-3.8-flash',
+  'google/gemini-4-neon',
+  'minimax/minimax-m3',
+  'z-ai/glm-5.2',
+  'openai/gpt-6-luna',
+  'openai/gpt-5.6-luna',
+  'openai/gpt-6.2-sol',
+  'x-ai/grok-4.5',
+  'gemini-3.1-pro-preview',
+  'anthropic/claude-haiku-4.5',
+  'anthropic/claude-sonnet-4.5',
+  'anthropic/claude-sonnet-5',
+  'anthropic/claude-sonnet-5.5',
+  'anthropic/claude-sonnet-4.6',
+  'anthropic/claude-opus-4.6',
+  'anthropic/claude-opus-5.5'
+ ]);
+ assert.equal(added.every(p=>p.provider==='bao-credits'),true);
+ assert.equal(added.every(p=>p.provider_label==='夜灣燈火'),true);
+ assert.equal(added.every(p=>p.base_url===cfg.baseUrl),true);
+ assert.equal(added.some(p=>p.model==='openrouter/free'),false);
+ assert.equal(added.some(p=>p.model==='anthropic/claude-opus-4.5'),false);
+ for(const id of ["deepseek/deepseek-v4.1-flash-1017","google/gemini-4-hydrogen","google/gemini-4-neon","openai/gpt-6-luna","openai/gpt-6.2-sol"])assert.ok(added.some(p=>p.model===id),'missing '+id);
+ assert.equal(s.window.BAOCreditsPilot.models.length,23);
 });
 
 test('cookie-backed YoruBay session sends credentials without exposing a bearer token',async()=>{

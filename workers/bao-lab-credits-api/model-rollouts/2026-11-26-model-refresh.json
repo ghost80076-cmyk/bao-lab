@@ -1,0 +1,63 @@
+[
+  {
+    "provider": "openrouter",
+    "model": "deepseek/deepseek-v4.1-flash-1017",
+    "input_microusd_per_million": 36000,
+    "output_microusd_per_million": 500000,
+    "cache_read_microusd_per_million": 10000,
+    "openrouter_max_prompt_microusd_per_million": 300000,
+    "openrouter_max_completion_microusd_per_million": 1200000
+  },
+  {
+    "provider": "openrouter",
+    "model": "google/gemini-4-hydrogen",
+    "input_microusd_per_million": 1500000,
+    "output_microusd_per_million": 7500000,
+    "cache_read_microusd_per_million": 75000,
+    "openrouter_max_prompt_microusd_per_million": 1500000,
+    "openrouter_max_completion_microusd_per_million": 7500000
+  },
+  {
+    "provider": "openrouter",
+    "model": "google/gemini-4-neon",
+    "input_microusd_per_million": 3000000,
+    "output_microusd_per_million": 15000000,
+    "cache_read_microusd_per_million": 150000,
+    "openrouter_max_prompt_microusd_per_million": 3000000,
+    "openrouter_max_completion_microusd_per_million": 15000000
+  },
+  {
+    "provider": "openrouter",
+    "model": "openai/gpt-6-luna",
+    "input_microusd_per_million": 100000,
+    "output_microusd_per_million": 500000,
+    "cache_read_microusd_per_million": 10000,
+    "cache_write_microusd_per_million": 250000,
+    "openrouter_max_prompt_microusd_per_million": 125000,
+    "openrouter_max_completion_microusd_per_million": 500000,
+    "long_context_threshold_tokens": 272000,
+    "long_context_input_microusd_per_million": 200000,
+    "long_context_output_microusd_per_million": 750000,
+    "long_context_cache_read_microusd_per_million": 20000,
+    "long_context_cache_write_microusd_per_million": 500000,
+    "long_context_openrouter_max_prompt_microusd_per_million": 250000,
+    "long_context_openrouter_max_completion_microusd_per_million": 750000
+  },
+  {
+    "provider": "openrouter",
+    "model": "openai/gpt-6.2-sol",
+    "input_microusd_per_million": 2000000,
+    "output_microusd_per_million": 10000000,
+    "cache_read_microusd_per_million": 100000,
+    "cache_write_microusd_per_million": 5000000,
+    "openrouter_max_prompt_microusd_per_million": 2500000,
+    "openrouter_max_completion_microusd_per_million": 10000000,
+    "long_context_threshold_tokens": 272000,
+    "long_context_input_microusd_per_million": 4000000,
+    "long_context_output_microusd_per_million": 15000000,
+    "long_context_cache_read_microusd_per_million": 200000,
+    "long_context_cache_write_microusd_per_million": 10000000,
+    "long_context_openrouter_max_prompt_microusd_per_million": 5000000,
+    "long_context_openrouter_max_completion_microusd_per_million": 15000000
+  }
+]

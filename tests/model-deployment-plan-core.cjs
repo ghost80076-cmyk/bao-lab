@@ -16,11 +16,11 @@ const plan = buildModelDeploymentPlan(registry);
 assert.equal(plan.schema, "yorubay-worker-model-deployment-plan/v1");
 assert.equal(plan.source_registry, "data/presets/models.json");
 assert.equal(plan.cloudflare.MODELS_JSON.entries.length, 11);
-assert.equal(plan.cloudflare.MODELS_JSON_EXTRA.entries.length, 10);
-assert.equal(plan.resolved_routes.length, 21);
+assert.equal(plan.cloudflare.MODELS_JSON_EXTRA.entries.length, 15);
+assert.equal(plan.resolved_routes.length, 26);
 assert.equal(plan.aws.variable, "OPENROUTER_MODELS");
-assert.equal(plan.aws.entries.length, 16);
-assert.equal(new Set(plan.aws.entries).size, 16);
+assert.equal(plan.aws.entries.length, 21);
+assert.equal(new Set(plan.aws.entries).size, 21);
 assert.equal(plan.aws.value_csv, plan.aws.entries.join(","));
 
 const keyOf = entry => `${entry.provider}:${entry.model}`;
@@ -28,7 +28,7 @@ const allEntries = [
   ...plan.cloudflare.MODELS_JSON.entries,
   ...plan.cloudflare.MODELS_JSON_EXTRA.entries,
 ];
-assert.equal(new Set(allEntries.map(keyOf)).size, 21);
+assert.equal(new Set(allEntries.map(keyOf)).size, 26);
 
 const byKey = new Map(allEntries.map(entry => [keyOf(entry), entry]));
 
@@ -169,6 +169,13 @@ assert.deepEqual(
   }
 );
 
+for(const id of ["deepseek/deepseek-v4.1-flash-1017","google/gemini-4-hydrogen","google/gemini-4-neon","openai/gpt-6-luna","openai/gpt-6.2-sol"]){
+ assert.ok(byKey.has('openrouter:'+id), 'new hosted Worker entry missing '+id);
+}
+assert.equal(byKey.get('openrouter:openai/gpt-6-luna').long_context_threshold_tokens,272000);
+assert.equal(byKey.get('openrouter:openai/gpt-6.2-sol').long_context_output_microusd_per_million,15000000);
+assert.equal(byKey.get('openrouter:openai/gpt-5.6-luna').long_context_input_microusd_per_million,400000);
+
 const hostedKeys = [];
 for (const model of registry.models) {
   if (!model.hosted?.route_id) continue;
@@ -189,6 +196,7 @@ assert.equal(relayKeys.has("openrouter:google/gemini-3.1-pro-preview"), false);
 assert.equal(relayKeys.has("openrouter:google/gemini-3.8-flash"), true);
 assert.equal(relayKeys.has("openrouter:google/gemma-4-31b-it"), true);
 assert.equal(relayKeys.has("openrouter:z-ai/glm-5.2"), true);
+for(const id of ["deepseek/deepseek-v4.1-flash-1017","google/gemini-4-hydrogen","google/gemini-4-neon","openai/gpt-6-luna","openai/gpt-6.2-sol"])assert.equal(relayKeys.has('openrouter:'+id),true,'relay '+id);
 assert.equal(relayKeys.has("openrouter:anthropic/claude-sonnet-5.5"), true);
 assert.equal(relayKeys.has("openrouter:anthropic/claude-opus-5.5"), true);
 assert.equal(relayKeys.has("openrouter:deepseek/deepseek-v4-flash-0731"), true);

@@ -406,10 +406,20 @@ const API = {
     const limit = Number(config.maxOutputTokens || 0);
     const generationConfig = {};
     if (limit > 0) generationConfig.maxOutputTokens = Math.floor(limit);
+    const isGemini4 = /^gemini-4(?:[.-]|$)/i.test(config.model || "");
+    // Gemini 4 rejects the legacy thinkingBudget and MINIMAL level.
+    // GenerateContent uses uppercase enum names; don't forward stale settings.
     if (config.__memoryTask && config.__memoryThinking) {
-      generationConfig.thinkingConfig = { ...config.__memoryThinking };
-    } else if ((config.__stateTask || config.__inspirationTask) && /^gemini-3(?:[.-])/.test(config.model || "")) {
-      generationConfig.thinkingConfig = { thinkingLevel: "low" };
+      if (isGemini4) {
+        const selected = String(config.__memoryThinking.thinkingLevel || "LOW").toUpperCase();
+        const highPlus = /^gemini-4-(?:neon|hydrogen)(?:[.-]|$)/i.test(config.model || "");
+        const allowed = highPlus ? ["LOW", "MEDIUM", "HIGH", "XHIGH"] : ["LOW", "MEDIUM", "HIGH"];
+        generationConfig.thinkingConfig = { thinkingLevel: allowed.includes(selected) ? selected : "LOW" };
+      } else {
+        generationConfig.thinkingConfig = { ...config.__memoryThinking };
+      }
+    } else if ((config.__stateTask || config.__inspirationTask) && /^gemini-[34](?:[.-])/.test(config.model || "")) {
+      generationConfig.thinkingConfig = { thinkingLevel: isGemini4 ? "LOW" : "low" };
     }
     const responseFormat = this.memoryResponseFormat(config);
     if (responseFormat) generationConfig.responseFormat = responseFormat;
