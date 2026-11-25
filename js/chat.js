@@ -58,7 +58,7 @@ const Chat = {
   },
   modelContent(message = {}) {
     const semantic = String(message?.context_content || "").trim();
-    return semantic || String(message?.content || "");
+    return (semantic || String(message?.content || "")) + (message?.role === "user" && message.storyImage ? "\n【此訊息曾附圖片；摘要僅採用當時文字回覆已記錄的觀察，不推測圖片細節。】" : "");
   },
   modelMessages(messages = []) {
     return (Array.isArray(messages) ? messages : []).map(message => {
@@ -274,7 +274,7 @@ const Chat = {
       let result;
       let summaryConfig;
       for (let attempt = 0; attempt < 3; attempt++) {
-        const transcript = chunk.map(m => `[${m.id}] ${m.role === "user" ? "玩家" : "角色/系統"}：${m.role === "assistant" ? this.modelContent(m) : m.content}`).join("\n\n");
+        const transcript = chunk.map(m => `[${m.id}] ${m.role === "user" ? "玩家" : "角色/系統"}：${this.modelContent(m)}`).join("\n\n");
         const prompt = [
           "你是角色扮演長期記憶整理器。",
           "請把舊對話壓縮成精簡但可延續劇情的記憶。",

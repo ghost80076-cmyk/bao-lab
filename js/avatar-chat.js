@@ -76,7 +76,7 @@
       if (m.role !== 'user') return;
       const bubble = nodes[i+offset].querySelector('.bubble');
       if (!bubble || bubble.querySelector('.story-inline-editor')) return;
-      const html = enabled() ? render(m.content,'user') : App.formatMessage(m.content);
+      const html = (enabled() ? render(m.content,'user') : App.formatMessage(m.content)) + (window.BAOStoryImages?.html?.(m.storyImage) || '');
       if (bubble.innerHTML !== html) bubble.innerHTML = html;
     });
   }

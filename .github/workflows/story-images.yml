@@ -1,0 +1,85 @@
+name: Story images acceptance
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'js/**'
+      - 'css/story-images.css'
+      - 'tests/**'
+      - 'index.html'
+      - '.github/workflows/story-images.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'js/story-images*'
+      - 'tests/e2e/story-images.spec.cjs'
+      - '.github/workflows/story-images.yml'
+permissions:
+  contents: read
+concurrency:
+  group: story-images-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  cross-browser:
+    name: Story images · ${{ matrix.browser }}
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Image flows and connected storage, reading and prompt contracts
+        run: >-
+          npx playwright test
+          tests/e2e/story-images.spec.cjs
+          tests/e2e/story-save-acceptance.spec.cjs
+          tests/e2e/storage-operation-recovery.spec.cjs
+          tests/e2e/narrative-cache-preservation.spec.cjs
+          --project=${{ matrix.browser }} --workers=2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: story-images-${{ matrix.browser }}
+          path: |
+            test-results/
+            playwright-report/
+  live-image-smoke:
+    if: github.event_name == 'push'
+    needs: cross-browser
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Confirm this commit reached Pages
+        env:
+          SITE_URL: https://yorubay.com
+        run: bash scripts/verify-live-assets.sh index.html js/story-images.js js/story-images-core.js css/story-images.css js/api.js js/app.js
+      - name: Production image UX with synthetic local image and mocked provider
+        env:
+          STORY_IMAGES_BASE_URL: https://yorubay.com
+        run: npx playwright test tests/e2e/story-images.spec.cjs --project=chromium --workers=1 --grep 'select replace remove send and portable story at 390px'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: story-images-live
+          path: |
+            test-results/
+            playwright-report/

@@ -24,6 +24,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Story image contracts and portable storage
+        run: |
+          node tests/story-images-core.cjs
+          node tests/story-images-storage-core.cjs
       - name: Startup preserves player navigation
         run: node tests/app-startup-navigation-core.cjs
       - name: Story discussion and reviewed import settings

@@ -95,3 +95,11 @@ test('git diff rejects malformed or absent revisions', () => {
   assert.throws(() => changedFromGit([]), /Expected --base/);
   assert.throws(() => changedFromGit(['--base', 'main', '--head', 'HEAD']), /full commit SHA/);
 });
+
+test('story image changes include baseline, storage and provider contracts', () => {
+  const plan = select(['js/story-images.js']);
+  assert.ok(plan.groups.includes('baseline'));
+  assert.ok(plan.groups.includes('story-images'));
+  assert.ok(plan.tests.includes('tests/story-images-storage-core.cjs'));
+  assert.ok(plan.tests.includes('tests/api-ordered-pipeline-integration.cjs'));
+});
