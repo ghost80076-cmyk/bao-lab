@@ -2,7 +2,7 @@
   {
     "provider": "openrouter",
     "model": "deepseek/deepseek-v4.1-flash-1017",
-    "input_microusd_per_million": 100000,
+    "input_microusd_per_million": 36000,
     "output_microusd_per_million": 500000,
     "cache_read_microusd_per_million": 10000,
     "openrouter_max_prompt_microusd_per_million": 300000,

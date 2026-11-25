@@ -109,7 +109,7 @@ assert.deepEqual([mimoRouter.pricing.input, mimoRouter.pricing.output, mimoRoute
 assert.deepEqual([mimoRouter.worker.pricing.input, mimoRouter.worker.pricing.output, mimoRouter.worker.pricing.cache, mimoRouter.worker.pricing.cache_write], [0.14, 0.28, 0.0028, 0.14]);
 assert.ok(!modelIds.includes('mimo-v2.5'), 'retired MiMo model must not remain in presets');
 assert.equal(requireRoute('qwen-3.7-flash', 'qwen-official').pricing.input, 0.03);
-assert.equal(requireRoute('deepseek-v4-flash-0731', 'deepseek-official').pricing.cache, 0.007);
+assert.equal(requireRoute('deepseek-v4-flash-0731', 'deepseek-official').pricing.cache, 0.003);
 assert.equal(requireRoute('minimax-m3', 'minimax-official').model, 'MiniMax-M3');
 
 const zai = requireRoute('zai-custom', 'zai-official');

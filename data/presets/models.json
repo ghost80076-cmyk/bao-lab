@@ -1251,7 +1251,7 @@
               "completion": 1.2
             },
             "pricing": {
-              "input": 0.1,
+              "input": 0.036,
               "output": 0.5,
               "cache": 0.01
             }
