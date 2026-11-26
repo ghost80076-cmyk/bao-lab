@@ -10,6 +10,10 @@ const GROUPS = [
     'tests/app-startup-navigation-core.cjs',
     'tests/story-integrity-core.cjs'
   ] },
+  { id: 'story-voice', patterns: [/^js\/story-voice/, /^css\/story-voice/, /^tests\/(?:e2e\/)?story-voice/], tests: [
+    'tests/story-voice-core.cjs', 'tests/story-images-storage-core.cjs', 'tests/story-backup-core.cjs',
+    'tests/phone-story-core.test.cjs', 'tests/request-lifecycle-core.cjs'
+  ] },
   { id: 'image-generation', patterns: [/^js\/story-image-/, /^css\/story-image-generation/, /^tests\/(?:e2e\/)?story-image-generation/], tests: [
     'tests/story-image-generation-core.cjs', 'tests/story-scene-prompt-core.cjs',
     'tests/story-images-storage-core.cjs', 'tests/story-backup-core.cjs', 'tests/story-branch-commit-core.cjs',

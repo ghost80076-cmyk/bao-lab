@@ -2,7 +2,7 @@
 
 日期：2026-11-27（台灣時間）
 基準：main #986 `5c9edd13626e3722f53f90feca8c025f9cf988e3`
-P0 實作：[PR #987](https://github.com/ghost80076-cmyk/bao-lab/pull/987)（建立時仍為 draft，不代表已合併或部署）。
+P0 實作：[PR #987](https://github.com/ghost80076-cmyk/bao-lab/pull/987)（已合併；17/17 CI 通過，三瀏覽器 mock 驗收通過；正式部署及真實裝置待驗證）。
 
 本文件是跨 PR 的產品與工程契約。後續每一階段另開實作 PR，引用本文件及前置 PR，以最新 main 為基準；禁止把全部語音功能塞入同一巨型變更。本 PR 只建立規劃及參考索引，不新增依賴或執行程式。
 
@@ -27,7 +27,7 @@ Voice Call：選配的即時互動介面，最後才整合；不得讓語音繞�
 
 | 階段 | 交付 | 前置與完成門檻 | 狀態 |
 | --- | --- | --- | --- |
-| P0 | 裝置 TTS/STT，語速、音高、音量，固定角色聲線，手動台詞選擇與辨識草稿 | #987；本地優先、遠端明確同意、三瀏覽器 mock、實體裝置待測 | #987 draft，尚未合併 |
+| P0 | 裝置 TTS/STT，語速、音高、音量，固定角色聲線，手動台詞選擇與辨識草稿 | #987；本地優先、遠端明確同意、三瀏覽器 mock、實體裝置待測 | #987 已合併，17/17 CI 通過；main `26e52ffce9d2f7b10d1f793deee8e798c9321d3b`；production smoke 與實機待驗證 |
 | P1 | 作者 voice opt-in／對白結構契約、玩家聲線工作台及 JSON 語音設定包匯入匯出 | P0 合併；多角色 ID、台詞／旁白／內心分離、禁止代玩家、無法辨識不自動播；關閉時 prompt/cache 不變；包格式安全與往返 | 待開發 |
 | P2 | 瀏覽器本地開源 STT/TTS | P1；先以 Transformers.js + multilingual Whisper 做 STT spike，sherpa-onnx WASM 做 TTS/ASR 能力比較；只有通過中日韓英實測才標支援；按需下載、版本／雜湊、取消與離線快取、手機記憶體／延遲 | 待開發 |
 | P3 | 玩家自架開源 TTS/STT 接口、授權參考錄音與聲線設計 | P1；Qwen3-TTS、GPT-SoVITS 獨立 adapter；實際 API 契約、CORS/HTTPS/loopback 瀏覽器限制、安全序列化、授權確認、不同模型能力不混用 | 待開發 |
@@ -79,4 +79,4 @@ Voice Pack v1 提案：schema/version、engine/model identifier/version、langua
 
 ## 7. 當前下一步
 
-先核對 #987 完整 CI 和實際差異，再依一般審查流程合併、查核部署；不能因本文件存在而宣稱 P0 完成驗收。P1 優先確定角色對白契約及聲線設定包，而非直接綁定付費服務或開始通話。上游引用只在下一階段 spike 確認後才成為真正依賴。
+P0 #987 已合併，17/17 CI 通過，三瀏覽器通過；live-image-smoke 與 Live Pages smoke 在 PR 跳過，正式部署及實機仍待驗證。P1 優先確定角色對白契約及聲線設定包，而非直接綁定付費服務或開始通話。上游引用只在下一階段 spike 確認後才成為真正依賴。
