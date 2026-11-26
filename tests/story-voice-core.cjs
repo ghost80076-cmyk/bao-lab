@@ -18,3 +18,14 @@ assert.equal(C.mergeDraft('原有文字','新增文字'),'原有文字\n新增�
 assert.throws(()=>C.mergeDraft('a','b',2));
 assert.equal(C.finalTranscript([{isFinal:false,0:{transcript:'未確認'}},{isFinal:true,0:{transcript:'晚安'}}]),'晚安');
 console.log('Voice core: language, local-only default, fixed profiles, manual candidates, draft preservation passed');
+
+const exported=C.exportPack({language:'ko-KR',voiceURI:'ko',rate:.9,pitch:1.15,volume:.7,key:'DO-NOT-EXPORT'});
+assert.deepEqual(C.importPack(exported),{language:'ko-KR',voiceURI:'ko',rate:.9,pitch:1.15,volume:.7});
+assert(!exported.includes('DO-NOT-EXPORT'));
+const good=JSON.parse(exported);
+for(const bad of [{...good,version:2},{...good,engine:'remote'},{...good,url:'https://example.invalid'},{...good,profile:{...good.profile,apiKey:'secret'}},{...good,profile:{...good.profile,rate:99}},{...good,profile:{...good.profile,language:'bad'}},{...good,profile:{...good.profile,voiceURI:'\nfoo'}},{...good,profile:{...good.profile,volume:'1'}},[]]){
+ assert.throws(()=>C.importPack(JSON.stringify(bad)));
+}
+assert.throws(()=>C.importPack('x'.repeat(C.PACK_LIMIT+1)));
+assert.throws(()=>C.importPack('not JSON'));
+assert.throws(()=>C.importPack('{"schema":"yorubay.voice-profile","version":1,"engine":"web-speech","profile":{"language":"ko-KR","voiceURI":"ko","rate":1,"pitch":1,"volume":1,"__proto__":{"unsafe":true}}}'));

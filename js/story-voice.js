@@ -83,7 +83,8 @@
      voice.input.value=selectedURI;
    }
    const profile=()=>Core.profile({language:lang.input.value,voiceURI:selectedURI,...Object.fromEntries(sliders.map(s=>[s.name,Number(s.input.value)]))});
-   const load=()=>{cancelSpeech();const p=Core.profile(read()[key()]);lang.input.value=p.language;selectedURI=p.voiceURI;for(const s of sliders){s.input.value=p[s.name];s.val.value=s.input.value;}refreshVoices();};
+   const showProfile=p=>{cancelSpeech();lang.input.value=p.language;selectedURI=p.voiceURI;for(const s of sliders){s.input.value=p[s.name];s.val.value=s.input.value;}refreshVoices();};
+   const load=()=>showProfile(Core.profile(read()[key()]));
    speaker.input.addEventListener('change',load);lang.input.addEventListener('change',()=>{cancelSpeech();selectedURI='';refreshVoices();});
    voice.input.addEventListener('change',()=>{cancelSpeech();selectedURI=voice.input.value;});
    const remember=btn('保存角色聲線設定',()=>{if(!valid()||!speaker.input.value){setStatus('請先選擇角色。');return;}try{save(key(),profile());setStatus('已保存本機聲線設定。');}catch(_){setStatus('本機聲線設定無法保存。');}});
@@ -96,6 +97,30 @@
    source.input.addEventListener('change',()=>{cancelSpeech();text.input.value='';refreshQuotes();});quotes.input.addEventListener('change',()=>{cancelSpeech();if(quotes.input.value!=='')text.input.value=suggestions[Number(quotes.input.value)];});
    const remote=field('我同意此聲線可能將台詞傳給裝置／瀏覽器語音服務','input');remote.input.type='checkbox';
    for(const n of [speaker.input,lang.input,voice.input,text.input,source.input,quotes.input,...sliders.map(s=>s.input)])n.addEventListener('input',()=>{remote.input.checked=false;cancelSpeech();});
+   const pack=el('details');pack.append(el('summary','聲線設定包（匯入／匯出）'),el('p','只包含裝置聲線識別及語言、語速、音高、音量。不是音訊、模型或聲音複製；其他裝置可能沒有同一聲線。匯入先預覽，另按保存才寫入選定角色。'));
+   const packFile=field('選擇聲線設定包 JSON','input');packFile.input.type='file';packFile.input.accept='.json,application/json';
+   let importEpoch=0;
+   for(const n of [speaker.input,lang.input,voice.input,...sliders.map(s=>s.input)])n.addEventListener('input',()=>{importEpoch++;});
+   packFile.input.addEventListener('change',async()=>{
+     const file=packFile.input.files?.[0];packFile.input.value='';
+     const epoch=++importEpoch,selected=speaker.input.value;
+     if(!file||!valid())return;
+     if(!selected){setStatus('請先選擇要套用聲線的角色。');return;}
+     if(file.size>Core.PACK_LIMIT){setStatus('聲線設定包超過大小限制。');return;}
+     try{
+       const p=Core.importPack(await file.text());
+       if(!valid()||epoch!==importEpoch||selected!==speaker.input.value)return;
+       remote.input.checked=false;showProfile(p);
+       setStatus('已預覽匯入聲線，尚未保存。請確認語言及聲線後另按保存角色聲線設定。');
+     }catch(e){if(valid()&&epoch===importEpoch)setStatus(e.message||'無法讀取聲線設定包。');}
+   });
+   const exportVoice=btn('匯出目前聲線設定包',()=>{
+     if(!valid()||!speaker.input.value){setStatus('請先選擇角色。');return;}
+     const url=URL.createObjectURL(new Blob([Core.exportPack(profile())],{type:'application/json'})),a=el('a');
+     a.href=url;a.download='yorubay-voice-profile.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+     setStatus('已準備匯出目前聲線設定，不含角色資料、台詞、API Key 或音訊。');
+   });
+   pack.append(packFile.wrap,exportVoice);
    const speak=btn('播放確認的台詞',()=>{
      if(!valid()||recognition)return;
      if(!synth||typeof window.SpeechSynthesisUtterance!=='function'){setStatus('此瀏覽器不支援語音播放。');return;}
@@ -110,7 +135,7 @@
      u.onerror=()=>{if(utterance===u){utterance=null;clearTimeout(playTimer);setStatus('語音播放失敗，請確認裝置聲線。');}};
      try{synth.speak(u);setStatus('正在播放角色台詞…');playTimer=setTimeout(()=>{cancelSpeech();setStatus('播放已逾時。');},180000);}catch(_){cancelSpeech();setStatus('無法播放語音。');}
    });
-   output.append(speaker.wrap,lang.wrap,voice.wrap,...sliders.map(s=>s.wrap),remember,source.wrap,quotes.wrap,text.wrap,el('small','只朗讀確認的台詞；引號僅是候選，不判斷說話者、旁白或心理活動。選語言不是翻譯。'),remote.wrap,speak,btn('停止播放',()=>{cancelSpeech();setStatus('已停止播放。');}));
+   output.append(speaker.wrap,lang.wrap,voice.wrap,...sliders.map(s=>s.wrap),remember,pack,source.wrap,quotes.wrap,text.wrap,el('small','只朗讀確認的台詞；引號僅是候選，不判斷說話者、旁白或心理活動。選語言不是翻譯。'),remote.wrap,speak,btn('停止播放',()=>{cancelSpeech();setStatus('已停止播放。');}));
    speak.disabled=!synth||typeof window.SpeechSynthesisUtterance!=='function';
    load();refreshQuotes();synth?.addEventListener?.('voiceschanged',refreshVoices);
    modal.append(title,note,inputSection,output,status,btn('關閉',close));document.body.append(modal);active=modal;
