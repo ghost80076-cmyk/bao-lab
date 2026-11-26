@@ -1,0 +1,9 @@
+.yoru-voice-trigger{min-height:44px}
+.yoru-voice-dialog{width:min(620px,calc(100% - 24px));max-height:85dvh;overflow:auto;box-sizing:border-box;padding:16px;border:1px solid var(--yoru-border,#647082);border-radius:14px;background:var(--panel,#20212b);color:var(--text,#eee)}
+.yoru-voice-dialog::backdrop{background:#000b}
+.yoru-voice-dialog section{display:grid;gap:8px;margin:12px 0;padding:12px;border:1px solid var(--yoru-border,#647082);border-radius:10px;min-width:0}
+.yoru-voice-dialog label{display:grid;gap:4px;min-width:0}
+.yoru-voice-dialog select,.yoru-voice-dialog textarea{width:100%;box-sizing:border-box;color:inherit;background:var(--panel,#20212b);padding:8px;border:1px solid #647082;border-radius:8px}
+.yoru-voice-dialog input[type=range]{width:100%}
+.yoru-voice-dialog button{min-height:44px;white-space:normal}
+.yoru-voice-dialog :focus-visible{outline:2px solid #c1b3ff;outline-offset:3px}
