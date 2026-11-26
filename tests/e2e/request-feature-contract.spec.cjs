@@ -102,6 +102,7 @@ for (const width of [390, 1440]) test(`selected story features survive regenerat
   const sourceBeforeVisual = await page.evaluate(() => JSON.stringify({ state: GameState.current, messages: Chat.messages, summary: Chat.summary }));
   await page.evaluate(() => BAOStoryImagePrompts.openPlayer());
   const visual = page.getByRole('dialog', { name: '將此刻化成畫面', exact: true });
+  await visual.getByText('整理／編輯進階畫面 Prompt（文字模型）', { exact: true }).click();
   await visual.getByRole('button', { name: '生成畫面提示詞', exact: true }).click();
   await expect.poll(() => bodies.length).toBe(3);
   const visualBody = JSON.stringify(bodies[2]);

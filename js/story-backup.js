@@ -251,7 +251,8 @@
       finally { button.disabled = false; button.textContent = original; }
     });
     const txt=document.createElement('button');txt.id='export-transcript-button';txt.type='button';txt.className='secondary';txt.textContent='下載本章對話 TXT';txt.onclick=()=>{try{downloadTranscript();}catch(error){alert(error.message);}};
-    importButton.before(txt,button);
+    const imageNote=document.createElement('small');imageNote.className='note';imageNote.textContent='生成圖片不含在一般故事／Drive 備份中。含圖搬移請至故事「畫面」→「生成圖集與完整備份」。';
+    importButton.before(txt,button,imageNote);
   };
   window.BAOStoryBackup = { transcriptText, downloadTranscript, schema: SCHEMA, version: VERSION, isBundle, sanitizeBundle, buildBundle, importBundle, downloadBundle, exportCurrentStory };
   installExportButton();

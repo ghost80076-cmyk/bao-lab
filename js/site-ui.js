@@ -225,7 +225,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/story-tools.js?v=17"))
     .then(() => window.BAOEnsureStoryLibrary())
     .then(() => loadBAOScript("js/context-pack-resume.js?v=5"))
-    .then(() => loadBAOScript("js/story-backup.js?v=4"))
+    .then(() => loadBAOScript("js/story-backup.js?v=5"))
     .then(() => loadBAOOptionalGroup("google-drive", ["js/google-drive-config.js", "js/google-drive-sync.js?v=4"]))
     .then(() => loadBAOScript("js/prompt-cache.js?v=14"))
     .then(() => loadBAOScript("js/prompt-orchestrator.js?v=8"))

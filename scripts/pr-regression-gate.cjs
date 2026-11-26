@@ -10,6 +10,11 @@ const GROUPS = [
     'tests/app-startup-navigation-core.cjs',
     'tests/story-integrity-core.cjs'
   ] },
+  { id: 'image-generation', patterns: [/^js\/story-image-/, /^css\/story-image-generation/, /^tests\/(?:e2e\/)?story-image-generation/], tests: [
+    'tests/story-image-generation-core.cjs', 'tests/story-scene-prompt-core.cjs',
+    'tests/story-images-storage-core.cjs', 'tests/story-backup-core.cjs', 'tests/story-branch-commit-core.cjs',
+    'tests/phone-ui.test.cjs', 'tests/phone-story-core.test.cjs', 'tests/request-lifecycle-core.cjs'
+  ] },
   { id: 'story-images', patterns: [/^js\/story-images/, /^css\/story-images/, /^tests\/(?:e2e\/)?story-images/], tests: [
     'tests/story-images-core.cjs', 'tests/story-images-storage-core.cjs', 'tests/story-message-storage-core.cjs',
     'tests/api-ordered-pipeline-integration.cjs', 'tests/narrative-prompt-pipeline-core.cjs', 'tests/request-lifecycle-core.cjs'

@@ -4,6 +4,7 @@
   const Core = window.BAOPhoneUICore;
   const Puzzles = window.BAOPhoneInteractionCore;
   if (!Core || typeof App === 'undefined' || window.BAOPhoneUI) return;
+  let imageCollectionCleanup = () => {};
   let root = null, screen = null, config = null, page = 'lock', subpage = '';
   let clock = null, callTimer = null, callStart = 0, messageTimers = [], messageFade = null;
   let audio = null, trackIndex = -1, playing = false, position = 0, expanded = false, shuffle = false, loop = false;
@@ -168,6 +169,7 @@
     playing = false; position = 0; trackIndex = -1; expanded = false;
   }
   function close() {
+    imageCollectionCleanup(); imageCollectionCleanup=()=>{};
     const wasOpen = Boolean(root);
     clearTimers(); stopMedia(); root?.remove(); root = null; screen = null;ownerState=null;ownerCharacter=null;eventNotice='';
     backgroundInert.forEach((value, node) => { node.inert = value; });
@@ -241,6 +243,7 @@
   }
   function handle() { const node=button('', 'home', 'bp-home-handle');node.setAttribute('aria-label','返回手機桌面');return node; }
   function render() {
+    imageCollectionCleanup(); imageCollectionCleanup=()=>{};
     if (!screen || !config) return;
     screen.replaceChildren();
     screen.className = 'bp-screen bp-' + page;
@@ -385,7 +388,7 @@
         // Do not mount locked text or request locked images.
       } else if (selected) {
         add(area,$('h1','',selected.title || (photos?'照片':'筆記')));
-        if (photos) add(area,image(selected.src,'bp-photo-full','照片'),$('p','bp-document',selected.caption));
+        if (photos) add(area,image(selected.src,'bp-photo-full','照片'),$('p','bp-document',selected.caption),$('small','bp-muted',ownerState?.phoneUI?.photos?.some(item=>item.id===selected.id)?'故事事件取得':'作者預先提供'));
         else add(area,$('p','bp-document',selected.text));
       } else {
         const list=$('div',photos?'bp-photo-grid':'bp-notes-list');
@@ -395,10 +398,15 @@
           const locked=accessFor({app:page,id:item.id}).locked;
           if (photos) row.append(locked?$('div','bp-photo-thumb bp-image-fallback','🔒'):image(item.src,'bp-photo-thumb','照片'));
           add(row,$('strong','',item.title || (photos?'照片':'筆記')));
+          if(photos && !locked)row.append($('small','bp-muted',ownerState?.phoneUI?.photos?.some(photo=>photo.id===item.id)?'故事事件取得':'作者預先提供'));
           if (!photos || locked) row.append($('small','bp-muted',locked?'🔒 已鎖定':item.text.slice(0,100)));
           list.append(row);
         });
         area.append(list);
+        if(photos && window.BAOImageGeneration){
+          const collection=$('section','image-generation');area.append(collection);
+          imageCollectionCleanup=window.BAOImageGeneration.mountCollection(collection,{phone:true});
+        }
       }
     } else if (page === 'x') {
       renderX(area);
