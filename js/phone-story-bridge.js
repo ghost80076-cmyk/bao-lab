@@ -14,7 +14,7 @@
         this.messages.at(-1)?.role !== 'user') return originalAdd(role, content);
     const parsed = Core.extract(content);
     const user=this.messages.at(-1);
-    const source=Core.mergeDisplay(activePhone(),GameState.current.phoneUI);
+    const source=Core.xPlayerIntent(user) ? Core.mergeDisplay(activePhone(),GameState.current.phoneUI) : null;
     const patch=source?.apps.includes('x') ? Core.withXPlayerPost(parsed.patch,user,source.tweets,id=>{
       const access=window.BAOPhoneInteractionCore?.access(source,GameState.current.phoneInteractions,{app:'x',id});
       return !access || (access.exists && !access.locked && !access.hidden);

@@ -758,7 +758,7 @@
       const post=form.dataset.phoneForm==='x-reply'?config.tweets.find(item=>subpage==='post:'+item.id):null;
       if(form.dataset.phoneForm==='x-reply' && (!post || post.id!==pending.replyTo))return;
       void pending.ready.then(()=>{
-        if(pending===dmPhotos && pending.current())sendToStory(value || '分享一張照片。','X',post,pending);
+        if(pending===dmPhotos && pending.current())sendToStory(value || '分享一張照片。','X',post,post && !pending.image?null:pending);
       });return;
     }
     if(!value)return;

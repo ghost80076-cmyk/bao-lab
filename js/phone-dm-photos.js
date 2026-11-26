@@ -150,7 +150,7 @@
       if(!current())return;
       for(const row of rows()){
         const card=cards.get(row.postId);
-        if(!card?.isConnected || !active(row))continue;
+        if(!card?.isConnected)continue;
         const box=node('div');box.className='bp-x-photo';
         if(row.image){
           try{const img=node('img');img.src=BAOStoryImagesCore.validate(row.image).data;img.alt='你公開發布的 X 照片';img.loading='lazy';box.append(img);}catch(_){continue;}

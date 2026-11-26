@@ -271,3 +271,25 @@ test('X photo exchange publishes only explicit public attachments and NPC confir
  await expect(page.getByAltText('你公開發布的 X 照片')).toBeVisible();
  await expect(page.getByText('已公開發布照片',{exact:true})).toBeVisible();
 });
+
+test('X photo exchange root publication does not depend on model echo',async({page})=>{
+ await setup(page,834);
+ await page.evaluate(()=>{
+   App.activeCharacter.phone_ui.tweets=[{id:'root',authorId:'a',text:'既有貼文'}];
+   App.config.api.baseUrl='https://vision.example.test/v1/chat/completions';
+   App.config.api.visionConfirmedRoute=BAOStoryImagesCore.routeKey(App.config.api);
+ });
+ await page.route('https://vision.example.test/**',async route=>{
+   if(route.request().method()==='OPTIONS')return route.fulfill({status:204,headers:{'access-control-allow-origin':'*','access-control-allow-headers':'*'}});
+   return route.fulfill({contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify({choices:[{message:{content:'大家看到了你分享的公開貼文。'},finish_reason:'stop'}]})});
+ });
+ await page.locator('#bao-phone-launch').click();await page.locator('.bp-home-handle').click();
+ await page.locator('[data-phone-action="app:x"]').first().click();
+ await page.getByLabel('發布 X 貼文').fill('分享今天的晚餐');
+ const png=await page.evaluate(()=>document.createElement('canvas').toDataURL('image/png').split(',')[1]);
+ await page.locator('.bp-dm-photo-controls input[type=file]').setInputFiles({name:'dinner.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});
+ await expect(page.getByAltText('待公開發布的 X 照片')).toBeVisible();
+ await page.getByRole('button',{name:'發布至故事內 X'}).click();
+ await expect(page.locator('.bp-tweet').filter({hasText:'分享今天的晚餐'}).getByAltText('你公開發布的 X 照片')).toBeVisible();
+ expect(await page.evaluate(()=>GameState.current.phoneUI.tweets.filter(t=>t.from==='me').map(t=>t.text))).toEqual(['分享今天的晚餐']);
+});

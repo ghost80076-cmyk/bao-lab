@@ -209,3 +209,16 @@ test('X publication uses explicit player intent and public post ownership, never
   assert.equal(Core.normalizePatch({...incoming,xPhotoOffer:{...incoming.xPhotoOffer,senderId:'a'}}).xPhotoOffer,undefined);
   assert.equal(Core.normalizePatch({xPhotoOffer:incoming.xPhotoOffer}),null);
 });
+
+test('X root posts need no model echo; ordinary text-only and private turns do not publish attachments',()=>{
+ const id='player-x-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+ const user={role:'user',content:Core.xPublishPrefix(id)+'今天的晚餐',storyImage:{data:'fixture'}};
+ const patch=Core.withXPlayerPost(null,user,[]);
+ assert.equal(patch.tweets[0].id,id);
+ assert.equal(patch.tweets[0].replyTo,'');
+ const message={role:'assistant',id:'m',phonePatch:patch};
+ assert.equal(Core.xPhotoRows([user,message],patch.tweets).length,1);
+ assert.equal(Core.xPhotoRows([{...user,content:'【X｜回覆貼文 ID：old】舊文字路徑'},message],patch.tweets).length,0);
+ assert.equal(Core.xPhotoRows([user,message],[{...patch.tweets[0],text:'改寫'}]).length,0);
+ assert.equal(Core.xPhotoRows([user,message],[{...patch.tweets[0],authorId:'npc'}]).length,0);
+});

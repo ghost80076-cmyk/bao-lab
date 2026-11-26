@@ -234,8 +234,10 @@
       const patch=normalizePatch(selected ? selected.phonePatch : message.phonePatch);
       if(!patch)continue;
       const intent=xPlayerIntent(preceding);
-      const match=t=>t && xPublicPost(tweets,t.id,allowed) &&
-        xFingerprint(xPublicPost(tweets,t.id,allowed))===xFingerprint(t);
+      const match=t=>{
+        const live=t && xPublicPost(tweets,t.id,allowed);
+        return live && xFingerprint(live)===xFingerprint(t);
+      };
       if(intent && preceding.storyImage){
         const post=patch.tweets?.find(t=>t.id===intent.id && t.from==='me' && !t.authorId && t.replyTo===intent.replyTo && t.text===intent.text);
         if(match(post))rows.push({postId:post.id,message,image:preceding.storyImage,signature:xFingerprint(post)});
@@ -244,7 +246,7 @@
       // story turns with a player image are excluded too unless explicitly X.
       const content=typeof preceding.content==='string'?preceding.content.trim():'';
       if(/^【(?:KakaoTalk|Instagram)/.test(content) ||
-         (preceding.storyImage && !intent && !content.startsWith('【X｜回覆貼文 ID：')))continue;
+         (preceding.storyImage && !intent))continue;
       const offer=patch.xPhotoOffer;
       const post=offer && patch.tweets?.find(t=>t.id===offer.postId && t.authorId===offer.senderId && t.from==='them');
       if(match(post)){
