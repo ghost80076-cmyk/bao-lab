@@ -128,3 +128,53 @@ test('large collection pages thumbnails without injecting image bytes or changin
  await open(page);await page.getByText('生成圖集與完整備份',{exact:true}).click();await page.getByLabel('顯示本故事所有章節與已回溯圖片').check();
  await expect(page.locator('.image-gen-gallery article')).toHaveCount(12);await page.getByRole('button',{name:'載入更多',exact:true}).click();await expect(page.locator('.image-gen-gallery article')).toHaveCount(24);
 });
+test('private photo exchange sends vision once and delivers only on confirmation',async({page})=>{
+ const imageCalls=await setup(page);
+ await page.evaluate(()=>{
+   App.activeCharacter.phone_ui.contactName='A';
+   App.config.api.baseUrl='https://vision.example.test/v1/chat/completions';
+   App.config.api.visionConfirmedRoute=BAOStoryImagesCore.routeKey(App.config.api);
+ });
+ const vision=[];
+ await page.route('https://vision.example.test/**',async route=>{
+   if(route.request().method()==='OPTIONS')return route.fulfill({status:204,headers:{'access-control-allow-origin':'*','access-control-allow-headers':'*'}});
+   const payload=route.request().postDataJSON();vision.push(payload);
+   const reply='回覆私訊。[[YORUBAY_PHONE_V1]]'+JSON.stringify({chat:[{from:'them',text:'看見你的晚餐了。'}],photoOffer:{threadId:'',description:'窗外的夜雨',kind:'scene'}})+'[[/YORUBAY_PHONE_V1]]';
+   return route.fulfill({contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify({choices:[{message:{content:reply},finish_reason:'stop'}]})});
+ });
+ async function enter(){
+   await page.locator('#bao-phone-launch').click();await page.locator('.bp-home-handle').click();
+   await page.locator('[data-phone-action="app:kakao"]').first().click();await page.locator('[data-phone-action="kakao-chat"]').click();
+ }
+ await enter();
+ const png=await page.evaluate(()=>document.createElement('canvas').toDataURL('image/png').split(',')[1]);
+ await page.locator('.bp-dm-photo-controls input[type=file]').setInputFiles({name:'dinner.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});
+ await expect(page.getByAltText('待傳送私訊照片')).toBeVisible();
+ await page.getByRole('button',{name:'傳送至故事',exact:true}).click();
+ await expect(page.getByText('看見你的晚餐了。',{exact:true}).last()).toBeVisible();
+ expect(vision.filter(body=>body.messages?.some(m=>Array.isArray(m.content) && m.content.some(p=>p.type==='image_url')))).toHaveLength(1);
+ await expect(page.getByAltText('你傳給A的照片')).toBeVisible();
+ expect(await page.locator('.bp-thread').evaluate(thread=>{
+   const photo=thread.querySelector('.bp-mine img'),reply=thread.querySelector('.bp-bubble');
+   return Boolean(photo.compareDocumentPosition(reply) & Node.DOCUMENT_POSITION_FOLLOWING);
+ })).toBe(true);
+ const offer=page.getByRole('button',{name:'查看照片提議'});
+ await offer.click();await page.keyboard.press('Escape');await expect(offer).toBeVisible();
+ expect(imageCalls).toHaveLength(0);
+ await offer.click();await generate(page);expect(imageCalls).toHaveLength(1);
+ expect(await page.evaluate(async()=>(await BAOImageAssets.list(BAOImageAssets.scope().storyId)).length)).toBe(0);
+ await page.getByRole('button',{name:'傳送至這段私訊'}).click();
+ await expect(page.getByText('A 已傳送照片',{exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'收藏至 Phone 相簿'}).click();
+ await expect.poll(()=>page.evaluate(async()=>(await BAOImageAssets.list(BAOImageAssets.scope().storyId))[0]?.inPhone)).toBe(true);
+ await page.evaluate(()=>BAOPhoneUI.close());await enter();await expect(offer).toHaveCount(0);
+ await expect(page.getByText('A 已傳送照片',{exact:true})).toBeVisible();
+ await page.evaluate(()=>BAOPhoneUI.close());await page.reload();await ready(page);
+ await page.evaluate(()=>{Storage.restoreStory(Storage.loadStory());App.showView('chat');App.renderChatShell(false);});
+ await enter();await expect(page.getByText('A 已傳送照片',{exact:true})).toBeVisible();
+ await expect(page.getByAltText('你傳給A的照片')).toBeVisible();
+ await page.evaluate(()=>{BAOPhoneUI.close();App.activeCharacter.phone_ui.contactName='B';});
+ await enter();await expect(page.locator('.bp-dm-photo-controls')).toBeVisible();
+ await expect(page.locator('.bp-dm-photo')).toHaveCount(0);
+
+});

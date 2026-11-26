@@ -73,7 +73,7 @@
             const copy=button('保存到目前回覆／相簿',async()=>{
               try{if(!sameScope({...current,messageId:scene?.id}))throw new Error('故事或回覆已改變，請重新開啟畫面工具。');
                 const asset=await Assets.get(record.assetId);if(!asset)throw new Error('圖片遺失。');
-                await Assets.save(asset,{...record,...current,messageId:scene.id,archived:false,inStory:true,inPhone:true});await paint();
+                await Assets.save(asset,{...record,...current,dmKey:null,dmOffer:null,messageId:scene.id,archived:false,inStory:true,inPhone:true});await paint();
               }catch(error){statusError(status)(error);}
             });
             card.append(copy,remove);
@@ -115,12 +115,15 @@
     }
     return imported;
   }
-  function attach(view,{scene,card,output,profile}) {
+  function attach(view,{scene,card,output,profile,dm=null}) {
     const {panel,status}=view,current={...Assets.scope(),messageId:scene.id};
     const section=el('details');section.className='image-generation';section.open=true;
     section.append(el('summary','生成場景圖片／角色照片'));
     const kind=field('圖片類型','select');options(kind.input,[['scene','故事場景'],['selfie','角色自拍／生活照']]);
-    const people=cast(card),character=field('角色','select');options(character.input,people.map(p=>[p.id,p.name]));
+    const castList=cast(card);
+    const people=dm?[castList.find(p=>p.id===dm.senderId || p.name===dm.name) ||
+      {id:dm.senderId,name:dm.name,appearance:'',outfit:''}]:castList;
+    const character=field('角色','select');options(character.input,people.map(p=>[p.id,p.name]));
     const appearance=field('角色外貌（只用於這張照片）','textarea');appearance.input.rows=3;
     const refreshPerson=()=>{const p=people.find(p=>p.id===character.input.value);appearance.input.value=[p?.appearance,p?.outfit].filter(Boolean).join('\n');};
     const kindChanged=()=>{character.wrap.hidden=appearance.wrap.hidden=kind.input.value!=='selfie';consent.input.checked=false;};
@@ -142,6 +145,13 @@
       kind.input.value==='selfie'?`角色照片：${person?.name||''}\n外貌：${appearance.input.value}`:'',
       photo.input.value,out.continuity_prompt||profile.value,out.negative_prompt?`避免：${out.negative_prompt}`:'',
       '僅生成視覺素材；不增添故事事實。'].filter(Boolean).join('\n\n').slice(0,24000);consent.input.checked=false;};
+    if(dm){
+      kind.input.value=dm.offer.kind;
+      const sender=people.find(p=>p.id===dm.senderId || p.name===dm.name);
+      if(sender)character.input.value=sender.id;
+      refreshPerson();
+      if(!sender)appearance.input.value='';
+    }
     compile();kindChanged();
     const config=()=>({provider:provider.input.value,model:provider.input.value==='custom'?customModel.input.value:model.input.value,
       endpoint:endpoint.input.value,key:key.input.value,catalog,ratio:ratio.input.value,quality:quality.input.value,
@@ -168,7 +178,9 @@
         const parsed=JSON.parse(new TextDecoder().decode(await Core.readBounded(res,2*1024*1024)));
         catalog=(parsed.data||[]).filter(m=>typeof m.id==='string' && m.architecture?.output_modalities?.includes('image')).slice(0,500);
         if(!catalog.length)throw new Error('目錄沒有可用生圖模型。');
-        provider.input.value='openrouter';refreshModels();status.textContent='目錄已更新；品質選項只列目錄宣告能力，實際供應商可能有額外限制。';
+        if(provider.input.value!=='openrouter'){
+          provider.input.value='openrouter';provider.input.dispatchEvent(new Event('change'));
+        }else refreshModels();status.textContent='目錄已更新；品質選項只列目錄宣告能力，實際供應商可能有額外限制。';
       }catch(_){status.textContent='無法讀取 OpenRouter 生圖目錄，請稍後手動重試。';}finally{clearTimeout(timer);discover.disabled=false;}
     });
     provider.input.addEventListener('change',()=>{referenceEpoch++;referenceBusy=false;key.input.value='';referenceData='';reference.input.value='';authorized.input.checked=false;refreshModels();});
@@ -186,6 +198,7 @@
     const result=el('section'),busyStatus=el('p');result.className='image-gen-result';busyStatus.setAttribute('role','status');let controller=null,resultUrl='';
     const generate=button('確認並生成 1 張圖片',async()=>{
       if(controller)return;
+      if(dm && !dm.valid()){status.textContent='私訊或照片提議已改變，請重新開啟。';return;}
       if(!sameScope(current)){status.textContent='請先保存故事，並從有效 AI 回覆開啟畫面工具。';return;}
       if(referenceBusy){status.textContent='參考圖片仍在處理中。';return;}
       if(!consent.input.checked){status.textContent='請先核對完整提示詞、模型及費用，勾選本次確認。';return;}
@@ -200,15 +213,18 @@
         if(controller.signal.aborted || !view.overlay.isConnected){busyStatus.textContent='操作已取消，未自動保存結果；請核對供應商帳單。';return;}
         if(resultUrl)URL.revokeObjectURL(resultUrl);resultUrl=URL.createObjectURL(blob);view.urls.add(resultUrl);
         result.replaceChildren();const img=el('img');img.src=resultUrl;img.alt='本次生成結果';img.className='image-gen-full';
-        const title=field('圖片標題');title.input.value=snapshot.kind==='selfie'?`${snapshot.characterName}的照片`:'故事場景';
+        const title=field('圖片標題');title.input.value=dm?dm.offer.description.slice(0,100):snapshot.kind==='selfie'?`${snapshot.characterName}的照片`:'故事場景';
         const story=check('加入指定回覆的故事畫面'),phone=check('加入本章 Phone 相簿');story.input.checked=true;
-        const save=button('保存圖片',async()=>{
+        const save=button(dm?'傳送至這段私訊':'保存圖片',async()=>{
           save.disabled=true;
           try{if(!sameScope(current))throw new Error('故事已改變，請下載圖片後在正確故事匯入。');
-            await Assets.save(prepared,{...current,...snapshot,title:title.input.value,createdAt:new Date().toISOString(),provider:chosen.provider,model:chosen.model,inStory:story.input.checked,inPhone:phone.input.checked});
+            if(dm && !dm.valid())throw new Error('私訊或照片提議已改變。');
+            await Assets.save(prepared,{...current,...snapshot,...(dm?{dmKey:dm.key,dmOffer:dm.signature,characterName:dm.name,characterId:dm.senderId}:{}),title:title.input.value,createdAt:new Date().toISOString(),provider:chosen.provider,model:chosen.model,inStory:story.input.checked,inPhone:phone.input.checked});
+            if(dm){dm.delivered();view.dismiss();return;}
             status.textContent='圖片與引用已保存到本機。跨裝置請使用「故事＋生成圖片」備份。';
           }catch(error){statusError(status)(error);}finally{save.disabled=false;}
         });
+        if(dm){story.input.checked=false;story.wrap.hidden=true;}
         result.append(img,title.wrap,story.wrap,phone.wrap,save,button('下載圖片',()=>{try{download(blob,'yorubay-image.'+blob.type.split('/')[1]);status.textContent='已交給瀏覽器下載；請確認下載紀錄。';}catch(_){status.textContent='下載啟動失敗，請檢查瀏覽器設定。';}}),button('捨棄此結果',()=>{URL.revokeObjectURL(resultUrl);resultUrl='';result.replaceChildren();}));
         busyStatus.textContent=sameScope(current)?'圖片已生成，尚未保存。重新生成需再次勾選費用確認。':'圖片已生成，但故事已切換；請先下載保留圖片。';
       }catch(error){busyStatus.textContent=error.message||'圖片生成失敗。';}finally{controller=null;generate.disabled=false;cancel.hidden=true;}
@@ -230,7 +246,7 @@
       }catch(error){statusError(status)(error);}finally{restore.input.disabled=false;restore.input.value='';}
     });
     body.prepend(el('p','一般故事 JSON／TXT／Drive 備份不包含生成圖片。請用此處的完整備份攜帶圖片；備份含私人圖片與故事，請自行保管。'),backup,restore.wrap);
-    panel.append(section,gallery);
+    panel.append(section);if(!dm)panel.append(gallery);
     view.onDismiss(()=>{referenceEpoch++;controller?.abort();cleanupCollection();});
   }
   async function renderStory() {
@@ -253,5 +269,5 @@
     storyCleanup=()=>cleanup.forEach(fn=>fn());
   }
   window.addEventListener('bao:generated-images-changed',()=>{void renderStory();window.BAOPhoneUI?.refreshFromState();});
-  window.BAOImageGeneration=Object.freeze({attach,renderStory,mountCollection,exportStory,importStory});
+  window.BAOImageGeneration=Object.freeze({thumbnail,attach,renderStory,mountCollection,exportStory,importStory});
 })();
