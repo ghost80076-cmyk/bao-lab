@@ -14,7 +14,7 @@ AI 回覆的「畫面」或工具中的「將此刻化成畫面」→「生成�
 
 | 供應商 | 本版路徑／模型 | 狀態與限制 |
 | --- | --- | --- |
-| OpenAI | `/v1/images/generations`；有參考圖改用 `/v1/images/edits` multipart。GPT Image 2.6 Flare／Sunburst、2.5 Flare／Sunburst、2、1.5、1 Mini | 明確型號 allowlist；官方可能要求組織驗證。1:1／3:2／2:3，low／medium／high；2.5／2.6 另有 xhigh／max。 |
+| OpenAI | `/v1/images/generations`；有參考圖改用 `/v1/images/edits` multipart。GPT Image 2.6 Flare／Sunburst、2.5 Flare／Sunburst、2 | 明確型號 allowlist；官方可能要求組織驗證。1:1／3:2／2:3，low／medium／high；2.5／2.6 另有 xhigh／max。 |
 | Gemini | `v1beta/models/{model}:generateContent`；`gemini-3.1-flash-image`、`gemini-3-pro-image`、`gemini-3.1-flash-lite-image` | `responseModalities` 與 `imageConfig`；inlineData 授權參考圖。Flash／Pro 為 1K／2K／4K，Flash Lite 僅 1K；實際權限依帳號。尚未適配 Interactions 新型號。 |
 | OpenRouter | 公開 GET `/api/v1/images/models` → POST `/api/v1/images` | 只列宣告 image output 的目錄項目；比例／品質依能力 enum；參考圖依 input_references；需要多張參考圖者拒絕。模型級能力是各端點聯集，供應商仍可能拒絕參數；原樣報錯，不擅改付費設定。`allow_fallbacks:false`。 |
 | 自訂中轉 | 明確 HTTPS `/images/generations`，OpenAI Images 最小文字生圖協議 | 精確端點＋模型重新確認、獨立 Key，可能受 CORS 限制；不宣稱已驗證任何中轉。無猜測品質、尺寸、參考圖能力。 |
@@ -31,6 +31,8 @@ AI 回覆的「畫面」或工具中的「將此刻化成畫面」→「生成�
 - https://ai.google.dev/gemini-api/docs/imagen
 - https://ai.google.dev/gemini-api/docs/pricing
 - https://openrouter.ai/docs/guides/overview/multimodal/image-generation
+
+OpenAI 直連生命週期：[官方退役公告](https://developers.openai.com/api/docs/deprecations) 列明 GPT Image 1.5／1 Mini 於 2026-12-01 停用，夜灣提前移出直連選單並拒絕舊直連請求。Flare 仍為原有預設，不替玩家自動換模型；相簿、備份及歷史來源標示不遷移。GPT Image 2 的停用日另為 2027-02-10，這次仍保留，需在停用前另行對齊。OpenRouter 與自訂中轉仍以各供應商契約為準。
 
 價格查核：GPT Image 2.5 官方指南列圖片輸入 US$8／百萬 token、圖片輸出 US$30／百萬 token、文字輸入 US$5／百萬 token；每張成本隨尺寸與品質消耗而變。Gemini 3.1 Flash Image 公布 1K 圖片輸出約 US$0.067，另計輸入／文字；3 Pro Image 的 1K／2K 圖片輸出約 US$0.134。OpenRouter 依所選模型與服務端點；不把 `:free` 當永久承諾。UI 提供官方價格連結而不寫死每張台幣價格；實際帳單為準。
 
@@ -79,3 +81,7 @@ Core 合約：`tests/story-image-generation-core.cjs`。跨瀏覽器：`tests/e2
 Phone → KakaoTalk → 主要聯絡人，或只有一名聯絡人的聊天室。玩家可附一張照片，預覽後傳送，沿用文字對話的 Vision 權限、費用、容量與故事備份規則。角色可在該次回覆的 Phone patch 提出 `photoOffer`（threadId、scene／selfie、description）。提議只在原私訊顯示。群聊、X、離線看圖與背景自動付費均未啟用。
 
 玩家可略過提議，或開啟、確認模型費用、生成預覽，再按「傳送至這段私訊」。送達後才建立帶私訊對象與提議識別的本機圖片引用；可隨後收藏至 Phone 相簿。同一章節、角色、原回覆與提議須吻合才顯示收件圖片。下一則私訊可帶最近已收照片的標題，沒有額外讀圖請求。生成照片隨專用含圖備份搬移。真實模型是否自然提議、實際生成品質與帳單需另行授權測試。
+
+### 後續群聊與 X 照片驗收（尚未實作）
+
+群聊與世界內 X 沿用同一套照片引用；分享時明確指定可見範圍，驗證私訊保密、轉發後才可見、切換及回溯不串線。相簿收藏不等於發送。角色照片提議頻率、真實 RP／Vision 表現、晚餐／風景／自拍的畫質、延遲及成本需分別驗收，不將 mock 結果當作供應商實測。

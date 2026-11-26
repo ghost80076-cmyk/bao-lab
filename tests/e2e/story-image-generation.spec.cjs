@@ -28,6 +28,9 @@ for(const width of [320,390,834,1440])test(`scene generate save reload portable 
  const calls=await setup(page,width);
  const before=await page.evaluate(()=>({state:JSON.stringify(GameState.current),messages:JSON.stringify(Chat.messages),card:JSON.stringify(App.activeCharacter),api:JSON.stringify(App.config.api)}));
  await open(page);expect(calls).toHaveLength(0);
+ const model=page.getByLabel('圖片模型',{exact:true});
+ await expect(model).toHaveValue('gpt-image-2.6-flare');
+ await expect(model.locator('option[value="gpt-image-1.5"],option[value="gpt-image-1-mini"]')).toHaveCount(0);
  await page.getByRole('button',{name:'確認並生成 1 張圖片'}).click();expect(calls).toHaveLength(0);
  await generate(page);expect(calls).toHaveLength(1);expect(calls[0].url).toContain('/images/generations');expect(calls[0].body).not.toContain('TEXT-KEY');
  await page.getByLabel('加入本章 Phone 相簿').check();await page.getByRole('button',{name:'保存圖片',exact:true}).click();

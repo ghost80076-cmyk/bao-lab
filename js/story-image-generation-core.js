@@ -7,7 +7,9 @@
   'use strict';
   const MAX_BYTES = 16 * 1024 * 1024;
   const MAX_JSON = 24 * 1024 * 1024;
-  const OPENAI = ['gpt-image-2.6-flare','gpt-image-2.6-sunburst','gpt-image-2.5-flare','gpt-image-2.5-sunburst','gpt-image-2','gpt-image-1.5','gpt-image-1-mini'];
+  const OPENAI = Object.freeze(['gpt-image-2.6-flare','gpt-image-2.6-sunburst','gpt-image-2.5-flare','gpt-image-2.5-sunburst','gpt-image-2']);
+  // Direct OpenAI API retirements; other providers own their model availability.
+  const RETIRED_OPENAI = new Set(['gpt-image-1.5','gpt-image-1.5-2025-12-16','gpt-image-1-mini','chatgpt-image-latest']);
   const GEMINI = ['gemini-3.1-flash-image','gemini-3-pro-image','gemini-3.1-flash-lite-image'];
   class ImageError extends Error {}
   const fail = text => { throw new ImageError(text); };
@@ -21,6 +23,7 @@
   }
   function capability(config) {
     const {provider, model} = config;
+    if (provider === 'openai' && RETIRED_OPENAI.has(model)) fail('此 OpenAI 直連生圖模型已停止提供選用。請手動選擇其他模型（例如 GPT Image 2.6 Flare）；不會自動切換。');
     if (provider === 'openai' && OPENAI.includes(model)) return {ratios:['1:1','3:2','2:3'], qualities:['low','medium','high',...(/2\.[56]/.test(model)?['xhigh','max']:[])], reference:true};
     if (provider === 'gemini' && GEMINI.includes(model)) return {ratios:['1:1','16:9','9:16','4:3','3:4'], qualities:model==='gemini-3.1-flash-lite-image'?['1K']:['1K','2K','4K'], reference:true};
     if (provider === 'openrouter') {
