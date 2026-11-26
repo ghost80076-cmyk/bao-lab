@@ -65,4 +65,4 @@ function compareWorkerModules(graph, deployed) {
 }
 
 
-module.exports = { compareWorkerModules, decodeModuleBase64 };
+module.exports = { compareWorkerModules, decodeModuleBase64, required };
