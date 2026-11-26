@@ -48,6 +48,21 @@
     }
     return combine(source);
   };
+  // Resolve the same target for mounting, initial send and a retry after the
+  // Phone overlay has closed. Do not depend on mutable overlay navigation.
+  function chatPhotoTarget(source,threadId,state) {
+    if(!source?.apps.includes('kakao'))return null;
+    const thread=threadId ? source.threads.find(t=>t.id===threadId) : null;
+    if(threadId){
+      const access=Puzzles?.access(source,state?.phoneInteractions,{app:'kakao',id:threadId});
+      if(!thread || access?.locked || access?.hidden)return null;
+    }
+    const name=thread?.name || thread?.participants.map(id=>source.contacts.find(c=>c.id===id)?.name || id).join('、') || source.contactName || source.instagram.callerName || '聯絡人';
+    if(thread?.participants.length>1)return window.BAOPhoneStoryCore?.groupPhotoTarget(thread,name,source.contacts);
+    if(thread ? thread.participants.length!==1 : !source.contactName)return null;
+    const senderId=thread?.participants[0] || name;
+    return {threadId,name,senderId,prefix:'【KakaoTalk｜對 '+name+' 發送訊息'+(threadId?'｜聊天室 ID：'+threadId:'')+'】',key:JSON.stringify([threadId,senderId])};
+  }
   const noticesFor = (source, state) => (window.BAOPhoneStoryCore?.notifications?.(state?.phoneUI) || []).filter(item => {
     if (!source?.apps.includes(item.app)) return false;
     if (!item.targetId) return true;
@@ -361,21 +376,12 @@
         add(form,input,send); area.append(form);
         const selected=selectedThread();
         if(window.BAOPhoneDMPhotos){
-          const name=threadName(selected),threadId=selected?.id || '',senderId=selected?.participants[0] || name;
-          const prefix='【KakaoTalk｜對 '+name+' 發送訊息'+(threadId?'｜聊天室 ID：'+threadId:'')+'】';
-          const group=selected?.participants.length>1;
-          const target=group ? window.BAOPhoneStoryCore.groupPhotoTarget(selected,name,config.contacts) :
-            (selected ? selected.participants.length===1 : config.contactName) ? {threadId,name,senderId,prefix,key:JSON.stringify([threadId,senderId])} : null;
+          const threadId=selected?.id || '',target=chatPhotoTarget(config,threadId,ownerState);
           if(target){
             const active=()=>{
               if(!root || ownerState!==GameState.current || ownerCharacter!==App.activeCharacter || page!=='kakao' || subpage!=='chat' || activeThread!==threadId)return false;
-              if(!group)return true;
-              const live=phoneSource(),liveThread=live?.threads.find(t=>t.id===threadId);
-              const access=live && Puzzles?.access(live,ownerState?.phoneInteractions,{app:'kakao',id:threadId});
-              if(!liveThread || access?.locked || access?.hidden)return false;
-              const liveName=liveThread.name || liveThread.participants.map(id=>live.contacts.find(c=>c.id===id)?.name || id).join('、');
-              const liveTarget=window.BAOPhoneStoryCore.groupPhotoTarget(liveThread,liveName,live.contacts);
-              return liveTarget?.key===target.key && liveTarget.prefix===target.prefix;
+              const live=chatPhotoTarget(phoneSource(),threadId,GameState.current);
+              return live?.key===target.key && live?.prefix===target.prefix;
             };
             dmPhotos=window.BAOPhoneDMPhotos.mount({form,thread,target,active,refresh:render});
           }
@@ -699,23 +705,44 @@
       xPrefix=window.BAOPhoneStoryCore.xPublishPrefix('player-x-'+crypto.randomUUID(),post?.id||'');
       if(!xPrefix){(dm?.error || window.alert)('無法識別公開貼文，請重新開啟 X。');return;}
     }
-    if(dm?.image){
-      try{
-        if(dm.confirmedRoute && dm.confirmedRoute===BAOStoryImagesCore.routeKey(App.config.api))
-          App.config.api.visionConfirmedRoute=dm.confirmedRoute;
-        window.BAOStoryImages.stagePhoneImage(dm.image);
-      }catch(error){dm.error(error.message);return;}
-    }
-    if(xPrefix){composer.value=xPrefix+text;}
+    let nextText='';
+    if(xPrefix){nextText=xPrefix+text;}
     else if(medium==='X' && post){
       const author=post.authorName || post.authorHandle || config.userName || '使用者';
       const quoted=post.text.replace(/\s+/g,' ').slice(0,120);
-      composer.value='【X｜回覆貼文 ID：'+post.id+'｜發文者：'+author+'｜原文：'+quoted+'】'+text;
+      nextText='【X｜回覆貼文 ID：'+post.id+'｜發文者：'+author+'｜原文：'+quoted+'】'+text;
     }else{
       const recipient=medium.startsWith('Instagram') ? (config.instagram.callerName||displayName()) : threadName(selectedThread());
       const threadContext=medium==='KakaoTalk' && selectedThread() ? '｜聊天室 ID：'+selectedThread().id : '';
-      composer.value=(dm?.group ? dm.prefix : '【'+medium+'｜對 '+recipient+' 發送訊息'+threadContext+'】')+text+(dm?.receipt || '');
+      nextText=(dm?.group ? dm.prefix : '【'+medium+'｜對 '+recipient+' 發送訊息'+threadContext+'】')+text+(dm?.receipt || '');
     }
+    if(dm?.image){
+      const state=GameState.current,card=App.activeCharacter,threadId=activeThread;
+      const originalTarget=medium==='KakaoTalk'?chatPhotoTarget(phoneSource(),threadId,state):null;
+      const postFingerprint=t=>JSON.stringify([t.id,t.authorId,t.authorName,t.from,t.replyTo,t.text]);
+      const originalPost=post && postFingerprint(post);
+      const valid=()=>{
+        if(GameState.current!==state || App.activeCharacter!==card)return false;
+        const live=phoneSource();
+        if(medium==='X'){
+          if(!live?.apps.includes('x'))return false;
+          if(!post)return true;
+          const target=window.BAOPhoneStoryCore.xPublicPost(live.tweets,post.id,id=>{
+            const access=Puzzles?.access(live,state.phoneInteractions,{app:'x',id});
+            return !access || (access.exists && !access.locked && !access.hidden);
+          });
+          return !!target && postFingerprint(target)===originalPost;
+        }
+        const target=chatPhotoTarget(live,threadId,state);
+        return !!originalTarget && target?.key===originalTarget.key && target?.prefix===originalTarget.prefix;
+      };
+      try{
+        if(dm.confirmedRoute && dm.confirmedRoute===BAOStoryImagesCore.routeKey(App.config.api))
+          App.config.api.visionConfirmedRoute=dm.confirmedRoute;
+        window.BAOStoryImages.stagePhoneImage(dm.image,{text:nextText,valid});
+      }catch(error){dm.error(error.message);return;}
+    }
+    composer.value=nextText;
     if(dm){
       const before=Chat.messages.at(-1)?.id;
       dm.error(dm.x?'等待公開貼文回覆…':dm.group?'等待群聊回覆…':'等待私訊回覆…');
@@ -848,7 +875,7 @@
     const updated = phoneSource();
     if (!updated) { close(); return; }
     config = updated;
-    if(dmPhotos?.group && !dmPhotos.current()){render();return;}
+    if(dmPhotos && !dmPhotos.x && !dmPhotos.current()){render();return;}
     // Keep active media and focused messaging surfaces intact.
     if ((page === 'photos' || page === 'notes') || page === 'home' || page === 'lock' || page === 'phone' || page === 'x' ||
         (page === 'kakao' && subpage !== 'chat')) render();

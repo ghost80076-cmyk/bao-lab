@@ -73,6 +73,16 @@
     return { count, total };
   }
   const routeKey = config => JSON.stringify([config?.type || '', config?.protocol || 'openai', config?.baseUrl || '', config?.model || '']);
+  // A failed phone upload may be retried from the story composer. Do not
+  // silently repurpose that reviewed attachment for a new recipient or route.
+  function assertPhoneDraft(binding,text,scope,config) {
+    if(!binding || typeof binding.text!=='string' || !binding.text.trim() ||
+       String(text || '').trim()!==binding.text ||
+       !binding.storyId || !binding.chapterId ||
+       binding.storyId!==scope?.storyId || binding.chapterId!==scope?.chapterId ||
+       binding.route!==routeKey(config))
+      throw failure('手機照片的原訊息、章節或 Vision 路徑已改變。請移除照片，回到原手機對話重新選圖。');
+  }
   function capability(config = {}) {
     const model = String(config.model || '').toLowerCase();
     const protocol = config.protocol || (config.type === 'gemini' ? 'gemini' : config.type === 'anthropic' ? 'anthropic' : 'openai');
@@ -112,5 +122,5 @@
       return { inlineData: { mimeType: match[1], data: match[2] } };
     });
   }
-  return Object.freeze({ MAX_DATA, MAX_TOTAL, MAX_COUNT, MAX_EDGE, dimensions, validate, validateMessages, routeKey, capability, assertCapability, attach, geminiParts });
+  return Object.freeze({ MAX_DATA, MAX_TOTAL, MAX_COUNT, MAX_EDGE, dimensions, validate, validateMessages, routeKey, assertPhoneDraft, capability, assertCapability, attach, geminiParts });
 });

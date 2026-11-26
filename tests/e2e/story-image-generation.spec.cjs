@@ -293,3 +293,53 @@ test('X photo exchange root publication does not depend on model echo',async({pa
  await expect(page.locator('.bp-tweet').filter({hasText:'分享今天的晚餐'}).getByAltText('你公開發布的 X 照片')).toBeVisible();
  expect(await page.evaluate(()=>GameState.current.phoneUI.tweets.filter(t=>t.from==='me').map(t=>t.text))).toEqual(['分享今天的晚餐']);
 });
+
+test('phone photo retry cannot silently change private recipient, public scope or Vision route',async({page})=>{
+ await setup(page);
+ await page.evaluate(()=>{
+   App.activeCharacter.phone_ui.contactName='A';
+   App.config.api.baseUrl='https://vision.example.test/v1/chat/completions';
+   App.config.api.visionConfirmedRoute=BAOStoryImagesCore.routeKey(App.config.api);
+ });
+ let calls=0,fail=true;
+ await page.route('https://vision.example.test/**',async route=>{
+   if(route.request().method()==='OPTIONS')return route.fulfill({status:204,headers:{'access-control-allow-origin':'*','access-control-allow-headers':'*'}});
+   calls++;
+   const content='A 收到了照片。[[YORUBAY_PHONE_V1]]'+JSON.stringify({chat:[{from:'them',text:'收到照片。'}]})+'[[/YORUBAY_PHONE_V1]]';
+   return route.fulfill({status:fail?400:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify(fail?{error:{message:'vision request rejected'}}:{choices:[{message:{content},finish_reason:'stop'}]})});
+ });
+ await page.locator('#bao-phone-launch').click();await page.locator('.bp-home-handle').click();
+ await page.locator('[data-phone-action="app:kakao"]').first().click();await page.locator('[data-phone-action="kakao-chat"]').click();
+ const png=await page.evaluate(()=>document.createElement('canvas').toDataURL('image/png').split(',')[1]);
+ await page.locator('.bp-dm-photo-controls input[type=file]').setInputFiles({name:'private.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});
+ await expect(page.getByAltText('待傳送私訊照片')).toBeVisible();
+ await page.getByRole('button',{name:'傳送至故事',exact:true}).click();
+ await expect(page.locator('#bao-phone-stage')).toHaveCount(0);
+ await expect(page.locator('#story-image-panel img')).toBeVisible();
+ expect(calls).toBe(1);
+ const original=await page.locator('#user-input').inputValue();
+ expect(original).toContain('KakaoTalk｜對 A');
+ const originalMessages=await page.evaluate(()=>Chat.messages.length);
+ for(const next of ['【KakaoTalk｜對 B 發送訊息】照片','【X｜公開發佈】照片']){
+   await page.locator('#user-input').fill(next);
+   await page.locator('[data-send-message]').click();
+   await expect(page.locator('#story-image-status')).toContainText('原訊息、章節或 Vision 路徑已改變');
+   expect(calls).toBe(1);
+ }
+ await page.locator('#user-input').fill(original);
+ await page.evaluate(()=>{App.activeCharacter.phone_ui.contactName='B';});
+ await page.locator('[data-send-message]').click();
+ await expect(page.locator('#story-image-status')).toContainText('原收件範圍已改變');
+ expect(calls).toBe(1);
+ await page.evaluate(()=>{App.activeCharacter.phone_ui.contactName='A';App.config.api.model='another-vision';App.config.api.visionConfirmedRoute=BAOStoryImagesCore.routeKey(App.config.api);});
+ await page.locator('[data-send-message]').click();
+ await expect(page.locator('#story-image-status')).toContainText('原訊息、章節或 Vision 路徑已改變');
+ expect(calls).toBe(1);
+ expect(await page.evaluate(()=>Chat.messages.length)).toBe(originalMessages);
+ await page.evaluate(()=>{App.config.api.model='text-fixture';App.config.api.visionConfirmedRoute=BAOStoryImagesCore.routeKey(App.config.api);});
+ fail=false;
+ await page.locator('[data-send-message]').click();
+ await expect(page.locator('#story-image-panel')).toBeHidden();
+ expect(calls).toBe(2);
+ expect(await page.evaluate(()=>Chat.messages.filter(m=>m.storyImage).length)).toBe(1);
+});
