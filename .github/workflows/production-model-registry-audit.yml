@@ -53,6 +53,8 @@ jobs:
           node tests/model-registry-contract.cjs
           node tests/model-rollout-plan-core.cjs
           node tests/model-deployment-plan-core.cjs
+          node tests/production-worker-code-drift-core.cjs
+          node tests/model-coordinated-code-parity-workflow-core.cjs
 
   production-audit:
     if: github.event_name != 'pull_request'
@@ -72,3 +74,23 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_WORKER_NAME: ${{ secrets.CLOUDFLARE_WORKER_NAME }}
         run: node scripts/audit-production-model-registry.cjs
+
+  worker-code-drift-audit:
+    # Only trusted main deployments can read production Worker code. Never expose
+    # content or environment secrets in PR runs or job logs.
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Read-only diff of deployed Worker module hashes
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_WORKER_NAME: ${{ secrets.CLOUDFLARE_WORKER_NAME }}
+        run: node scripts/audit-production-worker-code-drift.cjs
