@@ -24,6 +24,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Production Worker read-only drift audit contracts
+        run: |
+          node --check scripts/audit-production-worker-code-drift.cjs
+          node tests/production-worker-code-drift-core.cjs
+          node tests/model-coordinated-code-parity-workflow-core.cjs
       - name: Story image contracts and portable storage
         run: |
           node tests/story-images-core.cjs
