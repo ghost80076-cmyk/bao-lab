@@ -4,7 +4,7 @@
 // Compare the exact deployed Cloudflare Worker module bytes against the
 // reviewed GitHub module manifest. Read only: never uploads or deploys code,
 // patches settings, prints source, or reads secret binding values.
-const { compareWorkerModules, decodeModuleBase64 } = require("./worker-module-parity-core.cjs");
+const { compareWorkerModules, decodeModuleBase64, required } = require("./worker-module-parity-core.cjs");
 const {
   loadWorkerModuleManifest,
 } = require("./deploy-worker-content.cjs");
