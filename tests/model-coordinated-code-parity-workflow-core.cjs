@@ -1,0 +1,14 @@
+"use strict";
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const source = fs.readFileSync(path.join(__dirname, "../.github/workflows/coordinated-model-deploy.yml"), "utf8");
+const parity = source.indexOf("Verify read-only production Worker code parity before AWS changes");
+const aws = source.indexOf("Apply AWS relay model allowlist first");
+const cf = source.indexOf("Deploy Cloudflare model binding version with built-in rollback");
+assert.ok(parity > 0 && aws > parity && cf > aws, "read-only parity check must precede AWS and Cloudflare writes");
+assert.match(source, /node scripts\/audit-production-worker-code-drift\.cjs/);
+assert.match(source, /node tests\/production-worker-code-drift-core\.cjs/);
+assert.match(source, /steps\.aws_apply\.outputs\.changed == 'true'/, "AWS compensation must remain intact");
+assert.match(source, /group: production-worker/, "production deployment concurrency must remain serialized");
+console.log("model coordination code parity workflow contract passed");

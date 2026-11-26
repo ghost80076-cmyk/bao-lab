@@ -53,3 +53,32 @@ the AWS relay's `OPENROUTER_MODELS` process environment.
 - This rebalancing does not remove model IDs, alter billing rates, change Worker runtime code, or modify credentials.
 - If apply fails following a completed AWS update, verify automatic AWS compensation before rerunning.
 - After merging a capacity repair, run a **new main dry-run** and use its fresh `REVIEWED_MAIN_SHA` and `CURRENT_SHA256`. Never reuse values from a prior commit.
+
+## Live Worker source parity gate (2026-11-26)
+
+A past coordinated apply failed after updating AWS because Cloudflare returned
+`candidate Worker code differs from the currently deployed version`. This is
+**not** a model pricing error and **not** evidence that a dashboard status
+label indicates active traffic. The script's source ETag check stays enabled.
+
+The coordinated workflow now performs a **read-only** check of the exact
+100%-deployed Worker version **before** any AWS update. The auditor calls
+Cloudflare's version-specific `GET /workers/workers/{name}/versions/{id}?include=modules`
+and compares SHA-256 of each deployed module with the reviewed GitHub
+`deployment-manifest.json` module contents. Only module names and 12-char
+digest prefixes are printed for mismatches, never source or secret values.
+
+If the check fails:
+- Do not run `apply` again or overwrite the live Worker.
+- Inspect the listed differing/missing/unexpected module names. Check whether
+  there is a production-only hotfix; preserve it before considering code deploy.
+- If all live module bytes match but the Cloudflare upload ETag still differs,
+  investigate Cloudflare version canonicalization/metadata. Keep the ETag gate
+  until that path is safely proven.
+- Cloudflare's *latest uploaded* version may be different from the active
+  deployment. Only compare against the single version receiving 100% traffic.
+
+Cloudflare docs: https://developers.cloudflare.com/api/typescript/resources/workers/subresources/beta/subresources/workers/subresources/versions/methods/get/
+
+The read-only parity gate can return a non-success status when the endpoint
+is not accessible; this intentionally fails closed without changing production.
