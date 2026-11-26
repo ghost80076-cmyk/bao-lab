@@ -39,8 +39,9 @@
       provider:text('provider',30),model:text('model'),kind:input.kind==='selfie'?'selfie':'scene',
       inStory:input.inStory===true,inPhone:input.inPhone===true};
     if (input.dmKey && input.dmOffer) {
-      link.dmKey=text('dmKey',300);
-      link.dmOffer=text('dmOffer',660);
+      if(typeof input.dmKey!=='string' || input.dmKey.length>3000 || typeof input.dmOffer!=='string' || input.dmOffer.length>4500)throw new Error('照片收件範圍或提議識別超出上限。');
+      link.dmKey=text('dmKey',3000);
+      link.dmOffer=text('dmOffer',4500);
     }
     if (!link.storyId || !link.chapterId || !link.messageId || !/^sha256-[a-f0-9]{64}$/.test(link.assetId)) throw new Error('圖片缺少故事、章節或回覆關聯。');
     // Ordinary gallery saves cannot overwrite a delivered DM using identical bytes.
@@ -83,7 +84,7 @@
           const request=links.index('storyId').getAll(link.storyId);
           request.onsuccess=()=>{
             if(link.dmKey && request.result.some(item=>item.chapterId===link.chapterId && item.messageId===link.messageId && item.dmKey===link.dmKey && item.dmOffer===link.dmOffer && item.id!==link.id))
-              return stop('這張私訊照片已送達。');
+              return stop('這張聊天室照片已送達。');
             if(request.result.length>=MAX_LINKS && !request.result.some(x=>x.id===link.id))return stop('這個故事已達 128 張圖片引用，請先備份與整理。');
             if(!existing.result){assets.put({...asset,thumbnail:undefined});thumbnails.put({id:asset.id,bytes:asset.thumbnail});}
             links.put(link);done(link);

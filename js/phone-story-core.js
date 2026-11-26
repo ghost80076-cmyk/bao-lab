@@ -22,7 +22,8 @@
     if (object(offer) && typeof offer.description === 'string' && offer.description.trim()
         && typeof offer.threadId === 'string' && offer.threadId.length <= 80) {
       patch.photoOffer = {threadId:offer.threadId.trim(), description:offer.description.trim().slice(0,600),
-        kind:offer.kind === 'selfie' ? 'selfie' : 'scene'};
+        kind:offer.kind === 'selfie' ? 'selfie' : 'scene',
+        ...(typeof offer.senderId === 'string' && offer.senderId.trim() && offer.senderId.length <= 80 ? {senderId:offer.senderId.trim()} : {})};
     }
     const normalized = PhoneCore.normalize(raw);
     if (!normalized) return null;
@@ -138,6 +139,45 @@
     for (const key of ['storyTime','storyDate']) input[key] = overlay[key] || base[key];
     return PhoneCore.normalize(input);
   }
+  // Group media is scoped to the exact set of participants at the addressed turn.
+  // No group photo can be inferred from a legacy text-only or one-to-one prefix.
+  function groupPhotoTarget(thread, name, contacts=[]) {
+    if (!thread?.id || !Array.isArray(thread.participants)) return null;
+    const members = [...new Set(thread.participants)].sort();
+    if (members.length < 2 || members.length > 30 ||
+        members.some(id=>typeof id !== 'string' || !id || id.length>80)) return null;
+    const threadId=thread.id, key=JSON.stringify(['group',threadId,members]);
+    if(key.length>3000)return null; // fail closed rather than truncate an audience key
+    const prefix='【KakaoTalk｜對 '+name+' 發送訊息｜聊天室 ID：'+threadId+'｜群聊成員 ID：'+JSON.stringify(members)+'】';
+    return {group:true,threadId,name,members,key,prefix,
+      audience:members.map(id=>contacts.find(c=>c.id===id)?.name || id).join('、'),
+      memberNames:Object.fromEntries(members.map(id=>[id,contacts.find(c=>c.id===id)?.name || id]))};
+  }
+  function groupPhotoExchanges(messages,target) {
+    if(!target?.group)return [];
+    const rows=[];let addressed=false,sent=null;
+    for(const message of messages || []){
+      if(message.role==='user'){
+        addressed=typeof message.content==='string' && message.content.startsWith(target.prefix);
+        sent=addressed && message.storyImage ? {message,image:message.storyImage} : null;
+        if(sent)rows.push(sent);
+      }else if(message.role==='assistant' && addressed){
+        const selected=message.variants?.[message.activeVariant || 0];
+        const patch=normalizePatch(selected ? selected.phonePatch : message.phonePatch);
+        const thread=patch?.threads?.find(t=>t.id===target.threadId);
+        const validMembership=!thread?.participants || JSON.stringify([...new Set(thread.participants)].sort())===JSON.stringify(target.members);
+        const replies=validMembership ? (thread?.messages || []).filter(m=>m.from!=='me' && m.text.trim() && target.members.includes(m.senderId)) : [];
+        const anchor=reply=>reply && {messageId:message.id,text:reply.text,senderId:reply.senderId};
+        if(sent)sent.anchor=anchor(replies.at(-1));
+        const offer=patch?.photoOffer;
+        const reply=offer?.threadId===target.threadId && replies.findLast(m=>m.senderId===offer.senderId);
+        if(reply)rows.push({message,offer,anchor:anchor(reply),senderId:offer.senderId,
+          signature:JSON.stringify([offer.senderId,offer.kind,offer.description])});
+        addressed=false;sent=null;
+      }
+    }
+    return rows;
+  }
   const PROMPT = [
     '【作品手機動態（僅此卡啟用）】',
     '手機 UI 是既有故事的呈現方式，不是新世界。不得為了更新手機而增加事件密度、讓 NPC 全知，或代玩家編造未說過的話。',
@@ -147,9 +187,10 @@
     CLOSE,
     '可選擴充：contacts:[{id,name,avatar}]；threads:[{id,name,participants:[聯絡人ID],messages:[{from,senderId,time,text}]}]；photos:[{id,src,title,caption}]；notes:[{id,title,text}]；storyTime、storyDate 為故事內顯示時間與日期。',
     '以上欄位同樣放進該 JSON 區塊。沿用人物覆寫中的 ID；多人或群聊請用 threads，勿混入主要聯絡人的 chat。新聊天室須提供 name 與 participants；既有聊天室只附新訊息。照片與筆記依 ID 更新，照片只能使用故事已提供的真實圖片網址，不得編造網址。照片與筆記只屬於手機主人可取得的資料。',
-    '收到一對一 KakaoTalk 私訊時，角色若以私訊回覆，將回覆文字放在同一個 chat 或 threads 的 messages。偶爾可隨角色意願在同一區塊附 photoOffer:{threadId:"聊天室 ID（主要聯絡人填空字串）",kind:"scene 或 selfie",description:"角色想分享的具體畫面"}。只在玩家正在私訊該角色且自然適合時提議，不必每輪提供。提議尚未傳送照片，不得描寫已收到、看到或分享；群聊與 X 不提供。玩家傳來的圖片只有該私訊對象可見。',
+    '收到一對一 KakaoTalk 私訊時，角色若以私訊回覆，將回覆文字放在同一個 chat 或 threads 的 messages。偶爾可隨角色意願在同一區塊附 photoOffer:{threadId:"聊天室 ID（主要聯絡人填空字串）",kind:"scene 或 selfie",description:"角色想分享的具體畫面"}。只在玩家正在私訊該角色且自然適合時提議，不必每輪提供。提議尚未傳送照片，不得描寫已收到、看到或分享；玩家傳來的私訊圖片只有該私訊對象可見。',
+    '收到含「群聊成員 ID」的 KakaoTalk 群聊訊息時，附件只屬於該聊天室及所列成員，不可透露給其他聊天室、X 或未列出的 NPC。若群內某成員自然想分享照片，photoOffer 必須填同一 threadId、senderId（必須是列出的成員 ID）、kind、description，並在該 threads.messages 中提供同一 senderId 的實際回覆。最多一個提議，不需每輪提供；未確認送達前不可敘述已分享。X 暫不提供照片提議。群組成員變更不代表新成員已看到先前照片。',
     'X 的 tweets 使用 id 指向貼文，replyTo 引用已存在的貼文 ID 即為留言；每個 NPC 可有各自的 authorId、authorName、authorHandle。eventId 僅引用故事已確認的事件 ID；sourceKind 可用 witness/media/hearsay/unknown，沒有根據就省略。不可讓角色知道沒接觸過的私密事件、不可把傳聞當成事實，也不必讓所有貼文圍繞玩家。舊版只有 text/date/replies 數字的貼文仍有效。',
     '只保留真正新增的欄位和紀錄；不要重複既有內容。上述是 JSON 格式範例，不是實際事件。X 的 from=me 和聊天 from=me 都只能記錄玩家明確提供過的訊息；玩家在 X 發送的回覆須依所給的貼文 ID、內容建立對應 replyTo，不能偽造玩家發言。區塊外照常寫故事，且不要附任何 HTML/JavaScript。'
   ].join('\n');
-  return Object.freeze({OPEN,CLOSE,extract,normalizePatch,apply,mergeDisplay,notifications,empty,PROMPT});
+  return Object.freeze({OPEN,CLOSE,extract,normalizePatch,apply,mergeDisplay,notifications,empty,PROMPT,groupPhotoTarget,groupPhotoExchanges});
 });

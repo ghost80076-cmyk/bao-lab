@@ -148,3 +148,34 @@ test('X auto-IDs stay stable on replay and outgoing replies do not create incomi
   assert.deepEqual(Core.notifications(own.phoneUI),[]);
   assert.equal(own.phoneUI.tweets[0].replyTo,'post-1');
 });
+
+test('group photo target binds exact membership and uses sender-owned replies only',()=>{
+  const thread={id:'g',name:'群組',participants:['b','a']};
+  const target=Core.groupPhotoTarget(thread,'群組',[{id:'a',name:'小夏'}]);
+  assert.equal(target.key,Core.groupPhotoTarget({...thread,participants:['a','b']},'群組').key);
+  assert.notEqual(target.key,Core.groupPhotoTarget({...thread,participants:['a','c']},'群組').key);
+  assert.equal(Core.groupPhotoTarget({...thread,participants:['a']},'群組'),null);
+  assert.equal(target.memberNames.a,'小夏');
+  const image={data:'fixture'};
+  const user={role:'user',content:target.prefix+'晚餐',storyImage:image};
+  const reply={role:'assistant',id:'reply',phonePatch:{threads:[{id:'g',messages:[{from:'them',senderId:'a',text:'看到了'},{from:'them',senderId:'b',text:'看到了'}]}],photoOffer:{threadId:'g',senderId:'b',kind:'selfie',description:'晚餐照'}}};
+  const rows=Core.groupPhotoExchanges([user,reply],target);
+  assert.equal(rows.length,2);
+  assert.equal(rows[0].image,image);
+  assert.equal(rows[1].senderId,'b');
+  assert.equal(rows[1].anchor.senderId,'b');
+  const different=Core.groupPhotoTarget({...thread,participants:['a','c']},'群組');
+  assert.deepEqual(Core.groupPhotoExchanges([user,reply],different),[]);
+  const other=Core.groupPhotoTarget({...thread,id:'other'},'群組');
+  assert.deepEqual(Core.groupPhotoExchanges([user,reply],other),[]);
+  assert.deepEqual(Core.groupPhotoExchanges([{...user,content:'【KakaoTalk｜對 群組 發送訊息｜聊天室 ID：g】晚餐'},reply],target),[]);
+  for(const senderId of ['outsider','',undefined]){
+    const invalid={...reply,phonePatch:{...reply.phonePatch,photoOffer:{...reply.phonePatch.photoOffer,senderId}}};
+    assert.equal(Core.groupPhotoExchanges([user,invalid],target).length,1);
+  }
+  const changed={...reply,phonePatch:{...reply.phonePatch,threads:[{...reply.phonePatch.threads[0],participants:['a','c']}]}};
+  assert.equal(Core.groupPhotoExchanges([user,changed],target).length,1);
+  const revised={...reply,variants:[{phonePatch:{...reply.phonePatch,photoOffer:{...reply.phonePatch.photoOffer,description:'新版照片'}}}],activeVariant:0};
+  assert.notEqual(Core.groupPhotoExchanges([user,revised],target)[1].signature,rows[1].signature);
+  assert.equal(Core.groupPhotoExchanges([user,reply,{role:'assistant',id:'extra',phonePatch:reply.phonePatch}],target).length,2);
+});
