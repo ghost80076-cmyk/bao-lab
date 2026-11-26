@@ -350,6 +350,7 @@
         (selectedThread()?.messages || config.chat).forEach(item => {
           const row = $('div','bp-chat-row '+(item.from === 'me'?'bp-mine':''));
           const sender = item.senderName || config.contacts.find(c=>c.id===item.senderId)?.name || item.senderId;
+          if (item.senderId) row.dataset.photoSenderId=item.senderId;
           if (item.from !== 'me' && sender) row.append($('small','bp-sender',sender));
           add(row,$('span','bp-bubble',item.text),$('small','bp-muted',item.time || ''));
           thread.append(row);
@@ -359,12 +360,25 @@
         const send = $('button','', '傳送至故事'); send.type='submit';
         add(form,input,send); area.append(form);
         const selected=selectedThread();
-        if(window.BAOPhoneDMPhotos && (selected ? selected.participants.length===1 : config.contactName)){
+        if(window.BAOPhoneDMPhotos){
           const name=threadName(selected),threadId=selected?.id || '',senderId=selected?.participants[0] || name;
           const prefix='【KakaoTalk｜對 '+name+' 發送訊息'+(threadId?'｜聊天室 ID：'+threadId:'')+'】';
-          dmPhotos=window.BAOPhoneDMPhotos.mount({form,thread,target:{threadId,name,senderId,prefix,key:JSON.stringify([threadId,senderId])},
-            active:()=>root && ownerState===GameState.current && page==='kakao' && subpage==='chat' && activeThread===threadId,
-            refresh:render});
+          const group=selected?.participants.length>1;
+          const target=group ? window.BAOPhoneStoryCore.groupPhotoTarget(selected,name,config.contacts) :
+            (selected ? selected.participants.length===1 : config.contactName) ? {threadId,name,senderId,prefix,key:JSON.stringify([threadId,senderId])} : null;
+          if(target){
+            const active=()=>{
+              if(!root || ownerState!==GameState.current || ownerCharacter!==App.activeCharacter || page!=='kakao' || subpage!=='chat' || activeThread!==threadId)return false;
+              if(!group)return true;
+              const live=phoneSource(),liveThread=live?.threads.find(t=>t.id===threadId);
+              const access=live && Puzzles?.access(live,ownerState?.phoneInteractions,{app:'kakao',id:threadId});
+              if(!liveThread || access?.locked || access?.hidden)return false;
+              const liveName=liveThread.name || liveThread.participants.map(id=>live.contacts.find(c=>c.id===id)?.name || id).join('、');
+              const liveTarget=window.BAOPhoneStoryCore.groupPhotoTarget(liveThread,liveName,live.contacts);
+              return liveTarget?.key===target.key && liveTarget.prefix===target.prefix;
+            };
+            dmPhotos=window.BAOPhoneDMPhotos.mount({form,thread,target,active,refresh:render});
+          }
         }
         window.setTimeout(()=>{ if (thread.isConnected) thread.scrollTop = thread.scrollHeight; },0);
       } else if (profile) {
@@ -646,7 +660,7 @@
     render();
   }
   function sendToStory(text, medium, post=null, dm=null) {
-    if (!App.config || typeof App.sendMessage !== 'function') return;
+    if (!App.config || typeof App.sendMessage !== 'function' || (dm && !dm.current())) return;
     if (App.__requestPending) { window.BAOFeedback?.notify?.('故事仍在回覆中，請稍後再傳送。','error');return; }
     const composer=document.getElementById('user-input');
     if (!composer) return;
@@ -666,11 +680,11 @@
     }else{
       const recipient=medium.startsWith('Instagram') ? (config.instagram.callerName||displayName()) : threadName(selectedThread());
       const threadContext=medium==='KakaoTalk' && selectedThread() ? '｜聊天室 ID：'+selectedThread().id : '';
-      composer.value='【'+medium+'｜對 '+recipient+' 發送訊息'+threadContext+'】'+text+(dm?.receipt || '');
+      composer.value=(dm?.group ? dm.prefix : '【'+medium+'｜對 '+recipient+' 發送訊息'+threadContext+'】')+text+(dm?.receipt || '');
     }
     if(dm){
       const before=Chat.messages.at(-1)?.id;
-      dm.error('等待私訊回覆…');
+      dm.error(dm.group?'等待群聊回覆…':'等待私訊回覆…');
       void Promise.resolve(App.sendMessage()).finally(()=>{
         if(!dm.current())return;
         if(Chat.messages.at(-1)?.role==='assistant' && Chat.messages.at(-1).id!==before){
@@ -699,7 +713,7 @@
       if(pending.busy){pending.error('請等照片處理完成。');return;}
       if(!value && !pending.image)return;
       void pending.ready.then(()=>{
-        if(pending===dmPhotos && pending.current())sendToStory(value || '傳給你一張照片。','KakaoTalk',null,pending);
+        if(pending===dmPhotos && pending.current())sendToStory(value || (pending.group?'傳給群組一張照片。':'傳給你一張照片。'),'KakaoTalk',null,pending);
       });
       return;
     }
@@ -790,6 +804,7 @@
     const updated = phoneSource();
     if (!updated) { close(); return; }
     config = updated;
+    if(dmPhotos?.group && !dmPhotos.current()){render();return;}
     // Keep active media and focused messaging surfaces intact.
     if ((page === 'photos' || page === 'notes') || page === 'home' || page === 'lock' || page === 'phone' || page === 'x' ||
         (page === 'kakao' && subpage !== 'chat')) render();

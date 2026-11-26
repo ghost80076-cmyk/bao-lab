@@ -10,6 +10,7 @@
     return element;
   };
   function exchanges(target) {
+    if(target.group)return window.BAOPhoneStoryCore.groupPhotoExchanges(Chat.messages,target);
     const rows = [];
     let addressed = false, sent = null;
     for (const message of Chat.messages) {
@@ -40,7 +41,7 @@
     form.after(controls);
     const file=node('input'),pick=node('button','附照片'),preview=node('img'),status=node('small');
     file.type='file';file.accept='image/jpeg,image/png,image/webp';file.hidden=true;
-    pick.type='button';preview.alt='待傳送私訊照片';preview.hidden=true;
+    pick.type='button';preview.alt=target.group?'待傳送群聊照片':'待傳送私訊照片';preview.hidden=true;
     status.setAttribute('role','status');
     const remove=node('button','移除照片');remove.type='button';remove.hidden=true;
     const confirmRoute=node('label'), confirmed=node('input');
@@ -69,7 +70,7 @@
         if(!current() || attempt!==ticket)return;
         confirmRoute.hidden=BAOStoryImagesCore.capability(App.config.api)!=='unknown';
         draft=image;preview.src=image.data;preview.hidden=remove.hidden=false;caption.required=false;
-        status.textContent='傳送後，照片隨故事保存並交給目前的 Vision 模型。可能產生費用。收件人：'+target.name;
+        status.textContent='傳送後，照片隨故事保存並交給目前的 Vision 模型。可能產生費用。'+(target.group?'收件群組：'+target.name+'（'+target.audience+'）':'收件人：'+target.name);
       }catch(error){if(current() && attempt===ticket)status.textContent=error.message;}
       finally{if(attempt===ticket)busy=false;}
     };
@@ -84,7 +85,7 @@
       for(const row of history.slice().reverse()){
         if(!row.anchor || anchors.has(row.anchor.messageId))continue;
         for(let i=cursor;i>=0;i--){
-          if(bubbles[i].querySelector('.bp-bubble')?.textContent===row.anchor.text){
+          if(bubbles[i].querySelector('.bp-bubble')?.textContent===row.anchor.text && (!target.group || bubbles[i].dataset.photoSenderId===row.anchor.senderId)){
             anchors.set(row.anchor.messageId,bubbles[i]);cursor=i-1;break;
           }
         }
@@ -95,11 +96,13 @@
           const img=node('img');img.alt='你傳給'+target.name+'的照片';img.loading='lazy';
           img.src=BAOStoryImagesCore.validate(row.image).data;bubble.append(img);
         }else{
+          const senderId=target.group?row.senderId:target.senderId;
+          const senderName=target.group?(target.memberNames?.[senderId] || senderId):target.name;
           const record=saved.find(r=>r.messageId===row.message.id && r.dmOffer===row.signature);
           if(record){
             receipts.push(record.title);
             const thumb=generation.thumbnail(record);cleanups.push(thumb.cleanup);
-            bubble.append(node('small',target.name+' 已傳送照片'),thumb.img,node('span',record.title));
+            bubble.append(node('small',senderName+' 已傳送照片'),thumb.img,node('span',record.title));
             if(!record.inPhone){
               const collect=node('button','收藏至 Phone 相簿');collect.type='button';
               collect.onclick=async()=>{
@@ -115,14 +118,14 @@
             action.onclick=()=>{
               const valid=()=>current() && exchanges(target).some(r=>r.message.id===row.message.id && r.signature===row.signature);
               if(!valid())return;
-              const view=BAOStoryImagePrompts.dialog(target.name+' 想傳一張照片','確認費用後才生成。預覽後選擇傳送，照片才會出現在這段私訊。');
+              const view=BAOStoryImagePrompts.dialog(senderName+' 想傳一張照片',target.group?'確認費用後才生成。預覽後選擇傳送，照片才會出現在 '+target.name+'（'+target.audience+'）。':'確認費用後才生成。預覽後選擇傳送，照片才會出現在這段私訊。');
               view.overlay.style.zIndex='2147482100';
               generation.attach(view,{scene:{id:row.message.id,context:row.offer.description},card:App.activeCharacter,
                 output:()=>({image_prompt:row.offer.description}),profile:{value:BAOStoryImagePrompts.profileOf(App.activeCharacter)},
-                dm:{...target,offer:row.offer,signature:row.signature,valid,delivered:refresh}});
+                dm:{...target,senderId,name:senderName,offer:row.offer,signature:row.signature,valid,delivered:refresh}});
               view.panel.append(view.status,view.close);
             };
-            bubble.append(node('small',target.name+' 提議分享照片'),node('span',row.offer.description),action);
+            bubble.append(node('small',senderName+' 提議分享照片'),node('span',row.offer.description),action);
           }
         }
         bubble.classList.add('bp-dm-photo');
@@ -133,9 +136,9 @@
       }
     }
     const ready=paint().catch(()=>{if(current())status.textContent='無法讀取私訊照片。';});
-    return {ready, current, get image(){return draft;}, get busy(){return busy;},
+    return {ready, current, group:target.group===true,prefix:target.prefix,get image(){return draft;}, get busy(){return busy;},
       get confirmedRoute(){return !confirmRoute.hidden && confirmed.checked?routeKey:'';},
-      get receipt(){return receipts.length?'（這段私訊之前已收到照片：'+receipts.slice(-3).join('、')+'）':'';},
+      get receipt(){return receipts.length?'（這段'+(target.group?'群聊':'私訊')+'之前已收到照片：'+receipts.slice(-3).join('、')+'）':'';},
       error:text=>{status.textContent=text;},cleanup(){dead=true;cleanups.forEach(fn=>fn());}};
   }
   window.BAOPhoneDMPhotos=Object.freeze({mount});

@@ -178,3 +178,47 @@ test('private photo exchange sends vision once and delivers only on confirmation
  await expect(page.locator('.bp-dm-photo')).toHaveCount(0);
 
 });
+
+test('group photo exchange isolates recipients and requires explicit delivery',async({page})=>{
+ const imageCalls=await setup(page,390);
+ await page.evaluate(()=>{
+   App.activeCharacter.phone_ui.contactName='A';
+   App.activeCharacter.phone_ui.contacts=[{id:'a',name:'A'},{id:'b',name:'B'},{id:'c',name:'C'}];
+   App.activeCharacter.phone_ui.threads=[{id:'group-ab',name:'AB 群組',participants:['a','b'],messages:[]},{id:'group-ac',name:'AC 群組',participants:['a','c'],messages:[]}];
+   App.config.api.baseUrl='https://vision.example.test/v1/chat/completions';
+   App.config.api.visionConfirmedRoute=BAOStoryImagesCore.routeKey(App.config.api);
+ });
+ const vision=[];
+ await page.route('https://vision.example.test/**',async route=>{
+   if(route.request().method()==='OPTIONS')return route.fulfill({status:204,headers:{'access-control-allow-origin':'*','access-control-allow-headers':'*'}});
+   vision.push(route.request().postDataJSON());
+   const reply='回覆群聊。[[YORUBAY_PHONE_V1]]'+JSON.stringify({threads:[{id:'group-ab',messages:[{from:'them',senderId:'a',text:'收到晚餐照。'},{from:'them',senderId:'b',text:'我也分享一張。'}]}],photoOffer:{threadId:'group-ab',senderId:'b',description:'B 的窗外夜景',kind:'scene'}})+'[[/YORUBAY_PHONE_V1]]';
+   return route.fulfill({contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify({choices:[{message:{content:reply},finish_reason:'stop'}]})});
+ });
+ async function enter(name){
+   await page.locator('#bao-phone-launch').click();await page.locator('.bp-home-handle').click();
+   await page.locator('[data-phone-action="app:kakao"]').first().click();
+   await page.locator('[data-phone-action^="thread:"]').filter({hasText:name}).click();
+ }
+ await enter('AB 群組');
+ const png=await page.evaluate(()=>document.createElement('canvas').toDataURL('image/png').split(',')[1]);
+ await page.locator('.bp-dm-photo-controls input[type=file]').setInputFiles({name:'group.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});
+ await expect(page.getByAltText('待傳送群聊照片')).toBeVisible();
+ await expect(page.locator('.bp-dm-photo-controls')).toContainText('A、B');
+ await page.getByRole('button',{name:'傳送至故事',exact:true}).click();
+ await expect(page.getByText('B 提議分享照片',{exact:true})).toBeVisible();
+ expect(vision.filter(body=>body.messages?.some(m=>Array.isArray(m.content)&&m.content.some(p=>p.type==='image_url')))).toHaveLength(1);
+ expect(await page.evaluate(()=>Chat.messages.findLast(m=>m.role==='user').content)).toContain('群聊成員 ID：["a","b"]');
+ await page.getByRole('button',{name:'查看照片提議'}).click();await generate(page);
+ expect(imageCalls).toHaveLength(1);
+ expect(await page.evaluate(async()=>(await BAOImageAssets.list(BAOImageAssets.scope().storyId)).length)).toBe(0);
+ await page.getByRole('button',{name:'傳送至這段群聊'}).click();
+ await expect(page.getByText('B 已傳送照片',{exact:true})).toBeVisible();
+ await page.evaluate(()=>BAOPhoneUI.close());await enter('AC 群組');
+ await expect(page.locator('.bp-dm-photo')).toHaveCount(0);
+ await page.evaluate(()=>BAOPhoneUI.close());await enter('AB 群組');
+ await expect(page.getByText('B 已傳送照片',{exact:true})).toBeVisible();
+ await page.evaluate(()=>{BAOPhoneUI.close();const thread=GameState.current.phoneUI.threads.find(t=>t.id==='group-ab');thread.participants=['a','c'];});
+ await enter('AB 群組');
+ await expect(page.locator('.bp-dm-photo')).toHaveCount(0);
+});
