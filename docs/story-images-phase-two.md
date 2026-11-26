@@ -14,7 +14,7 @@ AI 回覆的「畫面」或工具中的「將此刻化成畫面」→「生成�
 
 | 供應商 | 本版路徑／模型 | 狀態與限制 |
 | --- | --- | --- |
-| OpenAI | `/v1/images/generations`；有參考圖改用 `/v1/images/edits` multipart。GPT Image 2.6 Flare／Sunburst、2.5 Flare／Sunburst、2、1.5、1 Mini | 明確型號 allowlist；官方可能要求組織驗證。1:1／3:2／2:3，low／medium／high；2.5／2.6 另有 xhigh／max。 |
+| OpenAI | `/v1/images/generations`；有參考圖改用 `/v1/images/edits` multipart。GPT Image 2.6 Flare／Sunburst、2.5 Flare／Sunburst、2 | 明確型號 allowlist；官方可能要求組織驗證。1:1／3:2／2:3，low／medium／high；2.5／2.6 另有 xhigh／max。 |
 | Gemini | `v1beta/models/{model}:generateContent`；`gemini-3.1-flash-image`、`gemini-3-pro-image`、`gemini-3.1-flash-lite-image` | `responseModalities` 與 `imageConfig`；inlineData 授權參考圖。Flash／Pro 為 1K／2K／4K，Flash Lite 僅 1K；實際權限依帳號。尚未適配 Interactions 新型號。 |
 | OpenRouter | 公開 GET `/api/v1/images/models` → POST `/api/v1/images` | 只列宣告 image output 的目錄項目；比例／品質依能力 enum；參考圖依 input_references；需要多張參考圖者拒絕。模型級能力是各端點聯集，供應商仍可能拒絕參數；原樣報錯，不擅改付費設定。`allow_fallbacks:false`。 |
 | 自訂中轉 | 明確 HTTPS `/images/generations`，OpenAI Images 最小文字生圖協議 | 精確端點＋模型重新確認、獨立 Key，可能受 CORS 限制；不宣稱已驗證任何中轉。無猜測品質、尺寸、參考圖能力。 |
@@ -31,6 +31,8 @@ AI 回覆的「畫面」或工具中的「將此刻化成畫面」→「生成�
 - https://ai.google.dev/gemini-api/docs/imagen
 - https://ai.google.dev/gemini-api/docs/pricing
 - https://openrouter.ai/docs/guides/overview/multimodal/image-generation
+
+OpenAI 直連生命週期：[官方退役公告](https://developers.openai.com/api/docs/deprecations) 列明 GPT Image 1.5／1 Mini 於 2026-12-01 停用，夜灣提前移出直連選單並拒絕舊直連請求。Flare 仍為原有預設，不替玩家自動換模型；相簿、備份及歷史來源標示不遷移。GPT Image 2 的停用日另為 2027-02-10，這次仍保留，需在停用前另行對齊。OpenRouter 與自訂中轉仍以各供應商契約為準。
 
 價格查核：GPT Image 2.5 官方指南列圖片輸入 US$8／百萬 token、圖片輸出 US$30／百萬 token、文字輸入 US$5／百萬 token；每張成本隨尺寸與品質消耗而變。Gemini 3.1 Flash Image 公布 1K 圖片輸出約 US$0.067，另計輸入／文字；3 Pro Image 的 1K／2K 圖片輸出約 US$0.134。OpenRouter 依所選模型與服務端點；不把 `:free` 當永久承諾。UI 提供官方價格連結而不寫死每張台幣價格；實際帳單為準。
 
@@ -73,3 +75,11 @@ Core 合約：`tests/story-image-generation-core.cjs`。跨瀏覽器：`tests/e2
 回退：revert 本 PR，保留新 IndexedDB 不自動刪除；故事本體沒有新增引用，所以舊版仍能正常開啟。已下載的含圖備份可在再次升級後匯入。
 
 下一階段語音可沿用「使用者主動確認 → 獨立 provider adapter → 媒體資產 → 章節／回覆引用 → 專用備份」的邊界；本版圖片 store 及 MIME 白名單不直接拿來存音訊，需先擴充版本契約。
+
+## Phone 雙向照片：後續驗收順序（尚未實作）
+
+1. **單角色私訊**：玩家可以把照片當訊息送給收件角色。支援 Vision 的聊天路徑只取得該對話有權存取的附件；純文字路徑明示看不到照片，不假裝辨識、不自動換模型或轉交另一家 API。收藏到相簿不是發送。
+2. **角色回傳生活照**：RP 模型只提出符合情境的照片意圖，例如「剛買的宵夜，要看嗎？」；夜灣管頻率與費用，玩家明確確認後由獨立圖片模型出一張。沒確認、超出限額或生成錯誤，文字聊天照常；不自動重試、不換模型。先驗證聊天不等生圖、連點只發一次、角色自拍一致性，再決定是否開放自動模式。
+3. **群聊與世界內 X**：沿用同一套照片引用，分享時明確指定可見範圍。沒有收到私訊或轉發的角色不能從相簿、群聊、X 或分支快照推知照片。驗收至少要涵蓋私訊保密、轉發後才可見，及切換／回溯後不串線。
+
+模型驗收分開看：RP 測回覆是否自然、Vision 測看圖理解與資訊隔離、圖片模型用同一組晚餐／風景／自拍測出圖延遲、單張成本、畫質與角色辨識度。預設型號不代表最佳品質，合約與 mock 測試不等於真實供應商品質驗收。

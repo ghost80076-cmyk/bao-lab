@@ -12,6 +12,22 @@ test('OpenAI image-only route and parameters never include text-model configurat
  assert.throws(()=>C.request({...config,quality:'unsupported'},'x'));assert.throws(()=>C.request({...config,ratio:'100:1'},'x'));
  assert.throws(()=>C.request({...config,provider:'bao-credits'},'x'));assert.throws(()=>C.request({...config,key:''},'x'));
 });
+test('retiring OpenAI image models are not selectable and cannot send a paid request',async()=>{
+ assert.equal(C.OPENAI[0],config.model);
+ assert(C.OPENAI.includes('gpt-image-2')); // Separate shutdown date; not removed in this release.
+ const retired=['gpt-image-1.5','gpt-image-1.5-2025-12-16','gpt-image-1-mini','chatgpt-image-latest'];
+ let posts=0;
+ const client=C.createClient(async()=>{posts++;return response({data:[{b64_json:png}]});});
+ for(const model of retired){
+  assert(!C.OPENAI.includes(model));
+  await assert.rejects(client.generate({...config,model},'x'),/不會自動切換/);
+ }
+ assert.equal(posts,0);
+ await client.generate(config,'x');
+ assert.equal(posts,1);
+ const model='gpt-image-1.5',endpoint='https://relay.example/v1/images/generations';
+ assert.equal(C.request({...config,provider:'custom',model,endpoint,ratio:'',quality:'',confirmedRoute:endpoint+'|'+model},'x').url,endpoint);
+});
 test('OpenAI authorized reference uses edits multipart, no manually-set content boundary',()=>{
  assert.throws(()=>C.request(config,'photo','data:image/png;base64,'+png));
  const r=C.request({...config,referenceAuthorized:true},'photo','data:image/png;base64,'+png);
