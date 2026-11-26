@@ -31,6 +31,7 @@ jobs:
           node tests/model-coordinated-code-parity-workflow-core.cjs
       - name: Story image contracts and portable storage
         run: |
+          node --test tests/story-image-generation-core.cjs
           node tests/story-images-core.cjs
           node tests/story-images-storage-core.cjs
       - name: Startup preserves player navigation

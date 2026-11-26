@@ -13,19 +13,33 @@
     const help = document.createElement('p'); help.textContent = description;
     const status = document.createElement('p'); status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
     const urls = new Set();
+    const dismissHandlers = [];
+    const onDismiss = handler => dismissHandlers.push(handler);
     const previousFocus = document.activeElement;
     const cleanup = () => { urls.forEach(url => URL.revokeObjectURL(url)); urls.clear(); };
     const dismiss = () => {
       if (!overlay.isConnected) return;
+      dismissHandlers.forEach(handler => handler());
       cleanup(); overlay.remove(); previousFocus?.isConnected && previousFocus.focus?.();
       document.removeEventListener('keydown', onKey);
     };
-    const onKey = event => { if (event.key === 'Escape') dismiss(); };
+    const onKey = event => {
+      if (document.querySelectorAll('[data-image-dialog]').length && overlay !== [...document.querySelectorAll('[data-image-dialog]')].at(-1)) return;
+      if (event.key === 'Escape') { event.preventDefault(); dismiss(); }
+      if (event.key === 'Tab') {
+        const nodes = [...panel.querySelectorAll('button,input,select,textarea,a[href],summary')].filter(node => !node.disabled && node.getClientRects().length);
+        const first=nodes[0],last=nodes.at(-1);
+        if(event.shiftKey && (document.activeElement===first || !panel.contains(document.activeElement))){event.preventDefault();last?.focus();}
+        else if(!event.shiftKey && (document.activeElement===last || !panel.contains(document.activeElement))){event.preventDefault();first?.focus();}
+      }
+    };
     const close = document.createElement('button'); close.type = 'button'; close.textContent = '關閉'; close.addEventListener('click', dismiss);
+    overlay.dataset.imageDialog='1';panel.classList.add('story-image-dialog');
     panel.append(heading, help); overlay.append(panel); document.body.append(overlay);
+    requestAnimationFrame(() => { if(overlay.isConnected) (panel.querySelector('input,select,textarea,button') || panel).focus(); });
     overlay.addEventListener('click', event => { if (event.target === overlay) dismiss(); });
     document.addEventListener('keydown', onKey);
-    return { overlay, panel, status, close, urls, dismiss, cleanup };
+    return { overlay, panel, status, close, urls, dismiss, cleanup, onDismiss };
   };
   const button = (label, action) => { const el = document.createElement('button'); el.type = 'button'; el.textContent = label; el.addEventListener('click', action); return el; };
   const textarea = (label, value, rows = 8) => {
@@ -193,7 +207,9 @@
   };
   const notifyAlbumChanged = () => window.dispatchEvent(new CustomEvent('bao:story-image-album-changed'));
   const addGallery = (view, scene) => {
-    const { panel, status, urls, overlay } = view;
+    const { panel, status, overlay } = view;
+    const urls = new Set();
+    view.onDismiss?.(() => { urls.forEach(url => URL.revokeObjectURL(url)); urls.clear(); });
     const section = document.createElement('details');
     section.style.cssText = 'display:grid;gap:9px;padding-top:10px;border-top:1px solid #596171';
     const summary = document.createElement('summary'); summary.textContent = '本機劇情圖集（可選）';
@@ -256,10 +272,11 @@
     const card = App.activeCharacter;
     if (!card) return;
     const scene = sceneAt(index);
-    const { overlay, panel, status, close, urls, dismiss, cleanup } = dialog(
+    const view = dialog(
       '將此刻化成畫面',
-      '夜灣只用你目前選擇的文字模型整理提示詞，不會直接呼叫圖片／影片生成服務。BYOK 依你的服務商計費；夜灣燈火依既有文字模型規則計費。'
+      '整理提示詞使用目前的文字模型，按既有規則計費。圖片生成另外使用你自己的圖片 API；只有按下確認生成才發送，不改變故事時間或角色設定。'
     );
+    const { overlay, panel, status, close, urls, dismiss, cleanup } = view;
     const sceneInfo = document.createElement('small');
     sceneInfo.textContent = scene.index >= 0
       ? `指定場景：第 ${scene.index + 1} 則訊息（只讀到這一幕，不帶入後面的故事）`
@@ -327,12 +344,16 @@
       button('複製影片 Prompt', () => copy(videoPrompt.field.value, status)),
       button('複製完整 Prompt', () => copy(bundle(output()), status))
     );
-    panel.append(
-      sceneInfo, controls, instruction.wrap, profileDetails,
+    const promptEditor=document.createElement('details');
+    const editorSummary=document.createElement('summary');editorSummary.textContent='整理／編輯進階畫面 Prompt（文字模型）';promptEditor.append(editorSummary);
+    promptEditor.append(
+      controls, instruction.wrap, profileDetails,
       understanding.wrap, imagePrompt.wrap, videoPrompt.wrap, negativePrompt.wrap, continuityPrompt.wrap,
       actions
     );
-    addGallery({ overlay, panel, status, close, urls, dismiss, cleanup }, scene);
+    panel.append(sceneInfo,promptEditor);
+    window.BAOImageGeneration?.attach(view, { scene, card, output, profile:profile.field });
+    addGallery(view, scene);
     panel.append(status, close);
   };
   const openAuthor = () => {
@@ -379,12 +400,13 @@
         const item = messages[i], node = nodes[i + offset];
         if (item?.role !== 'assistant' || !node?.classList.contains('assistant') || node.querySelector('[data-bao-scene-prompt]')) continue;
         const trigger = button('🎨 畫面', () => openPlayer(i));
-        trigger.dataset.baoScenePrompt = '1'; trigger.className = 'bao-scene-prompt-action';
+        trigger.dataset.baoScenePrompt = '1'; trigger.dataset.messageId = String(item.id || ''); trigger.className = 'bao-scene-prompt-action';
         trigger.style.cssText = 'margin:5px 8px;padding:5px 9px;border:1px solid #53687b;border-radius:9px;background:#21303c;color:#eaf9f6;font-size:12px';
         node.append(trigger);
       }
     }
 
+    void window.BAOImageGeneration?.renderStory();
     const tools = document.querySelector('.character-tools');
     if (tools && !tools.querySelector('[data-bao-author-image-prompt]')) {
       const trigger = button('作者畫面提示詞設定', openAuthor);
@@ -405,7 +427,7 @@
   const previous = App.renderChatShell?.bind(App);
   if (previous) App.renderChatShell = (...args) => { const result = previous(...args); schedule(); return result; };
   schedule();
-  const api = Object.freeze({ openPlayer, openAuthor, mount, profileOf, normalizeResult, buildVisualMessages, album, storyRefs, latestForStory, latestForCurrentStory });
+  const api = Object.freeze({ dialog, openPlayer, openAuthor, mount, profileOf, normalizeResult, buildVisualMessages, album, storyRefs, latestForStory, latestForCurrentStory });
   window.BAOStoryImagePrompts = api;
   window.BAOStoryImageMoments = api;
   window.dispatchEvent(new CustomEvent('bao:story-image-module-ready'));
