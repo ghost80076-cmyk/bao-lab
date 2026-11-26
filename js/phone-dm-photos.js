@@ -11,16 +11,22 @@
   };
   function exchanges(target) {
     const rows = [];
-    let addressed = false;
+    let addressed = false, sent = null;
     for (const message of Chat.messages) {
       if (message.role === 'user') {
         addressed = typeof message.content === 'string' && message.content.startsWith(target.prefix);
-        if (addressed && message.storyImage) rows.push({message,image:message.storyImage});
+        sent = addressed && message.storyImage ? {message,image:message.storyImage} : null;
+        if (sent) rows.push(sent);
       } else if (addressed && message.role === 'assistant') {
         const selected = message.variants?.[message.activeVariant || 0];
-        const offer = (selected ? selected.phonePatch : message.phonePatch)?.photoOffer;
+        const patch = selected ? selected.phonePatch : message.phonePatch;
+        const messages = target.threadId ? patch?.threads?.find(t=>t.id===target.threadId)?.messages : patch?.chat;
+        const reply = messages?.findLast(m=>m.from!=='me');
+        const anchor = reply && {messageId:message.id,text:reply.text};
+        if(sent)sent.anchor=anchor;
+        const offer = patch?.photoOffer;
         if (offer?.threadId === target.threadId && typeof offer.description === 'string') {
-          rows.push({message,offer,signature:offer.kind+'|'+offer.description});
+          rows.push({message,offer,anchor,signature:offer.kind+'|'+offer.description});
         }
         addressed = false;
       }
@@ -71,7 +77,19 @@
     const delivery = assets.list(scope.storyId).then(all=>assets.visible(all,scope).filter(r=>r.dmKey===target.key));
     async function paint(){
       const saved=await delivery;if(!current())return;
-      for(const row of exchanges(target).slice(-50)){
+      const history=exchanges(target).slice(-50);
+      // Locate matching reply bubbles from newest to oldest, including repeated text.
+      const bubbles=[...thread.querySelectorAll('.bp-chat-row:not(.bp-mine)')];
+      const anchors=new Map();let cursor=bubbles.length-1;
+      for(const row of history.slice().reverse()){
+        if(!row.anchor || anchors.has(row.anchor.messageId))continue;
+        for(let i=cursor;i>=0;i--){
+          if(bubbles[i].querySelector('.bp-bubble')?.textContent===row.anchor.text){
+            anchors.set(row.anchor.messageId,bubbles[i]);cursor=i-1;break;
+          }
+        }
+      }
+      for(const row of history){
         const bubble=node('div');bubble.className='bp-chat-row'+(row.image?' bp-mine':'');
         if(row.image){
           const img=node('img');img.alt='你傳給'+target.name+'的照片';img.loading='lazy';
@@ -107,7 +125,11 @@
             bubble.append(node('small',target.name+' 提議分享照片'),node('span',row.offer.description),action);
           }
         }
-        bubble.classList.add('bp-dm-photo');thread.append(bubble);
+        bubble.classList.add('bp-dm-photo');
+        const anchor=anchors.get(row.anchor?.messageId);
+        if(!anchor)thread.append(bubble);
+        else if(row.image)anchor.before(bubble);
+        else anchor.after(bubble);
       }
     }
     const ready=paint().catch(()=>{if(current())status.textContent='無法讀取私訊照片。';});

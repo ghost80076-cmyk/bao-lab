@@ -151,6 +151,10 @@ test('private photo exchange sends vision once and delivers only on confirmation
  await expect(page.getByText('看見你的晚餐了。',{exact:true}).last()).toBeVisible();
  expect(vision.filter(body=>body.messages?.some(m=>Array.isArray(m.content) && m.content.some(p=>p.type==='image_url')))).toHaveLength(1);
  await expect(page.getByAltText('你傳給A的照片')).toBeVisible();
+ expect(await page.locator('.bp-thread').evaluate(thread=>{
+   const photo=thread.querySelector('.bp-mine img'),reply=thread.querySelector('.bp-bubble');
+   return Boolean(photo.compareDocumentPosition(reply) & Node.DOCUMENT_POSITION_FOLLOWING);
+ })).toBe(true);
  const offer=page.getByRole('button',{name:'查看照片提議'});
  await offer.click();await page.keyboard.press('Escape');await expect(offer).toBeVisible();
  expect(imageCalls).toHaveLength(0);
