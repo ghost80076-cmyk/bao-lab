@@ -269,6 +269,19 @@ assert.throws(
   /not on a single 100% version/
 );
 
+const asModulePayload = () => ({
+  main_module: graph.mainModule,
+  modules: graph.modules.map(m => ({
+    name: m.name,
+    content_type: m.contentType,
+    content_base64: Buffer.from(m.content).toString("base64"),
+  })),
+});
+const goodModules = asModulePayload();
+const goodParity = { graph, currentModules: goodModules, candidateModules: goodModules };
+const badCandidateModules = asModulePayload();
+badCandidateModules.modules[1].content_base64 = Buffer.from("export const helper = false;").toString("base64");
+
 const currentVersion = {
   id: "old-version",
   resources: {
@@ -300,20 +313,41 @@ const candidateVersion = {
 };
 
 assert.doesNotThrow(() =>
-  assertVersionBehaviorPreserved(currentVersion, candidateVersion)
+  assertVersionBehaviorPreserved(currentVersion, candidateVersion, goodParity)
+);
+const changedEtagCandidate = {
+  ...candidateVersion,
+  resources: {
+    ...candidateVersion.resources,
+    script: { etag: "etag-updated-after-binding-changes" },
+  },
+};
+assert.deepEqual(
+  assertVersionBehaviorPreserved(currentVersion, changedEtagCandidate, goodParity),
+  { module_count: 2, etag_changed: true },
+  "new binding metadata may change ETag while both exact module graphs remain identical"
+);
+assert.throws(
+  () => assertVersionBehaviorPreserved(currentVersion, changedEtagCandidate),
+  /module parity verification is required/,
+  "never accept different ETags without checking actual code"
+);
+assert.throws(
+  () => assertVersionBehaviorPreserved(currentVersion, changedEtagCandidate, {
+    ...goodParity, candidateModules: badCandidateModules,
+  }),
+  /candidate Worker code differs/,
+  "fail even with a harmless-looking ETag difference if uploaded code really changed"
+);
+assert.throws(
+  () => assertVersionBehaviorPreserved(currentVersion, candidateVersion, {
+    ...goodParity, currentModules: badCandidateModules,
+  }),
+  /currently deployed Worker code differs/,
+  "fail when production contains a hotfix not in GitHub"
 );
 
-assert.throws(
-  () =>
-    assertVersionBehaviorPreserved(currentVersion, {
-      ...candidateVersion,
-      resources: {
-        ...candidateVersion.resources,
-        script: { etag: "different-code" },
-      },
-    }),
-  /candidate Worker code differs/
-);
+
 
 assert.throws(
   () =>
@@ -326,7 +360,7 @@ assert.throws(
           compatibility_date: "2026-10-01",
         },
       },
-    }),
+    }, goodParity),
   /runtime settings differ/
 );
 
@@ -423,7 +457,11 @@ function syncedSettings() {
         });
       }
 
-      if (method === "GET" && /\/versions\/old-version$/.test(url)) {
+      if (method === "GET" && url.includes("/workers/workers/yorubay-credits-pilot/versions/") && url.endsWith("?include=modules")) {
+          return jsonResponse(goodModules);
+        }
+
+        if (method === "GET" && /\/versions\/old-version$/.test(url)) {
         return jsonResponse(currentVersion);
       }
 
@@ -521,6 +559,10 @@ function syncedSettings() {
               },
             ],
           });
+        }
+
+        if (method === "GET" && url.includes("/workers/workers/yorubay-credits-pilot/versions/") && url.endsWith("?include=modules")) {
+          return jsonResponse(goodModules);
         }
 
         if (method === "GET" && /\/versions\/old-version$/.test(url)) {

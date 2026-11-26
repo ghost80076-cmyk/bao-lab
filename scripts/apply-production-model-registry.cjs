@@ -13,6 +13,7 @@ const {
 const {
   loadWorkerModuleManifest,
 } = require("./deploy-worker-content.cjs");
+const { compareWorkerModules } = require("./worker-module-parity-core.cjs");
 
 const TARGET_BINDINGS = ["MODELS_JSON", "MODELS_JSON_EXTRA"];
 const APPLY_CONFIRMATION = "APPLY_REGISTRY_MODEL_BINDINGS";
@@ -326,34 +327,60 @@ function comparableRuntime(version) {
   };
 }
 
-function assertVersionBehaviorPreserved(currentVersion, candidateVersion) {
-  const currentEtag = String(
-    currentVersion?.resources?.script?.etag || ""
-  ).trim();
-  const candidateEtag = String(
-    candidateVersion?.resources?.script?.etag || ""
-  ).trim();
+function describeModuleMismatch(report) {
+  const diff = [
+    ...report.missing_modules.map(name => "missing:" + name),
+    ...report.extra_modules.map(name => "extra:" + name),
+    ...report.differing_modules.map(item => "changed:" + item.module),
+  ];
+  if (!report.main_module_matches) diff.unshift("main_module");
+  return diff.join(", ") || "unverified code";
+}
 
+function assertVersionBehaviorPreserved(currentVersion, candidateVersion, parity = {}) {
+  const currentEtag = String(currentVersion?.resources?.script?.etag || "").trim();
+  const candidateEtag = String(candidateVersion?.resources?.script?.etag || "").trim();
   if (!currentEtag || !candidateEtag) {
-    throw new Error(
-      "apply blocked: Cloudflare version response is missing a script etag"
-    );
+    throw new Error("apply blocked: Cloudflare version response is missing a script etag");
   }
-
-  if (currentEtag !== candidateEtag) {
-    throw new Error(
-      "apply blocked: candidate Worker code differs from the currently deployed version"
-    );
+  // Cloudflare ETags can change when model binding metadata changes.
+  // Compare actual module contents of BOTH versions, never just ETag equality.
+  if (!parity.graph || !parity.currentModules || !parity.candidateModules) {
+    throw new Error("apply blocked: live and candidate Worker module parity verification is required");
   }
-
+  const current = compareWorkerModules(parity.graph, parity.currentModules);
+  if (!current.ok) {
+    throw new Error("apply blocked: currently deployed Worker code differs from reviewed GitHub modules (" +
+      describeModuleMismatch(current) + ")");
+  }
+  const candidate = compareWorkerModules(parity.graph, parity.candidateModules);
+  if (!candidate.ok) {
+    throw new Error("apply blocked: candidate Worker code differs from reviewed GitHub modules (" +
+      describeModuleMismatch(candidate) + ")");
+  }
   const currentRuntime = comparableRuntime(currentVersion);
   const candidateRuntime = comparableRuntime(candidateVersion);
-
   if (JSON.stringify(currentRuntime) !== JSON.stringify(candidateRuntime)) {
-    throw new Error(
-      "apply blocked: candidate Worker runtime settings differ from the currently deployed version"
-    );
+    throw new Error("apply blocked: candidate Worker runtime settings differ from the currently deployed version");
   }
+  return { module_count: current.expected_modules, etag_changed: currentEtag !== candidateEtag };
+}
+
+async function fetchWorkerVersionModules({
+  accountId, apiToken, workerName, versionId, fetchImpl = globalThis.fetch,
+}) {
+  if (typeof fetchImpl !== "function") throw new Error("fetch is unavailable");
+  const token = required(apiToken, "CLOUDFLARE_API_TOKEN");
+  const version = required(versionId, "versionId");
+  const url = "https://api.cloudflare.com/client/v4/accounts/" +
+    encodeURIComponent(required(accountId, "CLOUDFLARE_ACCOUNT_ID")) +
+    "/workers/workers/" +
+    encodeURIComponent(required(workerName, "CLOUDFLARE_WORKER_NAME")) +
+    "/versions/" + encodeURIComponent(version) + "?include=modules";
+  const response = await fetchImpl(url, {
+    method: "GET", headers: { authorization: "Bearer " + token },
+  });
+  return cloudflareJson(response, "Cloudflare version-specific module lookup");
 }
 
 async function uploadWorkerVersion({
@@ -524,9 +551,17 @@ async function deployProductionModelRegistry(options = {}) {
       fetchImpl: options.fetchImpl,
     }));
 
-  assertVersionBehaviorPreserved(
-    currentVersion,
-    candidateVersion
+  const [currentModules, candidateModules] = await Promise.all([
+    options.currentModules || fetchWorkerVersionModules({
+      accountId, apiToken, workerName, versionId: previousVersionId, fetchImpl: options.fetchImpl,
+    }),
+    options.candidateModules || fetchWorkerVersionModules({
+      accountId, apiToken, workerName, versionId: String(candidateVersion.id), fetchImpl: options.fetchImpl,
+    }),
+  ]);
+  const parity = assertVersionBehaviorPreserved(
+    currentVersion, candidateVersion,
+    { graph, currentModules, candidateModules }
   );
 
   const newVersionId = String(candidateVersion.id);
@@ -580,6 +615,7 @@ async function deployProductionModelRegistry(options = {}) {
 
   return {
     ...report,
+    code_parity: parity,
     applied: true,
     reason: "version_deployed",
     previous_version_id: previousVersionId,
@@ -613,6 +649,7 @@ module.exports = {
   deployProductionModelRegistry,
   fetchLatestDeployment,
   fetchWorkerVersion,
+  fetchWorkerVersionModules,
   requireSingleActiveVersion,
   normalizeRemovalAuthorization,
   summarizeChanges,
