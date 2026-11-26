@@ -17,12 +17,26 @@ async function setup(page,width){
   Chat.add('assistant','他走到窗邊。「晚安。」');App.showView('chat');App.renderChatShell(false);App.saveStory(false);
  });
  await page.evaluate(()=>BAOStorageWriteGuard.whenIdle());
+ await page.waitForFunction(()=>window.BAOChatToolNavigation&&window.BAOMobileReadingLayout);
+}
+async function openVoice(page,width){
+ await expect(page.locator('#chat-view .composer [data-bao-voice-tools]')).toHaveCount(0);
+ if(width<821){
+   await page.locator('#bao-mobile-composer-tools').click();
+ }else{
+   await page.evaluate(()=>BAOChatToolNavigation.openDrawer());
+ }
+ const drawer=page.locator('#bao-chat-tool-drawer');
+ await expect(drawer).toBeVisible();
+ await drawer.getByRole('searchbox',{name:'搜尋故事工具'}).fill('語音工具');
+ await drawer.getByRole('button',{name:'語音工具',exact:true}).click();
+ await expect(drawer).toHaveCount(0);
 }
 for(const width of [390,1440])test('optional browser speech at '+width+'px',async({page})=>{
  await setup(page,width);
  const before=await page.evaluate(()=>({messages:JSON.stringify(Chat.messages),state:JSON.stringify(GameState.current),api:JSON.stringify(App.config.api)}));
  await page.locator('#user-input').fill('原有文字');
- await page.getByRole('button',{name:'開啟語音工具'}).click();
+ await openVoice(page,width);
  const d=page.getByRole('dialog',{name:'角色語音與語音輸入'});
  await expect(d).toBeVisible();
  await d.getByRole('button',{name:'開始語音辨識'}).click();
@@ -32,7 +46,7 @@ for(const width of [390,1440])test('optional browser speech at '+width+'px',asyn
  await expect(d.getByLabel('辨識文字預覽（可修改）')).toHaveValue('今天好累');
  await d.getByRole('button',{name:'將文字填入故事輸入框'}).click();
  await expect(page.locator('#user-input')).toHaveValue('原有文字\n今天好累');
- await page.getByRole('button',{name:'開啟語音工具'}).click();
+ await openVoice(page,width);
  await d.getByLabel('配音角色').selectOption('a');
  await d.getByLabel('配音語言').selectOption('ja-JP');
  await d.getByLabel('選擇故事回覆').selectOption('0');

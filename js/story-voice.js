@@ -119,8 +119,18 @@
    try{modal.showModal();}catch(_){cleanup();}
  }
  function mount(){
-   const composer=document.querySelector('#chat-view .composer');if(!composer||composer.querySelector('[data-bao-voice-tools]'))return;
-   const b=btn('語音',open);b.className='secondary yoru-voice-trigger';b.dataset.baoVoiceTools='1';b.setAttribute('aria-label','開啟語音工具');composer.prepend(b);
+   // Keep the existing mobile composer geometry untouched. The Control Center
+   // mirrors sidebar actions into its searchable drawer on every viewport.
+   const sidebar=document.querySelector('#chat-view .chat-layout > aside');
+   if(!sidebar)return;
+   const host=sidebar.querySelector('[data-chat-tool-body="scene"]')||sidebar;
+   let b=sidebar.querySelector('[data-bao-voice-tools]');
+   if(!b){
+     b=btn('語音工具',open);b.className='secondary yoru-voice-trigger';b.dataset.baoVoiceTools='1';
+     b.dataset.searchKeywords='語音 配音 聲線 麥克風 日語 韓語 TTS STT';
+     b.setAttribute('aria-label','語音工具');
+   }
+   if(b.parentElement!==host)host.append(b);
  }
  App.wrapRenderChatShell('story-voice:optional-tools',function(next,...args){const result=next(...args);mount();return result;});
  window.BAOStoryVoice=Object.freeze({open,mount});
