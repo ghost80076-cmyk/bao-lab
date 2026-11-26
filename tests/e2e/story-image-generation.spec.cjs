@@ -222,3 +222,52 @@ test('group photo exchange isolates recipients and requires explicit delivery',a
  await enter('AB 群組');
  await expect(page.locator('.bp-dm-photo')).toHaveCount(0);
 });
+
+test('X photo exchange publishes only explicit public attachments and NPC confirmed photos',async({page})=>{
+ const imageCalls=await setup(page,390);
+ await page.evaluate(()=>{
+   App.activeCharacter.phone_ui.contactName='A';
+   App.activeCharacter.phone_ui.contacts=[{id:'a',name:'A'},{id:'b',name:'B'}];
+   App.activeCharacter.phone_ui.tweets=[{id:'root',authorId:'a',authorName:'A',text:'今日的公開貼文'},{id:'other',authorId:'b',authorName:'B',text:'其他公開貼文'}];
+   App.config.api.baseUrl='https://vision.example.test/v1/chat/completions';
+   App.config.api.visionConfirmedRoute=BAOStoryImagesCore.routeKey(App.config.api);
+ });
+ const vision=[];
+ await page.route('https://vision.example.test/**',async route=>{
+   if(route.request().method()==='OPTIONS')return route.fulfill({status:204,headers:{'access-control-allow-origin':'*','access-control-allow-headers':'*'}});
+   const payload=route.request().postDataJSON();vision.push(payload);
+   const reply='公開回覆。[[YORUBAY_PHONE_V1]]'+JSON.stringify({tweets:[{id:'npc-x-photo',authorId:'b',authorName:'B',replyTo:'root',text:'我也想分享風景。'}],xPhotoOffer:{postId:'npc-x-photo',senderId:'b',description:'河邊風景',kind:'scene'}})+'[[/YORUBAY_PHONE_V1]]';
+   return route.fulfill({contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify({choices:[{message:{content:reply},finish_reason:'stop'}]})});
+ });
+ async function enter(){
+   await page.locator('#bao-phone-launch').click();await page.locator('.bp-home-handle').click();
+   await page.locator('[data-phone-action="app:x"]').first().click();
+ }
+ await enter();
+ await page.locator('[data-phone-action="x-post:root"]').click();
+ const png=await page.evaluate(()=>document.createElement('canvas').toDataURL('image/png').split(',')[1]);
+ await page.locator('.bp-dm-photo-controls input[type=file]').setInputFiles({name:'public.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});
+ await expect(page.getByAltText('待公開發布的 X 照片')).toBeVisible();
+ await expect(page.locator('.bp-dm-photo-controls')).toContainText('故事內公開 X 留言');
+ await page.getByRole('button',{name:'傳送至故事',exact:true}).click();
+ await expect(page.getByAltText('你公開發布的 X 照片')).toBeVisible();
+ expect(vision.filter(body=>body.messages?.some(m=>Array.isArray(m.content)&&m.content.some(p=>p.type==='image_url')))).toHaveLength(1);
+ const offer=page.getByRole('button',{name:'查看公開照片提議'});
+ await expect(offer).toBeVisible();expect(imageCalls).toHaveLength(0);
+ await offer.click();await generate(page);expect(imageCalls).toHaveLength(1);
+ expect(await page.evaluate(async()=>(await BAOImageAssets.list(BAOImageAssets.scope().storyId)).length)).toBe(0);
+ await page.getByRole('button',{name:'確認發布至 X'}).click();
+ await expect(page.getByText('已公開發布照片',{exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'收藏至 Phone 相簿'}).click();
+ await expect.poll(()=>page.evaluate(async()=>(await BAOImageAssets.list(BAOImageAssets.scope().storyId))[0]?.inPhone)).toBe(true);
+ await page.evaluate(()=>BAOPhoneUI.close());await enter();
+ await page.locator('[data-phone-action="x-post:other"]').click();
+ await expect(page.locator('.bp-x-photo')).toHaveCount(0);
+ await page.evaluate(()=>BAOPhoneUI.close());
+ await page.locator('#bao-phone-launch').click();await page.locator('.bp-home-handle').click();
+ await page.locator('[data-phone-action="app:kakao"]').first().click();await page.locator('[data-phone-action="kakao-chat"]').click();
+ await expect(page.locator('.bp-dm-photo')).toHaveCount(0);
+ await page.evaluate(()=>BAOPhoneUI.close());await enter();await page.locator('[data-phone-action="x-post:root"]').click();
+ await expect(page.getByAltText('你公開發布的 X 照片')).toBeVisible();
+ await expect(page.getByText('已公開發布照片',{exact:true})).toBeVisible();
+});

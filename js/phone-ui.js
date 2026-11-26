@@ -4,7 +4,7 @@
   const Core = window.BAOPhoneUICore;
   const Puzzles = window.BAOPhoneInteractionCore;
   if (!Core || typeof App === 'undefined' || window.BAOPhoneUI) return;
-  let dmPhotos=null;
+  let dmPhotos=null, xPhotosCleanup=()=>{};
   let imageCollectionCleanup = () => {};
   let root = null, screen = null, config = null, page = 'lock', subpage = '';
   let clock = null, callTimer = null, callStart = 0, messageTimers = [], messageFade = null;
@@ -170,7 +170,7 @@
     playing = false; position = 0; trackIndex = -1; expanded = false;
   }
   function close() {
-    dmPhotos?.cleanup(); dmPhotos=null;
+    dmPhotos?.cleanup(); dmPhotos=null;xPhotosCleanup();xPhotosCleanup=()=>{};
     imageCollectionCleanup(); imageCollectionCleanup=()=>{};
     const wasOpen = Boolean(root);
     clearTimers(); stopMedia(); root?.remove(); root = null; screen = null;ownerState=null;ownerCharacter=null;eventNotice='';
@@ -245,7 +245,7 @@
   }
   function handle() { const node=button('', 'home', 'bp-home-handle');node.setAttribute('aria-label','返回手機桌面');return node; }
   function render() {
-    dmPhotos?.cleanup(); dmPhotos=null;
+    dmPhotos?.cleanup(); dmPhotos=null;xPhotosCleanup();xPhotosCleanup=()=>{};
     imageCollectionCleanup(); imageCollectionCleanup=()=>{};
     if (!screen || !config) return;
     screen.replaceChildren();
@@ -451,6 +451,35 @@
       const actual=repliesFor(tweet).length;
       return actual ? String(Math.max(actual,Number(tweet.replies)||0)) : (tweet.replies || '0');
     };
+    const cards=new Map(),Story=window.BAOPhoneStoryCore,photos=window.BAOPhoneDMPhotos;
+    const publicPost=(source,id)=>source && Story?.xPublicPost(source.tweets,id,postId=>{
+      const access=Puzzles?.access(source,ownerState?.phoneInteractions,{app:'x',id:postId});
+      return !access || (access.exists && !access.locked && !access.hidden);
+    });
+    const active=()=>root && ownerState===GameState.current && ownerCharacter===App.activeCharacter && page==='x';
+    const photoRows=()=>{
+      if(!active() || !Story)return [];
+      const live=phoneSource();
+      return Story.xPhotoRows(Chat.messages,live?.tweets||[],id=>!!publicPost(live,id)).map(row=>{
+        const post=live.tweets.find(t=>t.id===row.postId);
+        return {...row,senderName:postLabel(post)};
+      });
+    };
+    const mountPosts=()=>{if(photos?.mountXPosts)xPhotosCleanup=photos.mountXPosts({cards,rows:photoRows,
+      active:row=>active() && photoRows().some(now=>now.postId===row.postId && now.message.id===row.message.id && now.signature===row.signature),refresh:render});};
+    const composer=(post=null)=>{
+      const form=$('form','bp-x-composer');form.dataset.phoneForm=post?'x-reply':'x-publish';
+      const input=$('textarea');input.name='text';input.rows=2;input.maxLength=1200;
+      input.placeholder=post?'回覆這則貼文…':'分享故事中的生活…';
+      input.setAttribute('aria-label',post?'回覆 X 貼文':'發布 X 貼文');input.required=true;
+      const send=$('button','',post?'傳送至故事':'發布至故事內 X');send.type='submit';
+      add(form,input,send);area.append(form);
+      if(photos && (!post || publicPost(config,post.id))){
+        const location=subpage;
+        dmPhotos=photos.mount({form,thread:area,target:{x:true,replyTo:post?.id||''},
+          active:()=>active() && subpage===location && (!post || !!publicPost(phoneSource(),post.id)),refresh:render});
+      }
+    };
     const renderPost=(tweet,reply=false,openButton=false)=>{
       const row=$('article','bp-tweet'+(reply?' bp-x-comment':''));
       const name=postLabel(tweet);
@@ -466,6 +495,7 @@
           $('div','bp-muted bp-x-stats','♡ '+(tweet.likes || '0')+'    ↩ '+countFor(tweet)+'    ↻ '+(tweet.reposts || '0')));
         const source={witness:'目擊者敘述',media:'媒體資訊',hearsay:'轉述／傳聞',unknown:'來源未明'}[tweet.sourceKind];
         if(source)row.append($('small','bp-x-source',source));
+        if(publicPost(config,tweet.id))cards.set(tweet.id,row);
       }
       if(openButton)row.append(button((reply?'查看這則回覆及後續留言 · ':'查看貼文與留言 · ')+countFor(tweet),'x-post:'+tweet.id,'bp-x-open'));
       return row;
@@ -480,13 +510,9 @@
       // records only that specific post as read through the existing save flow.
       responses.forEach(item=>area.append(renderPost(item,true,true)));
       if(!accessFor({app:'x',id:opened.id}).locked){
-        const form=$('form','bp-x-composer');form.dataset.phoneForm='x-reply';
-        const input=$('textarea');input.name='text';input.rows=2;input.maxLength=1200;
-        input.placeholder='回覆這則貼文…';input.setAttribute('aria-label','回覆 X 貼文');input.required=true;
-        const send=$('button','', '傳送至故事');send.type='submit';
-        add(form,input,send);area.append(form);
+        composer(opened);
       }else renderGate(area,{app:'x',id:opened.id});
-      return;
+      mountPosts();return;
     }
     add(area,appHeader('X · 動態',true));
     const banner=$('div','bp-x-banner');
@@ -500,9 +526,11 @@
         $('div','bp-muted',config.twitterHandle || '@user'));
     }
     add(area,banner,profile);
+    composer();
     const roots=items.filter(item=>!item.replyTo || !ids.has(item.replyTo));
     if(!roots.length)emptyState(area,'目前沒有貼文','故事中出現的新貼文會顯示在這裡。');
     roots.forEach(tweet=>area.append(renderPost(tweet,false,true)));
+    mountPosts();
   }
   function renderInstagram() {
     add(screen,statusbar(true));
@@ -666,6 +694,11 @@
     if (!composer) return;
     if (composer.value.trim() && !window.confirm('目前故事輸入框有尚未送出的內容，要用手機訊息取代嗎？')) return;
     if(window.BAOStoryImages?.hasDraft?.()){(dm?.error || window.alert)('故事輸入框已有待送照片，請先處理，以免傳錯對象。');return;}
+    let xPrefix='';
+    if(medium==='X' && (dm?.image || !post)){
+      xPrefix=window.BAOPhoneStoryCore.xPublishPrefix('player-x-'+crypto.randomUUID(),post?.id||'');
+      if(!xPrefix){(dm?.error || window.alert)('無法識別公開貼文，請重新開啟 X。');return;}
+    }
     if(dm?.image){
       try{
         if(dm.confirmedRoute && dm.confirmedRoute===BAOStoryImagesCore.routeKey(App.config.api))
@@ -673,7 +706,8 @@
         window.BAOStoryImages.stagePhoneImage(dm.image);
       }catch(error){dm.error(error.message);return;}
     }
-    if(medium==='X' && post){
+    if(xPrefix){composer.value=xPrefix+text;}
+    else if(medium==='X' && post){
       const author=post.authorName || post.authorHandle || config.userName || '使用者';
       const quoted=post.text.replace(/\s+/g,' ').slice(0,120);
       composer.value='【X｜回覆貼文 ID：'+post.id+'｜發文者：'+author+'｜原文：'+quoted+'】'+text;
@@ -684,7 +718,7 @@
     }
     if(dm){
       const before=Chat.messages.at(-1)?.id;
-      dm.error(dm.group?'等待群聊回覆…':'等待私訊回覆…');
+      dm.error(dm.x?'等待公開貼文回覆…':dm.group?'等待群聊回覆…':'等待私訊回覆…');
       void Promise.resolve(App.sendMessage()).finally(()=>{
         if(!dm.current())return;
         if(Chat.messages.at(-1)?.role==='assistant' && Chat.messages.at(-1).id!==before){
@@ -716,6 +750,16 @@
         if(pending===dmPhotos && pending.current())sendToStory(value || (pending.group?'傳給群組一張照片。':'傳給你一張照片。'),'KakaoTalk',null,pending);
       });
       return;
+    }
+    if(['x-reply','x-publish'].includes(form.dataset.phoneForm) && dmPhotos?.x){
+      const pending=dmPhotos;
+      if(pending.busy){pending.error('請等照片處理完成。');return;}
+      if(!value && !pending.image)return;
+      const post=form.dataset.phoneForm==='x-reply'?config.tweets.find(item=>subpage==='post:'+item.id):null;
+      if(form.dataset.phoneForm==='x-reply' && (!post || post.id!==pending.replyTo))return;
+      void pending.ready.then(()=>{
+        if(pending===dmPhotos && pending.current())sendToStory(value || '分享一張照片。','X',post,pending);
+      });return;
     }
     if(!value)return;
     if(form.dataset.phoneForm==='x-reply'){

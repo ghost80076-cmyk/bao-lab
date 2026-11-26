@@ -179,3 +179,33 @@ test('group photo target binds exact membership and uses sender-owned replies on
   assert.notEqual(Core.groupPhotoExchanges([user,revised],target)[1].signature,rows[1].signature);
   assert.equal(Core.groupPhotoExchanges([user,reply,{role:'assistant',id:'extra',phonePatch:reply.phonePatch}],target).length,2);
 });
+
+test('X publication uses explicit player intent and public post ownership, never DM assets',()=>{
+  const id='player-x-12345678-1234-1234-1234-123456789abc';
+  const root={id:'root',from:'them',authorId:'a',text:'公開的貼文',replyTo:''};
+  const user={role:'user',content:Core.xPublishPrefix(id,'root')+'我的午餐',storyImage:{data:'fixture'}};
+  assert.deepEqual(Core.xPlayerIntent(user),{id,replyTo:'root',text:'我的午餐',from:'me'});
+  const incoming={tweets:[{id,from:'me',text:'偽造文字'},{id:'npc-post',from:'them',authorId:'b',replyTo:id,text:'我也分享'}],xPhotoOffer:{postId:'npc-post',senderId:'b',kind:'scene',description:'公園'}};
+  const patch=Core.withXPlayerPost(Core.normalizePatch(incoming),user,[root],()=>true);
+  assert.equal(patch.tweets[0].text,'我的午餐');
+  assert.equal(patch.tweets[0].from,'me');
+  assert.equal(patch.tweets[0].authorId,'');
+  const reply={role:'assistant',id:'reply',phonePatch:patch};
+  const tweets=[root,...patch.tweets];
+  const rows=Core.xPhotoRows([user,reply],tweets);
+  assert.equal(rows.length,2);
+  assert.equal(rows[0].image,user.storyImage);
+  assert.equal(rows[1].senderId,'b');
+  assert.equal(rows[1].key,JSON.stringify(['x','npc-post']));
+  assert.deepEqual(Core.xPhotoRows([user,reply],tweets,id=>id!=='root'),[]);
+  assert.deepEqual(Core.xPhotoRows([user,reply],[...tweets,root]),[]);
+  assert.deepEqual(Core.xPhotoRows([{...user,content:'【KakaoTalk｜對 A 發送訊息】私訊'},reply],tweets),[]);
+  assert.deepEqual(Core.xPhotoRows([{...user,content:'故事內的私人照片'},reply],tweets),[]);
+  assert.deepEqual(Core.xPhotoRows([user,{...reply,variants:[{phonePatch:null}],activeVariant:0}],tweets),[]);
+  assert.equal(Core.xPublicPost([{...root,replyTo:'root'}],'root'),null);
+  assert.equal(Core.xPublicPost([{...root,replyTo:'missing'}],'root'),null);
+  assert.equal(Core.withXPlayerPost(null,user,[root],()=>false),null);
+  assert.equal(Core.withXPlayerPost(null,user,[...tweets],()=>true),null);
+  assert.equal(Core.normalizePatch({...incoming,xPhotoOffer:{...incoming.xPhotoOffer,senderId:'a'}}).xPhotoOffer,undefined);
+  assert.equal(Core.normalizePatch({xPhotoOffer:incoming.xPhotoOffer}),null);
+});

@@ -1,4 +1,4 @@
-/* One-to-one KakaoTalk photo exchange. The story reply owns the offer;
+/* KakaoTalk and X photo exchange. The story reply owns the offer;
    only a committed local image reference means the photo was delivered. */
 (() => {
   'use strict';
@@ -41,7 +41,7 @@
     form.after(controls);
     const file=node('input'),pick=node('button','附照片'),preview=node('img'),status=node('small');
     file.type='file';file.accept='image/jpeg,image/png,image/webp';file.hidden=true;
-    pick.type='button';preview.alt=target.group?'待傳送群聊照片':'待傳送私訊照片';preview.hidden=true;
+    pick.type='button';preview.alt=target.x?'待公開發布的 X 照片':target.group?'待傳送群聊照片':'待傳送私訊照片';preview.hidden=true;
     status.setAttribute('role','status');
     const remove=node('button','移除照片');remove.type='button';remove.hidden=true;
     const confirmRoute=node('label'), confirmed=node('input');
@@ -70,13 +70,14 @@
         if(!current() || attempt!==ticket)return;
         confirmRoute.hidden=BAOStoryImagesCore.capability(App.config.api)!=='unknown';
         draft=image;preview.src=image.data;preview.hidden=remove.hidden=false;caption.required=false;
-        status.textContent='傳送後，照片隨故事保存並交給目前的 Vision 模型。可能產生費用。'+(target.group?'收件群組：'+target.name+'（'+target.audience+'）':'收件人：'+target.name);
+        status.textContent='傳送後，照片隨故事保存並交給目前的 Vision 模型。可能產生費用。'+(target.x?'範圍：故事內公開 X '+(target.replyTo?'留言':'貼文')+'，不會發到現實社群。':target.group?'收件群組：'+target.name+'（'+target.audience+'）':'收件人：'+target.name);
       }catch(error){if(current() && attempt===ticket)status.textContent=error.message;}
       finally{if(attempt===ticket)busy=false;}
     };
     let receipts=[];
-    const delivery = assets.list(scope.storyId).then(all=>assets.visible(all,scope).filter(r=>r.dmKey===target.key));
+    const delivery = target.x?Promise.resolve([]):assets.list(scope.storyId).then(all=>assets.visible(all,scope).filter(r=>r.dmKey===target.key));
     async function paint(){
+      if(target.x)return;
       const saved=await delivery;if(!current())return;
       const history=exchanges(target).slice(-50);
       // Locate matching reply bubbles from newest to oldest, including repeated text.
@@ -136,10 +137,54 @@
       }
     }
     const ready=paint().catch(()=>{if(current())status.textContent='無法讀取私訊照片。';});
-    return {ready, current, group:target.group===true,prefix:target.prefix,get image(){return draft;}, get busy(){return busy;},
+    return {ready, current, group:target.group===true,x:target.x===true,replyTo:target.replyTo||'',prefix:target.prefix,get image(){return draft;}, get busy(){return busy;},
       get confirmedRoute(){return !confirmRoute.hidden && confirmed.checked?routeKey:'';},
       get receipt(){return receipts.length?'（這段'+(target.group?'群聊':'私訊')+'之前已收到照片：'+receipts.slice(-3).join('、')+'）':'';},
       error:text=>{status.textContent=text;},cleanup(){dead=true;cleanups.forEach(fn=>fn());}};
   }
-  window.BAOPhoneDMPhotos=Object.freeze({mount});
+  function mountXPosts({cards,rows,active,refresh}) {
+    const scope=assets.scope(),cleanups=[];let dead=false;
+    const current=()=>!dead && assets.scope().storyId===scope.storyId && assets.scope().chapterId===scope.chapterId;
+    const paint=async()=>{
+      const saved=assets.visible(await assets.list(scope.storyId),scope);
+      if(!current())return;
+      for(const row of rows()){
+        const card=cards.get(row.postId);
+        if(!card?.isConnected || !active(row))continue;
+        const box=node('div');box.className='bp-x-photo';
+        if(row.image){
+          try{const img=node('img');img.src=BAOStoryImagesCore.validate(row.image).data;img.alt='你公開發布的 X 照片';img.loading='lazy';box.append(img);}catch(_){continue;}
+        }else{
+          const record=saved.find(r=>r.dmKey===row.key && r.messageId===row.message.id && r.dmOffer===row.signature);
+          if(record){
+            const thumb=generation.thumbnail(record);cleanups.push(thumb.cleanup);
+            box.append(node('small','已公開發布照片'),thumb.img,node('span',record.title));
+            if(!record.inPhone){
+              const collect=node('button','收藏至 Phone 相簿');collect.type='button';
+              collect.onclick=async()=>{if(!current() || !active(row))return;collect.disabled=true;try{await assets.collect(record.id);collect.remove();}catch(error){collect.disabled=false;collect.textContent=error.message;}};
+              box.append(collect);
+            }
+          }else{
+            const action=node('button','查看公開照片提議');action.type='button';
+            action.onclick=()=>{
+              const valid=()=>current() && card.isConnected && active(row);
+              if(!valid())return;
+              const senderName=row.senderName || row.senderId;
+              const view=BAOStoryImagePrompts.dialog(senderName+' 想在 X 分享照片','僅限故事內公開貼文或留言。確認費用後生成，預覽後必須再確認發布。');
+              view.overlay.style.zIndex='2147482100';
+              generation.attach(view,{scene:{id:row.message.id,context:row.offer.description},card:App.activeCharacter,
+                output:()=>({image_prompt:row.offer.description}),profile:{value:BAOStoryImagePrompts.profileOf(App.activeCharacter)},
+                dm:{x:true,key:row.key,senderId:row.senderId,name:senderName,offer:row.offer,signature:row.signature,valid,delivered:refresh}});
+              view.panel.append(view.status,view.close);
+            };
+            box.append(node('small','尚未公開的照片提議'),node('span',row.offer.description),action);
+          }
+        }
+        card.append(box);
+      }
+    };
+    void paint().catch(()=>{if(current())for(const card of cards.values())if(card.isConnected)card.append(node('small','無法讀取本機公開照片。'));});
+    return ()=>{dead=true;cleanups.forEach(fn=>fn());};
+  }
+  window.BAOPhoneDMPhotos=Object.freeze({mount,mountXPosts});
 })();

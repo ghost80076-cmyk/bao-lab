@@ -198,7 +198,7 @@
     const result=el('section'),busyStatus=el('p');result.className='image-gen-result';busyStatus.setAttribute('role','status');let controller=null,resultUrl='';
     const generate=button('確認並生成 1 張圖片',async()=>{
       if(controller)return;
-      if(dm && !dm.valid()){status.textContent='聊天室或照片提議已改變，請重新開啟。';return;}
+      if(dm && !dm.valid()){status.textContent='分享位置或照片提議已改變，請重新開啟。';return;}
       if(!sameScope(current)){status.textContent='請先保存故事，並從有效 AI 回覆開啟畫面工具。';return;}
       if(referenceBusy){status.textContent='參考圖片仍在處理中。';return;}
       if(!consent.input.checked){status.textContent='請先核對完整提示詞、模型及費用，勾選本次確認。';return;}
@@ -215,10 +215,10 @@
         result.replaceChildren();const img=el('img');img.src=resultUrl;img.alt='本次生成結果';img.className='image-gen-full';
         const title=field('圖片標題');title.input.value=dm?dm.offer.description.slice(0,100):snapshot.kind==='selfie'?`${snapshot.characterName}的照片`:'故事場景';
         const story=check('加入指定回覆的故事畫面'),phone=check('加入本章 Phone 相簿');story.input.checked=true;
-        const save=button(dm?(dm.group?'傳送至這段群聊':'傳送至這段私訊'):'保存圖片',async()=>{
+        const save=button(dm?(dm.x?'確認發布至 X':dm.group?'傳送至這段群聊':'傳送至這段私訊'):'保存圖片',async()=>{
           save.disabled=true;
           try{if(!sameScope(current))throw new Error('故事已改變，請下載圖片後在正確故事匯入。');
-            if(dm && !dm.valid())throw new Error('聊天室或照片提議已改變。');
+            if(dm && !dm.valid())throw new Error('分享位置或照片提議已改變。');
             await Assets.save(prepared,{...current,...snapshot,...(dm?{dmKey:dm.key,dmOffer:dm.signature,characterName:dm.name,characterId:dm.senderId}:{}),title:title.input.value,createdAt:new Date().toISOString(),provider:chosen.provider,model:chosen.model,inStory:story.input.checked,inPhone:phone.input.checked});
             if(dm){dm.delivered();view.dismiss();return;}
             status.textContent='圖片與引用已保存到本機。跨裝置請使用「故事＋生成圖片」備份。';
