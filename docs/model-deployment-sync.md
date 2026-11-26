@@ -82,3 +82,26 @@ Cloudflare docs: https://developers.cloudflare.com/api/typescript/resources/work
 
 The read-only parity gate can return a non-success status when the endpoint
 is not accessible; this intentionally fails closed without changing production.
+
+## Worker binding version ETag & module parity (2026-11-26)
+
+The read-only audit of the 100%-traffic Cloudflare Worker version
+`466aeeb9-0605-49e3-9228-90d344d3fb1b` proved that all **36 modules**
+match the reviewed GitHub module bytes, with no missing or extra files.
+Cloudflare version `resources.script.etag` may differ after binding metadata
+changes without source-code changes; script ETag equality alone is not a
+sufficient code integrity check.
+
+The coordinated model-registry apply path now inspects the exact deployed
+version **and** the newly uploaded candidate using Cloudflare's
+version-specific `GET .../workers/workers/{name}/versions/{id}?include=modules`.
+Both must match the reviewed GitHub bundle module-by-module with SHA-256,
+and runtime compatibility settings must remain identical before any candidate
+is activated. If either module API call fails or source bytes differ, apply
+fails closed and AWS compensation remains available.
+
+This does not bypass ETag safety: a different ETag is accepted only after
+stronger verified module-byte parity. GitHub Actions still performs a
+read-only active-code preflight before AWS changes. Any deployment must
+follow a new `main` dry-run and use the corresponding exact commit SHA
+and current AWS fingerprint. Do not reuse previous run's inputs.
