@@ -16,7 +16,9 @@ on:
       - 'js/story-image-*'
       - 'js/phone-dm-photos.js'
       - 'js/phone-story-core.js'
+      - 'js/phone-story-bridge.js'
       - 'js/phone-ui.js'
+      - 'css/phone-ui.css'
       - 'css/story-image-generation.css'
       - 'tests/e2e/story-images.spec.cjs'
       - 'tests/e2e/story-image-generation.spec.cjs'
@@ -79,7 +81,7 @@ jobs:
       - name: Confirm this commit reached Pages
         env:
           SITE_URL: https://yorubay.com
-        run: bash scripts/verify-live-assets.sh index.html js/story-images.js js/story-images-core.js css/story-images.css js/api.js js/app.js js/story-image-generation-core.js js/story-image-assets.js js/story-image-generation.js js/story-image-prompts.js js/phone-ui.js js/phone-dm-photos.js js/phone-story-core.js css/phone-ui.css css/story-image-generation.css
+        run: bash scripts/verify-live-assets.sh index.html js/story-images.js js/story-images-core.js css/story-images.css js/api.js js/app.js js/story-image-generation-core.js js/story-image-assets.js js/story-image-generation.js js/story-image-prompts.js js/phone-ui.js js/phone-dm-photos.js js/phone-story-core.js js/phone-story-bridge.js css/phone-ui.css css/story-image-generation.css
       - name: Production image UX with synthetic local image and mocked provider
         env:
           STORY_IMAGES_BASE_URL: https://yorubay.com
@@ -87,7 +89,7 @@ jobs:
       - name: Production private photo exchange with mocked Vision and image providers
         env:
           STORY_IMAGES_BASE_URL: https://yorubay.com
-        run: npx playwright test tests/e2e/story-image-generation.spec.cjs --project=chromium --workers=1 --grep 'private photo exchange|group photo exchange'
+        run: npx playwright test tests/e2e/story-image-generation.spec.cjs --project=chromium --workers=1 --grep 'private photo exchange|group photo exchange|X photo exchange'
       - name: Production generation UX with mocked paid API only
         env:
           STORY_IMAGES_BASE_URL: https://yorubay.com
