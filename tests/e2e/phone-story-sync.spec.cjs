@@ -293,7 +293,12 @@ test('X read state rolls back when story saving fails',async({page})=>{
   await page.locator('.bp-apps .bp-icon-x').click();
   await page.evaluate(()=>{App.saveStory=()=>false;});
   await page.locator('[data-phone-action="x-post:new-post"]').click();
-  await expect(page.locator('.bp-x-composer')).toHaveCount(0);
+  // A failed read-state save must leave the player on the feed. The new
+  // independent public-post composer is allowed there, but not a reply form.
+  await expect(page.locator('[data-phone-form="x-reply"]')).toHaveCount(0);
+  await expect(page.getByLabel('回覆 X 貼文')).toHaveCount(0);
+  await expect(page.locator('[data-phone-action="x-post:new-post"]')).toBeVisible();
+  await expect(page.locator('[data-phone-form="x-publish"]')).toBeVisible();
   const after=await page.evaluate(()=>GameState.current.phoneInteractions?.read || []);
   expect(after).not.toContain('x:new-post');
 });
