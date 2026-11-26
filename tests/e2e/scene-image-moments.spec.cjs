@@ -32,6 +32,7 @@ test('Scene Prompt only uses the selected historical moment; local gallery stays
   const dialog = page.getByRole('dialog', { name: '將此刻化成畫面' });
   await expect(dialog).toBeVisible();
   expect(await page.evaluate(() => window.__imageCalls.length)).toBe(0);
+  await dialog.getByText('整理／編輯進階畫面 Prompt（文字模型）', { exact: true }).click();
   await dialog.getByRole('button', { name: '生成畫面提示詞' }).click();
   await expect(dialog.getByRole('textbox', { name: '圖片 Prompt' })).toHaveValue('固定藍色外套的人物');
   const first = await page.evaluate(() => window.__imageCalls[0][1].content);
@@ -40,12 +41,13 @@ test('Scene Prompt only uses the selected historical moment; local gallery stays
   await dialog.getByRole('button', { name: '關閉' }).click();
   await page.evaluate(() => BAOStoryImageMoments.openPlayer(Chat.messages.length - 1));
   await expect(dialog).toBeVisible();
+  await dialog.getByText('整理／編輯進階畫面 Prompt（文字模型）', { exact: true }).click();
   await dialog.getByRole('button', { name: '生成畫面提示詞' }).click();
   const second = await page.evaluate(() => window.__imageCalls[1][1].content);
   expect(second).toContain('新場景在咖啡館');
   const imageBytes = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGNgAAIAAAUAAaX2RUAAAAAASUVORK5CYII=', 'base64');
   await dialog.getByLabel('選擇要存入本機圖集的圖片').setInputFiles({ name: 'scene.png', mimeType: 'image/png', buffer: imageBytes });
-  await expect(dialog.getByRole('status')).toContainText('圖片已存入這台裝置');
+  await expect(dialog.getByRole('status', { name: '畫面工具狀態' })).toContainText('圖片已存入這台裝置');
   await expect(dialog.getByAltText('scene.png')).toHaveCount(1);
   await dialog.getByRole('button', { name: '關閉' }).click();
   await page.evaluate(() => BAOStoryImageMoments.openPlayer(Chat.messages.length - 2));

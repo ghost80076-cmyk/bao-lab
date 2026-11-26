@@ -34,7 +34,7 @@ for(const width of [320,390,834,1440])test(`scene generate save reload portable 
  await expect(page.getByText('圖片與引用已保存到本機。跨裝置請使用「故事＋生成圖片」備份。')).toBeVisible();
  expect(await page.evaluate(()=>({state:JSON.stringify(GameState.current),messages:JSON.stringify(Chat.messages),card:JSON.stringify(App.activeCharacter),api:JSON.stringify(App.config.api)}))).toEqual(before);
  const geometry=await page.getByRole('dialog',{name:'將此刻化成畫面'}).evaluate(node=>({width:node.getBoundingClientRect().width,scroll:node.scrollWidth,client:node.clientWidth}));expect(geometry.scroll).toBeLessThanOrEqual(geometry.client+1);expect(geometry.width).toBeLessThanOrEqual(width);
- await test.info().attach(`image-generation-${width}`,{body:await page.screenshot(),contentType:'image/png'});
+ await test.info().attach(`image-generation-${width}`,{body:await page.screenshot({path:test.info().outputPath('image-generation.png')}),contentType:'image/png'});
  const portable=await page.evaluate(async()=>{
   const bundle=await BAOImageGeneration.exportStory();
   const imported=await BAOImageGeneration.importStory(JSON.parse(JSON.stringify(bundle)));
@@ -51,6 +51,7 @@ for(const width of [320,390,834,1440])test(`scene generate save reload portable 
 });
 test('selfie authorized reference, repeated request confirmation and modal focus',async({page})=>{
  const calls=await setup(page);await open(page);
+ await expect.poll(()=>page.getByRole('dialog',{name:'將此刻化成畫面'}).evaluate(node=>node.contains(document.activeElement))).toBe(true);
  await page.getByLabel('圖片類型',{exact:true}).selectOption('selfie');
  await expect(page.getByLabel('角色外貌（只用於這張照片）')).toHaveValue(/黑髮/);
  await page.getByLabel('拍攝場景、服裝、表情、構圖與風格').fill('窗邊半身自拍，自然微笑');
@@ -97,15 +98,29 @@ test('atomic storage failure retains downloadable result; bad backup never creat
  await page.evaluate(()=>{IDBObjectStore.prototype.put=window.__originalPut;});await page.getByRole('button',{name:'保存圖片',exact:true}).click();await expect(page.getByText('圖片與引用已保存到本機。跨裝置請使用「故事＋生成圖片」備份。')).toBeVisible();
  const bad=await page.evaluate(async()=>{const bundle=await BAOImageGeneration.exportStory(),before=(await BAOStoryLibrary.allRecords()).length;bundle.images.assets[0].data='PHN2Zz48L3N2Zz4=';let rejected=false;try{await BAOImageGeneration.importStory(bundle);}catch(_){rejected=true;}return {rejected,before,after:(await BAOStoryLibrary.allRecords()).length};});
  expect(bad.rejected).toBe(true);expect(bad.after).toBe(bad.before);
+ const compensated=await page.evaluate(async()=>{
+  const bundle=await BAOImageGeneration.exportStory(),storyId=BAOImageAssets.scope().storyId;
+  const activeIds=async()=>(await BAOStoryLibrary.allRecords()).filter(r=>r.kind!=='deletion').map(r=>r.id).sort();
+  const before=await activeIds();
+  const put=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(...args){if(this.name==='links')throw new DOMException('full','QuotaExceededError');return put.apply(this,args);};
+  let rejected=false;try{await BAOImageGeneration.importStory(bundle);}catch(_){rejected=true;}finally{IDBObjectStore.prototype.put=put;}
+  return {rejected,before,after:await activeIds(),originalImages:(await BAOImageAssets.list(storyId)).length};
+ });expect(compensated.rejected).toBe(true);expect(compensated.after).toEqual(compensated.before);expect(compensated.originalImages).toBe(1);
 });
 test('large collection pages thumbnails without injecting image bytes or changing long-story reading',async({page})=>{
  await setup(page);
+ await page.evaluate(()=>{for(let i=0;i<80;i++){Chat.add('user','問題 '+i);Chat.add('assistant','長篇內容。'.repeat(300));}App.renderChatShell(false);});
+ // Let the existing shell's deferred initial scroll finish before simulating a reader.
+ await expect(page.locator('[data-bao-scene-prompt]')).toHaveCount(81);
+ await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(resolve,0)))));
  const metrics=await page.evaluate(async()=>{
-  for(let i=0;i<80;i++){Chat.add('user','問題 '+i);Chat.add('assistant','長篇內容。'.repeat(300));}App.renderChatShell(false);
-  const stream=document.getElementById('chat-stream');stream.scrollTop=200;const before=stream.scrollTop;
+  const stream=document.getElementById('chat-stream');stream.scrollTop=12000;
+  const anchor=[...stream.querySelectorAll('.message')].find(node=>node.getBoundingClientRect().bottom>stream.getBoundingClientRect().top);
+  const before=anchor.getBoundingClientRect().top;
   const c=document.createElement('canvas');c.width=20;c.height=20;const asset=await BAOImageAssets.prepare(await new Promise(r=>c.toBlob(r))),scope=BAOImageAssets.scope();
-  for(let i=0;i<30;i++)await BAOImageAssets.save(asset,{...scope,messageId:scope.messageIds[i],title:'圖片'+i,createdAt:new Date().toISOString(),inPhone:true});
-  return {before,after:stream.scrollTop,leak:JSON.stringify(GameState.current).includes('sha256-')||JSON.stringify(Chat.messages).includes('sha256-')};
+  for(let i=0;i<30;i++)await BAOImageAssets.save(asset,{...scope,messageId:scope.messageIds[i],title:'圖片'+i,createdAt:new Date().toISOString(),inPhone:true,inStory:true});
+  await BAOImageGeneration.renderStory();
+  return {before,after:anchor.getBoundingClientRect().top,leak:JSON.stringify(GameState.current).includes('sha256-')||JSON.stringify(Chat.messages).includes('sha256-')};
  });expect(metrics.after).toBe(metrics.before);expect(metrics.leak).toBe(false);
  await open(page);await page.getByText('生成圖集與完整備份',{exact:true}).click();await page.getByLabel('顯示本故事所有章節與已回溯圖片').check();
  await expect(page.locator('.image-gen-gallery article')).toHaveCount(12);await page.getByRole('button',{name:'載入更多',exact:true}).click();await expect(page.locator('.image-gen-gallery article')).toHaveCount(24);

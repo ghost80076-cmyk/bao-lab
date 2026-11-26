@@ -11,7 +11,7 @@
     panel.style.cssText = 'width:min(680px,100%);max-height:90dvh;overflow:auto;background:var(--panel,#222);color:var(--text,#eee);border-radius:14px;padding:18px;display:grid;gap:12px;box-sizing:border-box';
     const heading = document.createElement('h2'); heading.textContent = title;
     const help = document.createElement('p'); help.textContent = description;
-    const status = document.createElement('p'); status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
+    const status = document.createElement('p'); status.setAttribute('role', 'status'); status.setAttribute('aria-label','畫面工具狀態'); status.setAttribute('aria-live', 'polite');
     const urls = new Set();
     const dismissHandlers = [];
     const onDismiss = handler => dismissHandlers.push(handler);
@@ -36,7 +36,7 @@
     const close = document.createElement('button'); close.type = 'button'; close.textContent = '關閉'; close.addEventListener('click', dismiss);
     overlay.dataset.imageDialog='1';panel.classList.add('story-image-dialog');
     panel.append(heading, help); overlay.append(panel); document.body.append(overlay);
-    requestAnimationFrame(() => { if(overlay.isConnected) (panel.querySelector('input,select,textarea,button') || panel).focus(); });
+    requestAnimationFrame(() => { if(overlay.isConnected) ([...panel.querySelectorAll('summary,input,select,textarea,button')].find(node => !node.disabled && node.getClientRects().length) || panel).focus(); });
     overlay.addEventListener('click', event => { if (event.target === overlay) dismiss(); });
     document.addEventListener('keydown', onKey);
     return { overlay, panel, status, close, urls, dismiss, cleanup, onDismiss };

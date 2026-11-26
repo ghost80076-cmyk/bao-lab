@@ -8,7 +8,7 @@
   let catalog=[],renderRevision=0,storyCleanup=()=>{};
   const el=(tag,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;return node;};
   const button=(text,fn)=>{const node=el('button',text);node.type='button';node.addEventListener('click',fn);return node;};
-  const field=(title,tag='input')=>{const wrap=el('label'),input=el(tag);wrap.append(el('span',title),input);return {wrap,input};};
+  const field=(title,tag='input')=>{const wrap=el('label'),input=el(tag);input.setAttribute('aria-label',title);wrap.append(el('span',title),input);return {wrap,input};};
   const options=(select,values)=>{select.replaceChildren(...values.map(value=>{const o=el('option',Array.isArray(value)?value[1]:value||'供應商預設');o.value=Array.isArray(value)?value[0]:value;return o;}));};
   const check=title=>{const f=field(title);f.input.type='checkbox';f.wrap.className='image-gen-check';return f;};
   const statusError=node=>error=>{node.textContent=error?.message || '操作失敗，請重試。';};
@@ -108,7 +108,11 @@
     }
     const imported=await window.BAOStoryBackup.importBundle(story);
     try{await Assets.importPack(pack,imported.storyId,imported.chapterMap);}
-    catch(error){await window.BAOStoryLibrary.deleteStory(imported.storyId);throw error;}
+    catch(error){
+      try{if(!await window.BAOStoryLibrary.deleteStory(imported.storyId))throw new Error();}
+      catch(_){throw new Error('圖片匯入失敗，且無法清除這次新匯入的故事；請在故事書庫檢查匯入副本。原故事及備份仍保留。');}
+      throw error;
+    }
     return imported;
   }
   function attach(view,{scene,card,output,profile}) {
@@ -130,7 +134,7 @@
     const key=field('圖片 API Key（只留在本頁，重載後需重填）');key.input.type='password';key.input.autocomplete='off';key.input.value=settings.key;
     const ratio=field('圖片比例','select'),quality=field('品質／解析度','select');
     const reference=field('選用已授權的角色參考圖');reference.input.type='file';reference.input.accept='image/png,image/jpeg,image/webp';
-    const authorized=check('我有權將此參考圖片送給所選供應商。');let referenceData='',referenceBusy=false;
+    const authorized=check('我有權將此參考圖片送給所選供應商。');let referenceData='',referenceBusy=false,referenceEpoch=0;
     const consistency=el('p');
     const consent=check('我確認本次圖片請求可能收費，並同意將以下完整提示詞及已選參考圖送給此供應商。');
     const prompt=field('即將送出的完整圖片提示詞（可修改）','textarea');prompt.input.rows=7;
@@ -146,7 +150,7 @@
     const updateCaps=()=>{
       try{const caps=Core.capability(config());options(ratio.input,caps.ratios);options(quality.input,caps.qualities);
         reference.wrap.hidden=authorized.wrap.hidden=!caps.reference;
-        if(!caps.reference){referenceData='';reference.input.value='';authorized.input.checked=false;}
+        if(!caps.reference){referenceEpoch++;referenceBusy=false;referenceData='';reference.input.value='';authorized.input.checked=false;}
         consistency.textContent=caps.reference?'未選參考圖時僅為文字外觀近似；選擇並授權參考圖可加強一致性，不能保證同一張臉。':'此路徑使用文字外觀近似，不傳送參考圖，也不保證同一張臉。';
       }catch(error){options(ratio.input,['']);options(quality.input,['']);consistency.textContent=error.message;}
       consent.input.checked=false;
@@ -167,19 +171,19 @@
         provider.input.value='openrouter';refreshModels();status.textContent='目錄已更新；品質選項只列目錄宣告能力，實際供應商可能有額外限制。';
       }catch(_){status.textContent='無法讀取 OpenRouter 生圖目錄，請稍後手動重試。';}finally{clearTimeout(timer);discover.disabled=false;}
     });
-    provider.input.addEventListener('change',()=>{key.input.value='';referenceData='';reference.input.value='';authorized.input.checked=false;refreshModels();});
+    provider.input.addEventListener('change',()=>{referenceEpoch++;referenceBusy=false;key.input.value='';referenceData='';reference.input.value='';authorized.input.checked=false;refreshModels();});
     model.input.addEventListener('change',updateCaps);
     for(const input of [endpoint.input,customModel.input])input.addEventListener('input',()=>{customConsent.input.checked=false;updateCaps();});
     customConsent.input.addEventListener('change',updateCaps);
     reference.input.addEventListener('change',async()=>{
-      referenceData='';authorized.input.checked=false;const file=reference.input.files?.[0];if(!file)return;
+      const epoch=++referenceEpoch;referenceData='';referenceBusy=false;authorized.input.checked=false;const file=reference.input.files?.[0];if(!file)return;
       referenceBusy=true;
-      try{referenceData=(await window.BAOStoryImages.encode(file)).data;status.textContent='參考圖已在本機縮圖；只有主動生成時才傳送。';}catch(error){statusError(status)(error);reference.input.value='';}finally{referenceBusy=false;}
+      try{const encoded=await window.BAOStoryImages.encode(file);if(epoch!==referenceEpoch)return;referenceData=encoded.data;status.textContent='參考圖已在本機縮圖；只有主動生成時才傳送。';}catch(error){if(epoch===referenceEpoch){statusError(status)(error);reference.input.value='';}}finally{if(epoch===referenceEpoch)referenceBusy=false;}
     });
     refreshModels();
     const price=el('p','每次只生成 1 張。費用依模型、品質、尺寸與輸入計算；取消或逾時不保證免收費。不自動重試或換模型。OpenAI 可能要求組織驗證；中轉需允許瀏覽器 CORS。');
     const links=el('p');for(const [label,url] of [['OpenAI 價格','https://developers.openai.com/api/docs/pricing'],['Google 價格','https://ai.google.dev/gemini-api/docs/pricing'],['OpenRouter 模型價格','https://openrouter.ai/models?output_modalities=image']]){const a=el('a',label);a.href=url;a.target='_blank';a.rel='noopener noreferrer';links.append(a,document.createTextNode('　'));}
-    const result=el('section'),busyStatus=el('p');busyStatus.setAttribute('role','status');let controller=null,resultUrl='';
+    const result=el('section'),busyStatus=el('p');result.className='image-gen-result';busyStatus.setAttribute('role','status');let controller=null,resultUrl='';
     const generate=button('確認並生成 1 張圖片',async()=>{
       if(controller)return;
       if(!sameScope(current)){status.textContent='請先保存故事，並從有效 AI 回覆開啟畫面工具。';return;}
@@ -193,7 +197,7 @@
       try{
         const blob=await client.generate(chosen,prompt.input.value,{reference:referenceData,signal:controller.signal});
         const prepared=await Assets.prepare(blob);
-        if(controller.signal.aborted || !view.overlay.isConnected || !sameScope(current)){busyStatus.textContent='故事已切換或操作已取消，未自動保存結果；請核對供應商帳單。';return;}
+        if(controller.signal.aborted || !view.overlay.isConnected){busyStatus.textContent='操作已取消，未自動保存結果；請核對供應商帳單。';return;}
         if(resultUrl)URL.revokeObjectURL(resultUrl);resultUrl=URL.createObjectURL(blob);view.urls.add(resultUrl);
         result.replaceChildren();const img=el('img');img.src=resultUrl;img.alt='本次生成結果';img.className='image-gen-full';
         const title=field('圖片標題');title.input.value=snapshot.kind==='selfie'?`${snapshot.characterName}的照片`:'故事場景';
@@ -206,9 +210,10 @@
           }catch(error){statusError(status)(error);}finally{save.disabled=false;}
         });
         result.append(img,title.wrap,story.wrap,phone.wrap,save,button('下載圖片',()=>{try{download(blob,'yorubay-image.'+blob.type.split('/')[1]);status.textContent='已交給瀏覽器下載；請確認下載紀錄。';}catch(_){status.textContent='下載啟動失敗，請檢查瀏覽器設定。';}}),button('捨棄此結果',()=>{URL.revokeObjectURL(resultUrl);resultUrl='';result.replaceChildren();}));
-        busyStatus.textContent='圖片已生成，尚未保存。重新生成需再次勾選費用確認。';
+        busyStatus.textContent=sameScope(current)?'圖片已生成，尚未保存。重新生成需再次勾選費用確認。':'圖片已生成，但故事已切換；請先下載保留圖片。';
       }catch(error){busyStatus.textContent=error.message||'圖片生成失敗。';}finally{controller=null;generate.disabled=false;cancel.hidden=true;}
     });
+    generate.className='image-gen-generate';
     const cancel=button('取消等待',()=>controller?.abort());cancel.hidden=true;
     section.append(kind.wrap,character.wrap,appearance.wrap,photo.wrap,button('套用現有 Prompt／角色與拍攝設定',compile),prompt.wrap,
       provider.wrap,model.wrap,discover,customModel.wrap,endpoint.wrap,customConsent.wrap,key.wrap,ratio.wrap,quality.wrap,
@@ -226,20 +231,25 @@
     });
     body.prepend(el('p','一般故事 JSON／TXT／Drive 備份不包含生成圖片。請用此處的完整備份攜帶圖片；備份含私人圖片與故事，請自行保管。'),backup,restore.wrap);
     panel.append(section,gallery);
-    view.onDismiss(()=>{controller?.abort();cleanupCollection();});
+    view.onDismiss(()=>{referenceEpoch++;controller?.abort();cleanupCollection();});
   }
   async function renderStory() {
     const revision=++renderRevision,current=Assets.scope();if(!current.storyId){storyCleanup();return;}
     let records;try{records=Assets.visible(await Assets.list(current.storyId),current,'inStory');}catch(_){return;}
     if(revision!==renderRevision || Assets.scope().chapterId!==current.chapterId)return;
+    const stream=document.getElementById('chat-stream'),top=stream?.getBoundingClientRect().top;
+    const anchor=stream && [...stream.querySelectorAll('.message')].find(node=>node.getBoundingClientRect().bottom>top);
+    const offset=anchor?.getBoundingClientRect().top;
+    const opened=new Set([...document.querySelectorAll('.generated-story-pictures[open]')].map(node=>node.dataset.messageId));
     storyCleanup();const cleanup=[];
     document.querySelectorAll('.generated-story-pictures').forEach(node=>node.remove());
     for(const node of document.querySelectorAll('[data-bao-scene-prompt]')){
       const messageId=node.dataset.messageId,items=records.filter(r=>r.messageId===messageId);if(!items.length)continue;
-      const strip=el('details');strip.className='generated-story-pictures';strip.append(el('summary',`已保存畫面 · ${items.length}`));
+      const strip=el('details');strip.className='generated-story-pictures';strip.dataset.messageId=messageId;strip.open=opened.has(messageId);strip.append(el('summary',`已保存畫面 · ${items.length}`));
       for(const record of items){const thumb=thumbnail(record);strip.append(thumb.img,el('small',record.title));cleanup.push(thumb.cleanup);}
       node.parentNode.append(strip);
     }
+    if(anchor?.isConnected)stream.scrollTop+=anchor.getBoundingClientRect().top-offset;
     storyCleanup=()=>cleanup.forEach(fn=>fn());
   }
   window.addEventListener('bao:generated-images-changed',()=>{void renderStory();window.BAOPhoneUI?.refreshFromState();});
