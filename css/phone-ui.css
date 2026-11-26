@@ -234,3 +234,9 @@
   .bp-apps{padding-block:12px;row-gap:10px}
   .bp-home .bp-apps{max-height:calc(100% - 285px)}
 }
+
+.bp-dm-photo-controls{display:flex;align-items:center;flex-wrap:wrap;gap:6px;padding:4px 12px;background:var(--yoru-surface,#171321);color:var(--yoru-text,#fff)}
+.bp-dm-photo-controls button,.bp-dm-photo button{min-height:44px}
+.bp-dm-photo-controls img{max-height:64px;max-width:80px}
+.bp-dm-photo{flex-flow:column;align-items:flex-start}
+.bp-dm-photo img{width:min(180px,75%);height:auto;border-radius:10px}

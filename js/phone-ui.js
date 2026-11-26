@@ -4,6 +4,7 @@
   const Core = window.BAOPhoneUICore;
   const Puzzles = window.BAOPhoneInteractionCore;
   if (!Core || typeof App === 'undefined' || window.BAOPhoneUI) return;
+  let dmPhotos=null;
   let imageCollectionCleanup = () => {};
   let root = null, screen = null, config = null, page = 'lock', subpage = '';
   let clock = null, callTimer = null, callStart = 0, messageTimers = [], messageFade = null;
@@ -169,6 +170,7 @@
     playing = false; position = 0; trackIndex = -1; expanded = false;
   }
   function close() {
+    dmPhotos?.cleanup(); dmPhotos=null;
     imageCollectionCleanup(); imageCollectionCleanup=()=>{};
     const wasOpen = Boolean(root);
     clearTimers(); stopMedia(); root?.remove(); root = null; screen = null;ownerState=null;ownerCharacter=null;eventNotice='';
@@ -243,6 +245,7 @@
   }
   function handle() { const node=button('', 'home', 'bp-home-handle');node.setAttribute('aria-label','返回手機桌面');return node; }
   function render() {
+    dmPhotos?.cleanup(); dmPhotos=null;
     imageCollectionCleanup(); imageCollectionCleanup=()=>{};
     if (!screen || !config) return;
     screen.replaceChildren();
@@ -355,6 +358,14 @@
         const input = $('input'); input.name='text'; input.maxLength=1600; input.placeholder='傳給 '+threadName(selectedThread())+'…'; input.setAttribute('aria-label','手機訊息'); input.required=true;
         const send = $('button','', '傳送至故事'); send.type='submit';
         add(form,input,send); area.append(form);
+        const selected=selectedThread();
+        if(window.BAOPhoneDMPhotos && (selected ? selected.participants.length===1 : config.contactName)){
+          const name=threadName(selected),threadId=selected?.id || '',senderId=selected?.participants[0] || name;
+          const prefix='【KakaoTalk｜對 '+name+' 發送訊息'+(threadId?'｜聊天室 ID：'+threadId:'')+'】';
+          dmPhotos=window.BAOPhoneDMPhotos.mount({form,thread,target:{threadId,name,senderId,prefix,key:JSON.stringify([threadId,senderId])},
+            active:()=>root && ownerState===GameState.current && page==='kakao' && subpage==='chat' && activeThread===threadId,
+            refresh:render});
+        }
         window.setTimeout(()=>{ if (thread.isConnected) thread.scrollTop = thread.scrollHeight; },0);
       } else if (profile) {
         add(area,appHeader('個人檔案'),image(config.instagram.avatar,'bp-profile-avatar',config.userName.slice(0,1)||'●'),
@@ -634,12 +645,20 @@
     if(audio){if(playing) void audio.play().catch(()=>{playing=false;render();});else audio.pause();}
     render();
   }
-  function sendToStory(text, medium, post=null) {
+  function sendToStory(text, medium, post=null, dm=null) {
     if (!App.config || typeof App.sendMessage !== 'function') return;
     if (App.__requestPending) { window.BAOFeedback?.notify?.('故事仍在回覆中，請稍後再傳送。','error');return; }
     const composer=document.getElementById('user-input');
     if (!composer) return;
     if (composer.value.trim() && !window.confirm('目前故事輸入框有尚未送出的內容，要用手機訊息取代嗎？')) return;
+    if(window.BAOStoryImages?.hasDraft?.()){(dm?.error || window.alert)('故事輸入框已有待送照片，請先處理，以免傳錯對象。');return;}
+    if(dm?.image){
+      try{
+        if(dm.confirmedRoute && dm.confirmedRoute===BAOStoryImagesCore.routeKey(App.config.api))
+          App.config.api.visionConfirmedRoute=dm.confirmedRoute;
+        window.BAOStoryImages.stagePhoneImage(dm.image);
+      }catch(error){dm.error(error.message);return;}
+    }
     if(medium==='X' && post){
       const author=post.authorName || post.authorHandle || config.userName || '使用者';
       const quoted=post.text.replace(/\s+/g,' ').slice(0,120);
@@ -647,10 +666,23 @@
     }else{
       const recipient=medium.startsWith('Instagram') ? (config.instagram.callerName||displayName()) : threadName(selectedThread());
       const threadContext=medium==='KakaoTalk' && selectedThread() ? '｜聊天室 ID：'+selectedThread().id : '';
-      composer.value='【'+medium+'｜對 '+recipient+' 發送訊息'+threadContext+'】'+text;
+      composer.value='【'+medium+'｜對 '+recipient+' 發送訊息'+threadContext+'】'+text+(dm?.receipt || '');
     }
-    close();
-    void App.sendMessage();
+    if(dm){
+      const before=Chat.messages.at(-1)?.id;
+      dm.error('等待私訊回覆…');
+      void Promise.resolve(App.sendMessage()).finally(()=>{
+        if(!dm.current())return;
+        if(Chat.messages.at(-1)?.role==='assistant' && Chat.messages.at(-1).id!==before){
+          config=phoneSource();render();
+        }else{
+          close(); // The story composer owns the recoverable text/image draft.
+        }
+      });
+    }else{
+      close();
+      void App.sendMessage();
+    }
   }
   function onSubmit(e) {
     const form=e.target.closest('form[data-phone-form]');
@@ -662,6 +694,15 @@
       return;
     }
     const input=form.elements.namedItem('text');const value=input?.value.trim();
+    if(form.dataset.phoneForm==='message' && dmPhotos){
+      const pending=dmPhotos;
+      if(pending.busy){pending.error('請等照片處理完成。');return;}
+      if(!value && !pending.image)return;
+      void pending.ready.then(()=>{
+        if(pending===dmPhotos && pending.current())sendToStory(value || '傳給你一張照片。','KakaoTalk',null,pending);
+      });
+      return;
+    }
     if(!value)return;
     if(form.dataset.phoneForm==='x-reply'){
       const post=config.tweets.find(item=>subpage==='post:'+item.id);
@@ -724,7 +765,7 @@
     if (action==='shuffle'){shuffle=!shuffle;target.classList.toggle('bp-selected');return;}
     if (action==='loop'){loop=!loop;if(audio)audio.loop=loop;target.classList.toggle('bp-selected');}
   }
-  document.addEventListener('keydown', e => {if(e.key==='Escape'&&root){e.preventDefault();close();}});
+  document.addEventListener('keydown', e => {if(e.key==='Escape'&&root&&!document.querySelector('[data-image-dialog]')){e.preventDefault();close();}});
   document.addEventListener('input', e => {
     if(e.target?.matches?.('[data-phone-seek]') && trackIndex>=0){
       position=Math.min(currentTrack().duration,Math.max(0,Number(e.target.value)||0));

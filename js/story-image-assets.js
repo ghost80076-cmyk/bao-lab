@@ -38,8 +38,14 @@
       characterName:text('characterName'),chapterLabel:text('chapterLabel'),archived:input.archived===true,createdAt:text('createdAt',40),sourceType:'player-generated',
       provider:text('provider',30),model:text('model'),kind:input.kind==='selfie'?'selfie':'scene',
       inStory:input.inStory===true,inPhone:input.inPhone===true};
+    if (input.dmKey && input.dmOffer) {
+      link.dmKey=text('dmKey',300);
+      link.dmOffer=text('dmOffer',660);
+    }
     if (!link.storyId || !link.chapterId || !link.messageId || !/^sha256-[a-f0-9]{64}$/.test(link.assetId)) throw new Error('圖片缺少故事、章節或回覆關聯。');
-    link.id = JSON.stringify([link.storyId,link.chapterId,link.messageId,link.assetId]);
+    // Ordinary gallery saves cannot overwrite a delivered DM using identical bytes.
+    link.id = JSON.stringify([link.storyId,link.chapterId,link.messageId,link.assetId,
+      ...(link.dmKey ? [link.dmKey,link.dmOffer] : [])]);
     return link;
   }
   async function prepare(blob) {
@@ -76,6 +82,8 @@
           if(!existing.result && size+asset.size>MAX_TOTAL)return stop('本機生成圖片已達 256 MiB，請先備份並刪除不用的圖片。');
           const request=links.index('storyId').getAll(link.storyId);
           request.onsuccess=()=>{
+            if(link.dmKey && request.result.some(item=>item.chapterId===link.chapterId && item.messageId===link.messageId && item.dmKey===link.dmKey && item.dmOffer===link.dmOffer && item.id!==link.id))
+              return stop('這張私訊照片已送達。');
             if(request.result.length>=MAX_LINKS && !request.result.some(x=>x.id===link.id))return stop('這個故事已達 128 張圖片引用，請先備份與整理。');
             if(!existing.result){assets.put({...asset,thumbnail:undefined});thumbnails.put({id:asset.id,bytes:asset.thumbnail});}
             links.put(link);done(link);
@@ -88,6 +96,16 @@
   const get = id => transaction('readonly',(assets,_,done)=>{const r=assets.get(id);r.onsuccess=()=>done(r.result);});
   const getThumbnail = id => transaction('readonly',(_,__,done,stop,thumbnails)=>{const r=thumbnails.get(id);r.onsuccess=()=>done(r.result);});
   const visible = (links,current=scope(),target) => links.filter(link=>!link.archived && link.storyId===current.storyId && link.chapterId===current.chapterId && current.messageIds.includes(link.messageId) && (!target || link[target]));
+  async function collect(id) {
+    await transaction('readwrite',(_,links,done,stop)=>{
+      const request=links.get(id);
+      request.onsuccess=()=>{
+        if(!request.result)return stop('照片引用已不存在。');
+        links.put({...request.result,inPhone:true});done(true);
+      };
+    });
+    notify();
+  }
   async function remove(id) {
     await transaction('readwrite',(assets,links,done,stop,thumbnails)=>{
       const r=links.get(id);r.onsuccess=()=>{
@@ -139,5 +157,5 @@
       };
     });notify();
   }
-  window.BAOImageAssets=Object.freeze({scope,prepare,save,list,get,getThumbnail,visible,remove,exportPack,validatePack,importPack});
+  window.BAOImageAssets=Object.freeze({scope,prepare,save,list,get,getThumbnail,visible,collect,remove,exportPack,validatePack,importPack});
 })();

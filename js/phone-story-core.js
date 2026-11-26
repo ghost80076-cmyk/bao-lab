@@ -18,6 +18,12 @@
   function normalizePatch(raw) {
     if (!PhoneCore || !object(raw) || raw.version && raw.version !== 1) return null;
     const patch = {};
+    const offer = raw.photoOffer;
+    if (object(offer) && typeof offer.description === 'string' && offer.description.trim()
+        && typeof offer.threadId === 'string' && offer.threadId.length <= 80) {
+      patch.photoOffer = {threadId:offer.threadId.trim(), description:offer.description.trim().slice(0,600),
+        kind:offer.kind === 'selfie' ? 'selfie' : 'scene'};
+    }
     const normalized = PhoneCore.normalize(raw);
     if (!normalized) return null;
     for (const key of ['contacts','threads','photos','notes']) {
@@ -41,7 +47,7 @@
     if (object(raw.instagram) && Array.isArray(raw.instagram.messages)) {
       patch.instagram = {messages:PhoneCore.normalize({instagram:{messages:raw.instagram.messages}}).instagram.messages.slice(0,4).filter(item=>item.text.trim())};
     }
-    if (!Object.values(patch).some(x => typeof x === 'string' ? x.length : Array.isArray(x) ? x.length : x?.messages?.length)) return null;
+    if (!patch.photoOffer && !Object.values(patch).some(x => typeof x === 'string' ? x.length : Array.isArray(x) ? x.length : x?.messages?.length)) return null;
     return patch;
   }
   function extract(text) {
@@ -141,6 +147,7 @@
     CLOSE,
     '可選擴充：contacts:[{id,name,avatar}]；threads:[{id,name,participants:[聯絡人ID],messages:[{from,senderId,time,text}]}]；photos:[{id,src,title,caption}]；notes:[{id,title,text}]；storyTime、storyDate 為故事內顯示時間與日期。',
     '以上欄位同樣放進該 JSON 區塊。沿用人物覆寫中的 ID；多人或群聊請用 threads，勿混入主要聯絡人的 chat。新聊天室須提供 name 與 participants；既有聊天室只附新訊息。照片與筆記依 ID 更新，照片只能使用故事已提供的真實圖片網址，不得編造網址。照片與筆記只屬於手機主人可取得的資料。',
+    '收到一對一 KakaoTalk 私訊時，角色若以私訊回覆，將回覆文字放在同一個 chat 或 threads 的 messages。偶爾可隨角色意願在同一區塊附 photoOffer:{threadId:"聊天室 ID（主要聯絡人填空字串）",kind:"scene 或 selfie",description:"角色想分享的具體畫面"}。只在玩家正在私訊該角色且自然適合時提議，不必每輪提供。提議尚未傳送照片，不得描寫已收到、看到或分享；群聊與 X 不提供。玩家傳來的圖片只有該私訊對象可見。',
     'X 的 tweets 使用 id 指向貼文，replyTo 引用已存在的貼文 ID 即為留言；每個 NPC 可有各自的 authorId、authorName、authorHandle。eventId 僅引用故事已確認的事件 ID；sourceKind 可用 witness/media/hearsay/unknown，沒有根據就省略。不可讓角色知道沒接觸過的私密事件、不可把傳聞當成事實，也不必讓所有貼文圍繞玩家。舊版只有 text/date/replies 數字的貼文仍有效。',
     '只保留真正新增的欄位和紀錄；不要重複既有內容。上述是 JSON 格式範例，不是實際事件。X 的 from=me 和聊天 from=me 都只能記錄玩家明確提供過的訊息；玩家在 X 發送的回覆須依所給的貼文 ID、內容建立對應 replyTo，不能偽造玩家發言。區塊外照常寫故事，且不要附任何 HTML/JavaScript。'
   ].join('\n');

@@ -118,6 +118,16 @@
     Core.validateMessages([...Chat.messages, {role:'user', storyImage:current.image}]);
     return Core.validate(current.image);
   }
+  // Hand off a reviewed DM attachment only at explicit send. Preserve unrelated story drafts.
+  function stagePhoneImage(image) {
+    if (!owner() || draft() || App.__requestPending) throw new Error('請先處理故事輸入框的待送圖片。');
+    if (App.config?.demoMode || App.config?.offlineWorldPreview) throw new Error('離線預覽無法理解圖片。');
+    Core.assertCapability(App.config.api);
+    const valid = Core.validate(image);
+    Core.validateMessages([...Chat.messages, {role:'user', storyImage:valid}]);
+    drafts.set(owner(), {image:valid});
+    sync();
+  }
   const bindRequest = (config, image) => {
     if (!image) return config;
     const ticket = {}; requests.set(ticket, {image, route:Core.routeKey(config)});
@@ -159,5 +169,5 @@
     if (draft()?.image?.data === image?.data) { drafts.delete(owner()); sync(); status(''); }
   };
   App.wrapRenderChatShell('story-images:composer', function(next, ...args) { const result = next(...args); ensure(); return result; });
-  window.BAOStoryImages = Object.freeze({ encode, prepare, bindRequest, html, finish, hasDraft: () => Boolean(draft()), status, sync });
+  window.BAOStoryImages = Object.freeze({ stagePhoneImage, encode, prepare, bindRequest, html, finish, hasDraft: () => Boolean(draft()), status, sync });
 })();
