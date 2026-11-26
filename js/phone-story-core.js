@@ -217,10 +217,13 @@
   }
   function withXPlayerPost(patch,user,tweets,allowed) {
     const intent=xPlayerIntent(user);
-    if(!intent || (tweets || []).some(t=>t.id===intent.id) ||
-       (intent.replyTo && !xPublicPost(tweets,intent.replyTo,allowed)))return patch;
-    // Accepted player input, not model-written player text, is authoritative.
+    if(!intent)return patch;
+    // Even if the target disappeared or locked during the request, never let
+    // the model's echo bypass the platform's explicit-publication gate.
     const other=(patch?.tweets || []).filter(t=>t.id!==intent.id && t.from!=='me').slice(0,2);
+    if((tweets || []).some(t=>t.id===intent.id) ||
+       (intent.replyTo && !xPublicPost(tweets,intent.replyTo,allowed)))
+      return patch ? normalizePatch({...patch,tweets:other}) : null;
     return normalizePatch({...patch,tweets:[intent,...other]});
   }
   const xFingerprint=t=>JSON.stringify([t.id,t.replyTo || '',t.from,t.authorId || '',t.text]);

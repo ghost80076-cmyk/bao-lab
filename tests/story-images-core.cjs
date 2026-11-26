@@ -12,6 +12,18 @@ const cloud = {type:'custom',protocol:'openai',model:'vision-test',baseUrl:'http
 assert.equal(Core.capability(cloud),'unknown');
 cloud.visionConfirmedRoute = Core.routeKey(cloud);
 assert.equal(Core.capability(cloud),'confirmed');
+const phoneScope={storyId:'story-1',chapterId:'chapter-1'};
+const phoneText='【KakaoTalk｜對 A 發送訊息】晚餐照';
+const phoneBinding={...phoneScope,text:phoneText,route:Core.routeKey(cloud)};
+Core.assertPhoneDraft(phoneBinding,phoneText,phoneScope,cloud);
+for(const [text,scope,config] of [
+  ['【KakaoTalk｜對 B 發送訊息】晚餐照',phoneScope,cloud],
+  ['【X｜公開發佈】晚餐照',phoneScope,cloud],
+  [phoneText,{...phoneScope,chapterId:'other'},cloud],
+  [phoneText,{...phoneScope,storyId:'other'},cloud],
+  [phoneText,phoneScope,{...cloud,model:'other'}],
+  [phoneText,phoneScope,{...cloud,baseUrl:'https://other.test'}]
+])assert.throws(()=>Core.assertPhoneDraft(phoneBinding,text,scope,config),/原訊息、章節或 Vision 路徑已改變/);
 assert.equal(Core.capability({...cloud,model:'another-model'}),'unknown');
 assert.equal(Core.capability({...cloud,baseUrl:'https://other.test'}),'unknown');
 for (const config of [{...cloud,type:'bao-credits'},{...cloud,model:'deepseek-chat'},{...cloud,model:'gpt-3.5-turbo'},{...cloud,route:'bao-credits'},{...cloud,protocol:'anthropic'}]) assert.throws(()=>Core.assertCapability(config));

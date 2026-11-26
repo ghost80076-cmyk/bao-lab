@@ -222,3 +222,14 @@ test('X root posts need no model echo; ordinary text-only and private turns do n
  assert.equal(Core.xPhotoRows([user,message],[{...patch.tweets[0],text:'改寫'}]).length,0);
  assert.equal(Core.xPhotoRows([user,message],[{...patch.tweets[0],authorId:'npc'}]).length,0);
 });
+
+test('invalid X reply cannot publish model-echoed player attachment after target locks',()=>{
+ const id='player-x-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+ const root={id:'root',from:'them',authorId:'a',text:'root',replyTo:''};
+ const user={role:'user',content:Core.xPublishPrefix(id,'root')+'照片',storyImage:{data:'fixture'}};
+ const echo=Core.normalizePatch({tweets:[{id,replyTo:'root',from:'me',text:'照片'},{id:'other',from:'them',authorId:'a',text:'別的貼文'}]});
+ const blocked=Core.withXPlayerPost(echo,user,[root],()=>false);
+ assert.equal(blocked.tweets.length,1);
+ assert.equal(blocked.tweets[0].id,'other');
+ assert.equal(Core.xPhotoRows([user,{role:'assistant',id:'m',phonePatch:blocked}],[root,...blocked.tweets]).length,0);
+});

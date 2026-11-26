@@ -7,6 +7,7 @@
   let job = 0;
   const owner = () => GameState.current;
   const draft = () => owner() && drafts.get(owner());
+  const phoneScope = () => window.BAOStoryLibrary?.refs?.() || {};
   const status = (text, error = false) => {
     const node = document.getElementById('story-image-status');
     if (!node) return;
@@ -113,19 +114,28 @@
     const current = draft();
     if (!current) return null;
     if (current.processing) throw new Error('圖片仍在處理，請完成後再送出；文字已保留。');
+    if (current.phone) {
+      Core.assertPhoneDraft(current.phone,document.getElementById('user-input')?.value,phoneScope(),App.config?.api);
+      if(!current.phone.valid())throw new Error('手機照片的原收件範圍已改變。請移除照片，回到原手機對話重新選圖。');
+    }
     if (App.config?.demoMode || App.config?.offlineWorldPreview) throw new Error('離線預覽無法理解圖片，請先設定 Vision 模型。');
     Core.assertCapability(App.config.api);
     Core.validateMessages([...Chat.messages, {role:'user', storyImage:current.image}]);
     return Core.validate(current.image);
   }
-  // Hand off a reviewed DM attachment only at explicit send. Preserve unrelated story drafts.
-  function stagePhoneImage(image) {
+  // Hand off a reviewed phone attachment only at explicit send, with an
+  // immutable retry binding. Do not overwrite unrelated story drafts.
+  function stagePhoneImage(image,{text,valid:destinationValid}={}) {
     if (!owner() || draft() || App.__requestPending) throw new Error('請先處理故事輸入框的待送圖片。');
     if (App.config?.demoMode || App.config?.offlineWorldPreview) throw new Error('離線預覽無法理解圖片。');
     Core.assertCapability(App.config.api);
     const valid = Core.validate(image);
     Core.validateMessages([...Chat.messages, {role:'user', storyImage:valid}]);
-    drafts.set(owner(), {image:valid});
+    const scope=phoneScope(),phone={text:String(text || '').trim(),storyId:scope.storyId,chapterId:scope.chapterId,
+      route:Core.routeKey(App.config.api),valid:destinationValid};
+    Core.assertPhoneDraft(phone,text,scope,App.config.api);
+    if(typeof destinationValid!=='function' || !destinationValid())throw new Error('手機照片的原收件範圍已改變，請重新選圖。');
+    drafts.set(owner(), {image:valid,phone});
     sync();
   }
   const bindRequest = (config, image) => {

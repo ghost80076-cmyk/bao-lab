@@ -89,7 +89,7 @@ jobs:
       - name: Production private photo exchange with mocked Vision and image providers
         env:
           STORY_IMAGES_BASE_URL: https://yorubay.com
-        run: npx playwright test tests/e2e/story-image-generation.spec.cjs --project=chromium --workers=1 --grep 'private photo exchange|group photo exchange|X photo exchange'
+        run: npx playwright test tests/e2e/story-image-generation.spec.cjs --project=chromium --workers=1 --grep 'private photo exchange|group photo exchange|X photo exchange|phone photo retry'
       - name: Production generation UX with mocked paid API only
         env:
           STORY_IMAGES_BASE_URL: https://yorubay.com
