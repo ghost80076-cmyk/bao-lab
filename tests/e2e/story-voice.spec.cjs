@@ -1024,3 +1024,54 @@ test('quick BYOK TTS reuses saved role settings and requires per-request consent
  await d.getByRole('button',{name:'關閉',exact:true}).click();
  expect(await page.evaluate(()=>JSON.stringify(Chat.messages))).toBe(before);
 });
+
+
+test('shared BYOK voice is authorized once and used directly in story and Phone without reconfiguration',async({page})=>{
+ await page.addInitScript(()=>{window.__sharedAudio=[];window.Audio=class{constructor(src){this.src=src;}play(){window.__sharedAudio.push(this);return Promise.resolve();}pause(){}removeAttribute(){this.src='';}load(){}};});
+ await setup(page,390,true);
+ const before=await page.evaluate(()=>{
+   App.activeCharacter.phone_ui={enabled:true,userName:'旅人',contactName:'角色',contacts:[{id:'voice-test',name:'角色'},{id:'b',name:'B'}],threads:[{id:'private',name:'角色私訊',participants:['voice-test'],messages:[{from:'them',senderId:'voice-test',text:'手機晚安。'}]},{id:'group',name:'角色群聊',participants:['voice-test','b'],messages:[{from:'them',senderId:'voice-test',text:'群聊晚安。'},{from:'them',senderId:'b',text:'未設定聲線。'},{from:'me',text:'玩家文字'}]}]};
+   localStorage.setItem('yorubay-custom-voice-v1',JSON.stringify({['tts:'+JSON.stringify('voice-test')]:{endpoint:'https://tts.example.invalid/v1/audio/speech',model:'player-tts',speed:1,voices:[['voice-test','role-voice']]}}));
+   App.renderChatShell(false);return JSON.stringify(Chat.messages);
+ });
+ const calls=[];await page.route('https://tts.example.invalid/**',async route=>{
+   const headers={'access-control-allow-origin':'*','access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'authorization, content-type'};
+   if(route.request().method()==='OPTIONS')return route.fulfill({status:204,headers});
+   expect(route.request().headers().authorization).toBe('Bearer SHARED-PRIVATE');calls.push(route.request().postDataJSON());
+   await route.fulfill({headers:{...headers,'content-type':'audio/wav'},body:voiceWav()});
+ });
+ await page.getByRole('button',{name:'角色語音設定',exact:true}).click();
+ const d=page.getByRole('dialog',{name:'角色語音與語音輸入'});
+ await d.getByText('使用已保存的自訂聲線（BYOK）',{exact:true}).click();
+ const enable=d.getByRole('button',{name:'啟用共用自訂聲線'});
+ await enable.click();expect(calls).toHaveLength(0);
+ await d.getByLabel('TTS API Key（選填）').fill('SHARED-PRIVATE');
+ await d.getByLabel('我同意本章節故事及手機私訊／群聊的已選角色文字送至上述 TTS 接口，可能收費').check();
+ await enable.click();await expect(d.locator('p[role="status"]')).toContainText('尚未送出請求');
+ expect(calls).toHaveLength(0);await d.getByRole('button',{name:'關閉',exact:true}).click();
+ await page.getByRole('button',{name:'開啟自動配音',exact:true}).click();
+ await expect(page.getByRole('button',{name:'關閉自動配音',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'關閉自動配音',exact:true}).click();
+ await expect(page.getByRole('button',{name:'播放角色台詞（自訂）'})).toBeVisible();expect(calls).toHaveLength(0);
+ await page.getByRole('button',{name:'播放角色台詞（自訂）'}).click();
+ await expect.poll(()=>calls.length).toBe(1);expect(calls[0].input).toBe('要一起點嗎？');
+ await expect.poll(()=>page.evaluate(()=>window.__sharedAudio.length)).toBe(1);
+ await page.evaluate(()=>window.__sharedAudio[0].onended());
+ await expect.poll(()=>calls.length).toBe(2);expect(calls[1].input).toBe('我想吃麵。');
+ await expect.poll(()=>page.evaluate(()=>window.__sharedAudio.length)).toBe(2);
+ await page.evaluate(()=>window.__sharedAudio[1].onended());
+ async function enter(name){await page.locator('#bao-phone-launch').click();await page.locator('.bp-home-handle').click();await page.locator('.bp-apps .bp-icon-kakao').click();await page.locator('[data-phone-action^="thread:"]').filter({hasText:name}).click();}
+ await enter('角色私訊');await page.getByRole('button',{name:'朗讀角色訊息（自訂）'}).click();
+ await expect.poll(()=>calls.length).toBe(3);expect(calls[2].input).toBe('手機晚安。');
+ await page.getByRole('button',{name:'關閉手機'}).click();
+ await enter('角色群聊');const plays=page.getByRole('button',{name:'朗讀角色訊息（自訂）'});
+ await expect(plays).toHaveCount(2);await plays.first().click();await expect.poll(()=>calls.length).toBe(4);expect(calls[3].input).toBe('群聊晚安。');
+ await plays.nth(1).click();expect(calls).toHaveLength(4);
+ await page.locator('#bao-phone-stage').getByRole('button',{name:'角色語音設定',exact:true}).click();
+ await d.getByRole('button',{name:'使用裝置聲線'}).click();await d.getByRole('button',{name:'關閉',exact:true}).click();
+ await expect(page.getByRole('button',{name:'朗讀角色訊息（裝置）'})).toHaveCount(2);
+ expect(calls.every(c=>c.voice==='role-voice'&&c.model==='player-tts')).toBe(true);
+ await page.getByRole('button',{name:'關閉手機'}).click();
+ expect(await page.evaluate(()=>JSON.stringify(Chat.messages))).toBe(before);
+ expect(await page.evaluate(()=>JSON.stringify(localStorage))).not.toContain('SHARED-PRIVATE');
+});
