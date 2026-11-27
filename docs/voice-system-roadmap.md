@@ -29,8 +29,8 @@ Voice Call：選配的即時互動介面，最後才整合；不得讓語音繞�
 | --- | --- | --- | --- |
 | P0 | 裝置 TTS/STT，語速、音高、音量，固定角色聲線，手動台詞選擇與辨識草稿 | #987；本地優先、遠端明確同意、三瀏覽器 mock、實體裝置待測 | #987 已合併，17/17 CI 通過；main `26e52ffce9d2f7b10d1f793deee8e798c9321d3b`；production smoke 與實機待驗證 |
 | P1a | 玩家聲線工作台及 JSON 裝置聲線設定包匯入匯出 | P0 合併；包格式安全、角色隔離、預覽後保存、往返 | [#989](https://github.com/ghost80076-cmyk/bao-lab/pull/989) 已合併，17/17 PR 工作流程通過，三瀏覽器各 80 項通過。正式站已核對聲線資產，實機聲線待驗證 |
-| P1b | 自動辨識角色台詞與說話者 | 既有單角色卡可直接使用。讀取「」中的直接對白，多角色優先使用當前回覆已有的說話者資訊。旁白與內心靜音，說話者不明時略過該句。作者免逐句標註，玩家免逐句確認 | 本次實作：在語音工具啟用本章節自動朗讀，沿用角色已保存的本地聲線。以「」及可明確判定的中文發話提示辨識一般故事文字。HTML 與未知結構略過。實體裝置聽感待測 |
-| P2 | 瀏覽器本地開源 STT/TTS | P1；先以 Transformers.js + multilingual Whisper 做 STT spike，sherpa-onnx WASM 做 TTS/ASR 能力比較；只有通過中日韓英實測才標支援；按需下載、版本／雜湊、取消與離線快取、手機記憶體／延遲 | 待開發 |
+| P1b | 自動辨識角色台詞與說話者 | 既有單角色卡可直接使用。讀取「」中的直接對白，多角色優先使用當前回覆已有的說話者資訊。旁白與內心靜音，說話者不明時略過該句。作者免逐句標註，玩家免逐句確認 | [#992](https://github.com/ghost80076-cmyk/bao-lab/pull/992) 已合併，17/17 PR workflows success；main `6a686342b48b67e3f9d2600e62b01599086bcd82`。HTML 與未知結構略過；production smoke、實體裝置待驗證 |
+| P2 | 瀏覽器本地開源 STT/TTS | P1；先以 Transformers.js + multilingual Whisper 做 STT spike，sherpa-onnx WASM 做 TTS/ASR 能力比較；只有通過中日韓英實測才標支援；按需下載、版本／雜湊、取消與離線快取、手機記憶體／延遲 | [#993](https://github.com/ghost80076-cmyk/bao-lab/pull/993) P2a 草稿：本地 WAV 辨識隔離工具、權重驗證及 offline CI fixture 已提交；完整 manifest、推論、瀏覽器/實機證據待驗證。P2b 尚未開始 |
 | P3 | 玩家自架開源 TTS/STT 接口、授權參考錄音與聲線設計 | P1；Qwen3-TTS、GPT-SoVITS 獨立 adapter；實際 API 契約、CORS/HTTPS/loopback 瀏覽器限制、安全序列化、授權確認、不同模型能力不混用 | 待開發 |
 | P4 | Phone 私訊／群聊語音訊息、本機音訊資產及 BYOK 高品質語音 | P1，至少一個已驗證音訊生成 adapter；原會話、發送者、成員集合、章節與回覆版本綁定；生成與送達分離；播放、下載、收藏、含音備份與失敗重送；BYOK 逐次確認費用、無自動 retry/fallback | 待開發 |
 | P5 | 玩家原生音訊理解 | P4 資產及收件範圍；模型／端點能力查核、音訊 MIME/大小/時間限制、預覽同意、單輪音訊送達、舊音訊不每輪重送，記憶／診斷不帶原始 bytes | 待開發 |
