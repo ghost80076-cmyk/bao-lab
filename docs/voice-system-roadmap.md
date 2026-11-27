@@ -28,7 +28,8 @@ Voice Call：選配的即時互動介面，最後才整合；不得讓語音繞�
 | 階段 | 交付 | 前置與完成門檻 | 狀態 |
 | --- | --- | --- | --- |
 | P0 | 裝置 TTS/STT，語速、音高、音量，固定角色聲線，手動台詞選擇與辨識草稿 | #987；本地優先、遠端明確同意、三瀏覽器 mock、實體裝置待測 | #987 已合併，17/17 CI 通過；main `26e52ffce9d2f7b10d1f793deee8e798c9321d3b`；production smoke 與實機待驗證 |
-| P1 | 作者 voice opt-in／對白結構契約、玩家聲線工作台及 JSON 語音設定包匯入匯出 | P0 合併；多角色 ID、台詞／旁白／內心分離、禁止代玩家、無法辨識不自動播；關閉時 prompt/cache 不變；包格式安全與往返 | 待開發 |
+| P1a | 玩家聲線工作台及 JSON 裝置聲線設定包匯入匯出 | P0 合併；包格式安全、角色隔離、預覽後保存、往返 | [#989](https://github.com/ghost80076-cmyk/bao-lab/pull/989) draft；首輪 16/17，三瀏覽器 status locator 衝突已修正，重新驗收；Firefox 圖片分支測試曾 flaky，保留原斷言 | 
+| P1b | 作者 voice opt-in／對白結構契約 | P1a 合併；多角色 ID、台詞／旁白／內心分離、禁止代玩家、無法辨識不自動播；關閉時 prompt/cache 不變 | 待開發 |
 | P2 | 瀏覽器本地開源 STT/TTS | P1；先以 Transformers.js + multilingual Whisper 做 STT spike，sherpa-onnx WASM 做 TTS/ASR 能力比較；只有通過中日韓英實測才標支援；按需下載、版本／雜湊、取消與離線快取、手機記憶體／延遲 | 待開發 |
 | P3 | 玩家自架開源 TTS/STT 接口、授權參考錄音與聲線設計 | P1；Qwen3-TTS、GPT-SoVITS 獨立 adapter；實際 API 契約、CORS/HTTPS/loopback 瀏覽器限制、安全序列化、授權確認、不同模型能力不混用 | 待開發 |
 | P4 | Phone 私訊／群聊語音訊息、本機音訊資產及 BYOK 高品質語音 | P1，至少一個已驗證音訊生成 adapter；原會話、發送者、成員集合、章節與回覆版本綁定；生成與送達分離；播放、下載、收藏、含音備份與失敗重送；BYOK 逐次確認費用、無自動 retry/fallback | 待開發 |

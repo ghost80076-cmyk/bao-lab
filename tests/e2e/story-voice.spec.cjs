@@ -68,3 +68,29 @@ for(const width of [390,1440])test('optional browser speech at '+width+'px',asyn
  expect(await page.evaluate(()=>({messages:JSON.stringify(Chat.messages),state:JSON.stringify(GameState.current),api:JSON.stringify(App.config.api)}))).toEqual(before);
  expect(await page.evaluate(()=>localStorage.getItem('yorubay-device-voice-v1'))).not.toContain('TEXT-PRIVATE');
 });
+
+test('voice pack preview requires explicit role and save, rejects unknown fields',async({page})=>{
+ await setup(page,390);await openVoice(page,390);
+ const d=page.getByRole('dialog',{name:'角色語音與語音輸入'});
+ await d.getByLabel('配音角色').selectOption('a');
+ await d.getByText('聲線設定包（匯入／匯出）',{exact:true}).click();
+ const pack={schema:'yorubay.voice-profile',version:1,engine:'web-speech',profile:{language:'ko-KR',voiceURI:'ko',rate:.9,pitch:1.15,volume:.7}};
+ const load=async value=>d.getByLabel('選擇聲線設定包 JSON').setInputFiles({name:'voice.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(value))});
+ await load({...pack,url:'https://example.invalid'});
+ await expect(d.locator('p[role="status"]')).toContainText('不支援');
+ await expect(d.getByLabel('配音語言')).toHaveValue('zh-TW');
+ await load(pack);
+ await expect(d.locator('p[role="status"]')).toContainText('尚未保存');
+ await expect(d.getByLabel('配音語言')).toHaveValue('ko-KR');
+ await expect(d.getByLabel('裝置聲線')).toHaveValue('ko');
+ expect(await page.evaluate(()=>localStorage.getItem('yorubay-device-voice-v1'))).toBeNull();
+ expect(await page.evaluate(()=>window.__voiceCalls.length)).toBe(0);
+ await d.getByRole('button',{name:'保存角色聲線設定'}).click();
+ await d.getByLabel('配音角色').selectOption('b');
+ await expect(d.getByLabel('配音語言')).toHaveValue('zh-TW');
+ await d.getByLabel('配音角色').selectOption('a');
+ await expect(d.getByLabel('配音語言')).toHaveValue('ko-KR');
+ const download=page.waitForEvent('download');
+ await d.getByRole('button',{name:'匯出目前聲線設定包'}).click();
+ expect((await download).suggestedFilename()).toBe('yorubay-voice-profile.json');
+});
