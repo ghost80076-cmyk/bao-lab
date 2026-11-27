@@ -86,6 +86,10 @@ jobs:
         env:
           SITE_URL: https://yorubay.com
         run: bash scripts/verify-live-assets.sh index.html js/story-images.js js/story-images-core.js css/story-images.css js/api.js js/app.js js/story-image-generation-core.js js/story-image-assets.js js/story-image-generation.js js/story-image-prompts.js js/phone-ui.js js/phone-dm-photos.js js/phone-story-core.js js/phone-story-bridge.js js/story-voice-core.js js/story-voice.js css/story-voice.css css/phone-ui.css css/story-image-generation.css
+      - name: Production automatic dialogue with mocked device voices and story API
+        env:
+          STORY_VOICE_BASE_URL: https://yorubay.com
+        run: npx playwright test tests/e2e/story-voice.spec.cjs --project=chromium --workers=1 --grep "automatic dialogue"
       - name: Production image UX with synthetic local image and mocked provider
         env:
           STORY_IMAGES_BASE_URL: https://yorubay.com

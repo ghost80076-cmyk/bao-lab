@@ -1,4 +1,4 @@
-/* Explicit opt-in voice tools. No audio/model download, API request or automatic playback. */
+/* Explicit opt-in voice tools. Automatic dialogue uses local device voices during an opted-in story session. */
 (()=>{
  'use strict';
  const Core=window.BAOStoryVoiceCore;
@@ -15,6 +15,116 @@
  const read=()=>{try{const data=JSON.parse(localStorage.getItem(STORE)||'{}');return data&&typeof data==='object'&&!Array.isArray(data)?data:{};}catch(_){return {};}};
  const save=(id,p)=>{const data=read();delete data[id];data[id]=Core.profile(p);localStorage.setItem(STORE,JSON.stringify(Object.fromEntries(Object.entries(data).slice(-100))));};
  let active=null;
+ // A session belongs to this open story/chapter. Only successful story turns
+ // enter the queue. Repainting history and reopening a save never enqueue it.
+ let automatic=null, sequence=null, notice='', notify=null;
+ const tell=t=>{notice=t;notify?.(t);};
+ const inStory=()=>!document.hidden&&document.getElementById('chat-view')?.classList.contains('active');
+ function stopSequence(){
+   const seq=sequence;
+   sequence=null;
+   if(!seq)return;
+   clearInterval(seq.watch);
+   clearTimeout(seq.timeout);
+   if(seq.utterance){
+     seq.utterance.onend=seq.utterance.onerror=null;
+     window.speechSynthesis?.cancel();
+   }
+ }
+ function disableAutomatic(){
+   automatic=null;
+   stopSequence();
+   tell('');
+ }
+ function castFor(current){
+   const people=new Map();
+   const card=current.card;
+   const cardId=String(card.id||card.name);
+   const add=(id,name,aliases=[])=>{
+     if(id&&name)people.set(String(id),{id:String(id),name,aliases:Array.isArray(aliases)?aliases:[]});
+   };
+   add(cardId,card.name);
+   const cast=Array.isArray(card.dialogue?.cast)?card.dialogue.cast:[];
+   const npcs=current.owner.npcs||card.initial_state?.npcs||[];
+   for(const n of npcs){
+     if(!n?.name)continue;
+     const duplicate=npcs.some(other=>other!==n&&other?.name===n.name);
+     add(n.id||(duplicate?n.npc_id:n.name),n.name,n.aliases);
+   }
+   for(const p of cast){
+     const matches=[...people.values()].filter(n=>n.name===p.name);
+     const id=matches.length===1&&cast.filter(n=>n.name===p.name).length===1?matches[0].id:'author:'+p.id;
+     add(id,p.name,[...(people.get(id)?.aliases||[]),...(p.aliases||[])]);
+   }
+   // The title of a cast-based work is not an extra speaker.
+   const actors=[...people.values()].filter(p=>p.id!==cardId);
+   const duplicateMain=actors.find(p=>p.name===card.name);
+   const speakers=[...people.values()].filter(p=>p.id!==cardId||(!duplicateMain&&(!cast.length||cast.some(n=>n.name===card.name))));
+   const solo=App.config?.narrativeMode==='immersive'||!card.supported_modes?.world;
+   const defaultId=solo&&speakers.length===1?speakers[0].id:null;
+   return {people,speakers,defaultId,cardId};
+ }
+ function playReply(message){
+   stopSequence();
+   const session=automatic;
+   if(!session||!same(session)||!inStory()||message?.role!=='assistant'||!message.id)return;
+   const {speakers,defaultId,cardId}=castFor(session);
+   const content=message.content,variant=message.activeVariant||0;
+   const visible=window.BAOChatPresentationCore?.stripStatusAppendix?.(content)??content;
+   const lines=message.greeting&&session.card.opening?.posts?.length?[]:
+     Core.directDialogue(visible,speakers,defaultId,App.config?.persona?.name);
+   if(!lines.length){tell('這則回覆沒有可辨識的角色台詞。');return;}
+   const seq={utterance:null,watch:null,timeout:null};
+   sequence=seq;
+   const synth=window.speechSynthesis;
+   const available=synth.getVoices(),profiles=read();
+   let index=0,skipped=0;
+   function current(){
+     const latest=Chat.messages.at(-1);
+     return automatic===session&&inStory()&&same(session)&&latest?.id===message.id&&latest.content===content&&(latest.activeVariant||0)===variant;
+   }
+   function next(){
+     if(sequence!==seq)return;
+     clearTimeout(seq.timeout);
+     seq.utterance=null;
+     if(!current()){stopSequence();return;}
+     while(index<lines.length){
+       const {speakerId,text}=lines[index++];
+       const p=Core.profile(profiles[Core.profileKey(cardId,speakerId)]);
+       const voice=Core.selectVoice(available,p);
+       if(voice?.localService!==true){skipped++;continue;}
+       const u=new SpeechSynthesisUtterance(text);
+       Object.assign(u,{voice,lang:p.language,rate:p.rate,pitch:p.pitch,volume:p.volume});
+       seq.utterance=u;
+       u.onend=()=>{if(seq.utterance===u)next();};
+       u.onerror=()=>{if(sequence===seq){stopSequence();tell('裝置無法播放這則回覆。');}};
+       seq.timeout=setTimeout(()=>{if(sequence===seq){stopSequence();tell('播放已逾時。');}},180000);
+       tell('正在播放角色台詞…');
+       try{synth.speak(u);}catch(_){stopSequence();tell('裝置無法播放這則回覆。');}
+       return;
+     }
+     stopSequence();
+     tell(skipped?'部分台詞缺少可用的本地聲線。可調整角色聲線，或手動使用遠端聲線。':'播放完成。');
+   }
+   seq.watch=setInterval(()=>{if(!current())stopSequence();},250);
+   next();
+ }
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)disableAutomatic();});
+ window.addEventListener('pagehide',disableAutomatic);
+ App.wrapShowView('story-voice:leave',function(next,name,...args){
+   if(name!=='chat'&&automatic)disableAutomatic();
+   return next(name,...args);
+ });
+ App.wrapSendMessage('story-voice:read-dialogue',async function(next,...args){
+   const session=automatic;
+   if(session)stopSequence();
+   const turn=await next(...args);
+   if(session&&session===automatic&&turn?.complete&&turn.isCurrent?.()&&same(session)){
+     const latest=Chat.messages.at(-1);
+     if(latest?.id===turn.assistantId)playReply(latest);
+   }
+   return turn;
+ });
  function open(){
    if(active||!GameState.current||!App.activeCharacter)return;
    const current=scope(),sourceInput=document.getElementById('user-input');
@@ -23,14 +133,14 @@
    const modal=el('dialog');modal.className='yoru-voice-dialog';modal.setAttribute('aria-label','角色語音與語音輸入');
    if(typeof modal.showModal!=='function')return;
    const focus=document.activeElement;
-   const title=el('h2','角色語音與語音輸入'),note=el('p','選配工具。語音輸入只填入文字，不會送出；配音只播放你確認的台詞。語音與故事原文互不改寫。');
+   const title=el('h2','角色語音與語音輸入'),note=el('p','選配工具。語音輸入只填入文字，不會送出；可開啟角色台詞自動配音。語音與故事原文互不改寫。');
    const status=el('p');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
    const setStatus=t=>{status.textContent=t;};
    let recognition=null,recognitionTimer=null,utterance=null,playTimer=null,closed=false;
    const valid=()=>!closed&&modal.isConnected&&same(current)&&document.getElementById('user-input')===sourceInput;
    const cancelSpeech=()=>{if(utterance){utterance.onend=utterance.onerror=null;synth?.cancel();utterance=null;}clearTimeout(playTimer);};
    const cancelRecognition=()=>{if(recognition){const rec=recognition;recognition=null;rec.onresult=rec.onerror=rec.onend=null;try{rec.abort();}catch(_){}}clearTimeout(recognitionTimer);};
-   const cleanup=()=>{if(closed)return;closed=true;cancelSpeech();cancelRecognition();clearInterval(watch);synth?.removeEventListener?.('voiceschanged',refreshVoices);modal.remove();active=null;if(focus?.isConnected)focus.focus();};
+   const cleanup=()=>{if(closed)return;closed=true;notify=null;cancelSpeech();cancelRecognition();clearInterval(watch);synth?.removeEventListener?.('voiceschanged',refreshVoices);modal.remove();active=null;if(focus?.isConnected)focus.focus();};
    const close=()=>{modal.close();cleanup();};
    const inputSection=el('section');inputSection.append(el('h3','玩家語音轉文字（STT）'));
    const inputLang=field('輸入語言');options(inputLang.input,languageOptions);
@@ -42,7 +152,7 @@
      if(!valid()||App.__requestPending)return;
      if(!Recognition){setStatus('此瀏覽器不支援語音辨識，可使用裝置鍵盤的語音輸入。');return;}
      if(!consent.input.checked){setStatus('請先確認瀏覽器語音辨識的資料傳送說明。');return;}
-     cancelSpeech();cancelRecognition();
+     disableAutomatic();auto.input.checked=false;cancelSpeech();cancelRecognition();
      startingText=sourceInput.value;consent.input.checked=false;
      const rec=new Recognition();recognition=rec;rec.lang=inputLang.input.value;rec.continuous=false;rec.interimResults=false;rec.maxAlternatives=1;
      rec.onresult=e=>{if(recognition===rec&&valid())draft.input.value=Core.finalTranscript(e.results);};
@@ -64,11 +174,22 @@
    inputSection.append(inputLang.wrap,disclosure,consent.wrap,start,stop,draft.wrap,apply);
    if(!Recognition)inputSection.append(el('small','不支援此 API 時，仍可使用系統鍵盤語音輸入。'));
    const output=el('section');output.append(el('h3','角色台詞配音（TTS）'));
-   const speaker=field('配音角色'),people=new Map();
-   const addPerson=n=>{if(!n)return;const id=String(n.id||n.name||'');if(id&&!people.has(id))people.set(id,String(n.name||id));};
-   addPerson(current.card);
-   for(const n of [...(Array.isArray(current.card.initial_state?.npcs)?current.card.initial_state.npcs:[]),...(Array.isArray(current.owner.npcs)?current.owner.npcs:[])])addPerson(n);
-   options(speaker.input,[['','選擇角色'],...Array.from(people.entries()).slice(0,100)]);
+   if(automatic&&!same(automatic))disableAutomatic();
+   const auto=field('自動朗讀角色台詞','input');auto.input.type='checkbox';
+   auto.input.checked=Boolean(automatic);
+   auto.input.disabled=!synth||typeof window.SpeechSynthesisUtterance!=='function';
+   const autoStatus=el('p',notice);autoStatus.setAttribute('aria-live','polite');
+   notify=t=>{autoStatus.textContent=t;auto.input.checked=Boolean(automatic);};
+   auto.input.addEventListener('change',()=>{
+     if(!auto.input.checked||!valid()){disableAutomatic();return;}
+     cancelRecognition();start.disabled=!Recognition;cancelSpeech();
+     automatic=current;
+     tell('已開啟本章節角色配音。');
+     playReply(Chat.messages.at(-1));
+   });
+   output.append(auto.wrap,el('small','開啟後，以已保存的本地聲線朗讀目前及後續回覆中的角色台詞。關閉工具後繼續播放。'),autoStatus);
+   const speaker=field('配音角色'),{people}=castFor(current);
+   options(speaker.input,[['','選擇角色'],...[...people.values()].slice(0,100).map(p=>[p.id,p.name])]);
    const lang=field('配音語言');options(lang.input,languageOptions);
    const voice=field('裝置聲線');
    const sliders=[['rate','語速',.5,1.5,1],['pitch','音高',.5,1.5,1],['volume','音量',0,1,1]].map(([name,label,min,max,value])=>{
@@ -129,13 +250,13 @@
      const v=Core.selectVoice(synth.getVoices(),p);
      if(!v){setStatus('此語言沒有可用的本地或指定聲線。請安裝語言包或手動選擇聲線，不會自動改用其他語言。');return;}
      if(v.localService!==true&&!remote.input.checked){setStatus('此聲線可能連網，請先確認資料傳送。');return;}
-     remote.input.checked=false;cancelSpeech();
+     remote.input.checked=false;disableAutomatic();cancelSpeech();
      const u=new SpeechSynthesisUtterance(script);utterance=u;u.voice=v;u.lang=p.language;u.rate=p.rate;u.pitch=p.pitch;u.volume=p.volume;
      u.onend=()=>{if(utterance===u){utterance=null;clearTimeout(playTimer);setStatus('播放完成。');}};
      u.onerror=()=>{if(utterance===u){utterance=null;clearTimeout(playTimer);setStatus('語音播放失敗，請確認裝置聲線。');}};
      try{synth.speak(u);setStatus('正在播放角色台詞…');playTimer=setTimeout(()=>{cancelSpeech();setStatus('播放已逾時。');},180000);}catch(_){cancelSpeech();setStatus('無法播放語音。');}
    });
-   output.append(speaker.wrap,lang.wrap,voice.wrap,...sliders.map(s=>s.wrap),remember,pack,source.wrap,quotes.wrap,text.wrap,el('small','只朗讀確認的台詞；引號僅是候選，不判斷說話者、旁白或心理活動。選語言不是翻譯。'),remote.wrap,speak,btn('停止播放',()=>{cancelSpeech();setStatus('已停止播放。');}));
+   output.append(speaker.wrap,lang.wrap,voice.wrap,...sliders.map(s=>s.wrap),remember,pack,source.wrap,quotes.wrap,text.wrap,el('small','手動配音可選句、編輯或貼上翻譯。'),remote.wrap,speak,btn('停止播放',()=>{stopSequence();cancelSpeech();setStatus('已停止播放。');}));
    speak.disabled=!synth||typeof window.SpeechSynthesisUtterance!=='function';
    load();refreshQuotes();synth?.addEventListener?.('voiceschanged',refreshVoices);
    modal.append(title,note,inputSection,output,status,btn('關閉',close));document.body.append(modal);active=modal;
@@ -157,6 +278,6 @@
    }
    if(b.parentElement!==host)host.append(b);
  }
- App.wrapRenderChatShell('story-voice:optional-tools',function(next,...args){const result=next(...args);mount();return result;});
+ App.wrapRenderChatShell('story-voice:optional-tools',function(next,...args){const result=next(...args);if(automatic&&!same(automatic))disableAutomatic();mount();return result;});
  window.BAOStoryVoice=Object.freeze({open,mount});
 })();

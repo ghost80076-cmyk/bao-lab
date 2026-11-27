@@ -29,3 +29,20 @@ for(const bad of [{...good,version:2},{...good,engine:'remote'},{...good,url:'ht
 assert.throws(()=>C.importPack('x'.repeat(C.PACK_LIMIT+1)));
 assert.throws(()=>C.importPack('not JSON'));
 assert.throws(()=>C.importPack('{"schema":"yorubay.voice-profile","version":1,"engine":"web-speech","profile":{"language":"ko-KR","voiceURI":"ko","rate":1,"pitch":1,"volume":1,"__proto__":{"unsafe":true}}}'));
+
+const cast=[{id:'a',name:'知晚',aliases:['小晚']},{id:'b',name:'阿青'}];
+const speech=(speakerId,text)=>({speakerId,text});
+const solo=text=>C.directDialogue(text,cast.slice(0,1),'a','旅人');
+const group=text=>C.directDialogue(text,cast,null,'旅人');
+assert.deepEqual(solo('她心想：「他大概還沒吃。」她把菜單推到你面前。「要不要一起點？」'),[speech('a','要不要一起點？')]);
+assert.deepEqual(solo('她放下杯子。「你吃過了嗎？」她把菜單推近了些。「我想點這個。」'),[speech('a','你吃過了嗎？'),speech('a','我想點這個。')]);
+assert.deepEqual(solo('她看見門上貼著「今日公休」，把傘收了起來。'),[]);
+assert.deepEqual(solo('「沒帶傘。」她心想。\n旅人：「我有。」\n路人說：「借你。」\n她開口問：「真的？」'),[speech('a','真的？')]);
+assert.deepEqual(group('小晚問：「晚餐呢？」\n「沒吃。」阿青答。\n「猜猜我是誰。」\n旅人：「是我。」'),[speech('a','晚餐呢？'),speech('b','沒吃。')]);
+assert.deepEqual(solo('她心想：\n「快下雨了。」\n她說：\n「走吧。」'),[speech('a','走吧。')]);
+assert.deepEqual(solo('「有空嗎？」[STATUS]「隱藏」[/STATUS][CHOICE]「選我」[/CHOICE]'),[speech('a','有空嗎？')]);
+assert.deepEqual(solo('「一」[STATUS]「未關閉」'),[speech('a','一')]);
+assert.deepEqual(solo('<div hidden>「隱藏」</div>'),[]);
+assert.deepEqual(solo('「未完\n[TOOL]「隱藏」'),[]);
+assert.deepEqual(C.directDialogue('知晚：「你好。」',[...cast,{id:'c',name:'知晚'}],null),[]);
+assert.deepEqual(group('阿青說：「第一句。」「第二句。」'),[speech('b','第一句。'),speech('b','第二句。')]);
