@@ -388,16 +388,26 @@
             };
             if(window.BAOStoryVoice?.playPhoneMessage){
               const rows=thread.querySelectorAll(':scope > .bp-chat-row');
+              const voiceStatus=$('small','bp-muted');voiceStatus.setAttribute('role','status');voiceStatus.setAttribute('aria-live','polite');
+              const settings=$('button','bp-voice-read-button','聲線');settings.type='button';settings.setAttribute('aria-label','角色語音設定');
+              settings.onclick=()=>window.BAOStoryVoice.openSettings({actorId:target.group?null:target.senderId,active});
+              area.querySelector('.bp-app-header')?.append(settings);
+              area.insertBefore(voiceStatus,form);
               phoneRows.forEach((item,index)=>{
                 if(item.from==='me'||!item.text?.trim()||!rows[index])return;
                 const senderId=item.senderId||(!target.group?target.senderId:'');
                 if(!senderId||!(target.group?target.members:[target.senderId]).includes(senderId))return;
                 const row=rows[index],play=$('button','bp-voice-read-button','▶');
-                play.type='button';play.setAttribute('aria-label','朗讀角色訊息（裝置）');
+                play.type='button';play.dataset.voicePhonePlay='1';play.setAttribute('aria-label','朗讀角色訊息（'+window.BAOStoryVoice.playbackSource()+'）');
                 const stop=$('button','bp-voice-read-button','■');stop.type='button';stop.setAttribute('aria-label','停止朗讀');
-                const valid=()=>active()&&row.isConnected;
-                play.onclick=()=>window.BAOStoryVoice.playPhoneMessage({senderId,senderName:item.senderName||config.contacts.find(c=>c.id===senderId)?.name||senderId,text:item.text,target,active:valid});
-                stop.onclick=()=>window.BAOStoryVoice.stopPlayback();
+                const valid=()=>{
+                  if(!active()||!row.isConnected)return false;
+                  const live=phoneSource(),messages=threadId?live?.threads.find(t=>t.id===threadId)?.messages:live?.chat;
+                  const current=messages?.[index];
+                  return !!current&&current.from===item.from&&current.senderId===item.senderId&&current.senderName===item.senderName&&current.text===item.text&&current.time===item.time;
+                };
+                play.onclick=()=>window.BAOStoryVoice.playPhoneMessage({senderId,senderName:item.senderName||config.contacts.find(c=>c.id===senderId)?.name||senderId,text:item.text,target,active:valid,status:t=>{voiceStatus.textContent=t;}});
+                stop.onclick=()=>{window.BAOStoryVoice.stopPlayback();voiceStatus.textContent='已停止播放。';};
                 const controls=$('div','bp-voice-read-controls');controls.append(play,stop);row.append(controls);
               });
             }
