@@ -408,3 +408,41 @@ test('custom voice settings survive closing tools only after explicit save, neve
  await d.getByRole('button',{name:'清除已保存 STT 設定'}).click();
  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('yorubay-custom-voice-v1')))).toEqual({});
 });
+
+test('saved local audio belongs only to its chapter and never becomes a model message',async({page})=>{
+ const wav=Buffer.alloc(44+1600);wav.write('RIFF',0);wav.writeUInt32LE(wav.length-8,4);wav.write('WAVEfmt ',8);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);wav.writeUInt32LE(8000,24);wav.writeUInt32LE(16000,28);wav.writeUInt16LE(2,32);wav.writeUInt16LE(16,34);wav.write('data',36);wav.writeUInt32LE(1600,40);
+ let external=0;
+ await page.route(/https:\/\/(?:text|stt|tts)\.example\.invalid\//,route=>{external++;return route.abort();});
+ await setup(page,390);await openVoice(page,390);
+ const before=await page.evaluate(()=>({messages:JSON.stringify(Chat.messages),state:JSON.stringify(GameState.current)}));
+ const d=page.getByRole('dialog',{name:'角色語音與語音輸入'});
+ await d.getByText('玩家錄音／音檔預覽（本機）',{exact:true}).click();
+ const file=d.getByLabel('選擇本機音檔');
+ await file.setInputFiles({name:'sample.wav',mimeType:'audio/wav',buffer:wav});
+ await expect(d.getByRole('button',{name:'保存至本章節音訊庫'})).toBeEnabled();
+ await d.getByRole('button',{name:'保存至本章節音訊庫'}).click();
+ await expect(d.getByText('已保存 1 段音訊。',{exact:true})).toBeVisible();
+ await d.getByRole('button',{name:'保存至本章節音訊庫'}).click();
+ await expect.poll(()=>page.evaluate(async()=> (await BAOStoryVoiceAssets.list(BAOStoryLibrary.refs())).length)).toBe(1);
+ const isolated=await page.evaluate(async()=>{
+   const scope=BAOStoryLibrary.refs(),other={...scope,chapterId:scope.chapterId+'-other'},rows=await BAOStoryVoiceAssets.list(scope);
+   let blocked=0;
+   try{await BAOStoryVoiceAssets.get(other,rows[0].id);}catch(_){blocked++;}
+   try{await BAOStoryVoiceAssets.remove(other,rows[0].id);}catch(_){blocked++;}
+   return {other:(await BAOStoryVoiceAssets.list(other)).length,blocked};
+ });
+ expect(isolated).toEqual({other:0,blocked:2});
+ await d.getByRole('button',{name:'關閉',exact:true}).click();
+ await openVoice(page,390);
+ await d.getByText('玩家錄音／音檔預覽（本機）',{exact:true}).click();
+ await d.getByText('本章節已保存音訊',{exact:true}).click();
+ await expect(d.getByText('已保存 1 段音訊。',{exact:true})).toBeVisible();
+ await d.getByRole('button',{name:'預覽音訊 1',exact:true}).click();
+ await expect(d.getByLabel('本機音檔預覽')).toBeVisible();
+ await expect(d.getByRole('button',{name:'刪除音訊 1',exact:true})).toBeDisabled();
+ await d.getByLabel('確認刪除音訊 1').check();
+ await d.getByRole('button',{name:'刪除音訊 1',exact:true}).click();
+ await expect(d.getByText('本章節尚無已保存音訊。')).toBeVisible();
+ expect(external).toBe(0);
+ expect(await page.evaluate(()=>({messages:JSON.stringify(Chat.messages),state:JSON.stringify(GameState.current)}))).toEqual(before);
+});
