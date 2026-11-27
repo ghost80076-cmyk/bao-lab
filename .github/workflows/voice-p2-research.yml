@@ -26,7 +26,7 @@ jobs:
       - name: Prepare fixed candidate assets (research runner only)
         shell: bash
         run: |
-          bash scripts/voice-p2-research/prepare.sh "$RUNNER_TEMP/voice-p2" whisper-tiny
+          bash scripts/voice-p2-research/prepare.sh "$RUNNER_TEMP/voice-p2" whisper-tiny-mixed
       - name: Prepare synthetic audio and Chromium
         run: |
           sudo apt-get update -qq
@@ -41,7 +41,7 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Real local browser inference, cancellation, no external HTTP
         run: |
-          node scripts/voice-p2-browser-lab.cjs "$RUNNER_TEMP/voice-p2" > "$RUNNER_TEMP/voice-p2-server.log" 2>&1 &
+          node scripts/voice-p2-browser-lab.cjs "$RUNNER_TEMP/voice-p2" whisper-tiny-mixed > "$RUNNER_TEMP/voice-p2-server.log" 2>&1 &
           server=$!
           trap 'kill "$server" 2>/dev/null || true; cat "$RUNNER_TEMP/voice-p2-server.log"' EXIT
           for n in $(seq 1 30); do
@@ -88,6 +88,7 @@ jobs:
                 console.log(JSON.stringify({filename,status,output,external,failed},null,2));
                 assert.match(status,/Complete/);
                 const result=JSON.parse(output);
+                assert.equal(result.profile,'whisper-tiny-mixed');
                 const raw = require('node:child_process').execFileSync('ffmpeg', ['-v','error','-i',process.env.RUNNER_TEMP+'/'+filename,'-f','f32le','-']);
                 const expectedHash = require('node:crypto').createHash('sha256').update(raw).digest('hex');
                 assert.equal(result.frames,raw.length/4,'frame count in Worker');

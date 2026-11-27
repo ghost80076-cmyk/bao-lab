@@ -57,5 +57,8 @@
         "tokenizer_config.json": "edaee394565d428ea98a663ae7209cdcfeefc5585c42d7a570ff7c986df2cd15"
       }
     }
+  },
+  "tinyFloatDecoder": {
+    "onnx/decoder_model_merged.onnx": "8d20f4157407006e871d63ca0a3c54dddd7db33dfc4ee076960f1f8b2763ce3e"
   }
 }
