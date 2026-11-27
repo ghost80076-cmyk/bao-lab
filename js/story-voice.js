@@ -140,8 +140,9 @@
    const valid=()=>!closed&&modal.isConnected&&same(current)&&document.getElementById('user-input')===sourceInput;
    const cancelSpeech=()=>{if(utterance){utterance.onend=utterance.onerror=null;synth?.cancel();utterance=null;}clearTimeout(playTimer);};
    const cancelRecognition=()=>{if(recognition){const rec=recognition;recognition=null;rec.onresult=rec.onerror=rec.onend=null;try{rec.abort();}catch(_){}}clearTimeout(recognitionTimer);cancelExternal();};
-   const cleanup=()=>{if(closed)return;closed=true;notify=null;window.removeEventListener('pagehide',close);cancelSpeech();cancelRecognition();clearInterval(watch);synth?.removeEventListener?.('voiceschanged',refreshVoices);modal.remove();active=null;if(focus?.isConnected)focus.focus();};
-   const close=()=>{modal.close();cleanup();};
+   const cleanup=()=>{if(closed)return;closed=true;notify=null;window.removeEventListener('pagehide',close);document.removeEventListener('visibilitychange',onVisibility);cancelSpeech();cancelRecognition();clearInterval(watch);synth?.removeEventListener?.('voiceschanged',refreshVoices);modal.remove();active=null;if(focus?.isConnected)focus.focus();};
+   const close=()=>{if(closed)return;modal.close();cleanup();};
+   const onVisibility=()=>{if(document.hidden)close();};
    const inputSection=el('section');inputSection.append(el('h3','玩家語音轉文字（STT）'));
    const inputLang=field('輸入語言');options(inputLang.input,languageOptions);
    const disclosure=el('p','裝置／瀏覽器語音辨識可能將錄音送往其雲端服務，不一定離線；夜灣不保存錄音、不將音訊傳給 RP 模型。');
@@ -174,9 +175,9 @@
      const raw={endpoint:endpoint.input.value,model:model.input.value,key:apiKey.input.value,language:inputLang.input.value};
      try{Core.sttConfig(raw);}catch(e){setStatus(e.message);return;}
      disableAutomatic();auto.input.checked=false;cancelSpeech();cancelRecognition();
-     startingText=sourceInput.value;customConsent.input.checked=false;draft.input.value='';
+     const capturedDraft=sourceInput.value;customConsent.input.checked=false;
      const job={controller:new AbortController(),chunks:[],bytes:0,phase:'permission',stream:null,rec:null,timer:null};externalJob=job;syncControls();
-     const live=()=>externalJob===job&&valid()&&!document.hidden;
+     const live=()=>externalJob===job&&valid()&&inStory()&&!App.__requestPending;
      const fail=msg=>{if(externalJob===job){cancelExternal();syncControls();if(valid())setStatus(msg);}};
      job.timer=setTimeout(()=>fail('錄音已逾時，未自動傳送。'),60000);
      setStatus('等待麥克風權限…');
@@ -189,12 +190,13 @@
        rec.ondataavailable=e=>{if(!live()||!e.data?.size)return;job.bytes+=e.data.size;if(job.bytes>Core.STT_MAX_BYTES){fail('錄音超過 8 MiB，未傳送。');return;}job.chunks.push(e.data);};
        rec.onerror=()=>fail('錄音失敗，未傳送。');
        rec.onstop=async()=>{
-         if(!live()||job.phase!=='sending')return;
+         if(!live())return;
+         if(job.phase!=='sending'){fail('錄音意外停止，未傳送。');return;}
          stream.getTracks().forEach(t=>t.stop());clearTimeout(job.timer);
          const blob=new Blob(job.chunks,{type:rec.mimeType||job.chunks[0]?.type});job.chunks.length=0;
          job.timer=setTimeout(()=>fail('STT 連線逾時，請手動重試或打字。'),60000);
          setStatus('正在使用指定 STT 接口辨識…');
-         try{const result=await Core.transcribe(raw,blob,{signal:job.controller.signal});if(live()){draft.input.value=result;cancelExternal();syncControls();setStatus('辨識完成，請確認文字後填入。');}}
+         try{const result=await Core.transcribe(raw,blob,{signal:job.controller.signal});if(live()){startingText=capturedDraft;draft.input.value=result;cancelExternal();syncControls();setStatus('辨識完成，請確認文字後填入。');}else if(externalJob===job){fail('故事狀態已變更，已捨棄辨識結果。');}}
          catch(_){fail('STT 辨識失敗，請檢查服務網址、CORS、音訊格式或額度；可繼續打字。');}
        };
        job.phase='recording';rec.start(250);syncControls();setStatus('錄音中；按停止辨識才傳送至指定接口。');
@@ -217,6 +219,7 @@
    });
    const stop=btn('停止辨識',()=>{
      if(externalJob?.phase==='recording'){
+       if(!valid()||!inStory()||App.__requestPending){cancelExternal();syncControls();setStatus('故事狀態已變更，未傳送錄音。');return;}
        const job=externalJob;job.phase='sending';syncControls();
        try{job.rec.stop();}catch(_){cancelExternal();syncControls();setStatus('錄音停止失敗，未傳送。');}
        return;
@@ -324,8 +327,8 @@
    speak.disabled=!synth||typeof window.SpeechSynthesisUtterance!=='function';
    load();refreshQuotes();synth?.addEventListener?.('voiceschanged',refreshVoices);
    modal.append(title,note,inputSection,output,status,btn('關閉',close));document.body.append(modal);active=modal;
-   window.addEventListener('pagehide',close);modal.addEventListener('cancel',e=>{e.preventDefault();close();});modal.addEventListener('close',cleanup);
-   const watch=setInterval(()=>{if(!valid()||document.visibilityState==='hidden'||document.getElementById('chat-view')?.classList.contains('active')===false)close();},250);
+   window.addEventListener('pagehide',close);document.addEventListener('visibilitychange',onVisibility);modal.addEventListener('cancel',e=>{e.preventDefault();close();});modal.addEventListener('close',cleanup);
+   const watch=setInterval(()=>{if(!valid()||!inStory()||(externalJob&&App.__requestPending))close();},250);
    try{modal.showModal();}catch(_){cleanup();}
  }
  function mount(){
