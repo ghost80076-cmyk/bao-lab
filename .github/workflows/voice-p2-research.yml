@@ -59,6 +59,8 @@ jobs:
           sudo apt-get install -y --no-install-recommends espeak-ng ffmpeg
           espeak-ng -v en-us -s 145 -w "$RUNNER_TEMP/voice-p2-source.wav" "Hello world. This is a local voice test."
           ffmpeg -v error -i "$RUNNER_TEMP/voice-p2-source.wav" -ac 1 -ar 16000 -c:a pcm_s16le "$RUNNER_TEMP/voice-p2-test.wav"
+          # Preserve the original failed sample; compare with explicit boundary silence.
+          ffmpeg -v error -i "$RUNNER_TEMP/voice-p2-source.wav" -af "adelay=750:all=1,apad=pad_dur=0.75" -ac 1 -ar 16000 -c:a pcm_s16le "$RUNNER_TEMP/voice-p2-padded.wav"
           npm ci --ignore-scripts
           npx playwright install --with-deps chromium
       - name: Real local browser inference, cancellation, no external HTTP
@@ -92,15 +94,37 @@ jobs:
               await page.locator('#start').click();
               await page.locator('#stop').click();
               assert.match(await page.locator('#status').innerText(),/Cancelled/);
-              await page.locator('#start').click();
-              await page.waitForFunction(()=>!document.getElementById('start').disabled,null,{timeout:310000});
-              const status=await page.locator('#status').innerText();
-              const output=await page.locator('#output').innerText();
-              console.log(JSON.stringify({status,output,external,failed},null,2));
-              assert.match(status,/Complete/);
-              const result=JSON.parse(output);
-              assert.match(result.text,/hello\s+world/i);
-              assert.ok(Number.isFinite(result.rtf)&&result.rtf>=0);
+              const reference='hello world this is a local voice test';
+              const normalize=t=>t.toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+              const distance=(a,b)=>{
+                const x=a.split(' '),y=b.split(' ');let row=Array.from({length:y.length+1},(_,i)=>i);
+                for(let i=1;i<=x.length;i++){
+                  const next=[i];for(let j=1;j<=y.length;j++)next[j]=Math.min(next[j-1]+1,row[j]+1,row[j-1]+Number(x[i-1]!==y[j-1]));
+                  row=next;
+                }
+                return row[y.length]/x.length;
+              };
+              async function infer(filename){
+                await page.locator('#audio').setInputFiles(process.env.RUNNER_TEMP+'/'+filename);
+                await page.locator('#start').click();
+                await page.waitForFunction(()=>!document.getElementById('start').disabled,null,{timeout:310000});
+                const status=await page.locator('#status').innerText(),output=await page.locator('#output').innerText();
+                console.log(JSON.stringify({filename,status,output,external,failed},null,2));
+                assert.match(status,/Complete/);
+                const result=JSON.parse(output);
+                assert.ok(Number.isFinite(result.rtf)&&result.rtf>=0);
+                assert.ok(result.text.trim());
+                return {...result,wer:distance(reference,normalize(result.text))};
+              }
+              const baseline=await infer('voice-p2-test.wav');
+              const padded=await infer('voice-p2-padded.wav');
+              const report={reference,baseline,padded,external,failed,scope:'synthetic English only; padded fixture is a diagnostic, not general ASR quality'};
+              require('node:fs').writeFileSync(process.env.RUNNER_TEMP+'/voice-p2-inference-report.json',JSON.stringify(report,null,2));
+              console.log(JSON.stringify(report,null,2));
+              // Do not erase the original regression. Baseline remains a required gate;
+              // the padded sample helps determine whether boundary silence is relevant.
+              assert.equal(normalize(padded.text),reference,'Padded fixture must preserve the full transcript');
+              assert.equal(normalize(baseline.text),reference,'Unpadded fixture must preserve the full transcript');
               assert.deepEqual(external,[]);
             } finally {await browser.close();}
           })().catch(e=>{console.error(e);process.exitCode=1;});
@@ -114,4 +138,5 @@ jobs:
             ${{ runner.temp }}/voice-p2-observed-sha256.txt
             ${{ runner.temp }}/voice-p2-runtime-lock.json
             ${{ runner.temp }}/voice-p2-bundle-meta.json
+            ${{ runner.temp }}/voice-p2-inference-report.json
           if-no-files-found: ignore
