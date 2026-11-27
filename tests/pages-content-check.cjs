@@ -25,9 +25,8 @@ const registry = JSON.parse(fs.readFileSync('data/presets/models.json', 'utf8'))
 const presets = Array.isArray(registry)
   ? registry
   : (registry.models || []).flatMap(model => Array.isArray(model.routes) ? model.routes : []);
-const zai = presets.find(item => item.provider === 'zai');
-if (!zai) throw new Error('Z.AI provider is missing from deployed model presets.');
-if (zai.model !== '') throw new Error('Z.AI provider must keep Model ID user-selectable instead of hardcoding one GLM model.');
+const zai = presets.find(item => item.provider === 'zai' && item.model === '');
+if (!zai) throw new Error('Z.AI must include an official preset with a user-selectable Model ID.');
 if (zai.base_url !== 'https://api.z.ai/api/paas/v4/chat/completions') throw new Error('Z.AI official endpoint changed unexpectedly.');
 if (zai.protocol !== 'openai' || zai.route !== 'official' || zai.cache !== 'automatic') throw new Error('Z.AI provider contract metadata is incomplete.');
 const modelRouting = fs.readFileSync('js/model-routing.js', 'utf8');
