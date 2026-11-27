@@ -364,7 +364,8 @@
         area.classList.add('bp-chat-page');
         const thread = area.querySelector('.bp-thread');
         if(!(selectedThread()?.messages || config.chat).length)emptyState(thread,'目前沒有訊息','你可以在下方明確傳送訊息，或回到故事繼續互動。');
-        (selectedThread()?.messages || config.chat).forEach(item => {
+        const phoneRows=selectedThread()?.messages || config.chat;
+        phoneRows.forEach(item => {
           const row = $('div','bp-chat-row '+(item.from === 'me'?'bp-mine':''));
           const sender = item.senderName || config.contacts.find(c=>c.id===item.senderId)?.name || item.senderId;
           if (item.senderId) row.dataset.photoSenderId=item.senderId;
@@ -385,6 +386,21 @@
               const live=chatPhotoTarget(phoneSource(),threadId,GameState.current);
               return live?.key===target.key && live?.prefix===target.prefix;
             };
+            if(window.BAOStoryVoice?.playPhoneMessage){
+              const rows=thread.querySelectorAll(':scope > .bp-chat-row');
+              phoneRows.forEach((item,index)=>{
+                if(item.from==='me'||!item.text?.trim()||!rows[index])return;
+                const senderId=item.senderId||(!target.group?target.senderId:'');
+                if(!senderId||!(target.group?target.members:[target.senderId]).includes(senderId))return;
+                const row=rows[index],play=$('button','bp-voice-read-button','▶');
+                play.type='button';play.setAttribute('aria-label','朗讀角色訊息（裝置）');
+                const stop=$('button','bp-voice-read-button','■');stop.type='button';stop.setAttribute('aria-label','停止朗讀');
+                const valid=()=>active()&&row.isConnected;
+                play.onclick=()=>window.BAOStoryVoice.playPhoneMessage({senderId,senderName:item.senderName||config.contacts.find(c=>c.id===senderId)?.name||senderId,text:item.text,target,active:valid});
+                stop.onclick=()=>window.BAOStoryVoice.stopPlayback();
+                const controls=$('div','bp-voice-read-controls');controls.append(play,stop);row.append(controls);
+              });
+            }
             dmPhotos=window.BAOPhoneDMPhotos?.mount({form,thread,target,active,refresh:render});
             const state=ownerState,card=ownerCharacter,photoDraft=dmPhotos;
             const recipientValid=()=>{

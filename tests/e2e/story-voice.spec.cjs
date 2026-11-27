@@ -909,3 +909,51 @@ test('authorized reference audio TTS is one-shot and never saved into story or s
  const data=await page.evaluate(()=>({storage:JSON.stringify(localStorage),chat:JSON.stringify(Chat.messages)}));
  expect(JSON.stringify(data)).not.toContain('REF-PRIVATE');expect(JSON.stringify(data)).not.toContain(voiceWav().toString('base64'));expect(data.chat).not.toContain('こんにちは');
 });
+
+test('everyday voice controls use the composer and saved device voice without opening advanced settings',async({page})=>{
+ await setup(page,390,true);
+ const mic=page.getByRole('button',{name:'語音輸入',exact:true});
+ await expect(mic).toBeVisible();
+ const before=await page.evaluate(()=>JSON.stringify(Chat.messages));
+ await page.locator('#user-input').fill('原有文字');
+ await mic.click();
+ const dialog=page.getByRole('dialog',{name:'角色語音與語音輸入'});
+ await expect(dialog.getByRole('heading',{name:'語音輸入',exact:true})).toBeVisible();
+ await expect(dialog.getByLabel('TTS 接口網址')).toHaveCount(0);
+ await dialog.getByLabel('我同意使用瀏覽器語音辨識服務').check();
+ await dialog.getByRole('button',{name:'開始語音辨識'}).click();
+ await expect(dialog.getByLabel('辨識文字預覽（可修改）')).toHaveValue('今天好累');
+ await dialog.getByRole('button',{name:'將文字填入故事輸入框'}).click();
+ await expect(page.locator('#user-input')).toHaveValue('原有文字\n今天好累');
+ expect(await page.evaluate(()=>JSON.stringify(Chat.messages))).toBe(before);
+ await page.getByRole('button',{name:'角色語音設定',exact:true}).click();
+ await expect(dialog.getByLabel('配音角色')).toHaveValue('voice-test');
+ await dialog.getByLabel('配音語言').selectOption('ja-JP');
+ await dialog.getByLabel('裝置聲線').selectOption('ja');
+ await dialog.getByRole('button',{name:'保存角色聲線設定'}).click();
+ await dialog.getByRole('button',{name:'關閉',exact:true}).click();
+ await page.getByRole('button',{name:'播放角色台詞（裝置）',exact:true}).click();
+ await expect.poll(()=>page.evaluate(()=>window.__voiceCalls)).toEqual([{text:'要一起點嗎？',lang:'ja-JP',rate:1,voice:'ja'}]);
+ await page.evaluate(()=>window.__lastUtterance.onend());
+ await expect.poll(()=>page.evaluate(()=>window.__voiceCalls.map(x=>x.text))).toEqual(['要一起點嗎？','我想吃麵。']);
+ await page.evaluate(()=>window.__lastUtterance.onend());
+ expect(await page.evaluate(()=>JSON.stringify(Chat.messages))).toBe(before);
+ await page.getByRole('button',{name:'開啟自動配音',exact:true}).click();
+ await expect(page.getByRole('button',{name:'關閉自動配音',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'關閉自動配音',exact:true}).click();
+ await expect(page.getByRole('button',{name:'開啟自動配音',exact:true})).toBeVisible();
+});
+test('Phone device playback shares the story actor profile and excludes player or out-of-group messages',async({page})=>{
+ await setup(page,390);
+ await page.evaluate(()=>{
+   localStorage.setItem('yorubay-device-voice-v1',JSON.stringify({[JSON.stringify(['voice-test','a'])]:{language:'ja-JP',voiceURI:'ja',rate:.9,pitch:1,volume:1}}));
+   App.activeCharacter.phone_ui={enabled:true,userName:'旅人',contactName:'A',contacts:[{id:'a',name:'A'},{id:'b',name:'B'},{id:'c',name:'C'}],threads:[{id:'group-ab',name:'AB 群組',participants:['a','b'],messages:[{from:'them',senderId:'a',text:'おやすみ。'},{from:'me',text:'玩家文字'},{from:'them',senderId:'c',text:'其他成員'}]}]};
+   App.renderChatShell(false);
+ });
+ await page.locator('#bao-phone-launch').click();await page.locator('.bp-home-handle').click();await page.locator('.bp-apps .bp-icon-kakao').click();await page.locator('[data-phone-action^="thread:"]').filter({hasText:'AB 群組'}).click();
+ const play=page.getByRole('button',{name:'朗讀角色訊息（裝置）'});
+ await expect(play).toHaveCount(1);await play.click();
+ await expect.poll(()=>page.evaluate(()=>window.__voiceCalls)).toEqual([{text:'おやすみ。',lang:'ja-JP',rate:.9,voice:'ja'}]);
+ await page.getByRole('button',{name:'停止朗讀',exact:true}).click();
+ await page.getByRole('button',{name:'關閉手機'}).click();
+});
