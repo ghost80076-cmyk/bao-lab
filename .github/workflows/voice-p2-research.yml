@@ -34,8 +34,23 @@ jobs:
             curl --fail --silent --show-error --location --retry 2 --max-time 180 --proto '=https' "https://huggingface.co/onnx-community/whisper-tiny/resolve/$revision/$file" -o "$model/$file"
           done
           node scripts/voice-p2-verify-weights.cjs "$model"
-          npm pack @huggingface/transformers@3.8.1 --ignore-scripts --pack-destination "$RUNNER_TEMP"
-          tar -xzf "$RUNNER_TEMP/huggingface-transformers-3.8.1.tgz" -C "$root/runtime" --strip-components=2 package/dist/transformers.web.min.js package/dist/ort-wasm-simd-threaded.jsep.mjs package/dist/ort-wasm-simd-threaded.jsep.wasm
+          build="$RUNNER_TEMP/voice-p2-runtime-build"
+          mkdir -p "$build"
+          printf '{"private":true}\n' > "$build/package.json"
+          npm install --prefix "$build" --ignore-scripts --no-audit --no-fund --save-exact @huggingface/transformers@3.8.1 esbuild@0.25.12
+          dist="$build/node_modules/@huggingface/transformers/dist"
+          # The distributed web module has bare ONNX imports; resolve them
+          # into one browser ESM bundle before loading from a module Worker.
+          "$build/node_modules/.bin/esbuild" "$dist/transformers.web.min.js" --bundle --platform=browser --format=esm --target=es2022 --outfile="$root/runtime/transformers.web.min.js" --metafile="$RUNNER_TEMP/voice-p2-bundle-meta.json"
+          cp "$dist"/ort-wasm*.mjs "$dist"/ort-wasm*.wasm "$root/runtime/"
+          ort="$build/node_modules/onnxruntime-web/dist"
+          if [ -d "$ort" ]; then
+            for asset in "$ort"/ort-wasm*.mjs "$ort"/ort-wasm*.wasm; do
+              [ -f "$asset" ] || continue
+              [ -e "$root/runtime/$(basename "$asset")" ] || cp "$asset" "$root/runtime/"
+            done
+          fi
+          cp "$build/package-lock.json" "$RUNNER_TEMP/voice-p2-runtime-lock.json"
           find "$root" -type f -print0 | sort -z | xargs -0 sha256sum | tee "$RUNNER_TEMP/voice-p2-observed-sha256.txt"
           du -sh "$root"
       - name: Prepare synthetic audio and Chromium
@@ -95,5 +110,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: p2-observed-asset-hashes
-          path: ${{ runner.temp }}/voice-p2-observed-sha256.txt
+          path: |
+            ${{ runner.temp }}/voice-p2-observed-sha256.txt
+            ${{ runner.temp }}/voice-p2-runtime-lock.json
+            ${{ runner.temp }}/voice-p2-bundle-meta.json
           if-no-files-found: ignore
