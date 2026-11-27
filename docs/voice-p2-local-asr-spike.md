@@ -23,3 +23,15 @@ Run `node scripts/voice-p2-verify-weights.cjs <local snapshot directory>` on a d
 
 ## Evidence record
 PR #992 merged, pre-merge 17/17 workflow success. P2 inference, browser compatibility, latency, memory, complete manifest, supply-chain and production deployment: NOT VERIFIED.
+
+## Isolated browser harness (implemented, inference unverified)
+The lab is a Node loopback-only server, separate from the public site. It serves only its embedded UI/worker and an allowlist of explicitly prepared local files. No upload endpoint, CDN fetch, account, microphone, story state, analytics or model fallback. Each run starts a new worker; cancel, timeout (5 min), and page exit terminate it. The WAV parser accepts 16-bit PCM mono 16 kHz up to 30 seconds. Output includes loading/inference time, real-time factor, transcript and browser version, not measured peak memory. Chinese selection does not guarantee Traditional Chinese output.
+
+Preparation (developer machine only):
+- Create a dedicated asset directory outside the repository; place the reviewed pinned snapshot under models/whisper-tiny/ (including config/tokenizer files and the two q8 weights). The local folder layout intentionally omits the revision in its URL; the operator must obtain the pinned snapshot, and the server verifies the two weights before serving.
+- Place the reviewed @huggingface/transformers 3.8.1 browser distribution transformers.web.min.js and matching ort-wasm*.mjs / .wasm files under runtime/. Verify the complete package and model manifest and licenses independently before inference. Never place unrelated files or credentials in that directory. Runtime version is checked inside the worker, not a substitute for hash verification.
+- Run node scripts/voice-p2-browser-lab.cjs <asset-directory>, then open http://127.0.0.1:8787/ on that machine. Start explicitly with a consented WAV. WASM is the default, WebGPU is opt-in and fails without silent fallback. Missing files or unsupported runtime options fail rather than fetching remote assets. The allowlist may need adjustments based on actual runtime requests.
+- Run node scripts/voice-p2-browser-lab.cjs --self-test for synthetic PCM, invalid input, asset path and script syntax fixtures. Core CI runs both verifier and lab self-tests. These are not actual ASR or browser E2E tests.
+- Cache is intentionally disabled in this initial cold-run harness. Warm cache, offline reload, actual browser/network isolation, reference corpus scores, peak RAM, phone and TTS validation are separate future gates. Loopback only: do not expose to LAN for phone tests; design a separately secured local test origin first.
+
+References checked: https://huggingface.co/docs/transformers.js/v3.8.1/en/api/env and https://huggingface.co/docs/transformers.js/v3.8.1/en/custom_usage ; upstream main weight hashes match the values recorded in the verifier; actual pinned bytes still need verification. No full runtime manifest, model download, inference results, or production verification claimed.
