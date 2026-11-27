@@ -47,6 +47,76 @@
    return [...source.slice(0,40000).matchAll(/「([^」\n]{1,1200})」|『([^』\n]{1,1200})』|“([^”\n]{1,1200})”/g)]
     .map(m=>clip(m[1]||m[2]||m[3],MAX_TEXT)).filter(Boolean).slice(0,30);
  }
+ // Automatic reading accepts direct quotation in ordinary story prose. An
+ // unrecognized attribution is intentionally different from an absent one.
+ const speechVerb = /(?:輕聲|低聲|小聲|笑著|開口|輕輕|接著|大聲|又)?(?:說道|問道|回答道|答道|回應道|回應|回道|回答|回覆|喊道|補充道|解釋道|反問|詢問|低語|說|問|答|喊)(?:了(?:一聲|一句)?)?$/u;
+ const thoughtOrWriting = /心想|心裡|心裏|心中|暗想|默念|暗自|忖道|想到|想著|想道|腦中|腦海|(?:他|她|自己)想$|這幾個字|這四個字|字樣|寫著|寫道|寫下|印著|標[著示]|標題|牌上|訊息顯示|螢幕顯示|上面寫/u;
+ function directDialogue(source, people, defaultId, playerName=''){
+   if(typeof source!=='string'||source.length>40000)return [];
+   const body=source.replace(/\[(STATUS|CHOICE|THOUGHT|OOC|NARRATION)\][\s\S]*?(?:\[\/\1\]|$)/gi,'\n')
+     .replace(/\[SCENE:[\w-]+\]/gi,'\n')
+     .replace(/\x60\x60\x60[\s\S]*?(?:\x60\x60\x60|$)/g,'\n');
+   // Rich cards and unknown structured blocks have separate rendering rules.
+   if(/[<>\[\]{}\x60]/u.test(body))return [];
+   const names=new Map();
+   for(const p of people){
+     for(const n of [p.name,...(p.aliases||[])].filter(Boolean)){
+       names.set(n,names.has(n)&&names.get(n)!==p.id?null:p.id);
+     }
+   }
+   for(const n of ['玩家','你','妳',playerName].filter(Boolean))names.set(n,null);
+   function attribution(cue){
+     cue=cue.trim().replace(/[：:,，]\s*$/u,'').replace(/\*\*/g,'').trim();
+     if(!cue)return undefined;
+     if(thoughtOrWriting.test(cue))return null;
+     if(names.has(cue))return names.get(cue);
+     const verb=cue.match(speechVerb);
+     if(!verb)return null;
+     const subject=cue.slice(0,verb.index).trim();
+     const who=subject.split(/[，,]/u).at(-1).trim()||subject;
+     if(names.has(who))return names.get(who);
+     return !who||who==='他'||who==='她'?defaultId:null;
+   }
+   const parts=[];
+   let precedingLine='';
+   for(const row of body.split(/\r?\n/)){
+     const line=row.trim();
+     if(!line)continue;
+     if(/^(?:[>#|]|[-*]\s|(?:OOC|系統|旁白|內心|心理|狀態欄|選項)\s*[:：])/iu.test(line)){precedingLine='';continue;}
+     // Ignore an unbalanced or nested line instead of reading a partial quote.
+     const matches=[...line.matchAll(/「([^「」\n]{1,1200})」/gu)];
+     if(matches.length*2!==(line.match(/[「」]/gu)||[]).length){precedingLine='';continue;}
+     let end=0,previousId;
+     for(const [index,m] of matches.entries()){
+       const before=line.slice(end,m.index);
+       const prefix=before.trim()||(!end?precedingLine:'');
+       // A complete Markdown action span is a narration boundary, not a
+       // speaker label. Still honor explicit thoughts, writing and speech cues.
+       const action=prefix.match(/^\s*\*([^*\n]+)\*\s*$/u)?.[1]?.trim();
+       const cue=(action??prefix).split(/[。！？!?.；;]/u).at(-1).trim();
+       let lead=attribution(cue);
+       if(action&&lead===null&&defaultId&&!thoughtOrWriting.test(action)&&
+          !/[：:]\s*$/u.test(action)&&!speechVerb.test(cue)&&!names.has(cue)){
+         const actor=[...names.entries()].some(([name,id])=>id===defaultId&&cue.startsWith(name)&&cue.length>name.length);
+         if(actor||/^[他她].+/u.test(cue))lead=undefined;
+       }
+       end=m.index+m[0].length;
+       const after=line.slice(end,matches[index+1]?.index??line.length);
+       const tail=after.match(/^\s*[,，]?\s*([^，,。！？!?:：「」\n]{1,48})(?:[。！？!.?]|$)/u)?.[1]?.trim();
+       const trailingCue=tail&&(speechVerb.test(tail)||thoughtOrWriting.test(tail))?attribution(tail):undefined;
+       const fallback=!before.trim()&&previousId!==undefined?previousId:defaultId;
+       let id=lead===undefined?fallback:lead;
+       if(trailingCue!==undefined){
+         id=lead===null||trailingCue===null||(lead&&lead!==trailingCue)?null:trailingCue;
+       }
+       previousId=id;
+       const text=m[1].trim();
+       if(id&&text)parts.push({speakerId:id,text});
+     }
+     precedingLine=matches.length?'':line;
+   }
+   return parts;
+ }
  function script(text){
    if(typeof text!=='string'||!text.trim()||text.trim().length>MAX_TEXT)throw Error('請輸入或確認 1 至 1200 字的配音台詞。');
    return text.trim();
@@ -59,5 +129,5 @@
  function finalTranscript(results){
    return Array.from(results||[]).filter(r=>r.isFinal).map(r=>String(r[0]?.transcript||'').trim()).filter(Boolean).join(' ').slice(0,12000);
  }
- return Object.freeze({LANGUAGES,MAX_TEXT,profile,PACK_LIMIT,exportPack,importPack,profileKey,voicesFor,selectVoice,candidates,script,mergeDraft,finalTranscript});
+ return Object.freeze({LANGUAGES,MAX_TEXT,profile,PACK_LIMIT,exportPack,importPack,profileKey,voicesFor,selectVoice,candidates,directDialogue,script,mergeDraft,finalTranscript});
 });

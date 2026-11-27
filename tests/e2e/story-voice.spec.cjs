@@ -1,21 +1,22 @@
 const {test,expect}=require('@playwright/test');
-async function setup(page,width){
+if(process.env.STORY_VOICE_BASE_URL)test.use({baseURL:process.env.STORY_VOICE_BASE_URL});
+async function setup(page,width,solo=false){
  await page.setViewportSize({width,height:900});
  await page.addInitScript(()=>{
   window.__voiceCalls=[];window.__recognitions=0;
-  const voices=[{voiceURI:'ja',name:'Japanese fixture',lang:'ja-JP',localService:true},{voiceURI:'ko',name:'Korean fixture',lang:'ko-KR',localService:true},{voiceURI:'remote',name:'Remote fixture',lang:'ja-JP',localService:false}];
-  Object.defineProperty(window,'speechSynthesis',{configurable:true,value:{getVoices:()=>voices,speak:u=>window.__voiceCalls.push({text:u.text,lang:u.lang,rate:u.rate,voice:u.voice.voiceURI}),cancel(){},addEventListener(){},removeEventListener(){}}});
+  const voices=[{voiceURI:'zh',name:'Local Chinese',lang:'zh-TW',localService:true},{voiceURI:'ja',name:'Japanese fixture',lang:'ja-JP',localService:true},{voiceURI:'ko',name:'Korean fixture',lang:'ko-KR',localService:true},{voiceURI:'remote',name:'Remote fixture',lang:'ja-JP',localService:false}];
+  Object.defineProperty(window,'speechSynthesis',{configurable:true,value:{getVoices:()=>voices,speak:u=>{window.__voiceCalls.push({text:u.text,lang:u.lang,rate:u.rate,voice:u.voice.voiceURI});window.__lastUtterance=u;},cancel(){},addEventListener(){},removeEventListener(){}}});
   Object.defineProperty(window,'SpeechSynthesisUtterance',{configurable:true,value:class{constructor(text){this.text=text;}}});
   Object.defineProperty(window,'SpeechRecognition',{configurable:true,value:class{start(){window.__recognitions++;setTimeout(()=>{this.onresult?.({results:[{isFinal:true,0:{transcript:'今天好累'}}]});this.onend?.();},20);}stop(){this.onend?.();}abort(){}}});
  });
  await page.goto('/');
  await page.waitForFunction(()=>window.BAOExtensionLoadHealth?.snapshot().story==='ready'&&BAOExtensionLoadHealth.snapshot().world==='ready'&&window.BAOStoryVoice&&Storage.status().ready);
- await page.evaluate(()=>{
-  App.activeCharacter=CharacterEngine.normalize({id:'voice-test',name:'角色',system_prompt:'fixture',greeting:'start',initial_state:{npcs:[{id:'a',name:'A'},{id:'b',name:'B'}]}});
+ await page.evaluate(solo=>{
+  App.activeCharacter=CharacterEngine.normalize({id:'voice-test',name:'角色',system_prompt:'fixture',greeting:'start',initial_state:{npcs:solo?[]:[{id:'a',name:'A'},{id:'b',name:'B'}]}});
   App.config={narrativeMode:'world',displayMode:'text',persona:{name:'旅人'},api:{type:'custom',protocol:'openai',model:'fixture',key:'TEXT-PRIVATE',baseUrl:'https://text.example.invalid/v1/chat/completions'},memory:{mode:'rounds',maxRounds:20,maxContext:32000},cost:{enabled:false}};
   Chat.reset();GameState.create(App.activeCharacter,App.config);BAOStoryLibrary.beginStory('語音測試');
-  Chat.add('assistant','他走到窗邊。「晚安。」');App.showView('chat');App.renderChatShell(false);App.saveStory(false);
- });
+  Chat.add('assistant',solo?'她心想：「快關店了。」她把菜單推近。「要一起點嗎？」「我想吃麵。」':'他走到窗邊。「晚安。」');App.showView('chat');App.renderChatShell(false);App.saveStory(false);
+ },solo);
  await page.evaluate(()=>BAOStorageWriteGuard.whenIdle());
  await page.waitForFunction(()=>window.BAOChatToolNavigation&&window.BAOMobileReadingLayout);
 }
@@ -93,4 +94,49 @@ test('voice pack preview requires explicit role and save, rejects unknown fields
  const download=page.waitForEvent('download');
  await d.getByRole('button',{name:'匯出目前聲線設定包'}).click();
  expect((await download).suggestedFilename()).toBe('yorubay-voice-profile.json');
+});
+
+test('automatic dialogue reads the current single-card reply and subsequent committed turns',async({page})=>{
+ await setup(page,390,true);
+ await page.route('https://text.example.invalid/**',route=>route.fulfill({
+   json:{choices:[{message:{content:'她看見門上寫著「休息中」。她開口問：「改吃火鍋？」'},finish_reason:'stop'}],usage:{prompt_tokens:20,completion_tokens:10}},
+   headers:{'access-control-allow-origin':'*','access-control-allow-headers':'*'}
+ }));
+ const spoken=()=>page.evaluate(()=>window.__voiceCalls.map(u=>u.text));
+ await openVoice(page,390);
+ const dialog=page.getByRole('dialog',{name:'角色語音與語音輸入'});
+ expect(await spoken()).toEqual([]);
+ await dialog.getByLabel('自動朗讀角色台詞').check();
+ await expect.poll(spoken).toEqual(['要一起點嗎？']);
+ await dialog.getByRole('button',{name:'關閉',exact:true}).click();
+ await page.evaluate(()=>window.__lastUtterance.onend());
+ await expect.poll(spoken).toEqual(['要一起點嗎？','我想吃麵。']);
+ await page.evaluate(()=>window.__lastUtterance.onend());
+ await page.locator('#user-input').fill('「我來看看。」');
+ await page.locator('[data-send-message]').click();
+ await expect.poll(spoken,{timeout:20000}).toEqual(['要一起點嗎？','我想吃麵。','改吃火鍋？']);
+ await page.evaluate(()=>App.renderChatShell(false));
+ expect(await spoken()).toHaveLength(3);
+ await openVoice(page,390);
+ await dialog.getByLabel('自動朗讀角色台詞').uncheck();
+ expect(await page.evaluate(()=>window.__lastUtterance.onend)).toBeNull();
+});
+
+test('automatic dialogue respects named voices and rejects a stale reply queue',async({page})=>{
+ await setup(page,1440);
+ await page.evaluate(()=>{
+   const core=BAOStoryVoiceCore;
+   const profiles={};
+   for(const [id,uri,lang] of [['a','ja','ja-JP'],['b','ko','ko-KR']]){
+     profiles[core.profileKey(App.activeCharacter.id,id)]=core.profile({language:lang,voiceURI:uri});
+   }
+   localStorage.setItem('yorubay-device-voice-v1',JSON.stringify(profiles));
+   Chat.add('assistant','A：「晚安。」\n「路人插話。」\nB：「明天見。」「再見。」');App.renderChatShell(false);
+ });
+ await openVoice(page,1440);
+ await page.getByLabel('自動朗讀角色台詞').check();
+ await page.evaluate(()=>window.__lastUtterance.onend());
+ expect(await page.evaluate(()=>window.__voiceCalls.map(u=>[u.voice,u.text]))).toEqual([['ja','晚安。'],['ko','明天見。']]);
+ await page.evaluate(()=>{Chat.messages.at(-1).content='B：「新版本。」';window.__lastUtterance.onend();});
+ expect(await page.evaluate(()=>window.__voiceCalls)).toHaveLength(2);
 });
