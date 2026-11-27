@@ -15,6 +15,10 @@ P0 實作：[PR #987](https://github.com/ghost80076-cmyk/bao-lab/pull/987)（已
 - 音訊預設留本機；公開分享及雲端同步不是本期承諾。零平台新增語音推論費用是架構目標，不等於零開發、維護、網頁流量或第三方服務成本。
 - RP 文字模型、TTS、STT、音訊理解模型分離；繁中顯示語言、角色配音語言、玩家輸入語言分離。zh-TW/ja-JP/ko-KR/en-US 優先；實際聲線與語言能力依供應商、模型、設備檢查。選語言不等於翻譯；翻譯需經玩家選擇的文字路徑、費用確認及可編輯預覽。
 
+### 2026-11-27 決策對齊：接口優先
+
+夜灣提供語音能力的接入與操作介面，不研發、訓練、預裝或替玩家選定唯一語音模型。基礎使用者沿用裝置 STT/TTS（依裝置及供應商支援）；進階使用者自行下載、申請 API 或架設成熟開源服務，夜灣只提供已驗證的協議 adapter、設定、操作指引及必要安全相容性測試。#993 已關閉不合併，研究分支保留；模型評測不再是接口開發的前置門檻。瀏覽器直接本地推論、模型下載管理均為未來可選擴充，不綁定 STT/TTS 接口交付，也不增加 App 安裝容量。語音錄製／上傳作為故事或 Phone 訊息，與 STT 暫時錄音分開；原生音訊理解依玩家選用 RP 模型能力，不能假裝所有模型都聽得懂。各能力保持小 PR、逐步交付。
+
 ## 2. 五個獨立能力
 
 TTS：玩家啟用角色配音後，系統從當前顯示的角色回覆辨識說出口的對白，依作品與角色 ID 套用聲線。角色配音只讀台詞。旁白、動作、內心、玩家發言、系統/OOC、狀態欄與工具資料保持安靜。
@@ -29,14 +33,14 @@ Voice Call：選配的即時互動介面，最後才整合；不得讓語音繞�
 | --- | --- | --- | --- |
 | P0 | 裝置 TTS/STT，語速、音高、音量，固定角色聲線，手動台詞選擇與辨識草稿 | #987；本地優先、遠端明確同意、三瀏覽器 mock、實體裝置待測 | #987 已合併，17/17 CI 通過；main `26e52ffce9d2f7b10d1f793deee8e798c9321d3b`；production smoke 與實機待驗證 |
 | P1a | 玩家聲線工作台及 JSON 裝置聲線設定包匯入匯出 | P0 合併；包格式安全、角色隔離、預覽後保存、往返 | [#989](https://github.com/ghost80076-cmyk/bao-lab/pull/989) 已合併，17/17 PR 工作流程通過，三瀏覽器各 80 項通過。正式站已核對聲線資產，實機聲線待驗證 |
-| P1b | 自動辨識角色台詞與說話者 | 既有單角色卡可直接使用。讀取「」中的直接對白，多角色優先使用當前回覆已有的說話者資訊。旁白與內心靜音，說話者不明時略過該句。作者免逐句標註，玩家免逐句確認 | 本次實作：在語音工具啟用本章節自動朗讀，沿用角色已保存的本地聲線。以「」及可明確判定的中文發話提示辨識一般故事文字。HTML 與未知結構略過。實體裝置聽感待測 |
-| P2 | 瀏覽器本地開源 STT/TTS | P1；先以 Transformers.js + multilingual Whisper 做 STT spike，sherpa-onnx WASM 做 TTS/ASR 能力比較；只有通過中日韓英實測才標支援；按需下載、版本／雜湊、取消與離線快取、手機記憶體／延遲 | 待開發 |
-| P3 | 玩家自架開源 TTS/STT 接口、授權參考錄音與聲線設計 | P1；Qwen3-TTS、GPT-SoVITS 獨立 adapter；實際 API 契約、CORS/HTTPS/loopback 瀏覽器限制、安全序列化、授權確認、不同模型能力不混用 | 待開發 |
-| P4 | Phone 私訊／群聊語音訊息、本機音訊資產及 BYOK 高品質語音 | P1，至少一個已驗證音訊生成 adapter；原會話、發送者、成員集合、章節與回覆版本綁定；生成與送達分離；播放、下載、收藏、含音備份與失敗重送；BYOK 逐次確認費用、無自動 retry/fallback | 待開發 |
+| P1b | 自動辨識角色台詞與說話者 | 既有單角色卡可直接使用。讀取「」中的直接對白，多角色優先使用當前回覆已有的說話者資訊。旁白與內心靜音，說話者不明時略過該句。作者免逐句標註，玩家免逐句確認 | [#992](https://github.com/ghost80076-cmyk/bao-lab/pull/992) 已合併；17/17 PR workflows success，main `6a686342b48b67e3f9d2600e62b01599086bcd82`；HTML 與未知結構略過；正式站及實體裝置驗收待確認 |
+| P2 | 選配 STT 接口，沿用既有裝置語音輸入 | P1；玩家自帶 API 或自架相容服務；暫時錄音、明確同意、直接指定端點、可編輯草稿、失敗仍可打字；不綁模型、不下載權重 | [#994](https://github.com/ghost80076-cmyk/bao-lab/pull/994) Draft；首個 OpenAI-compatible /audio/transcriptions adapter 已提交，CI 與實機待驗收；[#993](https://github.com/ghost80076-cmyk/bao-lab/pull/993) 已關閉不合併 |
+| P3 | 選配 TTS 接口、授權參考錄音與聲線設計 | P1；沿用台詞及角色聲線契約，玩家自帶 API 或自架成熟開源服務；依實際協議與能力接入，Qwen3-TTS、GPT-SoVITS 為候選，不要求同時接入；CORS/HTTPS/loopback、授權與安全測試 | 待開發 |
+| P4 | 玩家錄音／音檔上傳、Phone 私訊／群聊語音訊息、本機音訊資產；選配 AI 角色語音 | 基礎錄音、上傳、播放及保存不依賴 TTS 或音訊理解模型；AI 生成語音需已驗證 adapter；原會話、發送者、成員集合、章節與回覆版本綁定；生成與送達分離；播放、下載、收藏、含音備份與失敗重送；BYOK 逐次確認費用、無自動 retry/fallback | 待開發 |
 | P5 | 玩家原生音訊理解 | P4 資產及收件範圍；模型／端點能力查核、音訊 MIME/大小/時間限制、預覽同意、單輪音訊送達、舊音訊不每輪重送，記憶／診斷不帶原始 bytes | 待開發 |
 | P6 | 即時語音通話 | P4/P5；先 push-to-talk，停止、打斷、延遲、權限、多人輪替、故事持久化、資料範圍與成本；Pipecat 只做框架研究，不能預設平台新增 server | 待開發 |
 
-P2/P3 可以在 P1 完成後獨立 spike，不能將未驗證的開源模型當作已支援。P0 的手動配音不等於完成 P1 自動台詞契約。每個 PR 應更新此表（實際 PR 編號、commit、測試證據、部署狀態與未驗證事項）。
+P2/P3 可以在 P1 完成後獨立開發，不能將未驗證的服務或開源模型當作已支援。瀏覽器模型研究不再阻擋接口、錄音或 Phone 音訊資產交付。P0 的手動配音不等於完成 P1 自動台詞契約。每個 PR 應更新此表（實際 PR 編號、commit、測試證據、部署狀態與未驗證事項）。
 
 ## 4. 架構與契約（提案，待各 PR 實作）
 
@@ -66,7 +70,7 @@ Voice Pack v1 提案：schema/version、engine/model identifier/version、langua
 | --- | --- | --- |
 | [AIRI](https://github.com/moeru-ai/airi) / [LICENSE](https://github.com/moeru-ai/airi/blob/main/LICENSE) | 多供應商 TTS/STT、播放、裝置本地推論與即時陪伴 | 優先研究整合模式，MIT 主專案；不移植整套框架；依賴與模型分開審查 |
 | [SillyTavern](https://github.com/SillyTavern/SillyTavern) / [TTS 文件](https://github.com/SillyTavern/SillyTavern-Docs/blob/main/extensions/TTS.md) | 角色聲線 mapping、TTS 文字過濾及 provider UX | AGPL-3.0；僅參考公開功能與行為，不複製程式，除非另做合規審查 |
-| [Transformers.js](https://github.com/huggingface/transformers.js) / [WebGPU ASR 範例](https://huggingface.co/docs/transformers.js/guides/webgpu) | WebGPU/WASM 本地辨識、按需模型 | Apache-2.0 主程式；模型卡與轉換權重另查；P2 首選 STT spike |
+| [Transformers.js](https://github.com/huggingface/transformers.js) / [WebGPU ASR 範例](https://huggingface.co/docs/transformers.js/guides/webgpu) | WebGPU/WASM 本地辨識、按需模型 | Apache-2.0 主程式；模型卡與轉換權重另查；歷史研究候選，#993 已關閉；非接口開發門檻 |
 | [Whisper](https://github.com/openai/whisper) | 多語言辨識 | MIT 程式及官方模型；實際選用 ONNX 轉換版需獨立驗證；不可用僅英語模型假裝中日韓 |
 | [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) / [WASM 文件](https://k2-fsa.github.io/sherpa/onnx/wasm/index.html) | 離線 ASR/TTS/VAD，WASM | Apache-2.0 主程式；每個模型語言、授權、檔案大小分開核對 |
 | [Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) | 0.6B/1.7B 系列、自然語言聲線設計與授權錄音、中文／日語／韓語／英語 | Apache-2.0 專案；P3 本地服務候選，需核對實際 checkpoint/VRAM/速度/模型權利，非承諾手機直接跑 |
@@ -74,7 +78,7 @@ Voice Pack v1 提案：schema/version、engine/model identifier/version、langua
 | [Piper Plus](https://github.com/ayutaz/piper-plus) / [訓練文件](https://github.com/ayutaz/piper-plus/blob/dev/docs/guides/training/training-guide.md) | 輕量多語言 TTS | 目前公開 zs-v1 為六語言，韓語 G2P/runtime 支援不等於已訓練韓語模型；不作唯一中日韓引擎；授權與權重逐件審查 |
 | [Pipecat](https://github.com/pipecat-ai/pipecat) | 即時語音 pipeline、打斷、輪流說話 | BSD-2-Clause 主程式；P6 架構研究，不新增平台運算伺服器 |
 
-非開源引擎依賴：[MDN Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API/Using_the_Web_Speech_API)。裝置聲線與辨識可由瀏覽器/OS 提供，可能走網路；不可聲稱一律離線或所有語言免費可用。BYOK 供應商 ElevenLabs/OpenAI 等需在 P4 重新查核各自 API、能力、價格與生命週期，不固定選一家、不預設平台付款。
+非開源引擎依賴：[MDN Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API/Using_the_Web_Speech_API)。裝置聲線與辨識可由瀏覽器/OS 提供，可能走網路；不可聲稱一律離線或所有語言免費可用。BYOK 供應商 ElevenLabs/OpenAI 等需在相應 adapter PR 查核各自 API、能力、價格與生命週期，不固定選一家、不預設平台付款。
 
 ## 6. 全階段驗收與回退
 
@@ -90,4 +94,4 @@ Voice Pack v1 提案：schema/version、engine/model identifier/version、langua
 
 ## 7. 當前下一步
 
-P1a #989 已合併部署。P1b 的第一個驗收情境是讓一張未修改的單角色卡在開啟角色配音後，自動讀出當前顯示回覆中角色說出口的「」台詞。混有旁白、動作、引號內心或臨時配角時，依第 4 節逐句判讀。
+P1a #989 與 P1b #992 已合併。先完成 #994 選配 STT 接口，接著獨立推進 TTS 接入與玩家錄音／上傳、Phone 語音資產。後續原生音訊理解與通話依能力分階段。任何大型本機模型均由玩家自行取得，無需為基礎使用者預裝或先完成模型研究。
