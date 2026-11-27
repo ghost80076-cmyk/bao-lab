@@ -497,7 +497,7 @@
    output.append(ttsProvider.wrap,speaker.wrap,lang.wrap,voice.wrap,...sliders.map(s=>s.wrap),remember,pack,source.wrap,quotes.wrap,text.wrap,el('small','手動配音可選句、編輯或貼上翻譯。'),remote.wrap,ttsAdvanced,speak,btn('停止播放',()=>{if(automatic?.custom)disableAutomatic();else stopSequence();cancelSpeech();setStatus('已停止播放。');}));
    syncTTS();
    load();refreshQuotes();synth?.addEventListener?.('voiceschanged',refreshVoices);
-   const localSection=el('details');localSection.append(el('summary','玩家錄音／音檔預覽（本機）'),el('p','錄音與語音轉文字分開。可明確保存至本章節音訊庫，未保存的音檔關閉工具即捨棄。僅在本機，不傳送給角色、AI 或語音服務，不進入故事正文、Phone 或故事備份。最多 60 秒、8 MiB。'));
+   const localSection=el('details');localSection.append(el('summary','玩家錄音／音檔預覽（本機）'),el('p','錄音與語音轉文字分開。可明確保存至本章節音訊庫，未保存的音檔關閉工具即捨棄。僅在本機，不傳送給角色、AI 或語音服務，不進入故事正文、Phone 或一般故事備份。最多 60 秒、8 MiB。'));
    const localFile=field('選擇本機音檔','input');localFile.input.type='file';localFile.input.accept='audio/wav,audio/x-wav,audio/mpeg,audio/mp4,audio/ogg,audio/webm,.wav,.mp3,.m4a,.ogg,.webm';
    const localAudio=el('audio');localAudio.controls=true;localAudio.preload='metadata';localAudio.hidden=true;localAudio.setAttribute('aria-label','本機音檔預覽');
    const localInfo=el('p');localInfo.setAttribute('aria-live','polite');
@@ -590,7 +590,7 @@
    });
    localInfo.dataset.localAudioStatus='1';
    const collection=el('details');
-   collection.append(el('summary','本章節已保存音訊'),el('p','僅本機收藏，不是已送達的故事訊息。每章最多 32 段，全站音訊庫 128 MiB；請另行下載備份，刪除故事不會自動清除本機音訊。'));
+   collection.append(el('summary','本章節已保存音訊'),el('p','僅本機收藏，不是已送達的故事訊息。每章最多 32 段，全站音訊庫 128 MiB；可另外下載故事＋音訊備份。刪除故事或章節會清理相應音訊；保留的分支不受影響。'));
    const collectionList=el('div');collectionList.setAttribute('aria-label','本章節音訊清單');
    const collectionInfo=el('p');collectionInfo.setAttribute('aria-live','polite');
    async function refreshCollection(){
@@ -632,7 +632,43 @@
      }catch(e){if(localLive()&&epoch===localEpoch)localInfo.textContent=e.message||'保存失敗，音檔仍可下載。';}
      finally{localSaving=false;if(valid())syncLocal();}
    });
-   collection.append(collectionInfo,collectionList);
+   const backup=el('details');
+   backup.append(el('summary','故事＋本機音訊備份'),el('p','備份包含所有仍存在章節的本機音訊與故事資料，可能包含私人錄音。普通 JSON／TXT／Drive 及生成圖集備份不含音訊；此備份也不含生成圖集。請妥善保存。匯入建立新故事副本。'));
+   const backupStatus=el('p');backupStatus.setAttribute('aria-live','polite');
+   const exportAudio=btn('下載故事＋音訊備份',async()=>{
+     if(!localLive())return;
+     exportAudio.disabled=true;
+     try{
+       const bundle=await window.BAOStoryVoiceBackup.exportStory(current.storyId);
+       if(!localLive())return;
+       const blob=new Blob([JSON.stringify(bundle)],{type:'application/json'});
+       if(blob.size>window.BAOStoryVoiceBackup.MAX_FILE)throw Error('完整備份超過 192 MiB，請先下載並整理音訊。');
+       const url=URL.createObjectURL(blob),a=el('a');a.href=url;a.download='yorubay-voiced-story.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+       backupStatus.textContent='已交給瀏覽器下載，請確認備份檔案。';
+     }catch(e){if(valid())backupStatus.textContent=e.message||'備份失敗。';}
+     finally{exportAudio.disabled=false;}
+   });
+   const restoreAudio=field('匯入故事＋音訊備份','input');restoreAudio.input.type='file';restoreAudio.input.accept='.json,application/json';
+   restoreAudio.input.addEventListener('change',async()=>{
+     const file=restoreAudio.input.files?.[0];restoreAudio.input.value='';
+     if(!file||!localLive())return;
+     restoreAudio.input.disabled=true;
+     try{
+       if(file.size>window.BAOStoryVoiceBackup.MAX_FILE)throw Error('備份超過 192 MiB。');
+       const value=JSON.parse(await file.text());if(!localLive())return;
+       const imported=await window.BAOStoryVoiceBackup.importStory(value);
+       if(valid())backupStatus.textContent='已匯入 '+imported.chapterCount+' 個章節的故事與音訊，請從故事書庫開啟副本。';
+     }catch(e){if(valid())backupStatus.textContent=e.message||'匯入失敗。';}
+     finally{restoreAudio.input.disabled=false;}
+   });
+   const retryCleanup=btn('重試已刪除故事音訊清理',async()=>{
+     if(!localLive())return;
+     retryCleanup.disabled=true;
+     try{const ok=await window.BAOStoryLibrary.cleanupDeletedVoiceAssets();if(valid())backupStatus.textContent=ok?'已清理已刪除故事及章節的音訊。':'音訊清理仍未完成，請稍後重試。';}
+     finally{retryCleanup.disabled=false;}
+   });
+   backup.append(exportAudio,restoreAudio.wrap,retryCleanup,backupStatus);
+   collection.append(collectionInfo,collectionList,backup);
    collection.addEventListener('toggle',()=>{if(collection.open&&localSection.open)void refreshCollection();else if(!collection.open)collectionEpoch++;});
    localSection.append(localFile.wrap,localStart,localStop,btn('捨棄本機音檔／取消錄音',()=>{clearLocal();localInfo.textContent='已捨棄本機音檔。';}),localAudio,localDownload,localSave,localInfo,collection);
    localSection.addEventListener('toggle',()=>{if(!localSection.open){if(localJob){clearLocal();localInfo.textContent='已停止並捨棄本機錄音。';}else localAudio.pause();}});

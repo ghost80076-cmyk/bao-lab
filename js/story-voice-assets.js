@@ -92,5 +92,78 @@
      };
    });
  }
- window.BAOStoryVoiceAssets=Object.freeze({save,list,get,remove});
+ const base64=bytes=>{const a=new Uint8Array(bytes);let out='';for(let i=0;i<a.length;i+=8192)out+=String.fromCharCode(...a.subarray(i,i+8192));return btoa(out);};
+ const digest=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');
+ function exportPack(storyId,chapters){
+   const keys=new Map(chapters.map(chapterId=>[scopeKey({storyId,chapterId}),chapterId]));
+   return transact('readonly',(meta,audio,done,stop)=>{
+     const items=[];let pending=0,finished=false;
+     const finish=()=>{if(finished&&!pending)done({version:1,items});};
+     const cursor=meta.openCursor();cursor.onsuccess=()=>{
+       const entry=cursor.result;if(!entry){finished=true;finish();return;}
+       const row=entry.value,chapterId=keys.get(row.scope);
+       if(chapterId){
+         pending++;const req=audio.get(row.id);req.onsuccess=()=>{
+           const bytes=req.result?.bytes;
+           if(!(bytes instanceof ArrayBuffer)||bytes.byteLength!==row.size)return stop('音訊備份引用不完整。');
+           const hash=JSON.parse(row.id)[1];
+           items.push({chapterId,hash,type:row.type,duration:row.duration,createdAt:row.createdAt,data:base64(bytes)});
+           pending--;finish();
+         };
+       }
+       entry.continue();
+     };
+   });
+ }
+ async function validatePack(pack,chapterIds){
+   if(pack?.version!==1||!Array.isArray(pack.items)||pack.items.length>chapterIds.length*COUNT||pack.items.length>LIMIT/12)throw Error('音訊備份格式無效。');
+   const ids=new Set(chapterIds),counts=new Map(),seen=new Set(),rows=[];let total=0;
+   for(const item of pack.items){
+     if(!ids.has(item?.chapterId)||typeof item.data!=='string'||item.data.length>Math.ceil(Core.AUDIO_DRAFT_MAX_BYTES/3)*4||item.data.length%4!==0||/[^A-Za-z0-9+/=]/.test(item.data)||!/^[a-f0-9]{64}$/.test(item.hash)||!Number.isFinite(item.duration)||item.duration<=0||item.duration>Core.AUDIO_DRAFT_MAX_SECONDS||typeof item.type!=='string')throw Error('音訊備份資料無效。');
+     const key=JSON.stringify([item.chapterId,item.hash]);
+     if(seen.has(key))throw Error('音訊備份包含重複引用。');
+     seen.add(key);const count=(counts.get(item.chapterId)||0)+1;counts.set(item.chapterId,count);if(count>COUNT)throw Error('章節音訊超過數量上限。');
+     const raw=atob(item.data),bytes=Uint8Array.from(raw,c=>c.charCodeAt(0)).buffer;
+     total+=bytes.byteLength;if(total>LIMIT)throw Error('音訊備份超過 128 MiB。');
+     const normalized=await Core.localAudioDraft(new Blob([bytes],{type:item.type}));
+     if(normalized.blob.type!==item.type||await digest(bytes)!==item.hash)throw Error('音訊備份雜湊或格式不符。');
+     rows.push({chapterId:item.chapterId,hash:item.hash,type:item.type,extension:normalized.extension,duration:item.duration,createdAt:typeof item.createdAt==='string'&&Number.isFinite(Date.parse(item.createdAt))?new Date(item.createdAt).toISOString():new Date().toISOString(),bytes});
+   }
+   return rows;
+ }
+ function importPack(rows,storyId,chapterMap){
+   const prepared=rows.map(row=>{
+     if(!Object.hasOwn(chapterMap,row.chapterId))throw Error('音訊備份章節不存在。');
+     const scope=scopeKey({storyId,chapterId:chapterMap[row.chapterId]}),id=JSON.stringify([scope,row.hash]);
+     return {meta:{id,scope,type:row.type,extension:row.extension,duration:row.duration,createdAt:row.createdAt,size:row.bytes.byteLength},bytes:row.bytes};
+   });
+   return transact('readwrite',(meta,audio,done,stop)=>{
+     let total=0;const request=meta.index('size').openKeyCursor();
+     request.onsuccess=()=>{
+       const cursor=request.result;if(cursor){total+=cursor.key;cursor.continue();return;}
+       if(total+prepared.reduce((n,row)=>n+row.meta.size,0)>LIMIT)return stop('匯入後超過本機音訊容量上限。');
+       for(const row of prepared){meta.add(row.meta);audio.add({id:row.meta.id,bytes:row.bytes});}
+       done(prepared.length);
+     };
+   });
+ }
+ // Deletions are authorized by committed story-library tombstones, never by
+ // missing records or a caller's current chapter. Preserve promoted children.
+ function purgeDeleted(records){
+   const stories=new Set(),chapters=new Set();
+   for(const row of records||[]){
+     if(row.kind==='deletion')stories.add(row.storyId);
+     else if(row.kind==='chapter-deletion')chapters.add(JSON.stringify([row.storyId,row.chapterId]));
+   }
+   if(!stories.size&&!chapters.size)return Promise.resolve(0);
+   return transact('readwrite',(meta,audio,done)=>{
+     let count=0;const request=meta.openCursor();request.onsuccess=()=>{
+       const cursor=request.result;if(!cursor){done(count);return;}
+       let storyId;try{[storyId]=JSON.parse(cursor.value.scope);}catch(_){}
+       if(stories.has(storyId)||chapters.has(cursor.value.scope)){audio.delete(cursor.primaryKey);cursor.delete();count++;}
+       cursor.continue();
+     };
+   });
+ }
+ window.BAOStoryVoiceAssets=Object.freeze({save,list,get,remove,exportPack,validatePack,importPack,purgeDeleted});
 })();

@@ -814,6 +814,12 @@
       });
     },
 
+    async cleanupDeletedVoiceAssets() {
+      if (!window.BAOStoryVoiceAssets) return true;
+      try { await window.BAOStoryVoiceAssets.purgeDeleted(await this.allRecords()); return true; }
+      catch (_) { console.warn("本機音訊清理未完成，可在語音工具重試。"); return false; }
+    },
+
     async deleteBranch(storyId, chapterId) {
       if (!await this.open()) return false;
       const ids = await this.mutateRecords((records, store) => {
@@ -835,6 +841,7 @@
       });
       if (!ids) return false;
       this.clearWriteFailures(storyId, ids);
+      if (!await this.cleanupDeletedVoiceAssets()) window.alert?.('分支已刪除，但本機音訊清理未完成；請在語音工具重試清理。');
       return { deleted: ids.size };
     },
 
@@ -847,7 +854,10 @@
         this.writeChapterDeletion(records, store, storyId, new Set([chapterId]), true);
         return true;
       });
-      if (removed) this.clearWriteFailures(storyId, new Set([chapterId]));
+      if (removed) {
+        this.clearWriteFailures(storyId, new Set([chapterId]));
+        if (!await this.cleanupDeletedVoiceAssets()) window.alert?.('章節已刪除，但本機音訊清理未完成；請在語音工具重試清理。');
+      }
       return removed;
     },
 
@@ -891,6 +901,7 @@
       this.clearWriteFailures(storyId);
       this._openedAtByStory.delete(storyId);
       if (this.refs().storyId === storyId) this.clearRefs();
+      if (!await this.cleanupDeletedVoiceAssets()) window.alert?.('故事已刪除，但本機音訊清理未完成；請在語音工具重試清理。');
       return true;
     },
 

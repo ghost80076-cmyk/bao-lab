@@ -449,3 +449,24 @@ test('saved local audio belongs only to its chapter and never becomes a model me
  expect(external).toBe(0);
  expect(await page.evaluate(()=>({messages:JSON.stringify(Chat.messages),state:JSON.stringify(GameState.current)}))).toEqual(before);
 });
+
+test('audio story backup restores into a separate story and deletion cleans only that copy',async({page})=>{
+ await setup(page,390);
+ const result=await page.evaluate(async()=>{
+   const scope=BAOStoryLibrary.refs(),original={storyId:scope.storyId,chapterId:scope.chapterId};
+   const wav=new Uint8Array(1644),v=new DataView(wav.buffer);
+   for(const [offset,str] of [[0,'RIFF'],[8,'WAVEfmt '],[36,'data']])wav.set([...str].map(c=>c.charCodeAt(0)),offset);
+   v.setUint32(4,1636,true);v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,8000,true);v.setUint32(28,16000,true);v.setUint16(32,2,true);v.setUint16(34,16,true);v.setUint32(40,1600,true);
+   const A=BAOStoryVoiceAssets,B=BAOStoryVoiceBackup;
+   await A.save(original,new Blob([wav],{type:'audio/wav'}),.1,()=>true);
+   const bundle=await B.exportStory(original.storyId);
+   let rejected=false;const bad=structuredClone(bundle);bad.audio.items[0].hash='0'.repeat(64);
+   try{await B.importStory(bad);}catch(_){rejected=true;}
+   const imported=await B.importStory(bundle),target={storyId:imported.storyId,chapterId:imported.chapterMap[original.chapterId]};
+   const rows=await A.list(target),asset=await A.get(target,rows[0].id);
+   const same=Array.from(new Uint8Array(await asset.blob.arrayBuffer())).every((b,i)=>b===wav[i]);
+   const deleted=await BAOStoryLibrary.deleteStory(imported.storyId);
+   return {rejected,same,distinct:target.storyId!==original.storyId,deleted,restored:rows.length,remaining:(await A.list(target)).length,original:(await A.list(original)).length,secret:JSON.stringify(bundle).includes('TEXT-PRIVATE')};
+ });
+ expect(result).toEqual({rejected:true,same:true,distinct:true,deleted:true,restored:1,remaining:0,original:1,secret:false});
+});
