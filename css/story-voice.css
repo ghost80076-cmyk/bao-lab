@@ -25,3 +25,16 @@
 .yoru-native-audio-draft{padding:8px 12px;border:1px solid var(--yoru-border,#647082);border-radius:8px;overflow-wrap:anywhere}
 .yoru-native-audio-draft[hidden],.yoru-native-audio-draft [hidden]{display:none!important}
 .yoru-native-audio-draft button{min-height:44px;margin:4px 8px 0 0;white-space:normal}
+
+/* Everyday voice controls. Keep advanced configuration in the existing tool. */
+#chat-view .composer .yoru-voice-quick-mic{flex:0 0 44px;min-width:44px;min-height:44px;width:44px;padding:0;align-self:flex-end;font-size:18px;touch-action:manipulation}
+#chat-view .composer.story-request-pending .yoru-voice-quick-mic{display:none!important}
+#chat-view .yoru-voice-quick-reply{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:6px;max-width:100%;color:var(--story-text,var(--text,#eee))}
+#chat-view .yoru-voice-quick-reply button{min-height:44px;padding:4px 9px;font-size:12px;white-space:nowrap}
+#chat-view .yoru-voice-quick-reply [role=status]{flex-basis:100%;font-size:12px;overflow-wrap:anywhere;opacity:.8}
+#chat-view .yoru-voice-quick-reply [role=status]:empty{display:none}
+.bp-voice-read-controls{display:flex;flex:0 0 auto;flex-direction:column;gap:2px}
+.bp-voice-read-button{min-width:44px;min-height:44px;padding:0;border:1px solid #78828d;border-radius:10px;background:#fff;color:#25303b;touch-action:manipulation}
+/* Mobile retains the original composer geometry. Its existing + drawer owns the microphone shortcut. */
+@media(max-width:820px){#chat-view .composer .yoru-voice-quick-mic{display:none!important}}
+
