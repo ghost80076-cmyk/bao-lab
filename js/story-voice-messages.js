@@ -59,9 +59,9 @@
       () => Chat.messages.length === index + 1 && sourceIsCurrent());
   }
 
-  function saveNative(blob,duration,messageId,sourceIsCurrent) {
+  function saveNative(blob,duration,messageId,sourceIsCurrent,phoneTarget) {
     const current=scope(),index=Chat.messages.findIndex(message=>message.id===messageId&&message.role==="user");
-    return commit(current,index,Chat.messages[index],{conversation:"story",sender:"player",recipient:current.characterId},blob,duration,sourceIsCurrent);
+    return commit(current,index,Chat.messages[index],{conversation:phoneTarget?"phone":"story",sender:"player",recipient:current.characterId,...(phoneTarget?{thread:phoneScope(phoneTarget)}:{})},blob,duration,sourceIsCurrent);
   }
 
   function saveGenerated({blob, duration, messageId, actor}, sourceIsCurrent) {
@@ -159,7 +159,7 @@
     members: target.group ? [...target.members].sort() : [target.senderId]
   });
 
-  function mountPhone({form, thread, target, active: targetIsCurrent}) {
+  function mountPhone({form, thread, target, active: targetIsCurrent, recipientValid, draftClear, refreshPhone, closePhone}) {
     const current = scope();
     if (!current.storyId || !current.chapterId || !current.characterId) return null;
     const audience = JSON.stringify(phoneScope(target));
@@ -205,7 +205,7 @@
     document.addEventListener('visibilitychange', onVisibility);
     window.addEventListener('pagehide', release);
     button.addEventListener('click', () => {
-      if (active() && !App.__requestPending) window.BAOStoryVoice?.open({phoneVoice: {target, active, refresh: paint}});
+      if (active() && !App.__requestPending) window.BAOStoryVoice?.open({phoneVoice: {target, active, refresh: paint, recipientValid, draftClear, refreshPhone, closePhone}});
     });
     void paint();
     function cleanup() {

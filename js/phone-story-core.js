@@ -59,6 +59,17 @@
     if (!patch.photoOffer && !Object.values(patch).some(x => typeof x === 'string' ? x.length : Array.isArray(x) ? x.length : x?.messages?.length)) return null;
     return patch;
   }
+  // A native private/group audio reply may update only its original recipient.
+  // Do not trust model-generated membership, public posts or player messages.
+  function restrictVoiceReply(patch,scope){
+    if(!patch||!scope||typeof scope.id!=='string'||!Array.isArray(scope.members)||!scope.members.length)return null;
+    const members=new Set(scope.members);
+    const replies=messages=>(messages||[]).filter(m=>m.from==='them'&&m.text?.trim()&&(members.has(m.senderId)||(!m.senderId&&members.size===1)))
+      .map(m=>({...m,senderId:m.senderId||scope.members[0]}));
+    if(!scope.id){const chat=replies(patch.chat);return chat.length?{chat}:null;}
+    const messages=(patch.threads||[]).filter(t=>t.id===scope.id).flatMap(t=>replies(t.messages)).slice(0,5);
+    return messages.length?{threads:[{id:scope.id,messages}]}:null;
+  }
   function extract(text) {
     const source = String(text ?? '');
     const start = source.lastIndexOf(OPEN);
@@ -275,5 +286,5 @@
     'NPC 可偶爾提出公開照片：同一區塊的 tweets 必須含明確 id、authorId、文字及必要 replyTo；另填 xPhotoOffer:{postId:"該貼文 ID",senderId:"相同 authorId",kind:"scene 或 selfie",description:"公開照片的具體畫面"}。只限公開、來源合理的貼文，不在私訊／群聊／視訊回合提出，不每輪提出，未經玩家確認生成及發布前不能敘述照片已公開或被看見。不得使用相簿 ID、私訊 ID 或編造照片網址。每輪最多一張提議。',
     '只保留真正新增的欄位和紀錄；不要重複既有內容。上述是 JSON 格式範例，不是實際事件。X 的 from=me 和聊天 from=me 都只能記錄玩家明確提供過的訊息；玩家在 X 發送的回覆須依所給的貼文 ID、內容建立對應 replyTo，不能偽造玩家發言。區塊外照常寫故事，且不要附任何 HTML/JavaScript。'
   ].join('\n');
-  return Object.freeze({OPEN,CLOSE,extract,normalizePatch,apply,mergeDisplay,notifications,empty,PROMPT,groupPhotoTarget,groupPhotoExchanges,xPublishPrefix,xPlayerIntent,xPublicPost,withXPlayerPost,xPhotoRows});
+  return Object.freeze({OPEN,CLOSE,extract,normalizePatch,restrictVoiceReply,apply,mergeDisplay,notifications,empty,PROMPT,groupPhotoTarget,groupPhotoExchanges,xPublishPrefix,xPlayerIntent,xPublicPost,withXPlayerPost,xPhotoRows});
 });
