@@ -1,0 +1,88 @@
+name: Voice P2 human speech comparison
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/voice-p2-research/prepare-fleurs.py'
+      - 'scripts/voice-p2-research/human-benchmark.cjs'
+      - '.github/workflows/voice-p2-human-benchmark.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: voice-p2-human-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [cmn_hans_cn, ja_jp, ko_kr, en_us]
+    env:
+      CORPUS_CONFIG: ${{ matrix.config }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Prepare deterministic public corpus and local browser
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends ffmpeg
+          python -m pip install --only-binary=:all: pyarrow==19.0.1
+          python scripts/voice-p2-research/prepare-fleurs.py "$CORPUS_CONFIG" "$RUNNER_TEMP/fleurs"
+          npm ci --ignore-scripts
+          npx playwright install --with-deps chromium
+      - name: Compare verified model profiles on the same five human recordings
+        shell: bash
+        run: |
+          set -euo pipefail
+          results="$RUNNER_TEMP/voice-p2-human-results"
+          mkdir -p "$results"
+          cp "$RUNNER_TEMP/fleurs/corpus.json" "$results/"
+          profiles=(whisper-tiny whisper-tiny-mixed whisper-base)
+          if [[ "$CORPUS_CONFIG" == en_us ]]; then profiles+=(moonshine-tiny); fi
+          failed=0
+          for profile in "${profiles[@]}"; do
+            root="$RUNNER_TEMP/voice-p2-$profile"
+            if ! bash scripts/voice-p2-research/prepare.sh "$root" "$profile" > "$results/$profile-assets.log" 2>&1; then
+              cat "$results/$profile-assets.log"
+              failed=1
+              continue
+            fi
+            du -sb "$root" > "$results/$profile-total-bytes.txt"
+            node scripts/voice-p2-browser-lab.cjs "$root" "$profile" > "$results/$profile-server.log" 2>&1 &
+            server=$!
+            trap 'kill "$server" 2>/dev/null || true' EXIT
+            ready=0
+            for n in $(seq 1 30); do
+              if curl -fsS http://127.0.0.1:8787/ >/dev/null; then ready=1; break; fi
+              if ! kill -0 "$server" 2>/dev/null; then break; fi
+              sleep 1
+            done
+            if [[ "$ready" == 1 ]] && node scripts/voice-p2-research/human-benchmark.cjs "$profile" "$RUNNER_TEMP/fleurs" "$results/$profile-report.json"; then
+              echo "Measured $profile"
+            else
+              cat "$results/$profile-server.log"
+              failed=1
+            fi
+            kill "$server" 2>/dev/null || true
+            wait "$server" 2>/dev/null || true
+            trap - EXIT
+            rm -rf "$root"
+          done
+          exit "$failed"
+      - name: Preserve comparative evidence (no raw audio)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: voice-p2-human-${{ matrix.config }}
+          path: ${{ runner.temp }}/voice-p2-human-results/
+          if-no-files-found: warn
