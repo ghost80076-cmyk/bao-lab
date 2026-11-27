@@ -110,3 +110,15 @@ async function testTTS(){
  console.log('Custom TTS: explicit one-shot request, isolated key, bounded response and audio format checks passed.');
 }
 testTTS().catch(e=>{console.error(e);process.exitCode=1;});
+
+const autoBudget=C.autoTTSBudget();
+assert.deepEqual(autoBudget.remaining(),{requests:20,characters:6000});
+for(let i=0;i<20;i++)assert.equal(autoBudget.reserve('晚安。'),true);
+assert.equal(autoBudget.reserve('再見。'),false);
+assert.deepEqual(autoBudget.remaining(),{requests:0,characters:5940});
+const characterBudget=C.autoTTSBudget();
+for(let i=0;i<5;i++)assert.equal(characterBudget.reserve('字'.repeat(1200)),true);
+assert.equal(characterBudget.reserve('字'),false);
+assert.deepEqual(characterBudget.remaining(),{requests:15,characters:0});
+assert.throws(()=>characterBudget.reserve(''));
+console.log('Automatic TTS grant: separate request and character limits, no implicit reset.');
