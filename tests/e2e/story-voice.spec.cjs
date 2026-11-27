@@ -1103,3 +1103,35 @@ test('NPC chooses a Phone voice message in the existing story turn and playback 
  await page.getByRole('button',{name:'關閉手機'}).click();
  expect(await page.evaluate(()=>JSON.stringify(Chat.messages))).toBe(before.messages);expect(requests).toEqual([]);
 });
+
+
+test('one-to-one push to talk sends a confirmed transcript through the existing story turn and plays only the caller',async({page})=>{
+ await setup(page,390);
+ await page.evaluate(()=>{
+   App.activeCharacter.phone_ui={enabled:true,userName:'旅人',contactName:'A',contacts:[{id:'a',name:'A'},{id:'b',name:'B'}],threads:[{id:'private-a',name:'A 私訊',participants:['a'],messages:[]},{id:'group-ab',name:'AB 群聊',participants:['a','b'],messages:[]}]};
+   App.renderChatShell(false);
+ });
+ let requests=0;
+ await page.route('https://text.example.invalid/**',route=>{
+   requests++;
+   const content='通話中。\\n[[YORUBAY_PHONE_V1]]'+JSON.stringify({threads:[{id:'private-a',messages:[{from:'them',senderId:'a',kind:'voice',text:'晚安，早點休息。'},{from:'them',senderId:'b',text:'不應收到'}]},{id:'group-ab',messages:[{from:'them',senderId:'a',text:'不應收到'}]}],tweets:[{text:'不應公開'}]})+'[[/YORUBAY_PHONE_V1]]';
+   return route.fulfill({json:{choices:[{message:{content},finish_reason:'stop'}],usage:{prompt_tokens:20,completion_tokens:10}},headers:{'access-control-allow-origin':'*','access-control-allow-headers':'*'}});
+ });
+ async function enter(name){await page.locator('#bao-phone-launch').click();await page.locator('.bp-home-handle').click();await page.locator('.bp-apps .bp-icon-kakao').click();await page.locator('[data-phone-action^="thread:"]').filter({hasText:name}).click();}
+ await enter('A 私訊');await page.getByRole('button',{name:'開始角色語音通話'}).click();
+ const d=page.getByRole('dialog',{name:'角色語音通話'});await expect(d).toBeVisible();expect(requests).toBe(0);
+ await expect(d.getByRole('button',{name:'按住說話'})).toBeDisabled();
+ await d.getByLabel('我同意使用瀏覽器語音辨識服務（可能連網）').check();
+ const hold=d.getByRole('button',{name:'按住說話'});await hold.focus();await page.keyboard.down('Space');
+ await expect(d.getByLabel('通話逐字稿（可修改）')).toHaveValue('今天好累');await page.keyboard.up('Space');
+ expect(requests).toBe(0);
+ await d.getByLabel('通話回覆自動播放（使用已授權聲線；自訂服務可能收費）').check();
+ await d.getByRole('button',{name:'送出這句話'}).click();
+ await expect(d).toContainText('晚安，早點休息。',{timeout:20000});
+ await expect.poll(()=>page.evaluate(()=>window.__voiceCalls.length)).toBe(1);
+ expect(await page.evaluate(()=>window.__voiceCalls[0].text)).toBe('晚安，早點休息。');
+ expect(await page.evaluate(()=>GameState.current.phoneUI.threads.map(t=>t.id))).toEqual(['private-a']);
+ expect(await page.evaluate(()=>GameState.current.phoneUI.tweets)).toEqual([]);
+ await d.getByRole('button',{name:'掛斷'}).click();await expect(d).toHaveCount(0);expect(requests).toBe(1);
+ await page.getByRole('button',{name:'關閉手機'}).click();await enter('AB 群聊');await expect(page.getByRole('button',{name:'開始角色語音通話'})).toHaveCount(0);
+});

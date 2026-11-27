@@ -427,6 +427,11 @@
               return live?.key===target.key&&live?.prefix===target.prefix;
             };
             const draftClear=()=>!input.value.trim()&&!photoDraft?.image&&!photoDraft?.busy;
+            if(!target.group&&window.BAOStoryVoice?.openCall){
+              const call=$('button','bp-voice-read-button','通話');call.type='button';call.setAttribute('aria-label','開始角色語音通話');
+              call.onclick=()=>window.BAOStoryVoice.openCall({target,active,draftClear,refreshPhone:()=>{if(active()){config=phoneSource();render();}}});
+              area.querySelector('.bp-app-header')?.append(call);
+            }
             voicePanel=window.BAOStoryVoiceMessages?.mountPhone({form,thread,target,active,recipientValid,draftClear,
               refreshPhone:()=>{if(active()){config=phoneSource();render();}},closePhone:()=>{if(active())close();}});
 
