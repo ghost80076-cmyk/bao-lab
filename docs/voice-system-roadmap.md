@@ -15,6 +15,8 @@ P0 實作：[PR #987](https://github.com/ghost80076-cmyk/bao-lab/pull/987)（已
 - 音訊預設留本機；公開分享及雲端同步不是本期承諾。零平台新增語音推論費用是架構目標，不等於零開發、維護、網頁流量或第三方服務成本。
 - RP 文字模型、TTS、STT、音訊理解模型分離；繁中顯示語言、角色配音語言、玩家輸入語言分離。zh-TW/ja-JP/ko-KR/en-US 優先；實際聲線與語言能力依供應商、模型、設備檢查。選語言不等於翻譯；翻譯需經玩家選擇的文字路徑、費用確認及可編輯預覽。
 
+新增 P2 產品契約：zh-TW 台灣華語與繁中輸出是首要選型門檻，日韓英及其他中文語料為補充，不能用簡中或合成英語替代。未使用語音時零模型、零推論引擎下載；App 不內建權重。使用者明確同意後，由可信上游直接下載或自行匯入，經固定版本、完整大小、雜湊與授權驗證後才啟用。STT/TTS 共用資產管理契約，網頁/PWA 與原生 App 依各自私有儲存 adapter 實作；不經 AWS/Worker 轉送權重，不預設鏡像。研究候選不可顯示為正式支援。
+
 ## 2. 五個獨立能力
 
 TTS：玩家啟用角色配音後，系統從當前顯示的角色回覆辨識說出口的對白，依作品與角色 ID 套用聲線。角色配音只讀台詞。旁白、動作、內心、玩家發言、系統/OOC、狀態欄與工具資料保持安靜。
@@ -30,7 +32,7 @@ Voice Call：選配的即時互動介面，最後才整合；不得讓語音繞�
 | P0 | 裝置 TTS/STT，語速、音高、音量，固定角色聲線，手動台詞選擇與辨識草稿 | #987；本地優先、遠端明確同意、三瀏覽器 mock、實體裝置待測 | #987 已合併，17/17 CI 通過；main `26e52ffce9d2f7b10d1f793deee8e798c9321d3b`；production smoke 與實機待驗證 |
 | P1a | 玩家聲線工作台及 JSON 裝置聲線設定包匯入匯出 | P0 合併；包格式安全、角色隔離、預覽後保存、往返 | [#989](https://github.com/ghost80076-cmyk/bao-lab/pull/989) 已合併，17/17 PR 工作流程通過，三瀏覽器各 80 項通過。正式站已核對聲線資產，實機聲線待驗證 |
 | P1b | 自動辨識角色台詞與說話者 | 既有單角色卡可直接使用。讀取「」中的直接對白，多角色優先使用當前回覆已有的說話者資訊。旁白與內心靜音，說話者不明時略過該句。作者免逐句標註，玩家免逐句確認 | [#992](https://github.com/ghost80076-cmyk/bao-lab/pull/992) 已合併，17/17 PR workflows success；main `6a686342b48b67e3f9d2600e62b01599086bcd82`。HTML 與未知結構略過；production smoke、實體裝置待驗證 |
-| P2 | 瀏覽器本地開源 STT/TTS | P1；先以 Transformers.js + multilingual Whisper 做 STT spike，sherpa-onnx WASM 做 TTS/ASR 能力比較；只有通過中日韓英實測才標支援；按需下載、版本／雜湊、取消與離線快取、手機記憶體／延遲 | [#993](https://github.com/ghost80076-cmyk/bao-lab/pull/993) P2a 草稿：本地 WAV 辨識隔離工具、權重驗證及 offline CI fixture 已提交；完整 manifest、推論、瀏覽器/實機證據待驗證。P2b 尚未開始 |
+| P2 | 瀏覽器本地開源 STT/TTS | P1；先以 Transformers.js + multilingual Whisper 做 STT spike，sherpa-onnx WASM 做 TTS/ASR 能力比較；只有通過中日韓英實測才標支援；按需下載、版本／雜湊、取消與離線快取、手機記憶體／延遲 | [#993](https://github.com/ghost80076-cmyk/bao-lab/pull/993) P2a 草稿：本地 WAV 辨識隔離工具、權重驗證及 offline CI fixture 已提交；三瀏覽器真實 WASM 已通過合成英文；FLEURS 真人比較完成但品質不足，未選型。新增台灣華語本機驗收與按需資產管理研究核心；真實下載/儲存 adapter、實機與繁中品質待驗證。P2b 尚未開始 |
 | P3 | 玩家自架開源 TTS/STT 接口、授權參考錄音與聲線設計 | P1；Qwen3-TTS、GPT-SoVITS 獨立 adapter；實際 API 契約、CORS/HTTPS/loopback 瀏覽器限制、安全序列化、授權確認、不同模型能力不混用 | 待開發 |
 | P4 | Phone 私訊／群聊語音訊息、本機音訊資產及 BYOK 高品質語音 | P1，至少一個已驗證音訊生成 adapter；原會話、發送者、成員集合、章節與回覆版本綁定；生成與送達分離；播放、下載、收藏、含音備份與失敗重送；BYOK 逐次確認費用、無自動 retry/fallback | 待開發 |
 | P5 | 玩家原生音訊理解 | P4 資產及收件範圍；模型／端點能力查核、音訊 MIME/大小/時間限制、預覽同意、單輪音訊送達、舊音訊不每輪重送，記憶／診斷不帶原始 bytes | 待開發 |
