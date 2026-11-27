@@ -140,3 +140,52 @@ test('automatic dialogue respects named voices and rejects a stale reply queue',
  await page.evaluate(()=>{Chat.messages.at(-1).content='B：「新版本。」';window.__lastUtterance.onend();});
  expect(await page.evaluate(()=>window.__voiceCalls)).toHaveLength(2);
 });
+
+test('custom STT is opt-in, cancel-safe and only fills editable draft',async({page})=>{
+ await page.addInitScript(()=>{
+   window.__sttMic=0;window.__sttStopped=0;
+   Object.defineProperty(navigator,'mediaDevices',{configurable:true,value:{getUserMedia:async()=>{window.__sttMic++;return {getTracks:()=>[{stop:()=>window.__sttStopped++}]};}}});
+   Object.defineProperty(window,'MediaRecorder',{configurable:true,value:class{
+     static isTypeSupported(t){return t.startsWith('audio/webm');}
+     constructor(){this.mimeType='audio/webm';this.state='inactive';}
+     start(){this.state='recording';}
+     stop(){this.state='inactive';this.ondataavailable?.({data:new Blob(['audio-fixture'],{type:'audio/webm'})});this.onstop?.();}
+   }});
+ });
+ let requests=0;
+ await page.route('https://stt.example.invalid/**',async route=>{
+   if(route.request().method()==='OPTIONS')return route.fulfill({status:204,headers:{'access-control-allow-origin':'*','access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'authorization'}});
+   requests++;expect(route.request().headers().authorization).toBe('Bearer STT-PRIVATE');
+   expect(route.request().postData()).toContain('audio-fixture');
+   expect(route.request().postData()).not.toContain('TEXT-PRIVATE');
+   expect(route.request().postData()).toContain('player-model');
+   await route.fulfill({json:{text:'繁體中文測試'},headers:{'access-control-allow-origin':'*'}});
+ });
+ await setup(page,390);
+ await page.locator('#user-input').fill('原稿');
+ await openVoice(page,390);
+ const d=page.getByRole('dialog',{name:'角色語音與語音輸入'});
+ await expect(d.getByLabel('語音辨識來源')).toHaveValue('device');
+ await d.getByLabel('語音辨識來源').selectOption('custom');
+ await d.getByLabel('STT 接口網址').fill('https://stt.example.invalid/v1/audio/transcriptions');
+ await d.getByLabel('STT 模型 ID').fill('player-model');
+ await d.getByLabel('STT API Key（選填）').fill('STT-PRIVATE');
+ await d.getByRole('button',{name:'開始語音辨識'}).click();
+ expect(await page.evaluate(()=>window.__sttMic)).toBe(0);expect(requests).toBe(0);
+ const consent=d.getByLabel('我同意將本次錄音傳至上述接口，可能由該服務收費');
+ await consent.check();await d.getByRole('button',{name:'開始語音辨識'}).click();
+ await expect(d.getByRole('status')).toContainText('錄音中');
+ await d.getByRole('button',{name:'取消本次錄音／辨識'}).click();
+ expect(requests).toBe(0);expect(await page.evaluate(()=>window.__sttStopped)).toBeGreaterThan(0);
+ await consent.check();await d.getByRole('button',{name:'開始語音辨識'}).click();
+ await expect(d.getByRole('status')).toContainText('錄音中');
+ await d.getByRole('button',{name:'停止辨識',exact:true}).click();
+ await expect(d.getByLabel('辨識文字預覽（可修改）')).toHaveValue('繁體中文測試');
+ expect(requests).toBe(1);
+ await d.getByLabel('辨識文字預覽（可修改）').fill('修改後');
+ await d.getByRole('button',{name:'將文字填入故事輸入框'}).click();
+ await expect(page.locator('#user-input')).toHaveValue('原稿\n修改後');
+ expect(await page.evaluate(()=>Chat.messages.filter(m=>m.role==='user').length)).toBe(0);
+ expect(await page.evaluate(()=>JSON.stringify(localStorage))).not.toContain('STT-PRIVATE');
+ await openVoice(page,390);await expect(d.getByLabel('語音辨識來源')).toHaveValue('device');
+});
