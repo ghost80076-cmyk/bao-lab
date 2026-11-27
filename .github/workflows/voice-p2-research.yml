@@ -16,6 +16,10 @@ jobs:
   local-wasm:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,7 +31,7 @@ jobs:
         shell: bash
         run: |
           bash scripts/voice-p2-research/prepare.sh "$RUNNER_TEMP/voice-p2" whisper-tiny-mixed
-      - name: Prepare synthetic audio and Chromium
+      - name: Prepare synthetic audio and browser
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends espeak-ng ffmpeg
@@ -38,7 +42,7 @@ jobs:
           # Preserve the original failed sample; compare with explicit boundary silence.
           ffmpeg -v error -i "$RUNNER_TEMP/voice-p2-source.wav" -af "adelay=750:all=1,apad=pad_dur=0.75" -ac 1 -ar 16000 -c:a pcm_s16le "$RUNNER_TEMP/voice-p2-padded.wav"
           npm ci --ignore-scripts
-          npx playwright install --with-deps chromium
+          npx playwright install --with-deps ${{ matrix.browser }}
       - name: Real local browser inference, cancellation, no external HTTP
         run: |
           node scripts/voice-p2-browser-lab.cjs "$RUNNER_TEMP/voice-p2" whisper-tiny-mixed > "$RUNNER_TEMP/voice-p2-server.log" 2>&1 &
@@ -49,71 +53,11 @@ jobs:
             sleep 1
           done
           curl -fsS http://127.0.0.1:8787/ >/dev/null
-          node <<'NODE'
-          const {chromium}=require('@playwright/test');
-          const assert=require('node:assert/strict');
-          (async()=>{
-            const browser=await chromium.launch({headless:true});
-            const external=[], failed=[];
-            try {
-              const ctx=await browser.newContext({serviceWorkers:'block'});
-              await ctx.route('**/*',r=>{
-                if(new URL(r.request().url()).origin==='http://127.0.0.1:8787')return r.continue();
-                external.push(r.request().url());return r.abort();
-              });
-              const page=await ctx.newPage();
-              page.on('requestfailed',r=>failed.push(r.url()));
-              page.on('console',m=>{if(m.type()==='error')console.log('browser:',m.text());});
-              await page.goto('http://127.0.0.1:8787/');
-              await page.locator('#audio').setInputFiles(process.env.RUNNER_TEMP+'/voice-p2-test.wav');
-              await page.locator('#language').selectOption('english');
-              await page.locator('#start').click();
-              await page.locator('#stop').click();
-              assert.match(await page.locator('#status').innerText(),/Cancelled/);
-              const reference='hello world this is a local voice test';
-              const normalize=t=>t.toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
-              const distance=(a,b)=>{
-                const x=a.split(' '),y=b.split(' ');let row=Array.from({length:y.length+1},(_,i)=>i);
-                for(let i=1;i<=x.length;i++){
-                  const next=[i];for(let j=1;j<=y.length;j++)next[j]=Math.min(next[j-1]+1,row[j]+1,row[j-1]+Number(x[i-1]!==y[j-1]));
-                  row=next;
-                }
-                return row[y.length]/x.length;
-              };
-              async function infer(filename){
-                await page.locator('#audio').setInputFiles(process.env.RUNNER_TEMP+'/'+filename);
-                await page.locator('#start').click();
-                await page.locator('#start:enabled').waitFor({timeout:310000});
-                const status=await page.locator('#status').innerText(),output=await page.locator('#output').innerText();
-                console.log(JSON.stringify({filename,status,output,external,failed},null,2));
-                assert.match(status,/Complete/);
-                const result=JSON.parse(output);
-                assert.equal(result.profile,'whisper-tiny-mixed');
-                const raw = require('node:child_process').execFileSync('ffmpeg', ['-v','error','-i',process.env.RUNNER_TEMP+'/'+filename,'-f','f32le','-']);
-                const expectedHash = require('node:crypto').createHash('sha256').update(raw).digest('hex');
-                assert.equal(result.frames,raw.length/4,'frame count in Worker');
-                assert.equal(result.pcmSha256,expectedHash,'every sample in Worker must match independent FFmpeg decode');
-                assert.ok(Number.isFinite(result.rtf)&&result.rtf>=0);
-                assert.ok(result.text.trim());
-                return {...result,wer:distance(reference,normalize(result.text))};
-              }
-              const baseline=await infer('voice-p2-test.wav');
-              const padded=await infer('voice-p2-padded.wav');
-              const report={reference,baseline,padded,external,failed,scope:'synthetic English only; padded fixture is a diagnostic, not general ASR quality'};
-              require('node:fs').writeFileSync(process.env.RUNNER_TEMP+'/voice-p2-inference-report.json',JSON.stringify(report,null,2));
-              console.log(JSON.stringify(report,null,2));
-              // Do not erase the original regression. Baseline remains a required gate;
-              // the padded sample helps determine whether boundary silence is relevant.
-              assert.deepEqual(external,[]);
-              assert.equal(normalize(padded.text),reference,'Padded fixture must preserve the full transcript');
-              assert.equal(normalize(baseline.text),reference,'Unpadded fixture must preserve the full transcript');
-            } finally {await browser.close();}
-          })().catch(e=>{console.error(e);process.exitCode=1;});
-          NODE
+          node scripts/voice-p2-research/browser-smoke.cjs ${{ matrix.browser }}
       - name: Preserve inference evidence even on quality failure
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: p2-local-wasm-evidence
-          path: ${{ runner.temp }}/voice-p2-inference-report.json
+          name: p2-local-wasm-evidence-${{ matrix.browser }}
+          path: ${{ runner.temp }}/voice-p2-${{ matrix.browser }}-report.json
           if-no-files-found: warn
