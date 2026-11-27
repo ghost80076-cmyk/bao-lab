@@ -35,5 +35,6 @@
 #chat-view .yoru-voice-quick-reply [role=status]:empty{display:none}
 .bp-voice-read-controls{display:flex;flex:0 0 auto;flex-direction:column;gap:2px}
 .bp-voice-read-button{min-width:44px;min-height:44px;padding:0;border:1px solid #78828d;border-radius:10px;background:#fff;color:#25303b;touch-action:manipulation}
-@media(max-width:820px){#chat-view .composer .yoru-voice-quick-mic{height:52px;min-height:52px;border-radius:16px}#chat-view .yoru-voice-quick-reply button{font-size:12px}}
-@media(max-width:360px){#chat-view .composer:has(.yoru-voice-quick-mic){gap:1px!important;padding-inline:3px!important}}
+/* Mobile retains the original composer geometry. Its existing + drawer owns the microphone shortcut. */
+@media(max-width:820px){#chat-view .composer .yoru-voice-quick-mic{display:none!important}}
+

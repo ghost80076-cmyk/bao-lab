@@ -912,11 +912,15 @@ test('authorized reference audio TTS is one-shot and never saved into story or s
 
 test('everyday voice controls use the composer and saved device voice without opening advanced settings',async({page})=>{
  await setup(page,390,true);
- const mic=page.getByRole('button',{name:'語音輸入',exact:true});
- await expect(mic).toBeVisible();
+ await expect(page.locator('#yoru-voice-mic')).toBeHidden();
  const before=await page.evaluate(()=>JSON.stringify(Chat.messages));
  await page.locator('#user-input').fill('原有文字');
+ await page.locator('#bao-mobile-composer-tools').click();
+ const drawer=page.locator('#bao-chat-tool-drawer');
+ const mic=drawer.getByRole('button',{name:'語音輸入',exact:true});
+ await expect(mic).toBeVisible();
  await mic.click();
+ await expect(drawer).toHaveCount(0);
  const dialog=page.getByRole('dialog',{name:'角色語音與語音輸入'});
  await expect(dialog.getByRole('heading',{name:'語音輸入',exact:true})).toBeVisible();
  await expect(dialog.getByLabel('TTS 接口網址')).toHaveCount(0);
@@ -956,4 +960,25 @@ test('Phone device playback shares the story actor profile and excludes player o
  await expect.poll(()=>page.evaluate(()=>window.__voiceCalls)).toEqual([{text:'おやすみ。',lang:'ja-JP',rate:.9,voice:'ja'}]);
  await page.getByRole('button',{name:'停止朗讀',exact:true}).click();
  await page.getByRole('button',{name:'關閉手機'}).click();
+});
+
+for(const width of [320,390,1440])test('voice shortcut preserves composer geometry at '+width+'px',async({page})=>{
+ await setup(page,width,true);
+ const input=page.locator('#user-input');
+ await input.fill('保留草稿');
+ const rect=await input.boundingBox();
+ expect(rect.width).toBeGreaterThan(95);
+ const mic=page.locator('#yoru-voice-mic');
+ if(width<=820){
+   await expect(mic).toBeHidden();
+   await page.locator('#bao-mobile-composer-tools').click();
+   await page.locator('#bao-chat-tool-drawer').getByRole('button',{name:'語音輸入',exact:true}).click();
+ }else{
+   await expect(mic).toBeVisible();await mic.click();
+ }
+ const dialog=page.getByRole('dialog',{name:'角色語音與語音輸入'});
+ await expect(dialog.getByRole('heading',{name:'語音輸入',exact:true})).toBeVisible();
+ await dialog.getByRole('button',{name:'關閉',exact:true}).click();
+ await expect(input).toHaveValue('保留草稿');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });

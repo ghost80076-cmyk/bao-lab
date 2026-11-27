@@ -885,12 +885,18 @@
    if(toggle){toggle.textContent=automatic?'關閉自動配音':'開啟自動配音';toggle.setAttribute('aria-pressed',String(Boolean(automatic)));}
    if(status)status.textContent=notice;
  }
+ function openInput(){
+   if(!inStory()||App.__requestPending||window.BAOStoryNativeTurn?.hasDraft?.()){
+     window.BAOFeedback?.notify?.('請先完成目前的回覆或待送音訊，再使用語音輸入。','error');return;
+   }
+   open({quickVoice:'input'});
+ }
  function mountQuick(){
    const composer=document.querySelector('#chat-view .composer'),input=document.getElementById('user-input');
    if(!composer||!input)return;
    let mic=document.getElementById('yoru-voice-mic');
    if(!mic){
-     mic=btn('🎙',()=>{if(inStory()&&!App.__requestPending&&!window.BAOStoryNativeTurn?.hasDraft?.())open({quickVoice:'input'});});
+     mic=btn('🎙',openInput);
      mic.id='yoru-voice-mic';mic.className='secondary yoru-voice-quick-mic';mic.title='語音輸入';mic.setAttribute('aria-label','語音輸入');
      input.before(mic);
    }
@@ -932,5 +938,5 @@
    playLines(current,[{speakerId:actor.id,text:line}],()=>same(current)&&inStory()&&valid());
  }
  document.getElementById('chat-view')?.addEventListener('bao:phone-stage-visibility',event=>{if(event.detail?.open)stopSequence();});
- window.BAOStoryVoice=Object.freeze({open,mount,playPhoneMessage,stopPlayback:()=>{stopSequence();tell('已停止播放。');}});
+ window.BAOStoryVoice=Object.freeze({open,openInput,mount,playPhoneMessage,stopPlayback:()=>{stopSequence();tell('已停止播放。');}});
 })();
