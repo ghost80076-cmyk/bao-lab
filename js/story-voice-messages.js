@@ -59,6 +59,11 @@
       () => Chat.messages.length === index + 1 && sourceIsCurrent());
   }
 
+  function saveNative(blob,duration,messageId,sourceIsCurrent) {
+    const current=scope(),index=Chat.messages.findIndex(message=>message.id===messageId&&message.role==="user");
+    return commit(current,index,Chat.messages[index],{conversation:"story",sender:"player",recipient:current.characterId},blob,duration,sourceIsCurrent);
+  }
+
   function saveGenerated({blob, duration, messageId, actor}, sourceIsCurrent) {
     const current = scope();
     const index = Chat.messages.findIndex(message => message.id === messageId && message.role === 'assistant');
@@ -228,5 +233,5 @@
   document.getElementById('chat-view')?.addEventListener('bao:phone-stage-visibility', event => {
     if (event.detail?.open) for (const {node} of rows.values()) node.open = false;
   });
-  window.BAOStoryVoiceMessages = Object.freeze({send, saveGenerated, refresh, mountPhone});
+  window.BAOStoryVoiceMessages = Object.freeze({send, saveNative, saveGenerated, refresh, mountPhone});
 })();

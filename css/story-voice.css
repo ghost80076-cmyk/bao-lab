@@ -21,3 +21,7 @@
 .yoru-story-voice-message audio{display:block;width:100%;min-width:0}
 .yoru-story-voice-message a{display:inline-flex;align-items:center;min-height:44px}
 .yoru-story-voice-message [hidden],.yoru-story-voice-message p:empty{display:none}
+
+.yoru-native-audio-draft{padding:8px 12px;border:1px solid var(--yoru-border,#647082);border-radius:8px;overflow-wrap:anywhere}
+.yoru-native-audio-draft[hidden],.yoru-native-audio-draft [hidden]{display:none!important}
+.yoru-native-audio-draft button{min-height:44px;margin:4px 8px 0 0;white-space:normal}
