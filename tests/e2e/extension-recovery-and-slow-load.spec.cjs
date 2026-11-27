@@ -201,7 +201,7 @@ test('bookshelf opened while its script is pending stays in loading state and th
   await page.setViewportSize({ width: 390, height: 844 });
   let release;
   const gate = new Promise(resolve => { release = resolve; });
-  await page.route('**/js/story-library.js?v=13', async route => {
+  await page.route(/\/js\/story-library\.js(?:\?[^#]*)?$/, async route => {
     await gate;
     await route.continue();
   });
@@ -249,7 +249,7 @@ test('bookshelf reload reads the same IndexedDB stories even if a later story mo
 
 test('bookshelf module fetch error offers a real retry without clearing IndexedDB', async ({ page }) => {
   let loads = 0;
-  await page.route('**/js/story-library.js?v=13', route => {
+  await page.route(/\/js\/story-library\.js(?:\?[^#]*)?$/, route => {
     loads += 1;
     return loads <= 2 ? route.abort() : route.continue();
   });
