@@ -24,6 +24,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: P2 local voice lab offline contract fixtures
+        run: |
+          node scripts/voice-p2-verify-weights.cjs --self-test
+          node scripts/voice-p2-browser-lab.cjs --self-test
       - name: Production Worker read-only drift audit contracts
         run: |
           node --check scripts/audit-production-worker-code-drift.cjs
