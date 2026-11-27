@@ -201,3 +201,21 @@ async function testNativeChatAudio(){
  for(const bad of [{...oa,model:'gpt-5'},{...oa,baseUrl:'https://api.openai.com.evil.invalid/v1/chat/completions'},{...or,model:'openrouter/auto'},{...or,model:'google/gemini-3.8-flash:free'},{...or,type:'bao-credits'}])assert.throws(()=>C.nativeAudioRoute(bad));
 }
 testNativeChatAudio().catch(e=>{console.error(e);process.exitCode=1;});
+
+async function testReferenceTTS(){
+ const raw={endpoint:'http://localhost:8091/v1/audio/speech',model:'Qwen/Qwen3-TTS-12Hz-1.7B-Base',key:'REF-ONLY',speed:1,language:'ja-JP',refText:'こんにちは'};
+ const wav=new Uint8Array(44);wav.set(Buffer.from('RIFF'),0);wav.set(Buffer.from('WAVE'),8);
+ const blob=new Blob([wav],{type:'audio/wav'});let calls=0;
+ const fetcher=async(url,opts)=>{
+   calls++;assert.equal(url,raw.endpoint);assert.equal(opts.headers.Authorization,'Bearer REF-ONLY');assert.equal(opts.redirect,'error');assert.equal(opts.credentials,'omit');
+   assert.deepEqual(JSON.parse(opts.body),{model:raw.model,input:'おやすみ。',task_type:'Base',language:'Japanese',ref_audio:'data:audio/wav;base64,'+Buffer.from(wav).toString('base64'),ref_text:'こんにちは',non_streaming_mode:true,stream:false,response_format:'wav',speed:1});
+   return new Response(wav,{headers:{'content-type':'audio/wav'}});
+ };
+ for(const opts of [{confirmed:true},{rights:true},{confirmed:true,rights:true,isCurrent:()=>false}])await assert.rejects(C.synthesizeReference(raw,'おやすみ。',blob,.1,{fetcher,...opts}));
+ for(const bad of [{...raw,model:'Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice'},{...raw,refText:''},{...raw,endpoint:'http://remote.invalid/v1/audio/speech'},{...raw,language:'__proto__'}])await assert.rejects(C.synthesizeReference(bad,'おやすみ。',blob,.1,{fetcher,confirmed:true,rights:true}));
+ await assert.rejects(C.synthesizeReference(raw,'おやすみ。',blob,31,{fetcher,confirmed:true,rights:true}));
+ await assert.rejects(C.referenceAudio(new Blob([new Uint8Array(C.REFERENCE_MAX_BYTES+1)])));
+ assert.equal(calls,0);
+ const audio=await C.synthesizeReference(raw,'おやすみ。',blob,.1,{fetcher,confirmed:true,rights:true});assert.equal(audio.type,'audio/wav');assert.equal(calls,1);
+}
+testReferenceTTS().catch(e=>{console.error(e);process.exitCode=1;});

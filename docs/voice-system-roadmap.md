@@ -165,3 +165,7 @@ P3b [#996](https://github.com/ghost80076-cmyk/bao-lab/pull/996) 已合併，17/1
 ### P5c-1 其他原生音訊供應商：OpenAI 與 OpenRouter（本 PR）
 
 #1006 已合併 `b3f9d3fe1863bf20d2db35ce31559b1c2b154d11`，18/18 PR CI；正式 Pages 部署最後查詢仍排隊。擴充既有原生音訊預覽及故事／Phone 單輪 transport：OpenAI 官方 Chat Completions GPT Audio/相容 audio-preview，以及 OpenRouter 官方 Chat Completions 明確模型 ID（不接受 auto、free router 或 preset）；使用 input_audio 的 WAV/MP3 base64，文字輸出，非串流，不新增 TTS／代管服務。OpenRouter 仍需玩家確認實際模型支援音訊，資料會交由 OpenRouter 與其上游；請求設定 require_parameters:true、allow_fallbacks:false，不代表上游絕不重試或資料零留存。只在 provider boundary materialize，不使用顯式快取、不重送歷史音訊；原有 Gemini 和本機語音保留。OpenAI 送 store:false。參考 https://developers.openai.com/api/docs/guides/audio-chat-completions 、https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create 、https://openrouter.ai/blog/announcements/audio-inputs-and-pdf-urls-for-apps/ 。不宣稱未實測供應商全面相容；新增核心與故事 E2E mock，Phone 共用 adapter，真實 API/實機/完整 CI 待驗證。
+
+### P5d-1 授權參考音訊 TTS（本 PR）
+
+#1007 已合併 `46c19a7f0c94e83bcfe39e973ad834e45369c827`，18/18 PR CI、Pages 部署及基礎 Smoke 成功。先接 vLLM-Omni Qwen3-TTS Base 0.6B/1.7B 的 `/v1/audio/speech`，參考音訊 WAV/MP3 4 MiB/30 秒、實際逐字稿、選擇輸出語言、單次使用權及傳送確認；只送確認台詞與參考資料至玩家指定 HTTPS/loopback HTTP endpoint。原始樣本僅工具記憶體，不自動保存、註冊、上傳或匯出；切換角色/服務、關閉、背景化清除，取消及 60 秒逾時沿用既有 TTS；不自動配音/重試/fallback。生成音訊可沿用已存在的角色台詞保存條件。裝置及一般聲線 ID 模式保持原狀。非永久聲線庫、非通用模型權重交換；後續以服務已建立聲線 ID 或獨立受限聲線資產管理跨功能重用。依 https://docs.vllm.ai/projects/vllm-omni/en/stable/serving/speech_api/ 實作，尚未實跑上游/真實 API 或實機。新增核心與三瀏覽器 mock 案例，完整 CI 待驗證，無平台推論成本。

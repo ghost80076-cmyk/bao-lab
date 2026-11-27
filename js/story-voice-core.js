@@ -172,6 +172,9 @@
    const cfg=ttsConfig(raw),input=script(text);
    const headers={'Content-Type':'application/json',...(cfg.key?{Authorization:'Bearer '+cfg.key}:{})};
    const response=await fetcher(cfg.endpoint,{method:'POST',headers,body:JSON.stringify({model:cfg.model,voice:cfg.voice,input,speed:cfg.speed,response_format:'mp3'}),signal,credentials:'omit',redirect:'error',referrerPolicy:'no-referrer',cache:'no-store'});
+   return speechResponse(response);
+ }
+ async function speechResponse(response){
    if(!response.ok){try{await response.body?.cancel();}catch(_){}throw Error('TTS 接口回應失敗。');}
    const type=String(response.headers.get('content-type')||'').split(';')[0].trim().toLowerCase();
    if(!['audio/mpeg','audio/mp3','audio/wav','audio/x-wav','application/octet-stream'].includes(type)){try{await response.body?.cancel();}catch(_){}throw Error('TTS 未回傳相容音訊。');}
@@ -185,6 +188,35 @@
    const mp3=(data[0]===73&&data[1]===68&&data[2]===51)||(data[0]===255&&(data[1]&224)===224);
    if(!wav&&!mp3)throw Error('TTS 音訊格式不相容。');
    return new Blob([data],{type:wav?'audio/wav':'audio/mpeg'});
+ }
+ // Optional, explicitly authorized vLLM-Omni Qwen3-TTS Base adapter.
+ const REFERENCE_MAX_BYTES=4*1024*1024,REFERENCE_MAX_SECONDS=30;
+ const REFERENCE_MODELS=Object.freeze(['Qwen/Qwen3-TTS-12Hz-1.7B-Base','Qwen/Qwen3-TTS-12Hz-0.6B-Base']);
+ const REFERENCE_LANGUAGES=Object.freeze({'zh-TW':'Chinese','ja-JP':'Japanese','ko-KR':'Korean','en-US':'English','auto':'Auto'});
+ function referenceTTSConfig(raw){
+   const cfg=ttsConfig({...raw,voice:'reference-only'});
+   if(!REFERENCE_MODELS.includes(cfg.model)||!cfg.endpoint.endsWith('/v1/audio/speech'))throw Error('請選擇 vLLM-Omni Qwen3-TTS Base 模型及完整 /v1/audio/speech 接口。');
+   if(!Object.hasOwn(REFERENCE_LANGUAGES,raw.language))throw Error('請選擇配音語言。');
+   const refText=String(raw.refText||'').trim();
+   if(!refText||refText.length>2000||/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/.test(refText))throw Error('請填寫參考音訊的實際逐字稿（最多 2000 字）。');
+   return {endpoint:cfg.endpoint,model:cfg.model,key:cfg.key,speed:cfg.speed,language:REFERENCE_LANGUAGES[raw.language],refText};
+ }
+ async function referenceAudio(blob){
+   if(!blob||blob.size>REFERENCE_MAX_BYTES)throw Error('參考音訊須為 4 MiB 以內。');
+   const {blob:normalized}=await localAudioDraft(blob);
+   if(!['audio/wav','audio/mpeg'].includes(normalized.type))throw Error('參考音訊只接受 WAV 或 MP3。');
+   return normalized;
+ }
+ async function synthesizeReference(raw,text,blob,duration,{signal,fetcher=globalThis.fetch,confirmed=false,rights=false,isCurrent=()=>true}={}){
+   if(confirmed!==true||rights!==true)throw Error('請先確認聲音使用權及本次傳送。');
+   const cfg=referenceTTSConfig(raw),input=script(text);
+   if(!Number.isFinite(duration)||duration<=0||duration>REFERENCE_MAX_SECONDS)throw Error('參考音訊須不超過 30 秒。');
+   const audio=await referenceAudio(blob),bytes=new Uint8Array(await audio.arrayBuffer());let binary='';
+   for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.subarray(i,i+8192));
+   if(signal?.aborted||!isCurrent())throw Error('參考音訊請求已取消，未傳送。');
+   const body={model:cfg.model,input,task_type:'Base',language:cfg.language,ref_audio:'data:'+audio.type+';base64,'+btoa(binary),ref_text:cfg.refText,non_streaming_mode:true,stream:false,response_format:'wav',speed:cfg.speed};
+   const response=await fetcher(cfg.endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(cfg.key?{Authorization:'Bearer '+cfg.key}:{})},body:JSON.stringify(body),signal,credentials:'omit',redirect:'error',referrerPolicy:'no-referrer',cache:'no-store'});
+   return speechResponse(response);
  }
  // Bounds for an explicit chapter-only remote TTS grant, not a price estimate.
  const AUTO_TTS_LIMITS=Object.freeze({requests:20,characters:6000,durationMs:30*60*1000});
@@ -346,5 +378,5 @@
    return message?.id===delivery.after.id&&(!fromCharacter||message.role==='assistant')&&
      await storyVoiceRevision(message)===delivery.after.revision;
  }
- return Object.freeze({LANGUAGES,MAX_TEXT,profile,PACK_LIMIT,exportPack,importPack,profileKey,voicesFor,selectVoice,candidates,directDialogue,script,mergeDraft,finalTranscript,sttConfig,transcribe,STT_MAX_BYTES,ttsConfig,synthesize,TTS_MAX_BYTES,AUTO_TTS_LIMITS,autoTTSLimits,autoTTSBudget,savedSTT,savedTTS,localAudioDraft,nativeAudioRoute,nativeAudioLabel,nativeAudioFormats,nativeAudioPart,nativeChatPart,nativeChatOptions,understandAudio,storyVoiceDelivery,storyVoiceSource,storyVoiceRevision,storyVoiceMatches,AUDIO_DRAFT_MAX_BYTES,AUDIO_DRAFT_MAX_SECONDS});
+ return Object.freeze({LANGUAGES,MAX_TEXT,profile,PACK_LIMIT,exportPack,importPack,profileKey,voicesFor,selectVoice,candidates,directDialogue,script,mergeDraft,finalTranscript,sttConfig,transcribe,STT_MAX_BYTES,ttsConfig,synthesize,TTS_MAX_BYTES,REFERENCE_MAX_BYTES,REFERENCE_MAX_SECONDS,REFERENCE_MODELS,referenceTTSConfig,referenceAudio,synthesizeReference,AUTO_TTS_LIMITS,autoTTSLimits,autoTTSBudget,savedSTT,savedTTS,localAudioDraft,nativeAudioRoute,nativeAudioLabel,nativeAudioFormats,nativeAudioPart,nativeChatPart,nativeChatOptions,understandAudio,storyVoiceDelivery,storyVoiceSource,storyVoiceRevision,storyVoiceMatches,AUDIO_DRAFT_MAX_BYTES,AUDIO_DRAFT_MAX_SECONDS});
 });

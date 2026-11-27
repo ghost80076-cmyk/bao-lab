@@ -32,7 +32,7 @@ Speaches 提供 OpenAI-compatible 的 faster-whisper STT，以及 Piper/Kokoro T
 模型官方：https://github.com/QwenLM/Qwen3-TTS
 相容服務參考：https://github.com/vllm-project/vllm-omni/blob/main/docs/serving/speech_api.md
 
-模型 Python 套件或 Web UI 不等於 HTTP TTS API。vLLM-Omni 的 CustomVoice 服務文件列出 /v1/audio/speech 及 model/voice/input/speed/response_format；可依玩家硬體、版本及服務文件架設後使用現有通用 adapter。例：玩家若依官方示例在同一裝置 8091 port 啟動 CustomVoice，網址 http://localhost:8091/v1/audio/speech、模型 Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice、預設聲線 vivian。實際可用角色、語言、格式與 CORS 以服務回應為準；夜灣目前未傳送 language、instructions、ref_audio、ref_text 等專用欄位。可由玩家在支援的服務端自行建立有權使用的聲線，再以服務端 voice ID 使用通用接口（須實測）。夜灣內部參考音訊上傳／聲線設計 UI 尚未實作。
+模型 Python 套件或 Web UI 不等於 HTTP TTS API。vLLM-Omni 的 CustomVoice 服務文件列出 /v1/audio/speech 及 model/voice/input/speed/response_format；可依玩家硬體、版本及服務文件架設後使用現有通用 adapter。例：玩家若依官方示例在同一裝置 8091 port 啟動 CustomVoice，網址 http://localhost:8091/v1/audio/speech、模型 Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice、預設聲線 vivian。實際可用角色、語言、格式與 CORS 以服務回應為準；夜灣目前未傳送 language、instructions、ref_audio、ref_text 等專用欄位。可由玩家在支援的服務端自行建立有權使用的聲線，再以服務端 voice ID 使用通用接口（須實測）。參考音訊模式見下節；一般 CustomVoice 接口仍不傳送專用欄位。
 
 ### GPT-SoVITS：原生協議不同
 
@@ -49,3 +49,7 @@ Speaches 提供 OpenAI-compatible 的 faster-whisper STT，以及 Piper/Kokoro T
 ## 原生音訊理解（不同於 STT/TTS）
 
 使用玩家目前故事 BYOK 模型與完整官方端點。Gemini GenerateContent 接受 WAV/MP3/OGG；OpenAI `https://api.openai.com/v1/chat/completions` 的 GPT Audio 系列或相容 audio-preview，及 OpenRouter `https://openrouter.ai/api/v1/chat/completions` 的明確音訊模型 ID，使用 WAV/MP3。OpenRouter 例 `xiaomi/mimo-v2.5`（官方模型頁 https://openrouter.ai/xiaomi/mimo-v2.5 ，仍需確認當前供應商能力）。不選 auto、preset 或路由別名。確認模型、音訊能力、服務費及資料政策後才傳送；OpenRouter 會將資料送給上游服務。夜灣不自動重試、不改模型、不代付費用。非原生音訊模型仍可使用 STT 或本機語音。真實服務及裝置尚未驗收。
+
+## 參考音訊配音（Qwen3-TTS Base）
+
+依 [vLLM-Omni Speech API](https://docs.vllm.ai/projects/vllm-omni/en/stable/serving/speech_api/) 的 Base task：玩家自行取得 `Qwen/Qwen3-TTS-12Hz-1.7B-Base` 或 `Qwen/Qwen3-TTS-12Hz-0.6B-Base` 相容服務；填完整 `/v1/audio/speech`（同裝置例 `http://localhost:8091/v1/audio/speech`），依服務配置 HTTPS/CORS/驗證。選定角色與台詞，開啟參考音訊模式，選 WAV/MP3（4 MiB/30 秒內），填寫真實逐字稿、選輸出語言並確認聲音權利及本次傳送。夜灣使用 `task_type:Base`、`ref_audio` data URL、`ref_text`、`language` 及非串流 WAV；不傳供應商本機檔案路徑、遠端參考網址或模型權重。此階段每次生成都須確認，不保存參考音檔或永久聲線，也不呼叫 `/audio/voices`。若玩家已在服務端合法建立可使用的聲線 ID，仍可使用原有一般 TTS 模式。上游可依其政策保留輸入，取消不保證免收費。真實引擎、語言與音質尚未實測。
