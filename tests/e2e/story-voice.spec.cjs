@@ -344,7 +344,7 @@ test('local audio recording and file preview remain separate from STT and the st
  await openVoice(page,390);
  const d=page.getByRole('dialog',{name:'角色語音與語音輸入'});
  const details=d.locator('details').filter({hasText:'玩家錄音／音檔預覽（本機）'});
- await details.locator('summary').click();
+ await details.getByText('玩家錄音／音檔預覽（本機）',{exact:true}).click();
  const start=details.getByRole('button',{name:'開始本機錄音'}),stop=details.getByRole('button',{name:'停止本機錄音'}),discard=details.getByRole('button',{name:'捨棄本機音檔／取消錄音'});
  const audio=details.locator('audio[aria-label="本機音檔預覽"]'),file=details.getByLabel('選擇本機音檔');
  expect(await page.evaluate(()=>window.__localMic)).toBe(0);
@@ -421,11 +421,14 @@ test('saved local audio belongs only to its chapter and never becomes a model me
  await file.setInputFiles({name:'sample.wav',mimeType:'audio/wav',buffer:wav});
  await expect(d.getByRole('button',{name:'保存至本章節音訊庫'})).toBeEnabled();
  await d.getByRole('button',{name:'保存至本章節音訊庫'}).click();
+ await expect(d.locator('[data-local-audio-status]')).toHaveText('已保存本機音訊，尚未傳送給角色。');
  await expect(d.getByText('已保存 1 段音訊。',{exact:true})).toBeVisible();
  await d.getByRole('button',{name:'保存至本章節音訊庫'}).click();
  await expect.poll(()=>page.evaluate(async()=> (await BAOStoryVoiceAssets.list(BAOStoryLibrary.refs())).length)).toBe(1);
  const isolated=await page.evaluate(async()=>{
    const scope=BAOStoryLibrary.refs(),other={...scope,chapterId:scope.chapterId+'-other'},rows=await BAOStoryVoiceAssets.list(scope);
+   const saved=await BAOStoryVoiceAssets.get(scope,rows[0].id);
+   if(saved.blob.size!==1644||saved.blob.type!=='audio/wav')throw Error('stored audio mismatch');
    let blocked=0;
    try{await BAOStoryVoiceAssets.get(other,rows[0].id);}catch(_){blocked++;}
    try{await BAOStoryVoiceAssets.remove(other,rows[0].id);}catch(_){blocked++;}

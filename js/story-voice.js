@@ -588,6 +588,7 @@
      const file=localFile.input.files?.[0];localFile.input.value='';if(!file||!beginLocal())return;
      localInfo.textContent='正在驗證本機音檔…';void previewLocal(file,localEpoch);
    });
+   localInfo.dataset.localAudioStatus='1';
    const collection=el('details');
    collection.append(el('summary','本章節已保存音訊'),el('p','僅本機收藏，不是已送達的故事訊息。每章最多 32 段，全站音訊庫 128 MiB；請另行下載備份，刪除故事不會自動清除本機音訊。'));
    const collectionList=el('div');collectionList.setAttribute('aria-label','本章節音訊清單');
@@ -631,7 +632,8 @@
      }catch(e){if(localLive()&&epoch===localEpoch)localInfo.textContent=e.message||'保存失敗，音檔仍可下載。';}
      finally{localSaving=false;if(valid())syncLocal();}
    });
-   collection.append(collectionInfo,collectionList);collection.addEventListener('toggle',()=>{if(collection.open)void refreshCollection();else collectionEpoch++;});
+   collection.append(collectionInfo,collectionList);
+   collection.addEventListener('toggle',()=>{if(collection.open&&localSection.open)void refreshCollection();else if(!collection.open)collectionEpoch++;});
    localSection.append(localFile.wrap,localStart,localStop,btn('捨棄本機音檔／取消錄音',()=>{clearLocal();localInfo.textContent='已捨棄本機音檔。';}),localAudio,localDownload,localSave,localInfo,collection);
    localSection.addEventListener('toggle',()=>{if(!localSection.open){if(localJob){clearLocal();localInfo.textContent='已停止並捨棄本機錄音。';}else localAudio.pause();}});
    syncLocal();

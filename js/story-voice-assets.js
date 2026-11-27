@@ -59,7 +59,7 @@
          count.onsuccess=()=>{
            if(!valid())return stop('故事章節已切換。');
            if(count.result>=COUNT)return stop('本章節最多保存 32 段音訊。');
-           meta.add(row);audio.add({id,blob:normalized.blob});done(row);
+           meta.add(row);audio.add({id,bytes});done(row);
          };
        };
      };
@@ -74,7 +74,12 @@
    return transact('readonly',(meta,audio,done,stop)=>{
      const request=meta.get(id);request.onsuccess=()=>{
        const row=request.result;if(!row||row.scope!==key)return stop('這段音訊不屬於目前章節。');
-       const asset=audio.get(id);asset.onsuccess=()=>{if(!asset.result?.blob)return stop('本機音訊已遺失。');done({row,blob:asset.result.blob});};
+       const asset=audio.get(id);asset.onsuccess=()=>{
+         const stored=asset.result;
+         const blob=stored?.bytes instanceof ArrayBuffer?new Blob([stored.bytes],{type:row.type}):stored?.blob;
+         if(!(blob instanceof Blob)||blob.size!==row.size||blob.type!==row.type)return stop('本機音訊已遺失或格式不符。');
+         done({row,blob});
+       };
      };
    });
  }
