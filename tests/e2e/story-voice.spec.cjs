@@ -460,18 +460,19 @@ test('audio story backup restores into a separate story and deletion cleans only
    const A=BAOStoryVoiceAssets,B=BAOStoryVoiceBackup;
    const blob=new Blob([wav],{type:'audio/wav'});
    const saved=await A.save(original,blob,.1,()=>true);
-   // Exercise the Blob representation used before the ArrayBuffer change.
-   await new Promise((resolve,reject)=>{
-     const request=indexedDB.open('yorubay-audio-assets');
-     request.onerror=()=>reject(request.error);
-     request.onsuccess=()=>{
-       const db=request.result,tx=db.transaction('audio','readwrite');
-       tx.objectStore('audio').put({id:saved.id,blob});
-       tx.oncomplete=()=>{db.close();resolve();};
-       tx.onabort=()=>{db.close();reject(tx.error);};
-     };
-   });
    const bundle=await B.exportStory(original.storyId);
+   // Model an existing Blob row at read time. Some WebKit test containers
+   // cannot insert new IndexedDB Blob records, which production no longer does.
+   const nativeGet=IDBObjectStore.prototype.get;
+   IDBObjectStore.prototype.get=function(key){
+     const request=nativeGet.call(this,key);
+     if(this.name==='audio'&&key===saved.id)Object.defineProperty(request,'result',{value:{id:saved.id,blob}});
+     return request;
+   };
+   let legacy;
+   try{legacy=await A.exportPack(original.storyId,[original.chapterId]);}
+   finally{IDBObjectStore.prototype.get=nativeGet;}
+   const legacyMatches=JSON.stringify(legacy)===JSON.stringify(bundle.audio);
    let rejected=false;const bad=structuredClone(bundle);bad.audio.items[0].hash='0'.repeat(64);
    try{await B.importStory(bad);}catch(_){rejected=true;}
    const imported=await B.importStory(bundle),target={storyId:imported.storyId,chapterId:imported.chapterMap[original.chapterId]};
@@ -480,7 +481,63 @@ test('audio story backup restores into a separate story and deletion cleans only
    const deleted=await BAOStoryLibrary.deleteStory(imported.storyId);
    let staleRejected=false;
    try{await A.save(target,blob,.1,()=>true);}catch(e){staleRejected=e.message.includes('已刪除');}
-   return {rejected,same,staleRejected,distinct:target.storyId!==original.storyId,deleted,restored:rows.length,remaining:(await A.list(target)).length,original:(await A.list(original)).length,secret:JSON.stringify(bundle).includes('TEXT-PRIVATE')};
+   return {rejected,same,legacyMatches,staleRejected,distinct:target.storyId!==original.storyId,deleted,restored:rows.length,remaining:(await A.list(target)).length,original:(await A.list(original)).length,secret:JSON.stringify(bundle).includes('TEXT-PRIVATE')};
  });
- expect(result).toEqual({rejected:true,same:true,staleRejected:true,distinct:true,deleted:true,restored:1,remaining:0,original:1,secret:false});
+ expect(result).toEqual({rejected:true,same:true,legacyMatches:true,staleRejected:true,distinct:true,deleted:true,restored:1,remaining:0,original:1,secret:false});
+});
+
+test('committed chapter deletion preserves a promoted child and blocks stale writes, and a failed audio import removes only its copy', async ({page,context}) => {
+  await setup(page,390);
+  const original=await page.evaluate(async()=>{
+    const A=BAOStoryVoiceAssets,L=BAOStoryLibrary,scope=L.refs();
+    const bytes=new TextEncoder().encode('RIFF0000WAVE');
+    const audio=new Blob([bytes],{type:'audio/wav'});
+    const record=await A.save(scope,audio,1,()=>true);
+    const branch=await L.createBranch(Chat.messages[0].id,'子分支');
+    await A.save(branch._library,audio,1,()=>true);
+    L.adoptRefs({_library:scope});
+    return {storyId:scope.storyId,chapterId:scope.chapterId,child:branch._library.chapterId,recordId:record.id};
+  });
+  const stale=await context.newPage();
+  await stale.goto('/');
+  await stale.waitForFunction(()=>window.BAOStoryVoiceAssets);
+  const before=await stale.evaluate(async scope=>(await BAOStoryVoiceAssets.list(scope)).length,original);
+  expect(before).toBe(1);
+  const preserved=await page.evaluate(async scope=>{
+    const L=BAOStoryLibrary,A=BAOStoryVoiceAssets;
+    L.clearRefs();
+    if (!await L.deleteChapter(scope.storyId,scope.chapterId)) throw Error("fixture chapter was not deleted");
+    const children=await L.listChapters(scope.storyId);
+    const audio=await A.list({storyId:scope.storyId,chapterId:scope.child});
+    return {promoted:children.length===1&&children[0].chapterId===scope.child&&!children[0].parentChapterId, audio:audio.length};
+  },original);
+  expect(preserved).toEqual({promoted:true,audio:1});
+  expect(await stale.evaluate(async scope=>{
+    const asset=new Blob([new TextEncoder().encode('RIFF0000WAVE')],{type:'audio/wav'});
+    try{await BAOStoryVoiceAssets.save(scope,asset,1,()=>true);return false;}catch(error){return error.message.includes('已刪除');}
+  },original)).toBe(true);
+  await stale.close();
+
+  const outcome=await page.evaluate(async scope=>{
+    const L=BAOStoryLibrary,A=BAOStoryVoiceAssets,B=BAOStoryVoiceBackup;
+    L.clearRefs();
+    const pack=await B.exportStory(scope.storyId);
+    const prior=(await L.listStories()).map(story=>story.storyId);
+    await new Promise((resolve,reject)=>{
+      const req=indexedDB.open('yorubay-audio-assets');
+      req.onerror=()=>reject(req.error);
+      req.onsuccess=()=>{
+        const db=req.result,tx=db.transaction('metadata','readwrite');
+        tx.objectStore('metadata').put({id:'quota-fixture',scope:'["unrelated","fixture"]',size:128*1024*1024});
+        tx.oncomplete=()=>{db.close();resolve();};
+        tx.onabort=()=>{db.close();reject(tx.error);};
+      };
+    });
+    let capacityError=false;
+    try{await B.importStory(pack);}catch(error){capacityError=error.message.includes('容量上限');}
+    const after=(await L.listStories()).map(story=>story.storyId);
+    const child=(await A.list({storyId:scope.storyId,chapterId:scope.child})).length;
+    return {same:JSON.stringify(prior)===JSON.stringify(after),capacityError,child};
+  },original);
+  expect(outcome).toEqual({same:true,capacityError:true,child:1});
 });
