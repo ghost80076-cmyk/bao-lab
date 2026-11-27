@@ -2,11 +2,8 @@
 // Developer-only loopback lab. Never imported by the story application.
 const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),assert=require('node:assert/strict');
 const {verify}=require('./voice-p2-verify-weights.cjs');
-const revision='ff4177021cc41f7db950912b73ea4fdf7d01d8e7';
-const weights=Object.freeze({
- 'onnx/encoder_model_quantized.onnx':'2af4a414ca47aa30f61246017e5fe82b0a8d229281d1255ba666a2a7f6b84d19',
- 'onnx/decoder_model_merged_quantized.onnx':'25e807a962b6349356d0ea5d0dfe530b7e5bf0e2a484aeca0359d03143faddd3'
-});
+const manifest = require('./voice-p2-research/assets.json');
+const defaultModel = 'whisper-tiny';
 function readWav(buffer){
  if(!(buffer instanceof ArrayBuffer)||buffer.byteLength<44||buffer.byteLength>1100000)throw Error('Invalid WAV size');
  const d=new DataView(buffer),tag=i=>String.fromCharCode(...new Uint8Array(buffer,i,4));
@@ -67,32 +64,42 @@ function browser(){
   }catch(e){finish(job,String(e.message||e));}
  };
 }
-async function workerMain({data}){
+async function workerMain({data}, model){
  try{
   const {samples,language,device}=data;
   if(!(samples instanceof Float32Array)||!samples.length||samples.length>480000||!['chinese','japanese','korean','english'].includes(language)||!['wasm','webgpu'].includes(device))throw Error('Invalid input');
   if(device==='webgpu'&&!navigator.gpu)throw Error('WebGPU unavailable; select WASM manually');
+  if(model==='moonshine-tiny' && language!=='english')throw Error('This research candidate accepts English only');
+  const pcmHash = await crypto.subtle.digest('SHA-256', samples);
+  const pcmSha256 = Array.from(new Uint8Array(pcmHash), byte => byte.toString(16).padStart(2,'0')).join('');
   const start=performance.now();
   const {env,pipeline}=await import('/runtime/transformers.web.min.js');
   if(env.version!=='3.8.1')throw Error('Unexpected Transformers.js runtime version');
   env.allowRemoteModels=false;env.allowLocalModels=true;env.localModelPath='/models/';env.useBrowserCache=false;
   env.backends.onnx.wasm.wasmPaths=location.origin+'/runtime/';
   env.backends.onnx.wasm.numThreads=1;env.backends.onnx.wasm.proxy=false;
-  const recognizer=await pipeline('automatic-speech-recognition','whisper-tiny',{device,dtype:'q8',local_files_only:true});
+  const recognizer=await pipeline('automatic-speech-recognition',model,{device,dtype:'q8',local_files_only:true});
   const loaded=performance.now();
   postMessage({kind:'phase',text:'Running local inference…'});
-  const result=await recognizer(samples,{language,task:'transcribe',return_timestamps:false});
+  const options = model === 'moonshine-tiny' ? {} : {language, task:'transcribe', return_timestamps:true};
+  const result=await recognizer(samples, options);
   if(typeof result?.text!=='string')throw Error('Invalid transcript result');
-  postMessage({kind:'result',text:result.text,loadMs:Math.round(loaded-start),inferenceMs:Math.round(performance.now()-loaded)});
+  postMessage({kind:'result',model,pcmSha256,frames:samples.length,text:result.text,chunks:result.chunks,loadMs:Math.round(loaded-start),inferenceMs:Math.round(performance.now()-loaded)});
  }catch(e){postMessage({kind:'error',text:String(e.message||e).slice(0,500)});}
 }
 const html='<!doctype html><html lang="zh-Hant"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>YoruBay P2 ASR lab</title><h1>P2a — 本機辨識研究工具</h1><p>只使用本機測試音檔；PCM16、單聲道、16kHz、最長30秒。不上傳、不保存、不自動送出。這不是正式功能。</p><p><label>WAV <input id="audio" type="file" accept=".wav,audio/wav"></label></p><p><label>語言 <select id="language"><option value="chinese">中文</option><option value="japanese">日語</option><option value="korean">韓語</option><option value="english">英語</option></select></label> <label>引擎 <select id="device"><option value="wasm">WASM</option><option value="webgpu">WebGPU</option></select></label></p><button id="start">開始辨識</button> <button id="stop" disabled>取消</button><p id="status" role="status">等待手動啟動</p><pre id="output" style="white-space:pre-wrap"></pre><script src="/lab.js" defer></script></html>';
-const sources={'/':html,'/lab.js':readWav.toString()+'\n('+browser.toString()+')();','/worker.js':'self.onmessage='+workerMain.toString()+';'};
-const modelFiles=new Set(['config.json','generation_config.json','preprocessor_config.json','tokenizer.json','tokenizer_config.json','special_tokens_map.json','added_tokens.json','normalizer.json','vocab.json','merges.txt',...Object.keys(weights)]);
-function assetFor(url){
- const m=url.match(/^\/models\/whisper-tiny\/(.+)$/);
- if(m&&modelFiles.has(m[1]))return 'models/whisper-tiny/'+m[1];
- if(/^\/runtime\/(?:transformers\.web\.min\.js|ort-wasm[a-z0-9._-]*\.(?:mjs|wasm))$/i.test(url))return url.slice(1);
+function sourcesFor(model) {
+ const label = model === 'moonshine-tiny' ? model + ' (English only)' : model;
+ return {
+  '/': html.replace('</h1>', '</h1><p>Model: '+label+'</p>'),
+  '/lab.js': readWav.toString()+'\n('+browser.toString()+')();',
+  '/worker.js': 'self.onmessage = event => ('+workerMain.toString()+')(event,'+JSON.stringify(model)+');'
+ };
+}
+function assetFor(url, model=defaultModel) {
+ const prefix='/models/'+model+'/';
+ if(url.startsWith(prefix) && Object.hasOwn(manifest.models[model].files, url.slice(prefix.length)))return url.slice(1);
+ if(url.startsWith('/runtime/') && Object.hasOwn(manifest.runtime,url.slice(9)))return url.slice(1);
  return null;
 }
 function selfTest(){
@@ -104,16 +111,22 @@ function selfTest(){
  assert.throws(()=>readWav(new ArrayBuffer(1100001)),/size/);
  assert.equal(assetFor('/models/whisper-tiny/onnx/encoder_model_quantized.onnx'),'models/whisper-tiny/onnx/encoder_model_quantized.onnx');
  for(const p of ['/runtime/../secret','/models/whisper-tiny/../../secret','/runtime/x.js','/models/whisper-tiny/onnx/decoder_model.onnx','/runtime/%2e%2e/x'])assert.equal(assetFor(p),null);
+ const sources=sourcesFor(defaultModel);
+ assert.equal(assetFor('/runtime/ort-wasm-unknown.wasm'),null);
  new (require('node:vm').Script)(sources['/lab.js']);
  new (require('node:vm').Script)(sources['/worker.js']);
  console.log('P2 WAV, asset allowlist and browser script syntax fixtures passed; no inference run.');
 }
 async function main(){
  if(process.argv[2]==='--self-test')return selfTest();
- if(process.argv.length!==3)throw Error('Usage: node scripts/voice-p2-browser-lab.cjs <reviewed local asset directory>|--self-test');
+ const model=process.argv[3] || defaultModel;
+ if(!process.argv[2] || process.argv.length>4 || !Object.hasOwn(manifest.models,model))throw Error('Usage: node scripts/voice-p2-browser-lab.cjs <asset-directory> [whisper-tiny|whisper-base|moonshine-tiny]');
  const root=fs.realpathSync(process.argv[2]);
- // Only the candidate weights have been independently checked. Runtime and all other assets require operator review.
- await verify(path.join(root,'models/whisper-tiny'),weights);
+ const files={};
+ for(const [name,hash] of Object.entries(manifest.runtime))files['runtime/'+name]=hash;
+ for(const [name,hash] of Object.entries(manifest.models[model].files))files['models/'+model+'/'+name]=hash;
+ await verify(root,files);
+ const sources=sourcesFor(model);
  const server=http.createServer((req,res)=>{
   res.setHeader('Content-Security-Policy',"default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; connect-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'");
   res.setHeader('X-Content-Type-Options','nosniff');
@@ -121,7 +134,7 @@ async function main(){
   if(req.headers.host!=='127.0.0.1:8787'||req.method!=='GET'){res.writeHead(403).end();return;}
   const url=req.url;
   if(Object.hasOwn(sources,url)){res.setHeader('Content-Type',url==='/'?'text/html; charset=utf-8':'text/javascript; charset=utf-8');res.end(sources[url]);return;}
-  const relative=assetFor(url);
+  const relative=assetFor(url,model);
   if(!relative){res.writeHead(404).end();return;}
   try{
    const file=fs.realpathSync(path.join(root,relative));
@@ -131,7 +144,7 @@ async function main(){
    const stream=fs.createReadStream(file);stream.on('error',()=>res.destroy());stream.pipe(res);
   }catch{res.writeHead(404).end();}
  });
- server.listen(8787,'127.0.0.1',()=>console.log('P2 developer lab http://127.0.0.1:8787/ revision '+revision+' (local assets only; no full manifest verification)'));
+ server.listen(8787,'127.0.0.1',()=>console.log('P2 developer lab http://127.0.0.1:8787/ revision '+manifest.models[model].revision+' (verified '+model+')'));
 }
 if(require.main===module)main().catch(e=>{console.error(e.message);process.exitCode=1;});
 module.exports={readWav,assetFor};

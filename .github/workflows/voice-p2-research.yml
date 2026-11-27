@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/voice-p2-*.cjs'
+      - 'scripts/voice-p2-research/**'
       - '.github/workflows/voice-p2-research.yml'
   workflow_dispatch:
 permissions:
@@ -25,40 +26,15 @@ jobs:
       - name: Prepare fixed candidate assets (research runner only)
         shell: bash
         run: |
-          set -euo pipefail
-          root="$RUNNER_TEMP/voice-p2"
-          model="$root/models/whisper-tiny"
-          mkdir -p "$model/onnx" "$root/runtime"
-          revision=ff4177021cc41f7db950912b73ea4fdf7d01d8e7
-          for file in config.json generation_config.json preprocessor_config.json tokenizer.json tokenizer_config.json special_tokens_map.json added_tokens.json normalizer.json vocab.json merges.txt onnx/encoder_model_quantized.onnx onnx/decoder_model_merged_quantized.onnx; do
-            curl --fail --silent --show-error --location --retry 2 --max-time 180 --proto '=https' "https://huggingface.co/onnx-community/whisper-tiny/resolve/$revision/$file" -o "$model/$file"
-          done
-          node scripts/voice-p2-verify-weights.cjs "$model"
-          build="$RUNNER_TEMP/voice-p2-runtime-build"
-          mkdir -p "$build"
-          printf '{"private":true}\n' > "$build/package.json"
-          npm install --prefix "$build" --ignore-scripts --no-audit --no-fund --save-exact @huggingface/transformers@3.8.1 esbuild@0.25.12
-          dist="$build/node_modules/@huggingface/transformers/dist"
-          # The distributed web module has bare ONNX imports; resolve them
-          # into one browser ESM bundle before loading from a module Worker.
-          "$build/node_modules/.bin/esbuild" "$dist/transformers.web.min.js" --bundle --platform=browser --format=esm --target=es2022 --outfile="$root/runtime/transformers.web.min.js" --metafile="$RUNNER_TEMP/voice-p2-bundle-meta.json"
-          cp "$dist"/ort-wasm*.mjs "$dist"/ort-wasm*.wasm "$root/runtime/"
-          ort="$build/node_modules/onnxruntime-web/dist"
-          if [ -d "$ort" ]; then
-            for asset in "$ort"/ort-wasm*.mjs "$ort"/ort-wasm*.wasm; do
-              [ -f "$asset" ] || continue
-              [ -e "$root/runtime/$(basename "$asset")" ] || cp "$asset" "$root/runtime/"
-            done
-          fi
-          cp "$build/package-lock.json" "$RUNNER_TEMP/voice-p2-runtime-lock.json"
-          find "$root" -type f -print0 | sort -z | xargs -0 sha256sum | tee "$RUNNER_TEMP/voice-p2-observed-sha256.txt"
-          du -sh "$root"
+          bash scripts/voice-p2-research/prepare.sh "$RUNNER_TEMP/voice-p2" whisper-tiny
       - name: Prepare synthetic audio and Chromium
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends espeak-ng ffmpeg
           espeak-ng -v en-us -s 145 -w "$RUNNER_TEMP/voice-p2-source.wav" "Hello world. This is a local voice test."
           ffmpeg -v error -i "$RUNNER_TEMP/voice-p2-source.wav" -ac 1 -ar 16000 -c:a pcm_s16le "$RUNNER_TEMP/voice-p2-test.wav"
+          espeak-ng -v en-us -s 145 -w "$RUNNER_TEMP/voice-p2-greeting.wav" "Hello world."
+          python3 scripts/voice-p2-research/check-greeting.py "$RUNNER_TEMP/voice-p2-source.wav" "$RUNNER_TEMP/voice-p2-greeting.wav"
           # Preserve the original failed sample; compare with explicit boundary silence.
           ffmpeg -v error -i "$RUNNER_TEMP/voice-p2-source.wav" -af "adelay=750:all=1,apad=pad_dur=0.75" -ac 1 -ar 16000 -c:a pcm_s16le "$RUNNER_TEMP/voice-p2-padded.wav"
           npm ci --ignore-scripts
@@ -107,11 +83,15 @@ jobs:
               async function infer(filename){
                 await page.locator('#audio').setInputFiles(process.env.RUNNER_TEMP+'/'+filename);
                 await page.locator('#start').click();
-                await page.waitForFunction(()=>!document.getElementById('start').disabled,null,{timeout:310000});
+                await page.locator('#start:enabled').waitFor({timeout:310000});
                 const status=await page.locator('#status').innerText(),output=await page.locator('#output').innerText();
                 console.log(JSON.stringify({filename,status,output,external,failed},null,2));
                 assert.match(status,/Complete/);
                 const result=JSON.parse(output);
+                const raw = require('node:child_process').execFileSync('ffmpeg', ['-v','error','-i',process.env.RUNNER_TEMP+'/'+filename,'-f','f32le','-']);
+                const expectedHash = require('node:crypto').createHash('sha256').update(raw).digest('hex');
+                assert.equal(result.frames,raw.length/4,'frame count in Worker');
+                assert.equal(result.pcmSha256,expectedHash,'every sample in Worker must match independent FFmpeg decode');
                 assert.ok(Number.isFinite(result.rtf)&&result.rtf>=0);
                 assert.ok(result.text.trim());
                 return {...result,wer:distance(reference,normalize(result.text))};
@@ -123,20 +103,16 @@ jobs:
               console.log(JSON.stringify(report,null,2));
               // Do not erase the original regression. Baseline remains a required gate;
               // the padded sample helps determine whether boundary silence is relevant.
+              assert.deepEqual(external,[]);
               assert.equal(normalize(padded.text),reference,'Padded fixture must preserve the full transcript');
               assert.equal(normalize(baseline.text),reference,'Unpadded fixture must preserve the full transcript');
-              assert.deepEqual(external,[]);
             } finally {await browser.close();}
           })().catch(e=>{console.error(e);process.exitCode=1;});
           NODE
-      - name: Record observed asset hashes (not reviewed manifest)
+      - name: Preserve inference evidence even on quality failure
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: p2-observed-asset-hashes
-          path: |
-            ${{ runner.temp }}/voice-p2-observed-sha256.txt
-            ${{ runner.temp }}/voice-p2-runtime-lock.json
-            ${{ runner.temp }}/voice-p2-bundle-meta.json
-            ${{ runner.temp }}/voice-p2-inference-report.json
-          if-no-files-found: ignore
+          name: p2-local-wasm-evidence
+          path: ${{ runner.temp }}/voice-p2-inference-report.json
+          if-no-files-found: warn

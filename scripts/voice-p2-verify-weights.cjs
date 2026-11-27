@@ -4,12 +4,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const assert = require('node:assert/strict');
-const revision = 'ff4177021cc41f7db950912b73ea4fdf7d01d8e7';
-// Published SHA256 values from upstream main listing, to cross-check against pinned revision.
-const candidate = Object.freeze({
-  'onnx/encoder_model_quantized.onnx': '2af4a414ca47aa30f61246017e5fe82b0a8d229281d1255ba666a2a7f6b84d19',
-  'onnx/decoder_model_merged_quantized.onnx': '25e807a962b6349356d0ea5d0dfe530b7e5bf0e2a484aeca0359d03143faddd3'
-});
+const model = require('./voice-p2-research/assets.json').models['whisper-tiny'];
+const revision = model.revision;
+const candidate = Object.fromEntries(Object.entries(model.files).filter(([name]) => name.endsWith('.onnx')));
 async function verify(root, manifest) {
   const realRoot = fs.realpathSync(root);
   const files = [];
