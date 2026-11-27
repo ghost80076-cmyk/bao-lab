@@ -23,6 +23,7 @@
  const btn=(text,fn)=>{const n=el('button',text);n.type='button';n.addEventListener('click',fn);return n;};
  const field=(label,tag='select')=>{const wrap=el('label',label),input=el(tag);input.setAttribute('aria-label',label);wrap.append(input);return {wrap,input};};
  const options=(select,rows)=>select.replaceChildren(...rows.map(([v,t])=>{const n=el('option',t);n.value=v;return n;}));
+ const makeRecognition=(Recognition,language)=>{const rec=new Recognition();rec.lang=language;rec.continuous=false;rec.interimResults=false;rec.maxAlternatives=1;return rec;};
  const languageOptions=[['zh-TW','繁體中文／華語'],['ja-JP','日本語'],['ko-KR','한국어'],['en-US','English']];
  const refs=()=>window.BAOStoryLibrary?.refs?.()||{};
  const scope=()=>({owner:GameState.current,card:App.activeCharacter,...refs()});
@@ -290,7 +291,7 @@
      if(!consent.input.checked){setStatus('請先確認瀏覽器語音辨識的資料傳送說明。');return;}
      disableAutomatic();auto.input.checked=false;cancelSpeech();cancelRecognition();clearLocal();
      startingText=sourceInput.value;consent.input.checked=false;
-     const rec=new Recognition();recognition=rec;rec.lang=inputLang.input.value;rec.continuous=false;rec.interimResults=false;rec.maxAlternatives=1;
+     const rec=makeRecognition(Recognition,inputLang.input.value);recognition=rec;
      rec.onresult=e=>{if(recognition===rec&&valid())draft.input.value=Core.finalTranscript(e.results);};
      rec.onerror=()=>{if(recognition===rec&&valid())setStatus('語音辨識未完成，請檢查麥克風權限、網路或語言支援。');};
      rec.onend=()=>{if(recognition!==rec)return;recognition=null;clearTimeout(recognitionTimer);syncControls();if(valid()&&draft.input.value)setStatus('辨識完成，請確認文字後填入。');};
@@ -976,6 +977,91 @@
    for(const button of [play,toggle,settings])button.className='secondary';
    bar.append(play,toggle,settings,status);row.append(bar);syncQuick();
  }
+ // A call uses the existing story transport and shared voice playback. No
+ // continuous microphone, additional RP model, or background conversation.
+ function openCall({target,active:targetActive,draftClear,refreshPhone}){
+   if(active||target.group||!inStory()||App.__requestPending||!targetActive()||!draftClear())return;
+   const current=scope(),sourceInput=document.getElementById('user-input'),focus=document.activeElement;
+   const prefix=window.BAOPhoneStoryCore?.callPrefix(target.threadId,target.senderId);
+   if(!sourceInput||!prefix||sourceInput.value.trim()||window.BAOStoryImages?.hasDraft?.()||window.BAOStoryNativeTurn?.hasDraft?.()){
+     window.BAOFeedback?.notify?.('請先處理待送草稿，再開始通話。','error');return;
+   }
+   const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+   const modal=el('dialog');modal.className='yoru-voice-dialog';modal.setAttribute('aria-label','角色語音通話');
+   if(typeof modal.showModal!=='function')return;
+   const title=el('h2','語音通話 · '+target.name),status=el('p','通話就緒，尚未啟用麥克風。');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
+   const language=field('通話輸入語言');options(language.input,languageOptions);
+   const micConsent=field('我同意使用瀏覽器語音辨識服務（可能連網）','input');micConsent.input.type='checkbox';
+   const autoPlay=field('通話回覆自動播放（使用已授權聲線；自訂服務可能收費）','input');autoPlay.input.type='checkbox';
+   const draft=field('通話逐字稿（可修改）','textarea');draft.input.rows=3;draft.input.maxLength=1200;
+   const answer=el('p','');answer.setAttribute('aria-live','polite');
+   let rec=null,timer=null,watch=null,closed=false,busy=false,reply=null,replySource=null,held=false;
+   const valid=()=>!closed&&modal.isConnected&&same(current)&&inStory()&&targetActive()&&document.getElementById('user-input')===sourceInput;
+   const ready=()=>valid()&&!busy&&!App.__requestPending&&draftClear()&&!sourceInput.value.trim()&&!window.BAOStoryImages?.hasDraft?.()&&!window.BAOStoryNativeTurn?.hasDraft?.();
+   const report=t=>{if(valid())status.textContent=t;};
+   const cancelMic=()=>{const old=rec;rec=null;held=false;clearTimeout(timer);if(old){old.onresult=old.onerror=old.onend=null;try{old.abort();}catch(_){}}};
+   const sync=()=>{hold.disabled=!Recognition||busy||!micConsent.input.checked;hold.setAttribute('aria-pressed',String(!!rec));send.disabled=busy||!!rec||!draft.input.value.trim();replay.disabled=busy||!reply;language.input.disabled=!!rec||busy;};
+   const finish=()=>{
+     if(closed)return;closed=true;cancelMic();clearInterval(watch);stopSequence();window.removeEventListener('pagehide',finish);document.removeEventListener('visibilitychange',hide);
+     modal.remove();active=null;if(focus?.isConnected)focus.focus();
+     if(targetActive())refreshPhone?.();
+   };
+   const hide=()=>{if(document.hidden)finish();};
+   const stop=()=>{held=false;if(rec)try{rec.stop();}catch(_){cancelMic();sync();}};
+   const begin=()=>{
+     if(!ready()||rec||!Recognition||!micConsent.input.checked||draft.input.value.trim()){report('請先確認語音辨識授權，並送出或清除現有逐字稿。');return;}
+     stopSequence();let job;
+     try{job=makeRecognition(Recognition,language.input.value);rec=job;
+       job.onresult=e=>{if(rec===job&&valid()){draft.input.value=Core.finalTranscript(e.results).slice(0,1200);sync();}};
+       job.onerror=()=>{if(rec===job){cancelMic();sync();report('語音辨識失敗，請檢查權限或使用文字輸入。');}};
+       job.onend=()=>{if(rec===job){rec=null;held=false;clearTimeout(timer);sync();report(draft.input.value.trim()?'辨識完成，確認後送出。':'未辨識到語句。');}};
+       job.start();sync();report('正在聆聽；放開即可停止。');
+       timer=setTimeout(()=>{if(rec===job){cancelMic();sync();report('已達本次辨識時間上限。');}},60000);
+     }catch(_){cancelMic();sync();report('無法啟動語音辨識。');}
+   };
+   const hold=btn('按住說話',()=>{});
+   hold.style.touchAction='none';hold.addEventListener('pointerdown',e=>{if(e.button!==0||held)return;e.preventDefault();hold.setPointerCapture?.(e.pointerId);held=true;begin();});
+   hold.addEventListener('pointerup',stop);hold.addEventListener('pointercancel',()=>{cancelMic();sync();report('已取消本次辨識。');});hold.addEventListener('lostpointercapture',stop);
+   hold.addEventListener('keydown',e=>{if(![' ','Enter'].includes(e.key)||e.repeat)return;e.preventDefault();held=true;begin();});
+   hold.addEventListener('keyup',e=>{if([' ','Enter'].includes(e.key)){e.preventDefault();stop();}});
+   const replay=btn('播放角色回覆',()=>{
+     if(!valid()||busy||!reply)return;
+     playPhoneMessage({...reply,target,active:()=>valid()&&!busy&&Chat.messages.at(-1)?.id===reply.messageId,status:report});
+   });
+   const send=btn('送出這句話',async()=>{
+     if(!ready()||rec)return;
+     const text=draft.input.value.trim();if(!text||text.length>1200)return;
+     const previous=Chat.messages.at(-1)?.id,submitted=prefix+text,source=playbackSource(),shouldPlay=autoPlay.input.checked;
+     stopSequence();busy=true;reply=null;replySource=null;answer.textContent='';sync();report('等待角色回覆…');
+     sourceInput.value=submitted;sourceInput.dispatchEvent(new Event('input',{bubbles:true}));
+     let turn;
+     try{turn=await App.sendMessage();}catch(_){}
+     // Failed story sends normally leave the recoverable composer draft.
+     // Move back only our exact untouched call draft, never another user's text.
+     if(same(current)&&document.getElementById('user-input')===sourceInput&&sourceInput.value===submitted&&valid()){
+       sourceInput.value='';sourceInput.dispatchEvent(new Event('input',{bubbles:true}));
+     }
+     busy=false;if(!valid())return;
+     const message=Chat.messages.at(-1);
+     if(!turn?.complete||!turn.isCurrent?.()||message?.id!==turn.assistantId||message.id===previous||turn.playerText!==submitted){
+       report('通話回合未完成；原逐字稿保留，請自行確認是否重送。');sync();return;
+     }
+     draft.input.value='';
+     const patch=window.BAOPhoneStoryCore.restrictVoiceReply(message.phonePatch,{id:target.threadId,members:[target.senderId]});
+     const rows=target.threadId?patch?.threads?.[0]?.messages:patch?.chat;
+     const spoken=(rows||[]).map(m=>m.text).join('\n');
+     if(!spoken||spoken.length>1200){report('角色未提供可播放的通話台詞，故事回合已保留。');sync();return;}
+     reply={senderId:target.senderId,senderName:target.name,text:spoken,messageId:message.id};replySource=source;answer.textContent=spoken;
+     report('角色已回覆。');sync();
+     if(shouldPlay&&playbackSource()===replySource)playPhoneMessage({...reply,target,active:()=>valid()&&!busy&&Chat.messages.at(-1)?.id===message.id,status:report});
+   });
+   draft.input.addEventListener('input',sync);micConsent.input.addEventListener('change',()=>{if(!micConsent.input.checked)cancelMic();sync();});
+   modal.append(title,el('p','輪流說話，不是連續串流。辨識可能使用瀏覽器雲端服務；只將你確認的逐字稿送往原故事模型，按原模型計費。掛斷停止錄音與播放，已送出的回合仍可能完成。'),status,language.wrap,micConsent.wrap,hold,draft.wrap,autoPlay.wrap,send,answer,replay,btn('停止播放',()=>{stopSequence();report('已停止播放。');}),btn('掛斷',finish));
+   document.body.append(modal);active=modal;stopSequence();
+   window.addEventListener('pagehide',finish);document.addEventListener('visibilitychange',hide);modal.addEventListener('cancel',e=>{e.preventDefault();finish();});modal.addEventListener('close',finish);
+   watch=setInterval(()=>{if(!valid())finish();},250);sync();
+   try{modal.showModal();}catch(_){finish();}
+ }
  function playPhoneMessage({senderId,senderName,text,target,active:valid,status}){
    if(!inStory()||App.__requestPending||!valid?.())return;
    const current=scope(),cast=castFor(current),session=sharedSession()||current;
@@ -997,5 +1083,5 @@
  }
  document.getElementById('chat-view')?.addEventListener('bao:phone-stage-visibility',()=>stopSequence());
  window.addEventListener('storage',event=>{if(event.key===CUSTOM_STORE&&automatic?.shared&&!sharedConfigCurrent(automatic))disableAutomatic();});
- window.BAOStoryVoice=Object.freeze({open,openInput,mount,playPhoneMessage,playbackSource,openSettings:settingsContext=>{if(inStory()&&!App.__requestPending&&(!settingsContext||settingsContext.active()))open({quickVoice:'settings',settingsContext});},stopPlayback:()=>{stopSequence();tell('已停止播放。');}});
+ window.BAOStoryVoice=Object.freeze({open,openInput,openCall,mount,playPhoneMessage,playbackSource,openSettings:settingsContext=>{if(inStory()&&!App.__requestPending&&(!settingsContext||settingsContext.active()))open({quickVoice:'settings',settingsContext});},stopPlayback:()=>{stopSequence();tell('已停止播放。');}});
 })();

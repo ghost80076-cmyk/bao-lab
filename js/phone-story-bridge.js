@@ -6,6 +6,15 @@
   const activePhone = () => window.BAOPhonePlayerCore?.resolve(App.activeCharacter?.phone_ui,window.GameState?.current)
     || (!window.BAOPhonePlayerCore ? window.BAOPhoneUICore.normalize(App.activeCharacter?.phone_ui) : null);
   const enabled = () => !!window.GameState?.current && !!activePhone();
+  const callPatch=(patch,user)=>{
+    if(!Core.isCall(user))return patch;
+    const state=GameState.current,display=Core.mergeDisplay(activePhone(),state?.phoneUI);
+    const scope=Core.callScope(user,display,id=>{
+      const access=window.BAOPhoneInteractionCore?.access(display,state?.phoneInteractions,{app:'kakao',id});
+      return !access || (access.exists&&!access.locked&&!access.hidden);
+    });
+    return scope?Core.restrictVoiceReply(patch,scope):null;
+  };
   const originalAdd = Chat.add.bind(Chat);
   // Called by App only AFTER its in-flight story / message-signature guard.
   // Invalid, empty or non-phone updates leave the original prose untouched.
@@ -16,7 +25,7 @@
     const user=this.messages.at(-1);
     const source=Core.xPlayerIntent(user) ? Core.mergeDisplay(activePhone(),GameState.current.phoneUI) : null;
     const voiceScope=window.BAOStoryNativeTurn?.phoneReplyScope?.();
-    const patch=voiceScope ? Core.restrictVoiceReply(parsed.patch,voiceScope) : source?.apps.includes('x') ? Core.withXPlayerPost(parsed.patch,user,source.tweets,id=>{
+    const patch=Core.isCall(user) ? callPatch(parsed.patch,user) : voiceScope ? Core.restrictVoiceReply(parsed.patch,voiceScope) : source?.apps.includes('x') ? Core.withXPlayerPost(parsed.patch,user,source.tweets,id=>{
       const access=window.BAOPhoneInteractionCore?.access(source,GameState.current.phoneInteractions,{app:'x',id});
       return !access || (access.exists && !access.locked && !access.hidden);
     }) : parsed.patch;
@@ -66,5 +75,5 @@
     owner.phoneUI = shadow.phoneUI;
     return { applied: true, unconfirmed: false };
   };
-  window.BAOPhoneStoryBridge = Object.freeze({enabled, rebuildFromHistory, extractRevision: content => enabled() ? Core.extract(content) : { text: String(content || ''), patch: null }});
+  window.BAOPhoneStoryBridge = Object.freeze({enabled, rebuildFromHistory, extractRevision: (content,user) => {if(!enabled())return {text:String(content||''),patch:null};const parsed=Core.extract(content);const preceding=user||Chat.messages.slice().reverse().find(m=>m.role==='user');return {...parsed,patch:callPatch(parsed.patch,preceding)};}});
 })();

@@ -245,3 +245,17 @@ test('NPC voice message transcript survives patch, revision replay and save with
  const scoped=Core.restrictVoiceReply(patch,{id:'g',members:['a']});assert.equal(scoped.threads[0].messages[0].kind,'voice');
  assert.match(Core.PROMPT,/kind:"voice"/);
 });
+
+
+test('one-to-one call intent binds exact recipient and cannot change group or public state',()=>{
+ const prefix=Core.callPrefix('private-a','a'),user={role:'user',content:prefix+'晚安。'};
+ const display={apps:['kakao'],contactName:'A',threads:[{id:'private-a',participants:['a']},{id:'g',participants:['a','b']}]};
+ assert.deepEqual(Core.callScope(user,display),{id:'private-a',members:['a']});
+ assert.equal(Core.callScope(user,display,()=>false),null);
+ assert.equal(Core.callScope({role:'user',content:Core.callPrefix('g','a')+'晚安'},display),null);
+ assert.equal(Core.callPrefix('bad】','a'),'');
+ assert.equal(Core.callScope({role:'user',content:Core.callPrefix('','A')+'晚安'},display).id,'');
+ const patch=Core.normalizePatch({threads:[{id:'private-a',messages:[{from:'them',senderId:'a',kind:'voice',text:'晚安。'},{from:'them',senderId:'b',text:'不應收到'}]},{id:'g',messages:[{from:'them',senderId:'a',text:'不應收到'}]}],tweets:[{text:'不應公開'}]});
+ const scoped=Core.restrictVoiceReply(patch,Core.callScope(user,display));
+ assert.equal(scoped.threads.length,1);assert.equal(scoped.threads[0].messages.length,1);assert.equal(scoped.threads[0].messages[0].kind,'voice');assert.equal(scoped.tweets,undefined);
+});
