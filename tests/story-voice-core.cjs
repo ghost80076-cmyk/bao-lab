@@ -137,3 +137,17 @@ async function testLocalAudioDraft(){
  console.log('Local audio draft: container sniffing, normalized MIME and size ceiling passed.');
 }
 testLocalAudioDraft().catch(e=>{console.error(e);process.exitCode=1;});
+
+const persistedSTT=C.savedSTT({endpoint:'https://stt.example.invalid/v1/audio/transcriptions',model:'whisper',language:'ja-JP',key:'DO-NOT-SAVE'});
+assert.deepEqual(persistedSTT,{endpoint:'https://stt.example.invalid/v1/audio/transcriptions',model:'whisper',language:'ja-JP'});
+const persistedTTS=C.savedTTS({endpoint:'http://localhost:8080/v1/audio/speech',model:'tts',speed:1.2,key:'DO-NOT-SAVE'},[['a','va'],['b','vb']]);
+assert.deepEqual(persistedTTS,{endpoint:'http://localhost:8080/v1/audio/speech',model:'tts',speed:1.2,voices:[['a','va'],['b','vb']]});
+assert.throws(()=>C.savedTTS(persistedTTS,[['a','va'],['a','vb']]));
+assert.throws(()=>C.savedTTS(persistedTTS,[]));
+assert.throws(()=>C.savedSTT({endpoint:'https://example.invalid/audio/transcriptions?key=secret',model:'x'}));
+assert.equal(C.autoTTSLimits('extended').durationMs,7200000);
+assert.equal(C.autoTTSLimits('__proto__').requests,20);
+const extended=C.autoTTSBudget('extended');
+for(let n=0;n<100;n++)assert.equal(extended.reserve('hi'),true);
+assert.equal(extended.reserve('hi'),false);
+assert.deepEqual(C.autoTTSBudget('long').remaining(),{requests:300,characters:90000});

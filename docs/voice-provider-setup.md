@@ -1,0 +1,47 @@
+# 夜灣自帶語音服務：玩家接入指南
+
+2026-11-27。此文件提供接口設定與相容性判斷，不是夜灣代管服務或已驗證模型清單。玩家自行安裝、選擇權重、取得授權並負擔運算或 API 費用；免費裝置語音不需以下設定。
+
+## 基礎及進階路徑
+
+1. 故事控制中心開啟「語音工具」。裝置聲線與語音辨識可直接使用（語言及服務可用性依瀏覽器/OS）。
+2. 進階使用者選自訂 STT 或 TTS，填寫完整接口網址、服務實際模型 ID、TTS 角色聲線 ID 及選填獨立金鑰。不要只填 /v1 或文字聊天 API。
+3. 設定可按保存，API key 與授權不保存；先測試一段無私人資訊的短句，再啟用自動配音。選擇授權額度不是價格估算。
+4. 接口需 HTTPS 或同裝置 loopback HTTP，且允許 https://yorubay.com 的 CORS；依瀏覽器確認 local-network access 與麥克風權限。localhost 在手機上指手機本身，不是玩家桌機。不同裝置或遠端連線須自行設置安全 HTTPS 服務、驗證及存取控制，不建議直接暴露未驗證的推論服務到公網。避免 CORS 全開。
+5. 不支援或連線失敗可手動切回裝置，不會自動重試、切換供應商、送出文字或產生費用。
+
+## 已實作的協議
+
+| 功能 | 請求 | 回應 |
+| --- | --- | --- |
+| STT | POST 完整 /audio/transcriptions；multipart file、model、language（zh/ja/ko/en）；選填 Bearer key | JSON text；錄音最多 60 秒、8 MiB；不支援 SSE |
+| TTS | POST 完整 /audio/speech；JSON model、voice、input、speed、response_format=mp3；選填 Bearer key | 非串流 MP3 或 WAV；最多 16 MiB，60 秒請求上限 |
+
+服務必須接受上述實際 payload 與資料格式；相容 OpenAI API 的宣稱不保證所有功能或版本相容。TTS 台詞依原文，不自動翻譯。模型、語種、語速、情緒與聲線由服務本身提供。只有文件層級的相容候選，未實跑下列服務或呼叫付費 API。
+
+## 開源候選（使用者自行選擇）
+
+### Speaches：本機語音辨識／配音
+
+官方：https://speaches.ai/installation/ 、https://speaches.ai/usage/speech-to-text/ 、https://speaches.ai/usage/text-to-speech/ 、https://speaches.ai/configuration/
+
+Speaches 提供 OpenAI-compatible 的 faster-whisper STT，以及 Piper/Kokoro TTS，可由玩家自行使用 CPU/GPU 容器。依官方安裝說明選擇版本與裝置，核對權重授權。其設定支援 ALLOW_ORIGINS；只加入所需網站 origin，必要時設 API_KEY。若服務以同裝置預設 8000 port 執行，STT 填 http://localhost:8000/v1/audio/transcriptions；TTS 填 http://localhost:8000/v1/audio/speech。模型 ID 與聲線 ID 從該實際版本模型清單與文件取得，不能假設任意 Whisper/Kokoro/Piper 模型皆支援中文、日語及韓語。初次服務端載入模型可能超過夜灣單次請求逾時，玩家自行先準備服務與模型。
+
+### Qwen3-TTS：自訂聲線候選
+
+模型官方：https://github.com/QwenLM/Qwen3-TTS
+相容服務參考：https://github.com/vllm-project/vllm-omni/blob/main/docs/serving/speech_api.md
+
+模型 Python 套件或 Web UI 不等於 HTTP TTS API。vLLM-Omni 的 CustomVoice 服務文件列出 /v1/audio/speech 及 model/voice/input/speed/response_format；可依玩家硬體、版本及服務文件架設後使用現有通用 adapter。例：玩家若依官方示例在同一裝置 8091 port 啟動 CustomVoice，網址 http://localhost:8091/v1/audio/speech、模型 Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice、預設聲線 vivian。實際可用角色、語言、格式與 CORS 以服務回應為準；夜灣目前未傳送 language、instructions、ref_audio、ref_text 等專用欄位。可由玩家在支援的服務端自行建立有權使用的聲線，再以服務端 voice ID 使用通用接口（須實測）。夜灣內部參考音訊上傳／聲線設計 UI 尚未實作。
+
+### GPT-SoVITS：原生協議不同
+
+官方：https://github.com/RVC-Boss/GPT-SoVITS ，API 範例及測試：https://github.com/RVC-Boss/GPT-SoVITS/blob/main/test_api_v2_streaming.py
+
+原生 /tts 使用 text、text_lang、ref_audio_path、prompt_lang 等欄位，不是現有 /audio/speech。不能直接將 /tts URL 填入夜灣。玩家可自行使用經驗證的相容橋接器，或等待獨立原生 adapter；夜灣不要求玩家為此安裝所有模型、不直接操作供應商的任意本機路徑或權重、不複製上游程式碼。
+
+## 驗收與故障排除
+
+先確認服務端以單句生成或單次錄音回應成功，再在瀏覽器測試短句。401/403 查獨立 key；404 查完整 endpoint 及模型 ID；格式錯誤查是否返回 SSE/JSON 而非指定音訊；CORS 查網站 origin/預檢及瀏覽器本機網路權限；逾時查服務是否已載入模型。不要將金鑰、原始私人錄音或錯誤中的敏感服務回應貼到公共 issue。
+
+正式支援標示前須有版本化實際協議、裝置瀏覽器與語言測試證據；授權參考音訊、模型包、專用 adapter 只按需增補。不重新建立 #993 的模型研究門檻，也不新增夜灣推論成本。

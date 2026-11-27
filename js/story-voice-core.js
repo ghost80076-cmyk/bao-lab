@@ -188,16 +188,37 @@
  }
  // Bounds for an explicit chapter-only remote TTS grant, not a price estimate.
  const AUTO_TTS_LIMITS=Object.freeze({requests:20,characters:6000,durationMs:30*60*1000});
- function autoTTSBudget(){
+ const AUTO_TTS_PRESETS=Object.freeze({
+   standard:AUTO_TTS_LIMITS,
+   extended:Object.freeze({requests:100,characters:30000,durationMs:120*60*1000}),
+   long:Object.freeze({requests:300,characters:90000,durationMs:240*60*1000})
+ });
+ function autoTTSLimits(preset){return Object.hasOwn(AUTO_TTS_PRESETS,preset)?AUTO_TTS_PRESETS[preset]:AUTO_TTS_LIMITS;}
+ function autoTTSBudget(preset='standard'){
+   const limits=autoTTSLimits(preset);
    let requests=0,characters=0;
    return Object.freeze({
      reserve(text){
        const size=script(text).length;
-       if(requests>=AUTO_TTS_LIMITS.requests||characters+size>AUTO_TTS_LIMITS.characters)return false;
+       if(requests>=limits.requests||characters+size>limits.characters)return false;
        requests++;characters+=size;return true;
      },
-     remaining(){return {requests:AUTO_TTS_LIMITS.requests-requests,characters:AUTO_TTS_LIMITS.characters-characters};}
+     remaining(){return {requests:limits.requests-requests,characters:limits.characters-characters};}
    });
+ }
+ // Store only non-secret settings, validated both on load and save.
+ function savedSTT(raw){
+   const cfg=sttConfig({...raw,key:''});
+   return {endpoint:cfg.endpoint,model:cfg.model,language:LANGUAGES.includes(raw?.language)?raw.language:'zh-TW'};
+ }
+ function savedTTS(raw,entries){
+   if(!Array.isArray(entries)||!entries.length||entries.length>100)throw Error('請至少設定一個角色聲線（最多 100 個）。');
+   const voices=new Map();let config;
+   for(const entry of entries){
+     if(!Array.isArray(entry)||entry.length!==2||typeof entry[0]!=='string'||!entry[0]||entry[0].length>500||typeof entry[1]!=='string'||voices.has(entry[0]))throw Error('角色聲線設定格式無效。');
+     config=ttsConfig({...raw,key:'',voice:entry[1]});voices.set(entry[0],config.voice);
+   }
+   return {endpoint:config.endpoint,model:config.model,speed:config.speed,voices:[...voices]};
  }
  // Local preview only; never handed to STT/RP or saved as story media.
  const AUDIO_DRAFT_MAX_BYTES=8*1024*1024,AUDIO_DRAFT_MAX_SECONDS=60;
@@ -215,5 +236,5 @@
    if(!format||(type&&!format[2].includes(type)))throw Error('音檔格式不支援或與內容不符。');
    return {blob:new Blob([blob],{type:format[0]}),extension:format[1]};
  }
- return Object.freeze({LANGUAGES,MAX_TEXT,profile,PACK_LIMIT,exportPack,importPack,profileKey,voicesFor,selectVoice,candidates,directDialogue,script,mergeDraft,finalTranscript,sttConfig,transcribe,STT_MAX_BYTES,ttsConfig,synthesize,TTS_MAX_BYTES,AUTO_TTS_LIMITS,autoTTSBudget,localAudioDraft,AUDIO_DRAFT_MAX_BYTES,AUDIO_DRAFT_MAX_SECONDS});
+ return Object.freeze({LANGUAGES,MAX_TEXT,profile,PACK_LIMIT,exportPack,importPack,profileKey,voicesFor,selectVoice,candidates,directDialogue,script,mergeDraft,finalTranscript,sttConfig,transcribe,STT_MAX_BYTES,ttsConfig,synthesize,TTS_MAX_BYTES,AUTO_TTS_LIMITS,autoTTSLimits,autoTTSBudget,savedSTT,savedTTS,localAudioDraft,AUDIO_DRAFT_MAX_BYTES,AUDIO_DRAFT_MAX_SECONDS});
 });
