@@ -46,3 +46,12 @@ assert.deepEqual(solo('<div hidden>「隱藏」</div>'),[]);
 assert.deepEqual(solo('「未完\n[TOOL]「隱藏」'),[]);
 assert.deepEqual(C.directDialogue('知晚：「你好。」',[...cast,{id:'c',name:'知晚'}],null),[]);
 assert.deepEqual(group('阿青說：「第一句。」「第二句。」'),[speech('b','第一句。'),speech('b','第二句。')]);
+
+ // Existing RP cards often put a complete italic action before direct speech.
+assert.deepEqual(solo('*她微笑著*「晚安。」'),[speech('a','晚安。')]);
+assert.deepEqual(solo('*她放下杯子。*\n「要一起吃嗎？」'),[speech('a','要一起吃嗎？')]);
+assert.deepEqual(solo('*知晚低頭微笑*\n「晚安。」'),[speech('a','晚安。')]);
+assert.deepEqual(solo('*她心想：*「不要說出口。」'),[]);
+assert.deepEqual(solo('*她看見門上寫著*「公休。」'),[]);
+assert.deepEqual(solo('*路人說：*「借過。」'),[]);
+assert.deepEqual(group('*她微笑著*「不知道誰在說話。」'),[]);
