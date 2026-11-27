@@ -212,3 +212,52 @@ test('custom STT is opt-in, cancel-safe and only fills editable draft',async({pa
  expect(await page.evaluate(()=>JSON.stringify(localStorage))).not.toContain('STT-PRIVATE');
  await openVoice(page,390);await expect(d.getByLabel('語音辨識來源')).toHaveValue('device');
 });
+
+test('custom TTS only sends confirmed line and keeps role voice choices temporary',async({page})=>{
+ await setup(page,390);
+ // One short valid PCM WAV fixture; no provider or actual paid call.
+ const wav=Buffer.alloc(44+1600);wav.write('RIFF',0);wav.writeUInt32LE(wav.length-8,4);wav.write('WAVEfmt ',8);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);wav.writeUInt32LE(8000,24);wav.writeUInt32LE(16000,28);wav.writeUInt16LE(2,32);wav.writeUInt16LE(16,34);wav.write('data',36);wav.writeUInt32LE(1600,40);
+ let requests=0,failNext=false;
+ await page.route('https://tts.example.invalid/**',async route=>{
+   const headers={'access-control-allow-origin':'*','access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'authorization, content-type'};
+   if(route.request().method()==='OPTIONS')return route.fulfill({status:204,headers});
+   requests++;expect(route.request().headers().authorization).toBe('Bearer TTS-PRIVATE');
+   expect(route.request().postDataJSON()).toEqual({model:'player-tts',voice:'voice-a',input:'晚安。',speed:1,response_format:'mp3'});
+   if(failNext)return route.fulfill({status:503,headers,body:'PRIVATE-SERVICE-ERROR'});
+   await route.fulfill({headers:{...headers,'content-type':'audio/wav'},body:wav});
+ });
+ await openVoice(page,390);const d=page.getByRole('dialog',{name:'角色語音與語音輸入'});
+ await expect(d.getByLabel('配音來源')).toHaveValue('device');
+ await d.getByLabel('配音來源').selectOption('custom');
+ await expect(d.getByLabel('自動朗讀角色台詞')).toBeDisabled();
+ await d.getByLabel('配音角色').selectOption('a');
+ await d.getByLabel('TTS 接口網址').fill('https://tts.example.invalid/v1/audio/speech');
+ await d.getByLabel('TTS 模型 ID').fill('player-tts');
+ await d.getByLabel('TTS 聲線 ID').fill('voice-a');
+ await d.getByLabel('TTS API Key（選填）').fill('TTS-PRIVATE');
+ await d.getByLabel('配音角色').selectOption('b');
+ await expect(d.getByLabel('TTS 聲線 ID')).toHaveValue('');
+ await d.getByLabel('TTS 聲線 ID').fill('voice-b');
+ await d.getByLabel('配音角色').selectOption('a');
+ await expect(d.getByLabel('TTS 聲線 ID')).toHaveValue('voice-a');
+ await d.getByLabel('實際配音台詞（可編輯／貼上翻譯）').fill('晚安。');
+ const generate=d.getByRole('button',{name:'生成確認的台詞'}),consent=d.getByLabel('我同意將本次確認的台詞傳至指定 TTS 接口，可能收費');
+ await generate.click();expect(requests).toBe(0);
+ await consent.check();await generate.click();
+ await expect(d.locator('p[role="status"]')).toContainText('語音已生成');
+ const audio=d.locator('audio[aria-label="生成的角色語音"]');
+ await expect(audio).toBeVisible();await expect(audio).toHaveAttribute('src',/^blob:/);
+ expect(requests).toBe(1);
+ await d.getByRole('button',{name:'停止播放',exact:true}).click();
+ await expect(audio).toBeHidden();await expect(audio).not.toHaveAttribute('src',/./);
+ failNext=true;await consent.check();await generate.click();
+ await expect(d.locator('p[role="status"]')).toContainText('TTS 生成失敗');
+ await expect(d.locator('p[role="status"]')).not.toContainText('PRIVATE-SERVICE-ERROR');
+ expect(requests).toBe(2);
+ expect(await page.evaluate(()=>window.__voiceCalls.length)).toBe(0);
+ await d.getByRole('button',{name:'關閉',exact:true}).click();
+ expect(await page.evaluate(()=>JSON.stringify(localStorage))).not.toContain('TTS-PRIVATE');
+ await openVoice(page,390);
+ await expect(d.getByLabel('配音來源')).toHaveValue('device');
+ await expect(d.getByLabel('自動朗讀角色台詞')).toBeEnabled();
+});

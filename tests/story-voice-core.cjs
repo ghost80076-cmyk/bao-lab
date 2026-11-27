@@ -83,3 +83,30 @@ async function testSTT(){
  console.log('Custom STT: explicit endpoint, separated key, bounded audio and response, no redirect, editable text contract passed.');
 }
 testSTT().catch(e=>{console.error(e);process.exitCode=1;});
+
+async function testTTS(){
+ const cfg={endpoint:'https://tts.example.invalid/v1/audio/speech',model:'player-tts',voice:'role-voice',key:'TTS-ONLY',speed:1.15};
+ assert.equal(C.ttsConfig(cfg).voice,'role-voice');
+ assert.equal(C.ttsConfig({...cfg,endpoint:'http://localhost:8080/v1/audio/speech',key:''}).key,'');
+ for(const endpoint of ['http://example.com/audio/speech','https://user:pass@example.com/audio/speech','https://example.com/audio/speech?key=123','https://example.com/audio/transcriptions'])assert.throws(()=>C.ttsConfig({...cfg,endpoint}));
+ assert.throws(()=>C.ttsConfig({...cfg,voice:''}));
+ const bytes=new Uint8Array([73,68,51,4,0,0,0,0,0,0]);
+ let requests=0;
+ const fetcher=async(url,opts)=>{
+   requests++;assert.equal(url,cfg.endpoint);assert.equal(opts.method,'POST');assert.equal(opts.headers.Authorization,'Bearer TTS-ONLY');
+   assert.equal(opts.credentials,'omit');assert.equal(opts.redirect,'error');assert.equal(opts.referrerPolicy,'no-referrer');
+   assert.deepEqual(JSON.parse(opts.body),{model:'player-tts',voice:'role-voice',input:'晚安。',speed:1.15,response_format:'mp3'});
+   return new Response(bytes,{headers:{'Content-Type':'audio/mpeg'}});
+ };
+ const result=await C.synthesize(cfg,' 晚安。 ',{fetcher});
+ assert.equal(result.type,'audio/mpeg');assert.deepEqual(new Uint8Array(await result.arrayBuffer()),bytes);assert.equal(requests,1);
+ await assert.rejects(C.synthesize(cfg,'',{fetcher}));assert.equal(requests,1);
+ await assert.rejects(C.synthesize(cfg,'晚安。',{fetcher:async()=>new Response('private provider error',{status:401})}),/回應失敗/);
+ await assert.rejects(C.synthesize(cfg,'晚安。',{fetcher:async()=>new Response('<html>bad</html>',{headers:{'Content-Type':'text/html'}})}),/相容音訊/);
+ await assert.rejects(C.synthesize(cfg,'晚安。',{fetcher:async()=>new Response('not audio',{headers:{'Content-Type':'audio/mpeg'}})}),/格式不相容/);
+ await assert.rejects(C.synthesize(cfg,'晚安。',{fetcher:async()=>new Response(new Uint8Array(C.TTS_MAX_BYTES+1),{headers:{'Content-Type':'audio/mpeg'}})}),/16 MiB/);
+ const controller=new AbortController();controller.abort();
+ await assert.rejects(C.synthesize(cfg,'晚安。',{signal:controller.signal,fetcher:async(_,opts)=>{assert.equal(opts.signal,controller.signal);throw Error('aborted');}}),/aborted/);
+ console.log('Custom TTS: explicit one-shot request, isolated key, bounded response and audio format checks passed.');
+}
+testTTS().catch(e=>{console.error(e);process.exitCode=1;});
