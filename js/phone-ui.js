@@ -4,7 +4,7 @@
   const Core = window.BAOPhoneUICore;
   const Puzzles = window.BAOPhoneInteractionCore;
   if (!Core || typeof App === 'undefined' || window.BAOPhoneUI) return;
-  let dmPhotos=null, xPhotosCleanup=()=>{};
+  let dmPhotos=null, xPhotosCleanup=()=>{}, voicePanel=null;
   let imageCollectionCleanup = () => {};
   let root = null, screen = null, config = null, page = 'lock', subpage = '';
   let clock = null, callTimer = null, callStart = 0, messageTimers = [], messageFade = null;
@@ -186,6 +186,7 @@
   }
   function close() {
     dmPhotos?.cleanup(); dmPhotos=null;xPhotosCleanup();xPhotosCleanup=()=>{};
+    voicePanel?.cleanup();voicePanel=null;
     imageCollectionCleanup(); imageCollectionCleanup=()=>{};
     const wasOpen = Boolean(root);
     clearTimers(); stopMedia(); root?.remove(); root = null; screen = null;ownerState=null;ownerCharacter=null;eventNotice='';
@@ -261,6 +262,7 @@
   function handle() { const node=button('', 'home', 'bp-home-handle');node.setAttribute('aria-label','返回手機桌面');return node; }
   function render() {
     dmPhotos?.cleanup(); dmPhotos=null;xPhotosCleanup();xPhotosCleanup=()=>{};
+    voicePanel?.cleanup();voicePanel=null;
     imageCollectionCleanup(); imageCollectionCleanup=()=>{};
     if (!screen || !config) return;
     screen.replaceChildren();
@@ -375,7 +377,7 @@
         const send = $('button','', '傳送至故事'); send.type='submit';
         add(form,input,send); area.append(form);
         const selected=selectedThread();
-        if(window.BAOPhoneDMPhotos){
+        if(window.BAOPhoneDMPhotos || window.BAOStoryVoiceMessages){
           const threadId=selected?.id || '',target=chatPhotoTarget(config,threadId,ownerState);
           if(target){
             const active=()=>{
@@ -383,7 +385,8 @@
               const live=chatPhotoTarget(phoneSource(),threadId,GameState.current);
               return live?.key===target.key && live?.prefix===target.prefix;
             };
-            dmPhotos=window.BAOPhoneDMPhotos.mount({form,thread,target,active,refresh:render});
+            dmPhotos=window.BAOPhoneDMPhotos?.mount({form,thread,target,active,refresh:render});
+            voicePanel=window.BAOStoryVoiceMessages?.mountPhone({form,thread,target,active});
           }
         }
         window.setTimeout(()=>{ if (thread.isConnected) thread.scrollTop = thread.scrollHeight; },0);
@@ -850,7 +853,7 @@
     if (action==='shuffle'){shuffle=!shuffle;target.classList.toggle('bp-selected');return;}
     if (action==='loop'){loop=!loop;if(audio)audio.loop=loop;target.classList.toggle('bp-selected');}
   }
-  document.addEventListener('keydown', e => {if(e.key==='Escape'&&root&&!document.querySelector('[data-image-dialog]')){e.preventDefault();close();}});
+  document.addEventListener('keydown', e => {if(e.key==='Escape'&&!e.defaultPrevented&&root&&!document.querySelector('[data-image-dialog],.yoru-voice-dialog[open]')){e.preventDefault();close();}});
   document.addEventListener('input', e => {
     if(e.target?.matches?.('[data-phone-seek]') && trackIndex>=0){
       position=Math.min(currentTrack().duration,Math.max(0,Number(e.target.value)||0));
@@ -858,7 +861,12 @@
     }
   });
   if (typeof App.wrapRenderChatShell === 'function') {
-    App.wrapRenderChatShell('phone-ui:launcher', function(next,...args){const result=next(...args);makeLauncher();return result;});
+    App.wrapRenderChatShell('phone-ui:launcher', function(next,...args){
+      const result=next(...args);
+      if(root)refreshFromState();
+      else makeLauncher();
+      return result;
+    });
   }
   if (typeof App.wrapShowView === 'function') {
     App.wrapShowView('phone-ui:close-on-exit', function(next,...args){
@@ -875,7 +883,8 @@
     const updated = phoneSource();
     if (!updated) { close(); return; }
     config = updated;
-    if(dmPhotos && !dmPhotos.x && !dmPhotos.current()){render();return;}
+    if((dmPhotos && !dmPhotos.x && !dmPhotos.current()) || (voicePanel && !voicePanel.current())){render();return;}
+    void voicePanel?.refresh();
     // Keep active media and focused messaging surfaces intact.
     if ((page === 'photos' || page === 'notes') || page === 'home' || page === 'lock' || page === 'phone' || page === 'x' ||
         (page === 'kakao' && subpage !== 'chat')) render();
