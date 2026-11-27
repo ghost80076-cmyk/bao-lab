@@ -28,6 +28,8 @@ jobs:
         run: |
           node scripts/voice-p2-verify-weights.cjs --self-test
           node scripts/voice-p2-browser-lab.cjs --self-test
+          node scripts/voice-p2-research/asset-manager-core.test.cjs
+          python3 -m py_compile scripts/voice-p2-research/prepare-zh-tw.py
       - name: Production Worker read-only drift audit contracts
         run: |
           node --check scripts/audit-production-worker-code-drift.cjs
