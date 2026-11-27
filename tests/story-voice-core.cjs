@@ -151,3 +151,28 @@ const extended=C.autoTTSBudget('extended');
 for(let n=0;n<100;n++)assert.equal(extended.reserve('hi'),true);
 assert.equal(extended.reserve('hi'),false);
 assert.deepEqual(C.autoTTSBudget('long').remaining(),{requests:300,characters:90000});
+
+async function testNativeAudio(){
+ const cfg={type:'gemini',protocol:'gemini',baseUrl:'https://generativelanguage.googleapis.com/v1beta/models',model:'gemini-3.8-flash',key:'NATIVE-PRIVATE'};
+ const wav=new Uint8Array(44);wav.set(Buffer.from('RIFF'),0);wav.set(Buffer.from('WAVE'),8);const blob=new Blob([wav],{type:'audio/wav'});
+ let calls=0;
+ const fetcher=async(url,opts)=>{
+   calls++;assert.equal(url,cfg.baseUrl+'/'+cfg.model+':generateContent');assert.equal(opts.headers['x-goog-api-key'],cfg.key);
+   assert.equal(opts.credentials,'omit');assert.equal(opts.redirect,'error');
+   const p=JSON.parse(opts.body);assert.deepEqual(Object.keys(p).sort(),['contents','generationConfig']);assert.equal(p.contents.length,1);assert.equal(p.contents[0].parts.length,2);
+   assert.deepEqual(p.contents[0].parts[1],{inlineData:{mimeType:'audio/wav',data:Buffer.from(wav).toString('base64')}});
+   return new Response(JSON.stringify({candidates:[{finishReason:'STOP',content:{parts:[{thought:true,text:'hidden'},{text:'可聽見一句晚安。'}]}}]}));
+ };
+ await assert.rejects(C.understandAudio(cfg,blob,.1,{fetcher}),/確認/);
+ for(const bad of [{...cfg,type:'bao-credits'},{...cfg,baseUrl:'https://other.invalid/v1beta/models'},{...cfg,protocol:'openai'},{...cfg,model:'gemini-tts-preview'},{...cfg,route:'hosted'}]){
+   await assert.rejects(C.understandAudio(bad,blob,.1,{fetcher,confirmed:true}));
+ }
+ await assert.rejects(C.understandAudio(cfg,blob,61,{fetcher,confirmed:true}),/長度/);
+ await assert.rejects(C.understandAudio(cfg,blob,.1,{fetcher,confirmed:true,isCurrent:()=>false}),/取消/);
+ assert.equal(calls,0);
+ assert.equal(await C.understandAudio(cfg,blob,.1,{fetcher,confirmed:true}),'可聽見一句晚安。');assert.equal(calls,1);
+ await assert.rejects(C.understandAudio(cfg,blob,.1,{confirmed:true,fetcher:async()=>new Response('PRIVATE ERROR',{status:401})}),/請求失敗/);
+ await assert.rejects(C.understandAudio(cfg,blob,.1,{confirmed:true,fetcher:async()=>new Response(JSON.stringify({candidates:[{finishReason:'MAX_TOKENS',content:{parts:[{text:'partial'}]}}]}))}),/未完成/);
+ console.log('Native audio: official BYOK only, confirmed one-shot, bounded visible text, no story context.');
+}
+testNativeAudio().catch(e=>{console.error(e);process.exitCode=1;});

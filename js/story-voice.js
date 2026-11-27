@@ -538,7 +538,12 @@
    const localFile=field('選擇本機音檔','input');localFile.input.type='file';localFile.input.accept='audio/wav,audio/x-wav,audio/mpeg,audio/mp4,audio/ogg,audio/webm,.wav,.mp3,.m4a,.ogg,.webm';
    const localAudio=el('audio');localAudio.controls=true;localAudio.preload='metadata';localAudio.hidden=true;localAudio.setAttribute('aria-label','本機音檔預覽');
    const localInfo=el('p');localInfo.setAttribute('aria-live','polite');
-   let localReady=false,localDuration=null,localExtension='',metadataTimer=null,localBlob=null,localSaving=false,collectionEpoch=0;
+   let localReady=false,localDuration=null,localExtension='',metadataTimer=null,localBlob=null,localSaving=false,collectionEpoch=0,nativeJob=null;
+   let nativeRoute=null;
+   if(!phone)try{nativeRoute=Core.nativeAudioRoute(App.config?.api);}catch(_){}
+   const routeStillCurrent=()=>{
+     try{const next=Core.nativeAudioRoute(App.config?.api);return !!nativeRoute&&next.endpoint===nativeRoute.endpoint&&next.model===nativeRoute.model&&next.key===nativeRoute.key;}catch(_){return false;}
+   };
    function releaseRecording(){
      const job=localJob;localJob=null;if(!job)return;
      clearTimeout(job.timer);
@@ -546,7 +551,7 @@
      job.stream?.getTracks().forEach(t=>t.stop());job.chunks.length=0;
    }
    function clearLocal(){
-     localEpoch++;releaseRecording();clearTimeout(metadataTimer);
+     localEpoch++;cancelNative();nativeConsent.input.checked=false;nativeResult.input.value='';nativeStatus.textContent='';releaseRecording();clearTimeout(metadataTimer);
      localAudio.onloadedmetadata=localAudio.onerror=null;localAudio.pause();
      localAudio.removeAttribute('src');localAudio.load();
      if(localURL)URL.revokeObjectURL(localURL);localURL=null;
@@ -558,8 +563,11 @@
      localStop.disabled=localJob?.phase!=='recording';
      localFile.input.disabled=Boolean(localJob);
      localDownload.disabled=!localReady;
-     localSave.disabled=!localReady||localSaving||!window.BAOStoryVoiceAssets||!current.storyId||!current.chapterId;
+     localSave.disabled=!localReady||localSaving||Boolean(nativeJob)||!window.BAOStoryVoiceAssets||!current.storyId||!current.chapterId;
      localSend.disabled=localSave.disabled||!window.BAOStoryVoiceMessages||!Chat.messages.at(-1)?.id;
+     nativeAnalyze.disabled=!!phone||!localReady||localSaving||Boolean(nativeJob)||!routeStillCurrent()||!['audio/wav','audio/mpeg','audio/ogg'].includes(localBlob?.type);
+     nativeCancel.hidden=!nativeJob;
+     nativeConsent.input.disabled=Boolean(nativeJob)||!routeStillCurrent();
    }
    const localLive=()=>valid()&&inStory()&&!App.__requestPending;
    function localFail(message){clearLocal();if(valid())localInfo.textContent=message;}
@@ -680,6 +688,33 @@
      }catch(e){if(localLive()&&epoch===localEpoch)localInfo.textContent=e.message||'無法加入，本機音檔仍可下載。';}
      finally{localSaving=false;if(valid())syncLocal();}
    });
+   const nativeSection=el('details');
+   nativeSection.append(el('summary','原始音訊理解（進階 BYOK）'),el('p',nativeRoute?'目前模型：'+nativeRoute.model+'。只有你明確確認後，原始音檔才會送到 Gemini 官方 API，可能收費。不傳送故事正文、角色設定、記憶或 Phone 對話。此處是獨立分析預覽，不是角色已聽見的訊息。':'目前未使用符合條件的 Gemini 官渠自帶 API。仍可使用裝置語音轉文字、本機音訊和既有配音。'),el('p','第一版支援 WAV、MP3、OGG（8 MiB／60 秒以內）。模型能力依實際供應商版本；錄音為其他格式時，可自行轉檔。'));
+   const nativeConsent=field('我已確認目前模型支援音訊輸入，並同意本次原始音檔傳送與可能費用','input');nativeConsent.input.type='checkbox';
+   const nativeResult=field('音訊理解結果（可編輯，不會自動送出）','textarea');nativeResult.input.rows=5;nativeResult.input.maxLength=12000;
+   const nativeStatus=el('p');nativeStatus.setAttribute('aria-live','polite');nativeStatus.dataset.nativeAudioStatus='1';
+   function cancelNative(){const job=nativeJob;nativeJob=null;if(job){clearTimeout(job.timer);job.controller.abort();}}
+   const nativeCancel=btn('取消原始音訊理解',()=>{
+     cancelNative();nativeConsent.input.checked=false;nativeStatus.textContent='已取消；若請求已送出，供應商仍可能計費。';syncLocal();
+   });
+   const nativeAnalyze=btn('分析原始音訊',async()=>{
+     if(phone||!localLive()||!localReady||localSaving||nativeJob||!localBlob||!routeStillCurrent())return;
+     if(!nativeConsent.input.checked){nativeStatus.textContent='請先確認音訊能力及本次傳送。';return;}
+     nativeConsent.input.checked=false;
+     disableAutomatic();cancelSpeech();cancelRecognition();syncControls();localAudio.pause();
+     const epoch=localEpoch,blob=localBlob,duration=localDuration;
+     const job={controller:new AbortController(),timer:null};nativeJob=job;
+     const live=()=>nativeJob===job&&localLive()&&epoch===localEpoch&&routeStillCurrent();
+     nativeResult.input.value='';nativeStatus.textContent='正在使用目前 Gemini API 理解原始音訊…';syncLocal();
+     job.timer=setTimeout(()=>{if(nativeJob===job){cancelNative();nativeStatus.textContent='音訊理解逾時，請自行決定是否重試；已送出的請求可能計費。';syncLocal();}},60000);
+     try{
+       const result=await Core.understandAudio(App.config.api,blob,duration,{signal:job.controller.signal,isCurrent:live,confirmed:true});
+       if(live()){nativeResult.input.value=result;nativeStatus.textContent='音訊理解完成，請自行核對。尚未送出故事訊息。';}
+     }catch(_){if(live())nativeStatus.textContent='音訊理解失敗，請確認模型能力、音訊格式、連線或額度；未自動重試。';}
+     finally{if(nativeJob===job){cancelNative();if(valid())syncLocal();}}
+   });
+   nativeSection.append(nativeConsent.wrap,nativeAnalyze,nativeCancel,nativeResult.wrap,nativeStatus);
+   nativeSection.addEventListener('toggle',()=>{if(!nativeSection.open){cancelNative();nativeConsent.input.checked=false;syncLocal();}});
    const backup=el('details');
    backup.append(el('summary','故事＋本機音訊備份'),el('p','備份包含所有仍存在章節的本機音訊與故事資料，可能包含私人錄音。普通 JSON／TXT／Drive 及生成圖集備份不含音訊；此備份也不含生成圖集。請妥善保存。匯入建立新故事副本。'));
    const backupStatus=el('p');backupStatus.setAttribute('aria-live','polite');
@@ -719,7 +754,8 @@
    collection.append(collectionInfo,collectionList,backup);
    collection.addEventListener('toggle',()=>{if(collection.open&&localSection.open)void refreshCollection();else if(!collection.open)collectionEpoch++;});
    localSection.append(localFile.wrap,localStart,localStop,btn('捨棄本機音檔／取消錄音',()=>{clearLocal();localInfo.textContent='已捨棄本機音檔。';}),localAudio,localDownload,localSave,localSend,localInfo,collection);
-   localSection.addEventListener('toggle',()=>{if(!localSection.open){if(localJob){clearLocal();localInfo.textContent='已停止並捨棄本機錄音。';}else localAudio.pause();}});
+   if(!phone)localSection.append(nativeSection);
+   localSection.addEventListener('toggle',()=>{if(!localSection.open){if(localJob){clearLocal();localInfo.textContent='已停止並捨棄本機錄音。';}else localAudio.pause();cancelNative();nativeConsent.input.checked=false;syncLocal();}});
    syncLocal();
    if(phone){
      localSection.open=true;
@@ -730,7 +766,7 @@
    if(!phone)modal.append(inputSection,output);
    modal.append(localSection,status,btn('關閉',close));document.body.append(modal);active=modal;
    window.addEventListener('pagehide',close);document.addEventListener('visibilitychange',onVisibility);modal.addEventListener('cancel',e=>{e.preventDefault();close();});modal.addEventListener('close',cleanup);
-   const watch=setInterval(()=>{if(!valid()||!inStory()||((externalJob||ttsJob||audioURL||localJob||localURL)&&App.__requestPending))close();},250);
+   const watch=setInterval(()=>{if(!valid()||!inStory()||((externalJob||ttsJob||audioURL||localJob||localURL||nativeJob)&&App.__requestPending)){close();return;}if(nativeJob&&!routeStillCurrent()){cancelNative();nativeStatus.textContent='模型或金鑰已變更，理解請求已取消。';syncLocal();}},250);
    try{modal.showModal();}catch(_){cleanup();}
  }
  function mount(){

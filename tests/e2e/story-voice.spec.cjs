@@ -713,3 +713,42 @@ test('confirmed character TTS can be saved only to its original spoken reply', a
  expect(saved.delivery).toMatchObject({sender:'character',recipient:'player',actor:{id:'voice-test'},after:{id:saved.reply}});
  expect(saved.hasSecret).toBe(false);
 });
+
+test('native audio understanding sends only a reviewed clip to direct Gemini and never commits a story turn',async({page})=>{
+ const calls=[];
+ await page.route('https://generativelanguage.googleapis.com/**',async route=>{
+   const headers={'access-control-allow-origin':'*','access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'x-goog-api-key, content-type'};
+   if(route.request().method()==='OPTIONS')return route.fulfill({status:204,headers});
+   calls.push(route.request().postDataJSON());
+   expect(route.request().url()).toBe('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent');
+   expect(route.request().headers()['x-goog-api-key']).toBe('NATIVE-PRIVATE');
+   await route.fulfill({headers,json:{candidates:[{finishReason:'STOP',content:{parts:[{thought:true,text:'hidden reasoning'},{text:'可聽見一句晚安。'}]}}]}});
+ });
+ await setup(page,390);await openVoice(page,390);
+ const d=page.getByRole('dialog',{name:'角色語音與語音輸入'});
+ await d.getByText('玩家錄音／音檔預覽（本機）',{exact:true}).click();
+ await d.getByText('原始音訊理解（進階 BYOK）',{exact:true}).click();
+ await expect(d.getByRole('button',{name:'分析原始音訊'})).toBeDisabled();
+ await d.getByRole('button',{name:'關閉',exact:true}).click();
+ await page.evaluate(()=>{
+   Object.assign(App.config.api,{type:'gemini',protocol:'gemini',baseUrl:'https://generativelanguage.googleapis.com/v1beta/models',model:'gemini-3.8-flash',key:'NATIVE-PRIVATE'});
+ });
+ const before=await page.evaluate(()=>({messages:JSON.stringify(Chat.messages),state:JSON.stringify(GameState.current)}));
+ await page.locator('#user-input').fill('原草稿');
+ await openVoice(page,390);
+ await d.getByText('玩家錄音／音檔預覽（本機）',{exact:true}).click();
+ await d.getByLabel('選擇本機音檔').setInputFiles({name:'sample.wav',mimeType:'audio/wav',buffer:voiceWav()});
+ await d.getByText('原始音訊理解（進階 BYOK）',{exact:true}).click();
+ const analyze=d.getByRole('button',{name:'分析原始音訊'});
+ await expect(analyze).toBeEnabled();
+ await analyze.click();expect(calls).toHaveLength(0);
+ const consent=d.getByLabel('我已確認目前模型支援音訊輸入，並同意本次原始音檔傳送與可能費用');
+ await consent.check();await analyze.click();
+ await expect(d.getByLabel('音訊理解結果（可編輯，不會自動送出）')).toHaveValue('可聽見一句晚安。');
+ await expect(consent).not.toBeChecked();expect(calls).toHaveLength(1);
+ expect(calls[0].contents).toHaveLength(1);expect(calls[0].contents[0].parts[1].inlineData).toEqual({mimeType:'audio/wav',data:voiceWav().toString('base64')});
+ expect(JSON.stringify(calls[0])).not.toContain('fixture');
+ await d.getByRole('button',{name:'關閉',exact:true}).click();
+ await expect(page.locator('#user-input')).toHaveValue('原草稿');
+ expect(await page.evaluate(()=>({messages:JSON.stringify(Chat.messages),state:JSON.stringify(GameState.current)}))).toEqual(before);
+});

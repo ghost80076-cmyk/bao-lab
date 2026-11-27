@@ -146,6 +146,10 @@ P3b [#996](https://github.com/ghost80076-cmyk/bao-lab/pull/996) 已合併，17/1
 
 #### P4b-3c 保存選配 TTS 生成的角色台詞
 
-[#1003 草稿](https://github.com/ghost80076-cmyk/bao-lab/pull/1003) 已改以 main 為 base，完整 CI 待驗收。整疊 Firefox 驗收通過 16 項語音案例及 5 項 Phone／X 圖片相容案例。真實供應商及實體裝置待驗收。
+[#1003](https://github.com/ghost80076-cmyk/bao-lab/pull/1003) 已合併至 main `1b03c906f2add664e7e529ecef9c5003f8a5df32`，17/17 PR workflows success；三瀏覽器驗收通過。真實供應商及實體裝置待驗收。
 
 既有手動進階 TTS 生成後，若發話者、選定回覆版本與已辨識的直接原文台詞一致，玩家可明確加入本機故事。裝置即時朗讀仍直接播放。由玩家選擇服務及付費，保存和重播共用本機音訊庫與備份，無需再向語音服務請求。附在來源回覆的同一版本下，旁白、內心、無法確定發話者的段落和手動改寫的台詞不會存成角色訊息。
+
+### P5a 原始音訊理解預覽（本 PR）
+
+沿用玩家現有 Gemini 官方 BYOK 連線，明確確認模型音訊輸入能力及單次傳送、8 MiB/60 秒 WAV/MP3/OGG 限制，使用 GenerateContent inlineData；不使用 Files API、後端、燈火、中轉、模型權重或額外付費帳號。固定音訊分析指令只傳本段原始音訊，不夾帶角色卡、故事、Phone、記憶或歷史音訊；非串流、取消／逾時、路由及章節變更 guard、無自動重試或 fallback。分析結果僅本機可編輯預覽，不自動加入故事、保存、送出或讓 NPC 假裝已收到音訊。普通 STT、本機語音訊息、TTS 保持原狀。P5b 再將經驗證的單次音訊輸入接入真正故事回覆流程，Phone 收件範圍另驗證。協議參考 https://ai.google.dev/gemini-api/docs/generate-content/audio 及 https://ai.google.dev/api/generate-content 。本次僅以 mock 驗證契約，實際模型能力與付費、實機需獨立驗證。
