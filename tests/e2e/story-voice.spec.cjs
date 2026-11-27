@@ -261,3 +261,65 @@ test('custom TTS only sends confirmed line and keeps role voice choices temporar
  await expect(d.getByLabel('配音來源')).toHaveValue('device');
  await expect(d.getByLabel('自動朗讀角色台詞')).toBeEnabled();
 });
+
+test('custom automatic TTS grants only future dialogue to mapped roles and can be revoked',async({page})=>{
+ await page.addInitScript(()=>{
+   window.__autoAudio=[];
+   window.Audio=class{
+     constructor(src){this.src=src;}
+     play(){window.__autoAudio.push(this);return Promise.resolve();}
+     pause(){}
+     removeAttribute(name){if(name==='src')this.src='';}
+     load(){}
+   };
+ });
+ await setup(page,390);
+ const calls=[];
+ const wav=Buffer.alloc(44+1600);wav.write('RIFF',0);wav.writeUInt32LE(wav.length-8,4);wav.write('WAVEfmt ',8);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);wav.writeUInt32LE(8000,24);wav.writeUInt32LE(16000,28);wav.writeUInt16LE(2,32);wav.writeUInt16LE(16,34);wav.write('data',36);wav.writeUInt32LE(1600,40);
+ await page.route('https://tts.example.invalid/**',async route=>{
+   const headers={'access-control-allow-origin':'*','access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'authorization, content-type'};
+   if(route.request().method()==='OPTIONS')return route.fulfill({status:204,headers});
+   expect(route.request().headers().authorization).toBe('Bearer AUTO-TTS-PRIVATE');
+   calls.push(route.request().postDataJSON());
+   await route.fulfill({headers:{...headers,'content-type':'audio/wav'},body:wav});
+ });
+ await page.route('https://text.example.invalid/**',route=>route.fulfill({json:{choices:[{message:{content:'A：「晚安。」\nB：「明天見。」\n路人：「借過。」\nA心想：「秘密。」'},finish_reason:'stop'}],usage:{prompt_tokens:20,completion_tokens:10}},headers:{'access-control-allow-origin':'*','access-control-allow-headers':'*'}}));
+ await openVoice(page,390);const d=page.getByRole('dialog',{name:'角色語音與語音輸入'});
+ await d.getByLabel('配音來源').selectOption('custom');
+ await d.getByLabel('配音角色').selectOption('a');
+ await d.getByLabel('TTS 接口網址').fill('https://tts.example.invalid/v1/audio/speech');
+ await d.getByLabel('TTS 模型 ID').fill('player-tts');
+ await d.getByLabel('TTS 聲線 ID').fill('voice-a');
+ await d.getByLabel('TTS API Key（選填）').fill('AUTO-TTS-PRIVATE');
+ await d.getByLabel('配音角色').selectOption('b');
+ await d.getByLabel('TTS 聲線 ID').fill('voice-b');
+ const enable=d.getByRole('button',{name:'啟用本章節自訂自動配音'});
+ await enable.click();await expect(d.locator('p[role="status"]')).toContainText('請先確認');
+ expect(calls).toHaveLength(0);
+ await d.getByLabel('我同意本章節後續角色台詞自動傳至指定 TTS 接口，可能收費').check();
+ await enable.click();await expect(d.locator('p[role="status"]')).toContainText('尚未送出請求');
+ expect(calls).toHaveLength(0);
+ await d.getByRole('button',{name:'關閉',exact:true}).click();
+ await page.locator('#user-input').fill('晚安');
+ await page.locator('[data-send-message]').click();
+ await expect.poll(()=>calls.length,{timeout:20000}).toBe(1);
+ expect(calls[0]).toEqual({model:'player-tts',voice:'voice-a',input:'晚安。',speed:1,response_format:'mp3'});
+ await expect.poll(()=>page.evaluate(()=>window.__autoAudio.length)).toBe(1);
+ await page.evaluate(()=>window.__autoAudio[0].onended());
+ await expect.poll(()=>calls.length).toBe(2);
+ expect(calls[1]).toEqual({model:'player-tts',voice:'voice-b',input:'明天見。',speed:1,response_format:'mp3'});
+ await expect.poll(()=>page.evaluate(()=>window.__autoAudio.length)).toBe(2);
+ await page.evaluate(()=>window.__autoAudio[1].onended());
+ await page.evaluate(()=>App.renderChatShell(false));
+ expect(calls).toHaveLength(2);
+ await openVoice(page,390);
+ await d.getByRole('button',{name:'停止所有自動配音'}).click();
+ await d.getByRole('button',{name:'關閉',exact:true}).click();
+ await page.locator('#user-input').fill('再見');
+ await page.locator('[data-send-message]').click();
+ await expect.poll(()=>page.evaluate(()=>Chat.messages.filter(m=>m.role==='user').length)).toBe(2);
+ await expect.poll(()=>page.evaluate(()=>Boolean(App.__requestPending))).toBe(false);
+ expect(calls).toHaveLength(2);
+ expect(await page.evaluate(()=>window.__voiceCalls.length)).toBe(0);
+ expect(await page.evaluate(()=>JSON.stringify(localStorage))).not.toContain('AUTO-TTS-PRIVATE');
+});
