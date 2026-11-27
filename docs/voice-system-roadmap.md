@@ -124,7 +124,7 @@ P3b [#996](https://github.com/ghost80076-cmyk/bao-lab/pull/996) 已合併，17/1
 
 [#1000](https://github.com/ghost80076-cmyk/bao-lab/pull/1000) 修正書庫載入版本契約並保留延遲與重試測試。音訊庫 IndexedDB v2 原地保留舊資料，備份可讀 Blob 與 ArrayBuffer。故事庫提交刪除後，音訊庫在同一交易保存刪除標記和清理資產，攔截舊分頁的後續寫入。新版資料庫開啟後，若需回退網頁程式，應保留能讀取 v2 的音訊庫開啟方式；直接回退到固定開啟 v1 的程式，會使音訊庫暫時無法使用。
 
-[#1000](https://github.com/ghost80076-cmyk/bao-lab/pull/1000) 已合併，main `aea744a0aa94daa51552e0004a92a378a4d71a37`。PR 的 21 條工作流程全數通過，含 [Chromium、Firefox、WebKit 共用驗收](https://github.com/ghost80076-cmyk/bao-lab/actions/runs/46012793647) 與 [Fast Browser E2E](https://github.com/ghost80076-cmyk/bao-lab/actions/runs/46012793580)。[Pages 部署](https://github.com/ghost80076-cmyk/bao-lab/actions/runs/46014108600) 成功。[正式站驗收](https://github.com/ghost80076-cmyk/bao-lab/actions/runs/46014110399/job/140560660308) 比對 23 個資源皆相符，9 項 Chromium Smoke Test 通過（合成資料及 mock 供應商）。
+[#1000](https://github.com/ghost80076-cmyk/bao-lab/pull/1000) 已合併，main `aea744a0aa94daa51552e0004a92a378a4d71a37`。PR 的 21 條工作流程全數通過，含 [Chromium、Firefox、WebKit 共用驗收](https://github.com/ghost80076-cmyk/bao-lab/actions/runs/46012793647) 與 [Fast Browser E2E](https://github.com/ghost80076-cmyk/bao-lab/actions/runs/46012793580)。原 #1003 開發紀錄記載 [Pages 部署](https://github.com/ghost80076-cmyk/bao-lab/actions/runs/46014108600) 成功，[正式站驗收](https://github.com/ghost80076-cmyk/bao-lab/actions/runs/46014110399/job/140560660308) 比對 23 個資源及 9 項 Chromium Smoke Test 通過（合成資料及 mock 供應商）。
 
 ### P4b-3 語音訊息
 
@@ -132,7 +132,7 @@ P3b [#996](https://github.com/ghost80076-cmyk/bao-lab/pull/996) 已合併，17/1
 
 #### P4b-3a 故事中的玩家語音
 
-[#1001 草稿](https://github.com/ghost80076-cmyk/bao-lab/pull/1001) 以合併後的 main 為基準。
+[#1001](https://github.com/ghost80076-cmyk/bao-lab/pull/1001) 已合併至 main `ad7ff062fe5608d187834fbdf24234696b09cb88`，21/21 PR workflows success，Chromium、Firefox、WebKit 均通過。#1002 已改以 main 為 base，須重新完成完整 CI；正式部署與實機待驗證。
 
 沿用語音工具的錄音與選檔預覽。玩家可選擇保存至收藏，或加入本機故事對話。語音訊息綁定章節、角色、玩家發送者、本機訊息 ID，以及當時最後一則故事訊息的 ID、位置與內容雜湊。重開章節可播放及下載，同章節回溯或替換回覆時只顯示版本仍相符的語音。新分支從自己的音訊庫開始；舊分支音訊可在原章節管理及刪除。一般存檔、模型請求、提示詞、記憶與 Phone 維持獨立，加入語音不觸發模型回覆。
 
@@ -140,12 +140,12 @@ P3b [#996](https://github.com/ghost80076-cmyk/bao-lab/pull/996) 已合併，17/1
 
 #### P4b-3b Phone 私訊與群聊玩家語音
 
-[#1002 草稿](https://github.com/ghost80076-cmyk/bao-lab/pull/1002) 以 #1001 分支為 base，前置合併後移至 main 執行完整矩陣。
+[#1002](https://github.com/ghost80076-cmyk/bao-lab/pull/1002) 已合併至 main `68c7eda637b9f359eb76d0548ea3982012764823`，18/18 PR workflows success，三瀏覽器驗收通過。正式部署與實機待驗證。
 
 沿用既有 Phone 私訊及群聊的會話與成員解析、鎖定規則和語音工具的錄音／選檔預覽。送出前顯示收件者，送出後只在本機對應章節、聊天室、原始成員集合與來源故事版本顯示。群組成員變更時隱藏之前的音訊。Phone 語音使用同樣的播放、下載、備份及全章節管理，維持 STT、原生音訊理解與文字送出的獨立操作。
 
 #### P4b-3c 保存選配 TTS 生成的角色台詞
 
-[#1003 草稿](https://github.com/ghost80076-cmyk/bao-lab/pull/1003) 以 #1002 分支為 base。整疊 Firefox 驗收通過 16 項語音案例及 5 項 Phone／X 圖片相容案例。真實供應商及實體裝置待驗收。
+[#1003 草稿](https://github.com/ghost80076-cmyk/bao-lab/pull/1003) 已改以 main 為 base，完整 CI 待驗收。整疊 Firefox 驗收通過 16 項語音案例及 5 項 Phone／X 圖片相容案例。真實供應商及實體裝置待驗收。
 
 既有手動進階 TTS 生成後，若發話者、選定回覆版本與已辨識的直接原文台詞一致，玩家可明確加入本機故事。裝置即時朗讀仍直接播放。由玩家選擇服務及付費，保存和重播共用本機音訊庫與備份，無需再向語音服務請求。附在來源回覆的同一版本下，旁白、內心、無法確定發話者的段落和手動改寫的台詞不會存成角色訊息。
