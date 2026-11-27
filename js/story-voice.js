@@ -37,7 +37,7 @@
    }
  }
  function disableAutomatic(){
-   clearTimeout(automatic?.custom?.expiry);
+   clearTimeout(automatic?.custom?.expiry);clearInterval(automatic?.custom?.watch);
    automatic=null;
    stopSequence();
    tell('');
@@ -79,7 +79,7 @@
    const visible=window.BAOChatPresentationCore?.stripStatusAppendix?.(content)??content;
    const lines=message.greeting&&session.card.opening?.posts?.length?[]:
      Core.directDialogue(visible,speakers,defaultId,App.config?.persona?.name);
-   if(!lines.length){tell('這則回覆沒有可辨識的角色台詞。');return;}
+   if(!lines.length){tell('這則回覆沒有可辨識的角色台詞。'+(session.custom?' 自訂配音仍啟用。':''));return;}
    const seq={utterance:null,watch:null,timeout:null,controller:null,audio:null,url:null};
    sequence=seq;
    const synth=window.speechSynthesis;
@@ -411,9 +411,10 @@
        if(!cfg||!selected.size)throw Error('請至少為一個角色設定有效聲線 ID。');
      }catch(e){setStatus(e.message);return;}
      disableAutomatic();cancelSpeech();autoConsent.input.checked=false;ttsConsent.input.checked=false;
-     const custom={cfg,voices:selected,budget:Core.autoTTSBudget(),expiry:null};
+     const custom={cfg,voices:selected,budget:Core.autoTTSBudget(),expiry:null,watch:null};
      const session={...current,custom};automatic=session;
      custom.expiry=setTimeout(()=>{if(automatic===session){disableAutomatic();tell('本次自訂配音授權已到期。');}},Core.AUTO_TTS_LIMITS.durationMs);
+     custom.watch=setInterval(()=>{if(automatic===session&&(!same(session)||!inStory()))disableAutomatic();},250);
      tell('本章節自訂自動配音已啟用；只讀後續成功回覆中的角色台詞。');
      setStatus('已授權後續自動配音；尚未送出請求。');
    });
