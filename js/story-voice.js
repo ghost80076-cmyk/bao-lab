@@ -1,4 +1,4 @@
-/* Explicit opt-in voice tools. Automatic dialogue uses local device voices during an opted-in story session. */
+/* Explicit opt-in voice tools. Device or explicitly authorized chapter-only custom TTS. */
 (()=>{
  'use strict';
  const Core=window.BAOStoryVoiceCore;
@@ -20,18 +20,24 @@
  let automatic=null, sequence=null, notice='', notify=null;
  const tell=t=>{notice=t;notify?.(t);};
  const inStory=()=>!document.hidden&&document.getElementById('chat-view')?.classList.contains('active');
+ function releaseRemote(seq){
+   seq.controller?.abort();seq.controller=null;
+   if(seq.audio){seq.audio.onended=seq.audio.onerror=null;seq.audio.pause();seq.audio.removeAttribute('src');seq.audio.load();seq.audio=null;}
+   if(seq.url){URL.revokeObjectURL(seq.url);seq.url=null;}
+ }
  function stopSequence(){
    const seq=sequence;
    sequence=null;
    if(!seq)return;
    clearInterval(seq.watch);
-   clearTimeout(seq.timeout);
+   clearTimeout(seq.timeout);releaseRemote(seq);
    if(seq.utterance){
      seq.utterance.onend=seq.utterance.onerror=null;
      window.speechSynthesis?.cancel();
    }
  }
  function disableAutomatic(){
+   clearTimeout(automatic?.custom?.expiry);
    automatic=null;
    stopSequence();
    tell('');
@@ -74,22 +80,49 @@
    const lines=message.greeting&&session.card.opening?.posts?.length?[]:
      Core.directDialogue(visible,speakers,defaultId,App.config?.persona?.name);
    if(!lines.length){tell('這則回覆沒有可辨識的角色台詞。');return;}
-   const seq={utterance:null,watch:null,timeout:null};
+   const seq={utterance:null,watch:null,timeout:null,controller:null,audio:null,url:null};
    sequence=seq;
    const synth=window.speechSynthesis;
-   const available=synth.getVoices(),profiles=read();
+   const available=synth?.getVoices?.()||[],profiles=read();
    let index=0,skipped=0;
    function current(){
      const latest=Chat.messages.at(-1);
      return automatic===session&&inStory()&&same(session)&&latest?.id===message.id&&latest.content===content&&(latest.activeVariant||0)===variant;
    }
+   function remoteFailure(msg){
+     if(sequence!==seq||automatic!==session)return;
+     disableAutomatic();tell(msg);
+   }
+   async function remoteLine(text,voice){
+     const custom=session.custom;
+     if(!custom.budget.reserve(text)){remoteFailure('已達本次自訂配音上限，需重新授權。');return;}
+     const remaining=custom.budget.remaining(),controller=new AbortController();seq.controller=controller;
+     tell('自訂配音生成中；剩餘 '+remaining.requests+' 次、'+remaining.characters+' 字元。');
+     seq.timeout=setTimeout(()=>remoteFailure('自訂配音連線逾時，已停止；不自動重試。'),60000);
+     try{
+       const blob=await Core.synthesize({...custom.cfg,voice},text,{signal:controller.signal});
+       if(sequence!==seq||!current())return;
+       clearTimeout(seq.timeout);seq.controller=null;
+       seq.url=URL.createObjectURL(blob);const audio=new Audio(seq.url);seq.audio=audio;
+       audio.onended=()=>{if(sequence===seq&&seq.audio===audio)next();};
+       audio.onerror=()=>remoteFailure('自訂語音無法解碼，已停止。');
+       seq.timeout=setTimeout(()=>remoteFailure('自訂配音播放逾時，已停止。'),180000);
+       await audio.play();
+       if(sequence===seq&&seq.audio===audio&&current())tell('正在播放自訂角色語音；剩餘 '+remaining.requests+' 次、'+remaining.characters+' 字元。');
+     }catch(_){remoteFailure('自訂配音失敗或瀏覽器阻擋播放，已停止；請手動確認服務及播放權限。');}
+   }
    function next(){
      if(sequence!==seq)return;
-     clearTimeout(seq.timeout);
+     clearTimeout(seq.timeout);releaseRemote(seq);
      seq.utterance=null;
      if(!current()){stopSequence();return;}
      while(index<lines.length){
        const {speakerId,text}=lines[index++];
+       if(session.custom){
+         const voice=session.custom.voices.get(speakerId);
+         if(!voice){skipped++;continue;}
+         void remoteLine(text,voice);return;
+       }
        const p=Core.profile(profiles[Core.profileKey(cardId,speakerId)]);
        const voice=Core.selectVoice(available,p);
        if(voice?.localService!==true){skipped++;continue;}
@@ -104,7 +137,11 @@
        return;
      }
      stopSequence();
-     tell(skipped?'部分台詞缺少可用的本地聲線。可調整角色聲線，或手動使用遠端聲線。':'播放完成。');
+     if(session.custom){
+       const left=session.custom.budget.remaining();
+       if(!left.requests||!left.characters){disableAutomatic();tell('已達本次自訂配音上限，需重新授權。');}
+       else tell((skipped?'未設定聲線的角色已略過。':'播放完成。')+' 自訂配音仍啟用；剩餘 '+left.requests+' 次、'+left.characters+' 字元。');
+     }else tell(skipped?'部分台詞缺少可用的本地聲線。可調整角色聲線，或手動使用遠端聲線。':'播放完成。');
    }
    seq.watch=setInterval(()=>{if(!current())stopSequence();},250);
    next();
@@ -243,18 +280,18 @@
    const output=el('section');output.append(el('h3','角色台詞配音（TTS）'));
    if(automatic&&!same(automatic))disableAutomatic();
    const auto=field('自動朗讀角色台詞','input');auto.input.type='checkbox';
-   auto.input.checked=Boolean(automatic);
+   auto.input.checked=Boolean(automatic&&!automatic.custom);
    auto.input.disabled=!synth||typeof window.SpeechSynthesisUtterance!=='function';
    const autoStatus=el('p',notice);autoStatus.setAttribute('aria-live','polite');
-   notify=t=>{autoStatus.textContent=t;auto.input.checked=Boolean(automatic);};
+   notify=t=>{autoStatus.textContent=t;auto.input.checked=Boolean(automatic&&!automatic.custom);};
    auto.input.addEventListener('change',()=>{
      if(!auto.input.checked||!valid()){disableAutomatic();return;}
      cancelRecognition();syncControls();cancelSpeech();
-     automatic=current;
+     disableAutomatic();automatic=current;
      tell('已開啟本章節角色配音。');
      playReply(Chat.messages.at(-1));
    });
-   output.append(auto.wrap,el('small','開啟後，以已保存的本地聲線朗讀目前及後續回覆中的角色台詞。關閉工具後繼續播放。'),autoStatus);
+   output.append(auto.wrap,el('small','開啟後，以已保存的本地聲線朗讀目前及後續回覆中的角色台詞。關閉工具後繼續播放。'),autoStatus,btn('停止所有自動配音',()=>{disableAutomatic();setStatus('已關閉自動配音。');}));
    const speaker=field('配音角色'),{people}=castFor(current);
    options(speaker.input,[['','選擇角色'],...[...people.values()].slice(0,100).map(p=>[p.id,p.name])]);
    const lang=field('配音語言');options(lang.input,languageOptions);
@@ -316,6 +353,7 @@
    const ttsVoice=field('TTS 聲線 ID','input');ttsVoice.input.maxLength=200;
    const ttsKey=field('TTS API Key（選填）','input');ttsKey.input.type='password';ttsKey.input.autocomplete='off';ttsKey.input.maxLength=4096;
    const ttsConsent=field('我同意將本次確認的台詞傳至指定 TTS 接口，可能收費','input');ttsConsent.input.type='checkbox';
+   const autoConsent=field('我同意本章節後續角色台詞自動傳至指定 TTS 接口，可能收費','input');autoConsent.input.type='checkbox';
    const audio=el('audio');audio.controls=true;audio.preload='none';audio.hidden=true;audio.setAttribute('aria-label','生成的角色語音');
    let audioURL=null;
    function cancelTTS(){
@@ -340,8 +378,9 @@
      speak.disabled=!customTTS()&&(!synth||typeof window.SpeechSynthesisUtterance!=='function');
      speak.textContent=customTTS()?'生成確認的台詞':'播放確認的台詞';
    }
-   ttsProvider.input.addEventListener('change',()=>{cancelSpeech();if(customTTS())disableAutomatic();remote.input.checked=false;ttsConsent.input.checked=false;syncTTS();});
+   ttsProvider.input.addEventListener('change',()=>{cancelSpeech();if(customTTS()||automatic?.custom)disableAutomatic();remote.input.checked=false;ttsConsent.input.checked=false;autoConsent.input.checked=false;syncTTS();});
    for(const n of [ttsEndpoint.input,ttsModel.input,ttsVoice.input,ttsKey.input,speaker.input,lang.input,text.input,source.input,quotes.input,...sliders.map(s=>s.input)])n.addEventListener('input',()=>{ttsConsent.input.checked=false;cancelTTS();});
+   for(const n of [ttsEndpoint.input,ttsModel.input,ttsVoice.input,ttsKey.input,speaker.input,sliders[0].input])n.addEventListener('input',()=>{autoConsent.input.checked=false;if(automatic?.custom){disableAutomatic();tell('配音設定已變更，請重新授權。');}});
    audio.addEventListener('error',()=>{if(audioURL){cancelTTS();setStatus('裝置無法解碼此語音，請確認服務回傳格式。');}});
    async function generateTTS(){
      if(ttsJob||!valid()||!inStory()||App.__requestPending)return;
@@ -360,7 +399,25 @@
        setStatus('語音已生成，請按播放器播放。');
      }catch(_){if(ttsJob===job){cancelTTS();setStatus('TTS 生成失敗，請檢查接口、CORS、聲線或額度；可手動切回裝置聲線。');}}
    }
-   ttsAdvanced.append(el('p','相容 /audio/speech 的自架或自帶 API。每次只生成已確認台詞，不會自動朗讀後續回覆；目前僅語速及服務端聲線 ID，語言由模型決定。設定、金鑰與音訊僅在工具開啟時保留。'),ttsEndpoint.wrap,ttsModel.wrap,ttsVoice.wrap,ttsKey.wrap,ttsConsent.wrap,audio);
+   const startAutoTTS=btn('啟用本章節自訂自動配音',()=>{
+     if(!valid()||!inStory()||App.__requestPending||recognition||externalJob||!customTTS())return;
+     if(automatic?.custom){setStatus('自訂自動配音已啟用，請先停止。');return;}
+     if(!autoConsent.input.checked){setStatus('請先確認自動傳送台詞及可能費用。');return;}
+     const raw={endpoint:ttsEndpoint.input.value,model:ttsModel.input.value,key:ttsKey.input.value,speed:Number(sliders[0].input.value)};
+     const voices=new Map(customVoices);voices.set(speaker.input.value,ttsVoice.input.value);
+     const selected=new Map();let cfg;
+     try{
+       for(const [id,voice] of voices){if(!id||!people.has(id)||!voice.trim())continue;cfg=Core.ttsConfig({...raw,voice});selected.set(id,cfg.voice);}
+       if(!cfg||!selected.size)throw Error('請至少為一個角色設定有效聲線 ID。');
+     }catch(e){setStatus(e.message);return;}
+     disableAutomatic();cancelSpeech();autoConsent.input.checked=false;ttsConsent.input.checked=false;
+     const custom={cfg,voices:selected,budget:Core.autoTTSBudget(),expiry:null};
+     const session={...current,custom};automatic=session;
+     custom.expiry=setTimeout(()=>{if(automatic===session){disableAutomatic();tell('本次自訂配音授權已到期。');}},Core.AUTO_TTS_LIMITS.durationMs);
+     tell('本章節自訂自動配音已啟用；只讀後續成功回覆中的角色台詞。');
+     setStatus('已授權後續自動配音；尚未送出請求。');
+   });
+   ttsAdvanced.append(el('p','相容 /audio/speech 的自架或自帶 API。手動生成只傳確認台詞；聲線 ID 與語速由服務處理。設定及金鑰僅在工具或本章節授權期間留在記憶體。'),ttsEndpoint.wrap,ttsModel.wrap,ttsVoice.wrap,ttsKey.wrap,ttsConsent.wrap,audio,el('p','自動配音為另外選配，僅讀後續成功回覆、已設定聲線的角色台詞。每次授權最多 20 次請求、6000 字元或 30 分鐘；不代表實際費用。關閉工具可繼續播放，切換故事／章節、離開、背景化或停止即失效。'),autoConsent.wrap,startAutoTTS);
    const speak=btn('播放確認的台詞',()=>{
      if(!valid()||recognition||externalJob)return;
      if(customTTS()){if(!speaker.input.value){setStatus('請先選擇角色。');return;}void generateTTS();return;}
@@ -376,7 +433,7 @@
      u.onerror=()=>{if(utterance===u){utterance=null;clearTimeout(playTimer);setStatus('語音播放失敗，請確認裝置聲線。');}};
      try{synth.speak(u);setStatus('正在播放角色台詞…');playTimer=setTimeout(()=>{cancelSpeech();setStatus('播放已逾時。');},180000);}catch(_){cancelSpeech();setStatus('無法播放語音。');}
    });
-   output.append(ttsProvider.wrap,speaker.wrap,lang.wrap,voice.wrap,...sliders.map(s=>s.wrap),remember,pack,source.wrap,quotes.wrap,text.wrap,el('small','手動配音可選句、編輯或貼上翻譯。'),remote.wrap,ttsAdvanced,speak,btn('停止播放',()=>{stopSequence();cancelSpeech();setStatus('已停止播放。');}));
+   output.append(ttsProvider.wrap,speaker.wrap,lang.wrap,voice.wrap,...sliders.map(s=>s.wrap),remember,pack,source.wrap,quotes.wrap,text.wrap,el('small','手動配音可選句、編輯或貼上翻譯。'),remote.wrap,ttsAdvanced,speak,btn('停止播放',()=>{if(automatic?.custom)disableAutomatic();else stopSequence();cancelSpeech();setStatus('已停止播放。');}));
    syncTTS();
    load();refreshQuotes();synth?.addEventListener?.('voiceschanged',refreshVoices);
    modal.append(title,note,inputSection,output,status,btn('關閉',close));document.body.append(modal);active=modal;
