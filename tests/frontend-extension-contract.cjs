@@ -14,7 +14,7 @@ assert(memoryWorkbenchSource.includes('data-summary-mode-notice'));
 assert(siteUI.includes('js/world-state-cost.js?v=14'));
 assert(siteUI.includes('js/provider-policy-guard.js?v=1'), 'policy circuit must load before hosted transport');
 assert(siteUI.indexOf('js/provider-policy-guard.js?v=1') < siteUI.indexOf('js/credits-pilot.js?v=10'));
-assert(index.includes('src="js/site-ui.js?v=215"'));
+assert(index.includes('src="js/site-ui.js?v=216"'), 'story lifecycle loader must use refreshed site UI');
 assert(siteUI.includes('loadBAOScript("js/story-branches.js?v=7")'), 'reader positioning must use the refreshed branch script');
 assert(index.includes('src="js/app.js?v=18"'));
 assert(siteUI.includes('loadBAOOptionalGroup("chapter-memory"'), 'chapter workbench must not block story sends');
