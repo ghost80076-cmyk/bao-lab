@@ -141,9 +141,17 @@ test('automatic dialogue respects named voices and rejects a stale reply queue',
  expect(await page.evaluate(()=>window.__voiceCalls)).toHaveLength(2);
 });
 
-test('custom STT is opt-in, cancel-safe and only fills editable draft',async({page})=>{
+test('custom STT is opt-in, cancel-safe and only fills editable draft',async({page,browserName})=>{
  await page.addInitScript(()=>{
-   window.__sttMic=0;window.__sttStopped=0;
+   window.__sttMic=0;window.__sttStopped=0;window.__sttPayloads=[];
+   const nativeFetch=window.fetch.bind(window);
+   window.fetch=async(input,init)=>{
+     if(input==='https://stt.example.invalid/v1/audio/transcriptions'){
+       const file=init.body.get('file');
+       window.__sttPayloads.push({bytes:await file.text(),size:file.size,type:file.type,name:file.name,model:init.body.get('model'),language:init.body.get('language'),fields:[...init.body.keys()]});
+     }
+     return nativeFetch(input,init);
+   };
    Object.defineProperty(navigator,'mediaDevices',{configurable:true,value:{getUserMedia:async()=>{window.__sttMic++;return {getTracks:()=>[{stop:()=>window.__sttStopped++}]};}}});
    Object.defineProperty(window,'MediaRecorder',{configurable:true,value:class{
      static isTypeSupported(t){return t.startsWith('audio/webm');}
@@ -156,7 +164,10 @@ test('custom STT is opt-in, cancel-safe and only fills editable draft',async({pa
  await page.route('https://stt.example.invalid/**',async route=>{
    if(route.request().method()==='OPTIONS')return route.fulfill({status:204,headers:{'access-control-allow-origin':'*','access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'authorization'}});
    requests++;expect(route.request().headers().authorization).toBe('Bearer STT-PRIVATE');
-   expect(route.request().postData()).toContain('audio-fixture');
+   // WebKit's intercepted postData omits binary multipart file bytes; check
+   // actual FormData Blob content inside the browser for every engine below.
+   expect(route.request().postData()).toContain('filename="speech.webm"');
+   if(browserName!=='webkit')expect(route.request().postData()).toContain('audio-fixture');
    expect(route.request().postData()).not.toContain('TEXT-PRIVATE');
    expect(route.request().postData()).toContain('player-model');
    if(failNext)return route.fulfill({status:503,body:'PRIVATE-SERVICE-ERROR',headers:{'access-control-allow-origin':'*'}});
@@ -192,6 +203,7 @@ test('custom STT is opt-in, cancel-safe and only fills editable draft',async({pa
  await expect(d.locator('p[role="status"]')).not.toContainText('PRIVATE-SERVICE-ERROR');
  await expect(d.getByLabel('辨識文字預覽（可修改）')).toHaveValue('修改後');
  expect(requests).toBe(2);
+ expect(await page.evaluate(()=>window.__sttPayloads)).toEqual(Array.from({length:2},()=>({bytes:'audio-fixture',size:13,type:'audio/webm',name:'speech.webm',model:'player-model',language:'zh',fields:['file','model','language']})));
  expect(await page.evaluate(()=>window.__recognitions)).toBe(0);
  await expect(page.locator('#user-input')).toHaveValue('原稿');
  await d.getByRole('button',{name:'將文字填入故事輸入框'}).click();
