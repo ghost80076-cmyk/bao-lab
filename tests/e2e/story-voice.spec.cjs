@@ -982,3 +982,45 @@ for(const width of [320,390,1440])test('voice shortcut preserves composer geomet
  await expect(input).toHaveValue('保留草稿');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });
+
+
+test('quick BYOK TTS reuses saved role settings and requires per-request consent',async({page})=>{
+ await setup(page,390,true);
+ const before=await page.evaluate(()=>JSON.stringify(Chat.messages));
+ const wav=Buffer.alloc(44+1600);wav.write('RIFF',0);wav.writeUInt32LE(wav.length-8,4);wav.write('WAVEfmt ',8);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);wav.writeUInt32LE(8000,24);wav.writeUInt32LE(16000,28);wav.writeUInt16LE(2,32);wav.writeUInt16LE(16,34);wav.write('data',36);wav.writeUInt32LE(1600,40);
+ let requests=0;
+ await page.route('https://tts.example.invalid/**',async route=>{
+   const headers={'access-control-allow-origin':'*','access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'authorization, content-type'};
+   if(route.request().method()==='OPTIONS')return route.fulfill({status:204,headers});
+   requests++;expect(route.request().postDataJSON()).toEqual({model:'player-tts',voice:'role-voice',input:'要一起點嗎？',speed:1,response_format:'mp3'});
+   await route.fulfill({headers:{...headers,'content-type':'audio/wav'},body:wav});
+ });
+ const d=page.getByRole('dialog',{name:'角色語音與語音輸入'});
+ const openQuick=async()=>{
+   await page.getByRole('button',{name:'角色語音設定',exact:true}).click();
+   await d.getByRole('button',{name:'自訂角色配音（BYOK）',exact:true}).click();
+   await expect(d.getByRole('heading',{name:'自訂角色配音',exact:true})).toBeVisible();
+ };
+ await openQuick();
+ await expect(d.getByLabel('配音來源')).toHaveValue('custom');
+ await expect(d.getByLabel('配音角色')).toHaveValue('voice-test');
+ await expect(d.getByLabel('實際配音台詞（可編輯／貼上翻譯）')).toHaveValue('要一起點嗎？');
+ await d.getByLabel('TTS 接口網址').fill('https://tts.example.invalid/v1/audio/speech');
+ await d.getByLabel('TTS 模型 ID').fill('player-tts');
+ await d.getByLabel('TTS 聲線 ID').fill('role-voice');
+ await d.getByRole('button',{name:'保存自訂 TTS 與角色聲線'}).click();
+ await d.getByRole('button',{name:'關閉',exact:true}).click();
+ await openQuick();
+ await expect(d.getByLabel('TTS 接口網址')).toHaveValue('https://tts.example.invalid/v1/audio/speech');
+ await expect(d.getByLabel('TTS 聲線 ID')).toHaveValue('role-voice');
+ await expect(d.getByLabel('TTS API Key（選填）')).toHaveValue('');
+ const consent=d.getByLabel('我同意將本次確認的台詞傳至指定 TTS 接口，可能收費');
+ await expect(consent).not.toBeChecked();
+ const generate=d.getByRole('button',{name:'生成確認的台詞'});
+ await generate.click();expect(requests).toBe(0);
+ await consent.check();await generate.click();
+ await expect(d.locator('p[role="status"]')).toContainText('語音已生成');
+ expect(requests).toBe(1);
+ await d.getByRole('button',{name:'關閉',exact:true}).click();
+ expect(await page.evaluate(()=>JSON.stringify(Chat.messages))).toBe(before);
+});
