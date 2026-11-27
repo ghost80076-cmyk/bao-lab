@@ -90,8 +90,16 @@
      for(const [index,m] of matches.entries()){
        const before=line.slice(end,m.index);
        const prefix=before.trim()||(!end?precedingLine:'');
-       const cue=prefix.split(/[。！？!?.；;]/u).at(-1).trim();
-       const lead=attribution(cue);
+       // A complete Markdown action span is a narration boundary, not a
+       // speaker label. Still honor explicit thoughts, writing and speech cues.
+       const action=prefix.match(/^\s*\*([^*\n]+)\*\s*$/u)?.[1]?.trim();
+       const cue=(action??prefix).split(/[。！？!?.；;]/u).at(-1).trim();
+       let lead=attribution(cue);
+       if(action&&lead===null&&defaultId&&!thoughtOrWriting.test(action)&&
+          !/[：:]\s*$/u.test(action)&&!speechVerb.test(cue)&&!names.has(cue)){
+         const actor=[...names.entries()].some(([name,id])=>id===defaultId&&cue.startsWith(name)&&cue.length>name.length);
+         if(actor||/^[他她].+/u.test(cue))lead=undefined;
+       }
        end=m.index+m[0].length;
        const after=line.slice(end,matches[index+1]?.index??line.length);
        const tail=after.match(/^\s*[,，]?\s*([^，,。！？!?:：「」\n]{1,48})(?:[。！？!.?]|$)/u)?.[1]?.trim();
