@@ -136,9 +136,9 @@
    const title=el('h2','角色語音與語音輸入'),note=el('p','選配工具。語音輸入只填入文字，不會送出；可開啟角色台詞自動配音。語音與故事原文互不改寫。');
    const status=el('p');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
    const setStatus=t=>{status.textContent=t;};
-   let recognition=null,recognitionTimer=null,utterance=null,playTimer=null,closed=false,externalJob=null;
+   let recognition=null,recognitionTimer=null,utterance=null,playTimer=null,closed=false,externalJob=null,ttsJob=null;
    const valid=()=>!closed&&modal.isConnected&&same(current)&&document.getElementById('user-input')===sourceInput;
-   const cancelSpeech=()=>{if(utterance){utterance.onend=utterance.onerror=null;synth?.cancel();utterance=null;}clearTimeout(playTimer);};
+   const cancelSpeech=()=>{if(utterance){utterance.onend=utterance.onerror=null;synth?.cancel();utterance=null;}clearTimeout(playTimer);cancelTTS();};
    const cancelRecognition=()=>{if(recognition){const rec=recognition;recognition=null;rec.onresult=rec.onerror=rec.onend=null;try{rec.abort();}catch(_){}}clearTimeout(recognitionTimer);cancelExternal();};
    const cleanup=()=>{if(closed)return;closed=true;notify=null;window.removeEventListener('pagehide',close);document.removeEventListener('visibilitychange',onVisibility);cancelSpeech();cancelRecognition();clearInterval(watch);synth?.removeEventListener?.('voiceschanged',refreshVoices);modal.remove();active=null;if(focus?.isConnected)focus.focus();};
    const close=()=>{if(closed)return;modal.close();cleanup();};
@@ -309,8 +309,60 @@
      setStatus('已準備匯出目前聲線設定，不含角色資料、台詞、API Key 或音訊。');
    });
    pack.append(packFile.wrap,exportVoice);
+   const ttsProvider=field('配音來源');options(ttsProvider.input,[['device','裝置聲線（預設）'],['custom','自訂 TTS 接口（進階）']]);
+   const ttsAdvanced=el('div');ttsAdvanced.hidden=true;
+   const ttsEndpoint=field('TTS 接口網址','input');ttsEndpoint.input.type='url';ttsEndpoint.input.placeholder='https://服務網址/v1/audio/speech';
+   const ttsModel=field('TTS 模型 ID','input');ttsModel.input.maxLength=200;
+   const ttsVoice=field('TTS 聲線 ID','input');ttsVoice.input.maxLength=200;
+   const ttsKey=field('TTS API Key（選填）','input');ttsKey.input.type='password';ttsKey.input.autocomplete='off';ttsKey.input.maxLength=4096;
+   const ttsConsent=field('我同意將本次確認的台詞傳至指定 TTS 接口，可能收費','input');ttsConsent.input.type='checkbox';
+   const audio=el('audio');audio.controls=true;audio.preload='none';audio.hidden=true;audio.setAttribute('aria-label','生成的角色語音');
+   let audioURL=null;
+   function cancelTTS(){
+     const job=ttsJob;ttsJob=null;if(job){clearTimeout(job.timer);job.controller.abort();}
+     if(audioURL){audio.pause();audio.removeAttribute('src');audio.load();URL.revokeObjectURL(audioURL);audioURL=null;}
+     audio.hidden=true;
+   }
+   const customTTS=()=>ttsProvider.input.value==='custom';
+   // Temporary per-character voice selection; credentials and endpoint stay
+   // in the dialog and are never serialized into story or profile packs.
+   const customVoices=new Map();let lastSpeaker=speaker.input.value;
+   speaker.input.addEventListener('change',()=>{
+     customVoices.set(lastSpeaker,ttsVoice.input.value);
+     lastSpeaker=speaker.input.value;ttsVoice.input.value=customVoices.get(lastSpeaker)||'';
+     ttsConsent.input.checked=false;cancelTTS();
+   });
+   function syncTTS(){
+     ttsAdvanced.hidden=!customTTS();remote.wrap.hidden=customTTS();voice.wrap.hidden=customTTS();
+     for(const slider of sliders.filter(x=>x.name!=='rate'))slider.wrap.hidden=customTTS();
+     remember.hidden=pack.hidden=customTTS();
+     speak.disabled=!customTTS()&&(!synth||typeof window.SpeechSynthesisUtterance!=='function');
+     speak.textContent=customTTS()?'生成確認的台詞':'播放確認的台詞';
+   }
+   ttsProvider.input.addEventListener('change',()=>{cancelSpeech();remote.input.checked=false;ttsConsent.input.checked=false;syncTTS();});
+   for(const n of [ttsEndpoint.input,ttsModel.input,ttsVoice.input,ttsKey.input,speaker.input,lang.input,text.input,source.input,quotes.input,...sliders.map(s=>s.input)])n.addEventListener('input',()=>{ttsConsent.input.checked=false;cancelTTS();});
+   audio.addEventListener('error',()=>{if(audioURL){cancelTTS();setStatus('裝置無法解碼此語音，請確認服務回傳格式。');}});
+   async function generateTTS(){
+     if(ttsJob||!valid()||!inStory()||App.__requestPending)return;
+     if(!ttsConsent.input.checked){setStatus('請先確認台詞傳送及可能費用。');return;}
+     const raw={endpoint:ttsEndpoint.input.value,model:ttsModel.input.value,voice:ttsVoice.input.value,key:ttsKey.input.value,speed:Number(sliders[0].input.value)};
+     let line;try{Core.ttsConfig(raw);line=Core.script(text.input.value);}catch(e){setStatus(e.message);return;}
+     disableAutomatic();cancelSpeech();ttsConsent.input.checked=false;
+     const job={controller:new AbortController(),timer:null};ttsJob=job;
+     job.timer=setTimeout(()=>{if(ttsJob===job){cancelTTS();setStatus('TTS 連線逾時，請手動重試。');}},60000);
+     setStatus('正在生成指定角色語音…');
+     try{
+       const blob=await Core.synthesize(raw,line,{signal:job.controller.signal});
+       if(ttsJob!==job)return;
+       if(!valid()||!inStory()||App.__requestPending){cancelTTS();return;}
+       clearTimeout(job.timer);ttsJob=null;audioURL=URL.createObjectURL(blob);audio.src=audioURL;audio.hidden=false;
+       setStatus('語音已生成，請按播放器播放。');
+     }catch(_){if(ttsJob===job){cancelTTS();setStatus('TTS 生成失敗，請檢查接口、CORS、聲線或額度；可手動切回裝置聲線。');}}
+   }
+   ttsAdvanced.append(el('p','相容 /audio/speech 的自架或自帶 API。每次只生成已確認台詞，不會自動朗讀後續回覆；目前僅語速及服務端聲線 ID，語言由模型決定。設定、金鑰與音訊僅在工具開啟時保留。'),ttsEndpoint.wrap,ttsModel.wrap,ttsVoice.wrap,ttsKey.wrap,ttsConsent.wrap,audio);
    const speak=btn('播放確認的台詞',()=>{
      if(!valid()||recognition||externalJob)return;
+     if(customTTS()){if(!speaker.input.value){setStatus('請先選擇角色。');return;}void generateTTS();return;}
      if(!synth||typeof window.SpeechSynthesisUtterance!=='function'){setStatus('此瀏覽器不支援語音播放。');return;}
      if(!speaker.input.value){setStatus('請先選擇角色。');return;}
      const p=profile();let script;try{script=Core.script(text.input.value);}catch(e){setStatus(e.message);return;}
@@ -323,12 +375,12 @@
      u.onerror=()=>{if(utterance===u){utterance=null;clearTimeout(playTimer);setStatus('語音播放失敗，請確認裝置聲線。');}};
      try{synth.speak(u);setStatus('正在播放角色台詞…');playTimer=setTimeout(()=>{cancelSpeech();setStatus('播放已逾時。');},180000);}catch(_){cancelSpeech();setStatus('無法播放語音。');}
    });
-   output.append(speaker.wrap,lang.wrap,voice.wrap,...sliders.map(s=>s.wrap),remember,pack,source.wrap,quotes.wrap,text.wrap,el('small','手動配音可選句、編輯或貼上翻譯。'),remote.wrap,speak,btn('停止播放',()=>{stopSequence();cancelSpeech();setStatus('已停止播放。');}));
-   speak.disabled=!synth||typeof window.SpeechSynthesisUtterance!=='function';
+   output.append(ttsProvider.wrap,speaker.wrap,lang.wrap,voice.wrap,...sliders.map(s=>s.wrap),remember,pack,source.wrap,quotes.wrap,text.wrap,el('small','手動配音可選句、編輯或貼上翻譯。'),remote.wrap,ttsAdvanced,speak,btn('停止播放',()=>{stopSequence();cancelSpeech();setStatus('已停止播放。');}));
+   syncTTS();
    load();refreshQuotes();synth?.addEventListener?.('voiceschanged',refreshVoices);
    modal.append(title,note,inputSection,output,status,btn('關閉',close));document.body.append(modal);active=modal;
    window.addEventListener('pagehide',close);document.addEventListener('visibilitychange',onVisibility);modal.addEventListener('cancel',e=>{e.preventDefault();close();});modal.addEventListener('close',cleanup);
-   const watch=setInterval(()=>{if(!valid()||!inStory()||(externalJob&&App.__requestPending))close();},250);
+   const watch=setInterval(()=>{if(!valid()||!inStory()||((externalJob||ttsJob||audioURL)&&App.__requestPending))close();},250);
    try{modal.showModal();}catch(_){cleanup();}
  }
  function mount(){
