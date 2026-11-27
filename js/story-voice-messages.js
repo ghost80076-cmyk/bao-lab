@@ -25,21 +25,15 @@
     return node;
   };
 
-  async function send(blob, duration, sourceIsCurrent, phoneTarget) {
-    const current = scope();
-    const index = Chat.messages.length - 1;
-    const message = Chat.messages[index];
+  async function commit(current, index, message, fields, blob, duration, sourceIsCurrent) {
     if (!current.storyId || !current.chapterId || !current.characterId || !message?.id)
       throw Error('故事需要有已儲存的開場或訊息，才能加入語音。');
     const source = Core.storyVoiceSource(message);
-    const valid = () => sourceIsCurrent() && same(current) && Chat.messages.length === index + 1
+    const valid = () => sourceIsCurrent() && same(current)
       && Core.storyVoiceSource(Chat.messages[index]) === source;
     const delivery = {
+      ...fields,
       id: crypto.randomUUID(),
-      conversation: phoneTarget ? 'phone' : 'story',
-      sender: 'player',
-      recipient: current.characterId,
-      ...(phoneTarget ? {thread: phoneScope(phoneTarget)} : {}),
       after: {id: message.id, index, revision: await Core.storyVoiceRevision(message)}
     };
     if (!valid() || !await library().flush(current.storyId))
@@ -48,8 +42,29 @@
     if (!await Core.storyVoiceMatches(delivery, saved?.characterId, saved?.chat?.messages))
       throw Error('書庫中的故事訊息版本已變更。');
     const row = await Assets.save(current, blob, duration, valid, delivery);
-    if (!phoneTarget) void refresh();
+    if (delivery.conversation === 'story') void refresh();
     return row;
+  }
+
+  function send(blob, duration, sourceIsCurrent, phoneTarget) {
+    const current = scope();
+    const index = Chat.messages.length - 1;
+    const fields = {
+      conversation: phoneTarget ? 'phone' : 'story',
+      sender: 'player',
+      recipient: current.characterId,
+      ...(phoneTarget ? {thread: phoneScope(phoneTarget)} : {})
+    };
+    return commit(current, index, Chat.messages[index], fields, blob, duration,
+      () => Chat.messages.length === index + 1 && sourceIsCurrent());
+  }
+
+  function saveGenerated({blob, duration, messageId, actor}, sourceIsCurrent) {
+    const current = scope();
+    const index = Chat.messages.findIndex(message => message.id === messageId && message.role === 'assistant');
+    return commit(current, index, Chat.messages[index], {
+      conversation: 'story', sender: 'character', recipient: 'player', characterId: current.characterId, actor
+    }, blob, duration, sourceIsCurrent);
   }
 
   function clear(id) {
@@ -67,7 +82,8 @@
     player.controls = true;
     player.preload = 'none';
     player.hidden = true;
-    player.setAttribute('aria-label', '播放玩家語音訊息');
+    const label = asset.delivery.sender === 'character' ? asset.delivery.actor.name + ' 的角色配音' : '玩家語音訊息';
+    player.setAttribute('aria-label', '播放' + label);
     const download = element('a', '下載語音');
     download.hidden = true;
     download.download = 'yorubay-voice.' + asset.extension;
@@ -84,7 +100,7 @@
       if (url) URL.revokeObjectURL(url);
       url = '';
     };
-    node.append(element('summary', '玩家語音訊息 · ' + Math.ceil(asset.duration) + ' 秒'), player, download, status);
+    node.append(element('summary', label + ' · ' + Math.ceil(asset.duration) + ' 秒'), player, download, status);
     node.addEventListener('toggle', async () => {
       if (!node.open) { release(); return; }
       const ticket = ++request;
@@ -212,5 +228,5 @@
   document.getElementById('chat-view')?.addEventListener('bao:phone-stage-visibility', event => {
     if (event.detail?.open) for (const {node} of rows.values()) node.open = false;
   });
-  window.BAOStoryVoiceMessages = Object.freeze({send, refresh, mountPhone});
+  window.BAOStoryVoiceMessages = Object.freeze({send, saveGenerated, refresh, mountPhone});
 })();

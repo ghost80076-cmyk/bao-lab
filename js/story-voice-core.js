@@ -237,13 +237,19 @@
    return {blob:new Blob([blob],{type:format[0]}),extension:format[1]};
  }
  function storyVoiceDelivery(value){
-   const {id,sender,recipient,conversation,thread,after}=value||{};
+   const {id,sender,recipient,conversation,thread,actor,characterId,after}=value||{};
    const key=text=>typeof text==='string'&&text.length>0&&text.length<=300;
-   if(typeof id!=='string'||!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(id)||sender!=='player'||!['story','phone'].includes(conversation)||!key(recipient)||
+   if(typeof id!=='string'||!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(id)||!['player','character'].includes(sender)||!['story','phone'].includes(conversation)||!key(recipient)||
       !key(after?.id)||!Number.isSafeInteger(after.index)||after.index<0||
       typeof after.revision!=='string'||!/^[a-f0-9]{64}$/.test(after.revision))
      throw Error('故事語音訊息的發送範圍無效。');
    const delivery={id,sender,recipient,conversation,after:{id:after.id,index:after.index,revision:after.revision}};
+   if(sender==='character'){
+     if(conversation!=='story'||recipient!=='player'||!key(characterId)||!key(actor?.id)||!key(actor?.name))
+       throw Error('角色配音的發送者或故事範圍無效。');
+     delivery.characterId=characterId;
+     delivery.actor={id:actor.id,name:actor.name};
+   }
    if(conversation==='phone'){
      const {id:threadId,members}=thread||{};
      if(typeof threadId!=='string'||threadId.length>300||!Array.isArray(members)||!members.length||members.length>30||
@@ -262,9 +268,11 @@
    return Array.from(new Uint8Array(hash),byte=>byte.toString(16).padStart(2,'0')).join('');
  }
  async function storyVoiceMatches(delivery,characterId,messages){
-   if(delivery.recipient!==characterId)return false;
+   const fromCharacter=delivery.sender==='character';
+   if((fromCharacter?delivery.characterId:delivery.recipient)!==characterId)return false;
    const message=messages?.[delivery.after.index];
-   return message?.id===delivery.after.id&&await storyVoiceRevision(message)===delivery.after.revision;
+   return message?.id===delivery.after.id&&(!fromCharacter||message.role==='assistant')&&
+     await storyVoiceRevision(message)===delivery.after.revision;
  }
  return Object.freeze({LANGUAGES,MAX_TEXT,profile,PACK_LIMIT,exportPack,importPack,profileKey,voicesFor,selectVoice,candidates,directDialogue,script,mergeDraft,finalTranscript,sttConfig,transcribe,STT_MAX_BYTES,ttsConfig,synthesize,TTS_MAX_BYTES,AUTO_TTS_LIMITS,autoTTSLimits,autoTTSBudget,savedSTT,savedTTS,localAudioDraft,storyVoiceDelivery,storyVoiceSource,storyVoiceRevision,storyVoiceMatches,AUDIO_DRAFT_MAX_BYTES,AUDIO_DRAFT_MAX_SECONDS});
 });

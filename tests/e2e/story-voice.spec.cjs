@@ -664,3 +664,52 @@ test('Phone voice messages stay in the addressed private or group conversation',
  expect(await page.evaluate(()=>JSON.stringify(Chat.messages))).toBe(before);
  expect(requests).toEqual([]);
 });
+
+test('confirmed character TTS can be saved only to its original spoken reply', async ({page}) => {
+ let requests=0;
+ await page.route('https://tts.example.invalid/**',async route=>{
+   const headers={'access-control-allow-origin':'*','access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'authorization, content-type'};
+   if(route.request().method()==='OPTIONS')return route.fulfill({status:204,headers});
+   expect(route.request().headers().authorization).toBe('Bearer TTS-PRIVATE');
+   expect(route.request().postDataJSON().input).toBe('要一起點嗎？');
+   requests++;
+   await route.fulfill({headers:{...headers,'content-type':'audio/wav'},body:voiceWav()});
+ });
+ await setup(page,390,true);
+ await openVoice(page,390);
+ const dialog=page.getByRole('dialog',{name:'角色語音與語音輸入'});
+ await dialog.getByLabel('配音來源').selectOption('custom');
+ await dialog.getByLabel('配音角色').selectOption('voice-test');
+ await dialog.getByLabel('TTS 接口網址').fill('https://tts.example.invalid/v1/audio/speech');
+ await dialog.getByLabel('TTS 模型 ID').fill('player-tts');
+ await dialog.getByLabel('TTS 聲線 ID').fill('voice-a');
+ await dialog.getByLabel('TTS API Key（選填）').fill('TTS-PRIVATE');
+ const consent=dialog.getByLabel('我同意將本次確認的台詞傳至指定 TTS 接口，可能收費');
+ const generate=dialog.getByRole('button',{name:'生成確認的台詞'});
+ const save=dialog.getByRole('button',{name:'加入故事角色配音'});
+ await dialog.getByLabel('實際配音台詞（可編輯／貼上翻譯）').fill('要一起點嗎？');
+ await consent.check();
+ await generate.click();
+ await expect(dialog.getByLabel('生成的角色語音')).toBeVisible();
+ await expect(save).toBeHidden();
+ await dialog.getByLabel('選擇故事回覆').selectOption('0');
+ await dialog.getByLabel('實際配音台詞（可編輯／貼上翻譯）').fill('要一起點嗎？');
+ await consent.check();
+ await generate.click();
+ await expect(save).toBeEnabled();
+ await save.click();
+ await expect(dialog.locator('p[role="status"]')).toContainText('角色配音已加入本機故事。');
+ await dialog.getByRole('button',{name:'關閉',exact:true}).click();
+ const voice=page.locator('#chat-stream .yoru-story-voice-message');
+ await expect(voice).toHaveCount(1);
+ await voice.locator('summary').click();
+ await expect(voice.getByLabel('播放角色 的角色配音')).toBeVisible();
+ expect(requests).toBe(2);
+ const saved=await page.evaluate(async()=>{
+   const bundle=await BAOStoryVoiceBackup.exportStory(BAOStoryLibrary.refs().storyId);
+   const item=bundle.audio.items[0];
+   return {reply:Chat.messages[0].id,delivery:item.delivery,hasSecret:JSON.stringify(bundle).includes('TTS-PRIVATE')};
+ });
+ expect(saved.delivery).toMatchObject({sender:'character',recipient:'player',actor:{id:'voice-test'},after:{id:saved.reply}});
+ expect(saved.hasSecret).toBe(false);
+});

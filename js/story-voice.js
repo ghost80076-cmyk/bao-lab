@@ -85,15 +85,18 @@
    const defaultId=solo&&speakers.length===1?speakers[0].id:null;
    return {people,speakers,defaultId,cardId};
  }
+ function replyDialogue(current,message,cast=castFor(current)){
+   if(message?.role!=='assistant'||!message.id||(message.greeting&&current.card.opening?.posts?.length))return [];
+   const visible=window.BAOChatPresentationCore?.stripStatusAppendix?.(message.content)??message.content;
+   return Core.directDialogue(visible,cast.speakers,cast.defaultId,App.config?.persona?.name);
+ }
  function playReply(message){
    stopSequence();
    const session=automatic;
    if(!session||!same(session)||!inStory()||message?.role!=='assistant'||!message.id)return;
-   const {speakers,defaultId,cardId}=castFor(session);
+   const cast=castFor(session),{cardId}=cast;
    const content=message.content,variant=message.activeVariant||0;
-   const visible=window.BAOChatPresentationCore?.stripStatusAppendix?.(content)??content;
-   const lines=message.greeting&&session.card.opening?.posts?.length?[]:
-     Core.directDialogue(visible,speakers,defaultId,App.config?.persona?.name);
+   const lines=replyDialogue(session,message,cast);
    if(!lines.length){tell('這則回覆沒有可辨識的角色台詞。'+(session.custom?' 自訂配音仍啟用。':''));return;}
    const seq={utterance:null,watch:null,timeout:null,controller:null,audio:null,url:null};
    sequence=seq;
@@ -385,11 +388,11 @@
    const ttsConsent=field('我同意將本次確認的台詞傳至指定 TTS 接口，可能收費','input');ttsConsent.input.type='checkbox';
    const autoConsent=field('我同意本章節後續角色台詞自動傳至指定 TTS 接口，可能收費','input');autoConsent.input.type='checkbox';
    const audio=el('audio');audio.controls=true;audio.preload='none';audio.hidden=true;audio.setAttribute('aria-label','生成的角色語音');
-   let audioURL=null;
+   let audioURL=null,generated=null;
    function cancelTTS(){
      const job=ttsJob;ttsJob=null;if(job){clearTimeout(job.timer);job.controller.abort();}
      if(audioURL){audio.pause();audio.removeAttribute('src');audio.load();URL.revokeObjectURL(audioURL);audioURL=null;}
-     audio.hidden=true;
+     audio.hidden=true;generated=null;saveGenerated.hidden=true;saveGenerated.disabled=true;
    }
    const customTTS=()=>ttsProvider.input.value==='custom';
    // Temporary per-character voice selection; credentials and endpoint stay
@@ -444,12 +447,39 @@
    ttsProvider.input.addEventListener('change',()=>{cancelSpeech();if(customTTS()||automatic?.custom)disableAutomatic();remote.input.checked=false;ttsConsent.input.checked=false;autoConsent.input.checked=false;syncTTS();if(customTTS())showCustomSpeed();else load();});
    for(const n of [ttsEndpoint.input,ttsModel.input,ttsVoice.input,ttsKey.input,speaker.input,lang.input,text.input,source.input,quotes.input,...sliders.map(s=>s.input)])n.addEventListener('input',()=>{ttsConsent.input.checked=false;cancelTTS();});
    for(const n of [ttsEndpoint.input,ttsModel.input,ttsVoice.input,ttsKey.input,speaker.input,sliders[0].input,grant.input])n.addEventListener('input',()=>{autoConsent.input.checked=false;if(automatic?.custom){disableAutomatic();tell('配音設定已變更，請重新授權。');}});
+   function generatedIsCurrent(draft){
+     const reply=Chat.messages.find(message=>message.id===draft.messageId);
+     return valid()&&inStory()&&!App.__requestPending&&
+       Core.storyVoiceSource(reply)===draft.version&&speaker.input.value===draft.actor.id&&
+       text.input.value.trim()===draft.line&&replyDialogue(current,reply).some(item=>item.speakerId===draft.actor.id&&item.text===draft.line);
+   }
+   const saveGenerated=btn('加入故事角色配音',async()=>{
+     const draft=generated;
+     if(!draft||!generatedIsCurrent(draft))return;
+     saveGenerated.disabled=true;
+     try{
+       await window.BAOStoryVoiceMessages.saveGenerated(draft,()=>generated===draft&&generatedIsCurrent(draft));
+       if(generated===draft){cancelTTS();setStatus('角色配音已加入本機故事。');}
+     }catch(e){
+       if(generated===draft){saveGenerated.disabled=false;setStatus(e.message||'無法保存角色配音。');}
+     }
+   });
+   saveGenerated.hidden=true;saveGenerated.disabled=true;
+   audio.addEventListener('loadedmetadata',()=>{
+     if(!generated||audio.currentSrc!==audioURL)return;
+     const duration=audio.duration;
+     if(!Number.isFinite(duration)||duration<=0||duration>Core.AUDIO_DRAFT_MAX_SECONDS)return;
+     generated.duration=duration;saveGenerated.hidden=false;saveGenerated.disabled=false;
+   });
    audio.addEventListener('error',()=>{if(audioURL){cancelTTS();setStatus('裝置無法解碼此語音，請確認服務回傳格式。');}});
    async function generateTTS(){
      if(ttsJob||!valid()||!inStory()||App.__requestPending)return;
      if(!ttsConsent.input.checked){setStatus('請先確認台詞傳送及可能費用。');return;}
      const raw={endpoint:ttsEndpoint.input.value,model:ttsModel.input.value,voice:ttsVoice.input.value,key:ttsKey.input.value,speed:Number(sliders[0].input.value)};
      let line;try{Core.ttsConfig(raw);line=Core.script(text.input.value);}catch(e){setStatus(e.message);return;}
+     const reply=source.input.value===''?null:messages[Number(source.input.value)];
+     const actor=people.get(speaker.input.value);
+     const draft=reply&&actor?{messageId:reply.id,version:Core.storyVoiceSource(reply),actor,line}:null;
      disableAutomatic();cancelSpeech();clearLocal();ttsConsent.input.checked=false;
      const job={controller:new AbortController(),timer:null};ttsJob=job;
      job.timer=setTimeout(()=>{if(ttsJob===job){cancelTTS();setStatus('TTS 連線逾時，請手動重試。');}},60000);
@@ -458,7 +488,10 @@
        const blob=await Core.synthesize(raw,line,{signal:job.controller.signal});
        if(ttsJob!==job)return;
        if(!valid()||!inStory()||App.__requestPending){cancelTTS();return;}
-       clearTimeout(job.timer);ttsJob=null;audioURL=URL.createObjectURL(blob);audio.src=audioURL;audio.hidden=false;
+       clearTimeout(job.timer);ttsJob=null;
+       generated=draft&&blob.size<=Core.AUDIO_DRAFT_MAX_BYTES&&generatedIsCurrent(draft)?{...draft,blob}:null;
+       audio.preload=generated?'metadata':'none';
+       audioURL=URL.createObjectURL(blob);audio.src=audioURL;audio.hidden=false;
        setStatus('語音已生成，請按播放器播放。');
      }catch(_){if(ttsJob===job){cancelTTS();setStatus('TTS 生成失敗，請檢查接口、CORS、聲線或額度；可手動切回裝置聲線。');}}
    }
@@ -482,7 +515,7 @@
      tell('本章節自訂自動配音已啟用；只讀後續成功回覆中的角色台詞。');
      setStatus('已授權後續自動配音；尚未送出請求。');
    });
-   ttsAdvanced.append(el('p','相容 /audio/speech 的自架或自帶 API。手動生成只傳確認台詞；聲線 ID 與語速由服務處理。設定可明確保存於本機，金鑰及授權僅暫存。'),ttsEndpoint.wrap,ttsModel.wrap,ttsVoice.wrap,ttsKey.wrap,saveTTS,forgetTTS,ttsConsent.wrap,audio,el('p','自動配音僅讀後續成功回覆的已映射台詞。自選用量上限，不代表實際費用；本機接口也不保證免費。關閉工具可繼續播放，切換故事／章節、離開、背景化或停止即失效。'),grant.wrap,autoConsent.wrap,startAutoTTS);
+   ttsAdvanced.append(el('p','相容 /audio/speech 的自架或自帶 API。手動生成只傳確認台詞；聲線 ID 與語速由服務處理。設定可明確保存於本機，金鑰及授權僅暫存。'),ttsEndpoint.wrap,ttsModel.wrap,ttsVoice.wrap,ttsKey.wrap,saveTTS,forgetTTS,ttsConsent.wrap,audio,saveGenerated,el('p','自動配音僅讀後續成功回覆的已映射台詞。自選用量上限，不代表實際費用；本機接口也不保證免費。關閉工具可繼續播放，切換故事／章節、離開、背景化或停止即失效。'),grant.wrap,autoConsent.wrap,startAutoTTS);
    const speak=btn('播放確認的台詞',()=>{
      if(!valid()||recognition||externalJob||localJob)return;
      if(customTTS()){if(!speaker.input.value){setStatus('請先選擇角色。');return;}void generateTTS();return;}
