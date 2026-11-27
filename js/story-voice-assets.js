@@ -1,4 +1,4 @@
-/* Chapter-local player audio collection. Separate from story turns and delivery. */
+/* Chapter-scoped audio assets for local collections and voice messages. */
 (()=>{
  'use strict';
  const Core=window.BAOStoryVoiceCore;
@@ -47,15 +47,16 @@
      run();
    };
  }
- async function save(scope,blob,duration,valid){
+ async function save(scope,blob,duration,valid,delivery=null){
+   if(delivery)delivery=Core.storyVoiceDelivery(delivery);
    const key=scopeKey(scope);
    if(typeof valid!=='function'||!valid())throw Error('故事章節已切換。');
    if(!Number.isFinite(duration)||duration<=0||duration>Core.AUDIO_DRAFT_MAX_SECONDS)throw Error('音檔長度無效。');
    const normalized=await Core.localAudioDraft(blob);
    const bytes=await normalized.blob.arrayBuffer();
    const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');
-   const id=JSON.stringify([key,hash]);
-   const row={id,scope:key,type:normalized.blob.type,extension:normalized.extension,size:bytes.byteLength,duration,createdAt:new Date().toISOString()};
+   const id=JSON.stringify(delivery?[key,hash,delivery.id]:[key,hash]);
+   const row={id,scope:key,type:normalized.blob.type,extension:normalized.extension,size:bytes.byteLength,duration,createdAt:new Date().toISOString(),...(delivery?{delivery}:{})};
    if(!valid())throw Error('故事章節已切換。');
    return transact('readwrite',(meta,audio,done,stop,deletions)=>withLiveScope(deletions,scope.storyId,key,()=>{
      if(!valid())return stop('故事章節已切換。');
@@ -122,7 +123,7 @@
              ? new Blob([stored.bytes],{type:row.type})
              : stored?.blob;
            if(!(blob instanceof Blob)||blob.size!==row.size||blob.type!==row.type)return stop('音訊備份引用不完整。');
-           items.push({chapterId,hash:JSON.parse(row.id)[1],type:row.type,duration:row.duration,createdAt:row.createdAt,blob});
+           items.push({chapterId,hash:JSON.parse(row.id)[1],type:row.type,duration:row.duration,createdAt:row.createdAt,blob,...(row.delivery?{delivery:row.delivery}:{})});
            pending--;finish();
          };
        }
@@ -131,29 +132,31 @@
    });
    const items=[];
    for(const {blob,...row} of rows)items.push({...row,data:base64(await blob.arrayBuffer())});
-   return {version:1,items};
+   return {version:items.some(item=>item.delivery)?2:1,items};
  }
  async function validatePack(pack,chapterIds){
-   if(pack?.version!==1||!Array.isArray(pack.items)||pack.items.length>chapterIds.length*COUNT||pack.items.length>LIMIT/12)throw Error('音訊備份格式無效。');
+   if(![1,2].includes(pack?.version)||!Array.isArray(pack.items)||pack.items.length>chapterIds.length*COUNT||pack.items.length>LIMIT/12)throw Error('音訊備份格式無效。');
    const ids=new Set(chapterIds),counts=new Map(),seen=new Set(),rows=[];let total=0;
    for(const item of pack.items){
      if(!ids.has(item?.chapterId)||typeof item.data!=='string'||item.data.length>Math.ceil(Core.AUDIO_DRAFT_MAX_BYTES/3)*4||item.data.length%4!==0||/[^A-Za-z0-9+/=]/.test(item.data)||!/^[a-f0-9]{64}$/.test(item.hash)||!Number.isFinite(item.duration)||item.duration<=0||item.duration>Core.AUDIO_DRAFT_MAX_SECONDS||typeof item.type!=='string')throw Error('音訊備份資料無效。');
-     const key=JSON.stringify([item.chapterId,item.hash]);
+     const delivery=item.delivery===undefined?null:Core.storyVoiceDelivery(item.delivery);
+     if(delivery&&pack.version!==2)throw Error('音訊備份版本與訊息格式不符。');
+     const key=JSON.stringify(delivery?[item.chapterId,delivery.id]:[item.chapterId,item.hash]);
      if(seen.has(key))throw Error('音訊備份包含重複引用。');
      seen.add(key);const count=(counts.get(item.chapterId)||0)+1;counts.set(item.chapterId,count);if(count>COUNT)throw Error('章節音訊超過數量上限。');
      const raw=atob(item.data),bytes=Uint8Array.from(raw,c=>c.charCodeAt(0)).buffer;
      total+=bytes.byteLength;if(total>LIMIT)throw Error('音訊備份超過 128 MiB。');
      const normalized=await Core.localAudioDraft(new Blob([bytes],{type:item.type}));
      if(normalized.blob.type!==item.type||await digest(bytes)!==item.hash)throw Error('音訊備份雜湊或格式不符。');
-     rows.push({chapterId:item.chapterId,hash:item.hash,type:item.type,extension:normalized.extension,duration:item.duration,createdAt:typeof item.createdAt==='string'&&Number.isFinite(Date.parse(item.createdAt))?new Date(item.createdAt).toISOString():new Date().toISOString(),bytes});
+     rows.push({chapterId:item.chapterId,hash:item.hash,type:item.type,extension:normalized.extension,duration:item.duration,createdAt:typeof item.createdAt==='string'&&Number.isFinite(Date.parse(item.createdAt))?new Date(item.createdAt).toISOString():new Date().toISOString(),bytes,...(delivery?{delivery}:{})});
    }
    return rows;
  }
  function importPack(rows,storyId,chapterMap){
    const prepared=rows.map(row=>{
      if(!Object.hasOwn(chapterMap,row.chapterId))throw Error('音訊備份章節不存在。');
-     const scope=scopeKey({storyId,chapterId:chapterMap[row.chapterId]}),id=JSON.stringify([scope,row.hash]);
-     return {meta:{id,scope,type:row.type,extension:row.extension,duration:row.duration,createdAt:row.createdAt,size:row.bytes.byteLength},bytes:row.bytes};
+     const scope=scopeKey({storyId,chapterId:chapterMap[row.chapterId]}),id=JSON.stringify(row.delivery?[scope,row.hash,row.delivery.id]:[scope,row.hash]);
+     return {meta:{id,scope,type:row.type,extension:row.extension,duration:row.duration,createdAt:row.createdAt,size:row.bytes.byteLength,...(row.delivery?{delivery:row.delivery}:{})},bytes:row.bytes};
    });
    return transact('readwrite',(meta,audio,done,stop,deletions)=>{
      const keys=new Set([JSON.stringify([storyId]),...prepared.map(row=>row.meta.scope)]);
