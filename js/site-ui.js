@@ -237,7 +237,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/three-realms-events.js?v=3"))
     .then(() => loadBAOScript("js/worldbook-library-core.js?v=8"))
     .then(() => loadBAOScript("js/worldbook-library.js?v=14"))
-    .then(() => loadBAOScript("js/story-reader.js?v=14"))
+    .then(() => loadBAOScript("js/story-reader.js?v=15"))
     .then(() => loadBAOOptionalGroup("conversation-search", ["js/conversation-search-core.js?v=4", "js/conversation-search.js?v=4"]))
     .then(() => loadBAOOptionalGroup("inspiration-copy", ["js/inspiration-copy.js?v=2"]))
     .then(() => loadBAOScript("js/story-revision-state.js?v=14"))

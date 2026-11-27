@@ -15,3 +15,9 @@
 .yoru-voice-dialog audio,.yoru-voice-dialog input[type=file]{display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box}
 .yoru-voice-dialog details{min-width:0;overflow-wrap:anywhere}
 .yoru-voice-dialog details>summary{cursor:pointer;min-height:44px;line-height:1.5;padding:10px 0;box-sizing:border-box}
+
+.yoru-story-voice-message{width:min(100%,20rem);margin:8px 0 8px auto;padding:0 12px;box-sizing:border-box;border:1px solid var(--yoru-border,#647082);border-radius:10px;background:var(--panel,#20212b);color:var(--text,#eee)}
+.yoru-story-voice-message summary{min-height:44px;padding:10px 0;box-sizing:border-box;cursor:pointer;overflow-wrap:anywhere}
+.yoru-story-voice-message audio{display:block;width:100%;min-width:0}
+.yoru-story-voice-message a{display:inline-flex;align-items:center;min-height:44px}
+.yoru-story-voice-message [hidden],.yoru-story-voice-message p:empty{display:none}

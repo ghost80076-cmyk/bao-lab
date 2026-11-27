@@ -497,7 +497,7 @@
    output.append(ttsProvider.wrap,speaker.wrap,lang.wrap,voice.wrap,...sliders.map(s=>s.wrap),remember,pack,source.wrap,quotes.wrap,text.wrap,el('small','手動配音可選句、編輯或貼上翻譯。'),remote.wrap,ttsAdvanced,speak,btn('停止播放',()=>{if(automatic?.custom)disableAutomatic();else stopSequence();cancelSpeech();setStatus('已停止播放。');}));
    syncTTS();
    load();refreshQuotes();synth?.addEventListener?.('voiceschanged',refreshVoices);
-   const localSection=el('details');localSection.append(el('summary','玩家錄音／音檔預覽（本機）'),el('p','錄音與語音轉文字分開。可明確保存至本章節音訊庫，未保存的音檔關閉工具即捨棄。僅在本機，不傳送給角色、AI 或語音服務，不進入故事正文、Phone 或一般故事備份。最多 60 秒、8 MiB。'));
+   const localSection=el('details');localSection.append(el('summary','玩家錄音／音檔預覽（本機）'),el('p','錄音與語音轉文字分開。可明確保存至本章節音訊庫，未保存的音檔關閉工具即捨棄。可將預覽音檔加入本機故事對話。只留在此裝置，模型不會收到音訊，也不會觸發回覆。最多 60 秒、8 MiB。'));
    const localFile=field('選擇本機音檔','input');localFile.input.type='file';localFile.input.accept='audio/wav,audio/x-wav,audio/mpeg,audio/mp4,audio/ogg,audio/webm,.wav,.mp3,.m4a,.ogg,.webm';
    const localAudio=el('audio');localAudio.controls=true;localAudio.preload='metadata';localAudio.hidden=true;localAudio.setAttribute('aria-label','本機音檔預覽');
    const localInfo=el('p');localInfo.setAttribute('aria-live','polite');
@@ -522,6 +522,7 @@
      localFile.input.disabled=Boolean(localJob);
      localDownload.disabled=!localReady;
      localSave.disabled=!localReady||localSaving||!window.BAOStoryVoiceAssets||!current.storyId||!current.chapterId;
+     localSend.disabled=localSave.disabled||!window.BAOStoryVoiceMessages||!Chat.messages.at(-1)?.id;
    }
    const localLive=()=>valid()&&inStory()&&!App.__requestPending;
    function localFail(message){clearLocal();if(valid())localInfo.textContent=message;}
@@ -590,7 +591,7 @@
    });
    localInfo.dataset.localAudioStatus='1';
    const collection=el('details');
-   collection.append(el('summary','本章節已保存音訊'),el('p','僅本機收藏，不是已送達的故事訊息。每章最多 32 段，全站音訊庫 128 MiB；可另外下載故事＋音訊備份。刪除故事或章節會清理相應音訊；保留的分支不受影響。'));
+   collection.append(el('summary','本章節已保存音訊'),el('p','管理本機收藏和已加入故事的語音。每章最多 32 段，全站音訊庫 128 MiB；可另外下載故事＋音訊備份。刪除故事或章節會清理相應音訊；保留的分支不受影響。'));
    const collectionList=el('div');collectionList.setAttribute('aria-label','本章節音訊清單');
    const collectionInfo=el('p');collectionInfo.setAttribute('aria-live','polite');
    async function refreshCollection(){
@@ -603,7 +604,7 @@
        collectionInfo.textContent=rows.length?'已保存 '+rows.length+' 段音訊。':'本章節尚無已保存音訊。';
        for(const [index,row] of rows.entries()){
          const item=el('section');
-         item.append(el('p','音訊 '+(index+1)+' · '+Math.ceil(row.duration)+' 秒 · '+Math.ceil(row.size/1024)+' KiB'));
+         item.append(el('p',(row.delivery?'故事語音 ':'音訊 ')+(index+1)+' · '+Math.ceil(row.duration)+' 秒 · '+Math.ceil(row.size/1024)+' KiB'));
          item.append(btn('預覽音訊 '+(index+1),async()=>{
            if(!beginLocal())return;
            const epoch=localEpoch;
@@ -616,7 +617,7 @@
          const remove=btn('刪除音訊 '+(index+1),async()=>{
            if(!localLive()||!confirmDelete.input.checked)return;
            remove.disabled=true;
-           try{await window.BAOStoryVoiceAssets.remove(current,row.id);if(localLive()){clearLocal();await refreshCollection();}}
+           try{await window.BAOStoryVoiceAssets.remove(current,row.id);void window.BAOStoryVoiceMessages?.refresh();if(localLive()){clearLocal();await refreshCollection();}}
            catch(e){if(localLive()){collectionInfo.textContent=e.message;remove.disabled=false;}}
          });remove.disabled=true;confirmDelete.input.addEventListener('change',()=>{remove.disabled=!confirmDelete.input.checked;});
          item.append(confirmDelete.wrap,remove);collectionList.append(item);
@@ -630,6 +631,15 @@
        await window.BAOStoryVoiceAssets.save(current,blob,duration,()=>localLive()&&epoch===localEpoch);
        if(localLive()&&epoch===localEpoch){localInfo.textContent='已保存本機音訊，尚未傳送給角色。';collection.open=true;await refreshCollection();}
      }catch(e){if(localLive()&&epoch===localEpoch)localInfo.textContent=e.message||'保存失敗，音檔仍可下載。';}
+     finally{localSaving=false;if(valid())syncLocal();}
+   });
+   const localSend=btn('加入故事語音訊息',async()=>{
+     if(!localLive()||!localReady||localSaving||!localBlob)return;
+     const epoch=localEpoch,blob=localBlob,duration=localDuration;localSaving=true;syncLocal();
+     try{
+       await window.BAOStoryVoiceMessages.send(blob,duration,()=>localLive()&&epoch===localEpoch);
+       if(localLive()&&epoch===localEpoch){clearLocal();localInfo.textContent='語音訊息已加入本機故事。';}
+     }catch(e){if(localLive()&&epoch===localEpoch)localInfo.textContent=e.message||'無法加入，本機音檔仍可下載。';}
      finally{localSaving=false;if(valid())syncLocal();}
    });
    const backup=el('details');
@@ -670,7 +680,7 @@
    backup.append(exportAudio,restoreAudio.wrap,retryCleanup,backupStatus);
    collection.append(collectionInfo,collectionList,backup);
    collection.addEventListener('toggle',()=>{if(collection.open&&localSection.open)void refreshCollection();else if(!collection.open)collectionEpoch++;});
-   localSection.append(localFile.wrap,localStart,localStop,btn('捨棄本機音檔／取消錄音',()=>{clearLocal();localInfo.textContent='已捨棄本機音檔。';}),localAudio,localDownload,localSave,localInfo,collection);
+   localSection.append(localFile.wrap,localStart,localStop,btn('捨棄本機音檔／取消錄音',()=>{clearLocal();localInfo.textContent='已捨棄本機音檔。';}),localAudio,localDownload,localSave,localSend,localInfo,collection);
    localSection.addEventListener('toggle',()=>{if(!localSection.open){if(localJob){clearLocal();localInfo.textContent='已停止並捨棄本機錄音。';}else localAudio.pause();}});
    syncLocal();
    modal.append(title,note,inputSection,output,localSection,status,btn('關閉',close));document.body.append(modal);active=modal;

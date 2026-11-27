@@ -409,8 +409,13 @@ test('custom voice settings survive closing tools only after explicit save, neve
  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('yorubay-custom-voice-v1')))).toEqual({});
 });
 
-test('saved local audio belongs only to its chapter and never becomes a model message',async({page})=>{
+function voiceWav(){
  const wav=Buffer.alloc(44+1600);wav.write('RIFF',0);wav.writeUInt32LE(wav.length-8,4);wav.write('WAVEfmt ',8);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);wav.writeUInt32LE(8000,24);wav.writeUInt32LE(16000,28);wav.writeUInt16LE(2,32);wav.writeUInt16LE(16,34);wav.write('data',36);wav.writeUInt32LE(1600,40);
+ return wav;
+}
+
+test('saved local audio belongs only to its chapter and never becomes a model message',async({page})=>{
+ const wav=voiceWav();
  let external=0;
  await page.route(/https:\/\/(?:text|stt|tts)\.example\.invalid\//,route=>{external++;return route.abort();});
  await setup(page,390);await openVoice(page,390);
@@ -540,4 +545,55 @@ test('committed chapter deletion preserves a promoted child and blocks stale wri
     return {same:JSON.stringify(prior)===JSON.stringify(after),capacityError,child};
   },original);
   expect(outcome).toEqual({same:true,capacityError:true,child:1});
+});
+
+test('player voice message follows its exact story reply and travels only in the audio backup', async ({page}) => {
+ const requests=[];
+ await page.route(/https:\/\/(?:text|stt|tts)\.example\.invalid\//, route => {
+   requests.push(route.request().url());
+   return route.abort();
+ });
+ await setup(page,390);
+ const before=await page.evaluate(()=>JSON.stringify(Chat.messages));
+ await openVoice(page,390);
+ const dialog=page.getByRole('dialog',{name:'角色語音與語音輸入'});
+ await dialog.getByText('玩家錄音／音檔預覽（本機）',{exact:true}).click();
+ await dialog.getByLabel('選擇本機音檔').setInputFiles({name:'sample.wav',mimeType:'audio/wav',buffer:voiceWav()});
+ await dialog.getByRole('button',{name:'加入故事語音訊息'}).click();
+ await expect(dialog.locator('[data-local-audio-status]')).toHaveText('語音訊息已加入本機故事。');
+ await dialog.getByRole('button',{name:'關閉',exact:true}).click();
+ const voice=page.locator('#chat-stream .yoru-story-voice-message');
+ await expect(voice).toHaveCount(1);
+ await voice.locator('summary').click();
+ await expect(voice.getByLabel('播放玩家語音訊息')).toBeVisible();
+ await expect(voice.getByRole('link',{name:'下載語音'})).toHaveAttribute('href',/^blob:/);
+ expect(await page.evaluate(()=>JSON.stringify(Chat.messages))).toBe(before);
+
+ const checks=await page.evaluate(async()=>{
+   const library=BAOStoryLibrary,base=library.refs(),initial=Chat.messages[0];
+   const bundle=await BAOStoryVoiceBackup.exportStory(base.storyId);
+   const regular=await BAOStoryBackup.buildBundle(base.storyId);
+   const copy=await BAOStoryVoiceBackup.importStory(bundle);
+   const imported=await BAOStoryVoiceAssets.list(copy);
+   const bad=structuredClone(bundle);
+   bad.audio.items[0].delivery.after.revision='0'.repeat(64);
+   let rejected=false;
+   try{await BAOStoryVoiceBackup.importStory(bad);}catch(_){rejected=true;}
+   const branch=await library.createBranch(initial.id,'另一條路');
+   const others=await BAOStoryVoiceAssets.list(branch._library);
+   library.adoptRefs({_library:base});
+   Chat.messages[0]={...initial,variants:[initial.variants[0],{...initial.variants[0]}],activeVariant:1};
+   App.renderChatShell(false);
+   await BAOStoryVoiceMessages.refresh();
+   return {
+     format:bundle.audio.version,
+     noAudioInRegular:!JSON.stringify(regular).includes(bundle.audio.items[0].delivery.id),
+     copied:imported[0]?.delivery?.after.id===initial.id,
+     isolated:others.length===0,
+     rejected
+   };
+ });
+ expect(checks).toEqual({format:2,noAudioInRegular:true,copied:true,isolated:true,rejected:true});
+ await expect(voice).toHaveCount(0);
+ expect(requests).toEqual([]);
 });

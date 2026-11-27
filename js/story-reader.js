@@ -599,6 +599,7 @@
       if (message.role === "assistant") decorateAssistantMessage(element, message, index);
       else if (bubble) rewriteRichBubble(bubble, message);
     });
+    void window.BAOStoryVoiceMessages?.refresh(stream);
   }
 
   ensureStyles();
