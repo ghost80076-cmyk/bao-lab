@@ -186,5 +186,18 @@
    if(!wav&&!mp3)throw Error('TTS 音訊格式不相容。');
    return new Blob([data],{type:wav?'audio/wav':'audio/mpeg'});
  }
- return Object.freeze({LANGUAGES,MAX_TEXT,profile,PACK_LIMIT,exportPack,importPack,profileKey,voicesFor,selectVoice,candidates,directDialogue,script,mergeDraft,finalTranscript,sttConfig,transcribe,STT_MAX_BYTES,ttsConfig,synthesize,TTS_MAX_BYTES});
+ // Bounds for an explicit chapter-only remote TTS grant, not a price estimate.
+ const AUTO_TTS_LIMITS=Object.freeze({requests:20,characters:6000,durationMs:30*60*1000});
+ function autoTTSBudget(){
+   let requests=0,characters=0;
+   return Object.freeze({
+     reserve(text){
+       const size=script(text).length;
+       if(requests>=AUTO_TTS_LIMITS.requests||characters+size>AUTO_TTS_LIMITS.characters)return false;
+       requests++;characters+=size;return true;
+     },
+     remaining(){return {requests:AUTO_TTS_LIMITS.requests-requests,characters:AUTO_TTS_LIMITS.characters-characters};}
+   });
+ }
+ return Object.freeze({LANGUAGES,MAX_TEXT,profile,PACK_LIMIT,exportPack,importPack,profileKey,voicesFor,selectVoice,candidates,directDialogue,script,mergeDraft,finalTranscript,sttConfig,transcribe,STT_MAX_BYTES,ttsConfig,synthesize,TTS_MAX_BYTES,AUTO_TTS_LIMITS,autoTTSBudget});
 });
