@@ -22,7 +22,7 @@ const loadBAOScript = src => {
   return promise;
 };
 
-const STORY_LIBRARY_SRC = "js/story-library.js?v=14";
+const STORY_LIBRARY_SRC = "js/story-library.js?v=15";
 // The policy guard must be active even when the optional cost UI chain fails.
 const providerPolicyReady = loadBAOScript("js/provider-policy-guard.js?v=1");
 window.BAOEnsureStoryLibrary = () => {

@@ -816,7 +816,17 @@
 
     async cleanupDeletedVoiceAssets() {
       if (!window.BAOStoryVoiceAssets) return true;
-      try { await window.BAOStoryVoiceAssets.purgeDeleted(await this.allRecords()); return true; }
+      try {
+        if (!await this.open()) return false;
+        const store = this._db.transaction(this.storeName, "readonly").objectStore(this.storeName);
+        const range = prefix => IDBKeyRange.bound(prefix, prefix + "\uffff");
+        const [stories, chapters] = await Promise.all([
+          this.request(store.getAll(range("deletion:"))),
+          this.request(store.getAll(range("chapter-deletion:")))
+        ]);
+        await window.BAOStoryVoiceAssets.purgeDeleted([...stories, ...chapters]);
+        return true;
+      }
       catch (_) { console.warn("本機音訊清理未完成，可在語音工具重試。"); return false; }
     },
 

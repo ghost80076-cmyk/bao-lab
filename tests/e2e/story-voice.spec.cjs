@@ -458,7 +458,19 @@ test('audio story backup restores into a separate story and deletion cleans only
    for(const [offset,str] of [[0,'RIFF'],[8,'WAVEfmt '],[36,'data']])wav.set([...str].map(c=>c.charCodeAt(0)),offset);
    v.setUint32(4,1636,true);v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,8000,true);v.setUint32(28,16000,true);v.setUint16(32,2,true);v.setUint16(34,16,true);v.setUint32(40,1600,true);
    const A=BAOStoryVoiceAssets,B=BAOStoryVoiceBackup;
-   await A.save(original,new Blob([wav],{type:'audio/wav'}),.1,()=>true);
+   const blob=new Blob([wav],{type:'audio/wav'});
+   const saved=await A.save(original,blob,.1,()=>true);
+   // Exercise the Blob representation used before the ArrayBuffer change.
+   await new Promise((resolve,reject)=>{
+     const request=indexedDB.open('yorubay-audio-assets');
+     request.onerror=()=>reject(request.error);
+     request.onsuccess=()=>{
+       const db=request.result,tx=db.transaction('audio','readwrite');
+       tx.objectStore('audio').put({id:saved.id,blob});
+       tx.oncomplete=()=>{db.close();resolve();};
+       tx.onabort=()=>{db.close();reject(tx.error);};
+     };
+   });
    const bundle=await B.exportStory(original.storyId);
    let rejected=false;const bad=structuredClone(bundle);bad.audio.items[0].hash='0'.repeat(64);
    try{await B.importStory(bad);}catch(_){rejected=true;}
@@ -466,7 +478,9 @@ test('audio story backup restores into a separate story and deletion cleans only
    const rows=await A.list(target),asset=await A.get(target,rows[0].id);
    const same=Array.from(new Uint8Array(await asset.blob.arrayBuffer())).every((b,i)=>b===wav[i]);
    const deleted=await BAOStoryLibrary.deleteStory(imported.storyId);
-   return {rejected,same,distinct:target.storyId!==original.storyId,deleted,restored:rows.length,remaining:(await A.list(target)).length,original:(await A.list(original)).length,secret:JSON.stringify(bundle).includes('TEXT-PRIVATE')};
+   let staleRejected=false;
+   try{await A.save(target,blob,.1,()=>true);}catch(e){staleRejected=e.message.includes('已刪除');}
+   return {rejected,same,staleRejected,distinct:target.storyId!==original.storyId,deleted,restored:rows.length,remaining:(await A.list(target)).length,original:(await A.list(original)).length,secret:JSON.stringify(bundle).includes('TEXT-PRIVATE')};
  });
- expect(result).toEqual({rejected:true,same:true,distinct:true,deleted:true,restored:1,remaining:0,original:1,secret:false});
+ expect(result).toEqual({rejected:true,same:true,staleRejected:true,distinct:true,deleted:true,restored:1,remaining:0,original:1,secret:false});
 });
