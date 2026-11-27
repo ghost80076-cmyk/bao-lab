@@ -77,10 +77,10 @@ test('voice pack preview requires explicit role and save, rejects unknown fields
  const pack={schema:'yorubay.voice-profile',version:1,engine:'web-speech',profile:{language:'ko-KR',voiceURI:'ko',rate:.9,pitch:1.15,volume:.7}};
  const load=async value=>d.getByLabel('選擇聲線設定包 JSON').setInputFiles({name:'voice.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(value))});
  await load({...pack,url:'https://example.invalid'});
- await expect(d.getByRole('status')).toContainText('不支援');
+ await expect(d.locator('p[role="status"]')).toContainText('不支援');
  await expect(d.getByLabel('配音語言')).toHaveValue('zh-TW');
  await load(pack);
- await expect(d.getByRole('status')).toContainText('尚未保存');
+ await expect(d.locator('p[role="status"]')).toContainText('尚未保存');
  await expect(d.getByLabel('配音語言')).toHaveValue('ko-KR');
  await expect(d.getByLabel('裝置聲線')).toHaveValue('ko');
  expect(await page.evaluate(()=>localStorage.getItem('yorubay-device-voice-v1'))).toBeNull();
