@@ -15,7 +15,8 @@
     const parsed = Core.extract(content);
     const user=this.messages.at(-1);
     const source=Core.xPlayerIntent(user) ? Core.mergeDisplay(activePhone(),GameState.current.phoneUI) : null;
-    const patch=source?.apps.includes('x') ? Core.withXPlayerPost(parsed.patch,user,source.tweets,id=>{
+    const voiceScope=window.BAOStoryNativeTurn?.phoneReplyScope?.();
+    const patch=voiceScope ? Core.restrictVoiceReply(parsed.patch,voiceScope) : source?.apps.includes('x') ? Core.withXPlayerPost(parsed.patch,user,source.tweets,id=>{
       const access=window.BAOPhoneInteractionCore?.access(source,GameState.current.phoneInteractions,{app:'x',id});
       return !access || (access.exists && !access.locked && !access.hidden);
     }) : parsed.patch;

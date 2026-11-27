@@ -10,7 +10,8 @@
  const same=s=>{const n=scope();return !!s.owner&&n.owner===s.owner&&n.card===s.card&&n.storyId===s.storyId&&n.chapterId===s.chapterId;};
  const active=()=>!document.hidden&&document.getElementById('chat-view')?.classList.contains('active');
  const validRoute=(rec,cfg=App.config?.api)=>{try{const n=Core.nativeAudioRoute(cfg),r=rec.route;return n.endpoint===r.endpoint&&n.model===r.model&&n.key===r.key;}catch(_){return false;}};
- const unchanged=rec=>same(rec.scope)&&history()===rec.history&&input()?.value.trim()===rec.text&&validRoute(rec);
+ const validRecipient=rec=>!rec.phone||rec.phone.valid();
+ const unchanged=rec=>same(rec.scope)&&history()===rec.history&&input()?.value.trim()===rec.text&&validRoute(rec)&&validRecipient(rec);
  const blocked=()=>App.config?.demoMode||App.config?.offlineWorldPreview||window.BAOStoryImages?.hasDraft?.();
  const status=text=>{notice=text;sync();};
  function sync(){
@@ -21,7 +22,7 @@
    send.hidden=remove.hidden=!draft;
    send.disabled=!!attempt||!!App.__requestPending||!draft||!unchanged(draft)||!!blocked();
    remove.disabled=!!attempt;
-   panel.querySelector('[role="status"]').textContent=notice||(draft?'待送原始音訊 · '+Math.ceil(draft.duration)+' 秒 · '+draft.route.model:'');
+   panel.querySelector('[role="status"]').textContent=notice||(draft?'待送原始音訊'+(draft.phone?' · '+draft.phone.name:'')+' · '+Math.ceil(draft.duration)+' 秒 · '+draft.route.model:'');
  }
  function mount(){
    const composer=document.querySelector('#chat-view .composer');if(!composer)return;
@@ -29,7 +30,7 @@
      panel=document.createElement('section');panel.className='yoru-native-audio-draft';panel.hidden=true;
      const note=document.createElement('p');note.setAttribute('role','status');note.setAttribute('aria-live','polite');
      const button=(text,key,fn)=>{const b=document.createElement('button');b.type='button';b.className='secondary';b.dataset[key]='1';b.textContent=text;b.onclick=fn;return b;};
-     panel.append(note,button('送出音訊與文字','nativeSend',()=>void send()),button('移除待送音訊','nativeRemove',()=>{if(!attempt){draft=null;notice='';epoch++;sync();}}));
+     panel.append(note,button('送出音訊與文字','nativeSend',()=>void send()),button('移除待送音訊','nativeRemove',()=>{if(!attempt){if(draft?.phone&&input()?.value.trim()===draft.text)input().value='';draft=null;notice='';epoch++;sync();}}));
      composer.before(panel);
      input()?.addEventListener('input',()=>{if(draft&&!attempt){notice=unchanged(draft)?'':'文字、故事或模型已變更；請移除音訊後重新確認。';sync();}});
    }
@@ -43,6 +44,22 @@
    if(ticket!==epoch||!sourceIsCurrent()||!active()||!unchanged(rec)||draft||attempt||blocked())throw Error('故事、模型或文字已變更，請重新確認。');
    draft=rec;notice='';mount();
  }
+ async function stagePhone(blob,duration,phone,sourceIsCurrent,confirmed){
+   if(confirmed!==true||!sourceIsCurrent()||!active()||attempt||draft||App.__requestPending||blocked())throw Error('請先處理待送圖片／音訊並確認本次傳送。');
+   const current=scope(),route=Core.nativeAudioRoute(App.config?.api),prior=history(),ticket=++epoch,composer=input();
+   if(!current.storyId||!current.chapterId||!composer||composer.value.trim()||!phone?.valid?.())throw Error('請先處理故事文字草稿，並確認原手機會話仍可存取。');
+   const target=phone.target;
+   if(!target||typeof target.prefix!=='string'||!target.prefix.startsWith('【KakaoTalk｜')||!target.prefix.endsWith('】'))throw Error('手機收件範圍無效。');
+   const thread={id:target.threadId,members:target.group?[...target.members].sort():[target.senderId]};
+   const checked=Core.storyVoiceDelivery({id:crypto.randomUUID(),sender:'player',recipient:current.card.id,conversation:'phone',thread,after:{id:'pending',index:0,revision:'0'.repeat(64)}});
+   const caption=String(phone.caption||'').trim();
+   if(caption.length>1600)throw Error('語音附註最多 1600 字。');
+   const text=target.prefix+'（玩家傳送一段原始語音訊息）'+caption;
+   const part=await Core.nativeAudioPart(blob,duration);
+   const rec={scope:current,route,history:prior,text,part,blob,duration,phone:{target:{threadId:checked.thread.id,group:target.group===true,members:checked.thread.members,senderId:target.senderId},name:String(target.name),valid:phone.valid}};
+   if(ticket!==epoch||!sourceIsCurrent()||!active()||!same(current)||!validRoute(rec)||!validRecipient(rec)||history()!==prior||input()!==composer||composer.value.trim()||draft||attempt||blocked())throw Error('故事、收件者、模型或草稿已變更，請重新確認。');
+   composer.value=text;draft=rec;notice='';mount();
+ }
  async function send(){
    if(!draft||attempt||App.__requestPending)return;
    if(!active()||!unchanged(draft)||blocked()){status('故事、模型或文字已變更，請移除後重新確認。');return;}
@@ -55,6 +72,7 @@
      if(!rec.finished&&draft===rec.draft)notice='本輪未完成；原音訊仍待送。再次按送出才會重新請求，先前請求可能已計費。';
      sync();
    }
+   return rec.finished;
  }
  function prepare(ticket,text,image){
    if(!attempt&&draft&&!same(draft.scope)){draft=null;notice='';sync();}
@@ -66,7 +84,7 @@
  }
  const pendingCurrent=rec=>{
    const messages=Chat.messages,player=messages.at(-1);
-   return attempt===rec&&draft===rec.draft&&active()&&same(rec.draft.scope)&&validRoute(rec.draft)&&
+   return attempt===rec&&draft===rec.draft&&active()&&same(rec.draft.scope)&&validRoute(rec.draft)&&validRecipient(rec.draft)&&
       player?.id===rec.playerId&&player.role==='user'&&player.content===rec.draft.text&&
       JSON.stringify(messages.slice(0,-1).map(m=>Core.storyVoiceSource(m)))===rec.draft.history;
  };
@@ -85,7 +103,9 @@
    if(!rec||cfg.__storyNativeAudioTicket!==rec.ticket||rec.used||!pendingCurrent(rec)||!validRoute(rec.draft,cfg)||cfg.__storyImageTicket||cfg.__memoryTask||cfg.__stateTask||cfg.__auxiliaryTask||cfg.__storyTool||cfg.__connectionTest)throw Error('原始音訊請求已失效。');
    const last=messages.filter(m=>m.role!=='system').at(-1),target=contents.at(-1);
    if(last?.role!=='user'||!API.contentToText(last.content).includes(rec.draft.text)||target?.role!=='user'||!Array.isArray(target.parts)||target.parts.some(part=>part.inlineData))throw Error('無法安全對應本輪玩家音訊。');
-   rec.used=true;target.parts.push(rec.draft.part);
+   rec.used=true;
+   if(rec.draft.phone)target.parts.push({text:'這段語音僅傳送給本訊息前綴指定的 KakaoTalk 私訊對象／群聊成員，不是公開貼文或現場說話；勿讓其他人知悉。只在原會話產生合理回覆，勿代玩家杜撰錄音內容。'});
+   target.parts.push(rec.draft.part);
  }
  function assertDelivered(rec){
    if(rec&&(!rec.used||!pendingCurrent(rec)))throw Error('本輪未確認原始音訊已送達，未保存故事回覆。');
@@ -95,7 +115,7 @@
    rec.finished=true;if(draft===rec.draft)draft=null;
    notice='原始音訊故事回覆已完成。';
    try{
-     await window.BAOStoryVoiceMessages.saveNative(rec.draft.blob,rec.draft.duration,playerId,()=>same(rec.draft.scope)&&isCurrent());
+     await window.BAOStoryVoiceMessages.saveNative(rec.draft.blob,rec.draft.duration,playerId,()=>same(rec.draft.scope)&&isCurrent(),rec.draft.phone?.target);
      notice='已完成故事回覆並保存本機語音訊息。';
    }catch(_){notice='故事回覆已完成，但本機音訊保存失敗；請保留原音檔。不要為保存音訊重複送出本輪。';}
    sync();
@@ -103,5 +123,9 @@
  App.wrapRenderChatShell('story-voice:native-draft',function(next,...args){const result=next(...args);mount();return result;});
  window.addEventListener('pagehide',()=>{draft=null;epoch++;});
  document.addEventListener('visibilitychange',()=>{if(document.hidden&&!attempt){draft=null;epoch++;notice='';sync();}});
- window.BAOStoryNativeTurn=Object.freeze({stage,prepare,bind,guardTransport,materialize,assertDelivered,finish,status});
+ function phoneReplyScope(){
+   if(!attempt?.used||attempt.finished||!attempt.draft.phone||Chat.messages.at(-1)?.id!==attempt.playerId)return null;
+   const t=attempt.draft.phone.target;return {id:t.threadId,members:t.members.slice()};
+ }
+ window.BAOStoryNativeTurn=Object.freeze({stage,stagePhone,send,prepare,bind,guardTransport,materialize,assertDelivered,finish,status,phoneReplyScope,hasDraft:()=>!!draft});
 })();

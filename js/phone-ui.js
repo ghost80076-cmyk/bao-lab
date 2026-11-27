@@ -386,7 +386,16 @@
               return live?.key===target.key && live?.prefix===target.prefix;
             };
             dmPhotos=window.BAOPhoneDMPhotos?.mount({form,thread,target,active,refresh:render});
-            voicePanel=window.BAOStoryVoiceMessages?.mountPhone({form,thread,target,active});
+            const state=ownerState,card=ownerCharacter,photoDraft=dmPhotos;
+            const recipientValid=()=>{
+              if(GameState.current!==state||App.activeCharacter!==card)return false;
+              const live=chatPhotoTarget(phoneSource(),threadId,state);
+              return live?.key===target.key&&live?.prefix===target.prefix;
+            };
+            const draftClear=()=>!input.value.trim()&&!photoDraft?.image&&!photoDraft?.busy;
+            voicePanel=window.BAOStoryVoiceMessages?.mountPhone({form,thread,target,active,recipientValid,draftClear,
+              refreshPhone:()=>{if(active()){config=phoneSource();render();}},closePhone:()=>{if(active())close();}});
+
           }
         }
         window.setTimeout(()=>{ if (thread.isConnected) thread.scrollTop = thread.scrollHeight; },0);
@@ -702,6 +711,7 @@
     const composer=document.getElementById('user-input');
     if (!composer) return;
     if (composer.value.trim() && !window.confirm('目前故事輸入框有尚未送出的內容，要用手機訊息取代嗎？')) return;
+    if(window.BAOStoryNativeTurn?.hasDraft?.()){(dm?.error || window.alert)('故事輸入框已有待送音訊，請先處理，以免傳錯對象。');return;}
     if(window.BAOStoryImages?.hasDraft?.()){(dm?.error || window.alert)('故事輸入框已有待送照片，請先處理，以免傳錯對象。');return;}
     let xPrefix='';
     if(medium==='X' && (dm?.image || !post)){

@@ -783,3 +783,55 @@ test('native story turn sends reviewed audio once, stores local attachment and n
  await expect.poll(()=>page.evaluate(()=>Chat.messages.filter(m=>m.role==='user').length)).toBe(2);
  await expect.poll(()=>page.evaluate(()=>Boolean(App.__requestPending))).toBe(false);expect(clips()).toHaveLength(1);
 });
+
+test('Phone native audio sends to exact private/group recipients and discards unrelated model phone updates',async({page})=>{
+ const requests=[];
+ await page.route('https://generativelanguage.googleapis.com/**',async route=>{
+   const headers={'access-control-allow-origin':'*','access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'x-goog-api-key, content-type'};
+   if(route.request().method()==='OPTIONS')return route.fulfill({status:204,headers});
+   requests.push(route.request().postDataJSON());
+   const id=requests.length===1?'private-a':'group-ab';
+   const patch={threads:[{id,messages:[{from:'them',senderId:'a',text:'收到語音'},{from:'them',senderId:'c',text:'未授權成員'},{from:'me',text:'偽造玩家'}]},{id:'group-ac',messages:[{from:'them',senderId:'c',text:'跨群洩漏'}]}],tweets:[{id:'bad-post',text:'公開洩漏'}]};
+   await route.fulfill({headers,json:{candidates:[{finishReason:'STOP',content:{parts:[{text:'收到訊息。\n[[YORUBAY_PHONE_V1]]\n'+JSON.stringify(patch)+'\n[[/YORUBAY_PHONE_V1]]'}]}}],usageMetadata:{promptTokenCount:20,candidatesTokenCount:10}}});
+ });
+ await setup(page,390);
+ await page.evaluate(()=>{
+   Object.assign(App.config.api,{type:'gemini',protocol:'gemini',route:'official',baseUrl:'https://generativelanguage.googleapis.com/v1beta/models',model:'gemini-3.8-flash',key:'NATIVE-PRIVATE',stream:false,streaming:false});
+   App.activeCharacter.phone_ui={enabled:true,userName:'旅人',contactName:'A',contacts:[{id:'a',name:'A'},{id:'b',name:'B'},{id:'c',name:'C'}],threads:[{id:'private-a',name:'A 的私訊',participants:['a'],messages:[]},{id:'group-ab',name:'AB 群組',participants:['a','b'],messages:[]},{id:'group-ac',name:'AC 群組',participants:['a','c'],messages:[]}]};
+   App.renderChatShell(false);
+ });
+ const messages=page.locator('.bp-voice-messages .yoru-story-voice-message');
+ const enter=async name=>{
+   await page.locator('#bao-phone-launch').click();await page.locator('.bp-home-handle').click();await page.locator('.bp-apps .bp-icon-kakao').click();await page.locator('[data-phone-action^="thread:"]').filter({hasText:name}).click();
+ };
+ const closePhone=()=>page.getByRole('button',{name:'關閉手機'}).click();
+ async function send(){
+   await page.getByRole('button',{name:'語音訊息',exact:true}).click();
+   const d=page.getByRole('dialog',{name:'Phone 語音訊息'});
+   await d.getByLabel('選擇本機音檔').setInputFiles({name:'sample.wav',mimeType:'audio/wav',buffer:voiceWav()});
+   await d.getByText('原始音訊角色回覆（進階 BYOK）',{exact:true}).click();
+   const button=d.getByRole('button',{name:'傳送原始音訊並取得角色回覆'});
+   await expect(button).toBeEnabled();
+   const before=requests.length;await button.click();expect(requests).toHaveLength(before);
+   await d.getByLabel('我已確認模型支援音訊輸入，並同意將原始音訊與本輪故事上下文送至目前 Gemini 模型及可能費用').check();
+   await button.click();await expect(d).toHaveCount(0);
+   await expect.poll(()=>page.evaluate(()=>Boolean(App.__requestPending))).toBe(false);
+   await expect(messages).toHaveCount(1);
+   expect(requests).toHaveLength(before+1);
+ }
+ await enter('A 的私訊');await send();await closePhone();
+ await enter('AB 群組');await expect(messages).toHaveCount(0);await send();await closePhone();
+ await enter('AC 群組');await expect(messages).toHaveCount(0);await closePhone();
+ const checks=await page.evaluate(async()=>{
+   const rows=await BAOStoryVoiceAssets.list(BAOStoryLibrary.refs());
+   const replies=Chat.messages.filter(m=>m.phonePatch).map(m=>m.phonePatch);
+   return {threads:rows.map(r=>r.delivery.thread).sort((a,b)=>a.id.localeCompare(b.id)),patches:replies,mainAudio:document.querySelectorAll('#chat-stream .yoru-story-voice-message').length};
+ });
+ expect(checks.threads).toEqual([{id:'group-ab',members:['a','b']},{id:'private-a',members:['a']}]);
+ expect(checks.patches).toHaveLength(2);
+ for(const patch of checks.patches){expect(Object.keys(patch)).toEqual(['threads']);expect(patch.threads).toHaveLength(1);expect(patch.threads[0].messages.map(m=>m.text)).toEqual(['收到語音']);}
+ expect(checks.mainAudio).toBe(0);
+ for(const request of requests){expect(request.contents.flatMap(c=>c.parts).filter(p=>p.inlineData)).toEqual([{inlineData:{mimeType:'audio/wav',data:voiceWav().toString('base64')}}]);}
+ expect(JSON.stringify(requests[0])).toContain('private-a');expect(JSON.stringify(requests[1])).toContain('群聊成員 ID');
+ await enter('AB 群組');await page.evaluate(()=>{App.activeCharacter.phone_ui.threads.find(t=>t.id==='group-ab').participants=['a','c'];BAOPhoneUI.refreshFromState();});await expect(messages).toHaveCount(0);
+});
