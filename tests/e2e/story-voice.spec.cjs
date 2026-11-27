@@ -872,3 +872,40 @@ for(const provider of [
    expect(clips()).toHaveLength(1);
  });
 }
+
+test('authorized reference audio TTS is one-shot and never saved into story or settings',async({page})=>{
+ const calls=[];
+ await page.route('https://reference.example.invalid/v1/audio/speech',async route=>{
+   const headers={'access-control-allow-origin':'*','access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'authorization, content-type'};
+   if(route.request().method()==='OPTIONS')return route.fulfill({status:204,headers});
+   calls.push(route.request().postDataJSON());
+   await route.fulfill({headers:{...headers,'content-type':'audio/wav'},body:voiceWav()});
+ });
+ await setup(page,390);await openVoice(page,390);
+ const d=page.getByRole('dialog',{name:'角色語音與語音輸入'});
+ await d.getByLabel('配音來源').selectOption('custom');await d.getByLabel('配音角色').selectOption('a');
+ await d.getByLabel('TTS 接口網址').fill('https://reference.example.invalid/v1/audio/speech');
+ await d.getByLabel('TTS 模型 ID').fill('Qwen/Qwen3-TTS-12Hz-1.7B-Base');
+ await d.getByLabel('TTS API Key（選填）').fill('REF-PRIVATE');
+ await d.getByLabel('實際配音台詞（可編輯／貼上翻譯）').fill('おやすみ。');
+ await d.getByText('參考音訊配音（進階／Qwen3-TTS Base）',{exact:true}).click();
+ await d.getByLabel('使用有權使用的參考音訊生成聲線').check();
+ await d.getByLabel('選擇參考音訊',{exact:true}).setInputFiles({name:'reference.wav',mimeType:'audio/wav',buffer:voiceWav()});
+ await expect(d.getByLabel('參考音訊預覽')).toBeVisible();
+ await d.getByLabel('參考音訊實際逐字稿').fill('こんにちは');await d.getByLabel('參考配音輸出語言').selectOption('ja-JP');
+ const generate=d.getByRole('button',{name:'生成確認的台詞'});
+ await generate.click();expect(calls).toHaveLength(0);
+ await expect(d.getByRole('button',{name:'啟用本章節自訂自動配音'})).toBeHidden();
+ await d.getByLabel('我有權使用這段聲音生成語音，不用於冒充他人').check();
+ const consent=d.getByLabel('我同意將本次參考音訊、逐字稿與台詞傳至指定 TTS 接口，可能收費');
+ await consent.check();await generate.click();
+ await expect(d.getByLabel('生成的角色語音')).toBeVisible();expect(calls).toHaveLength(1);
+ expect(calls[0]).toMatchObject({task_type:'Base',language:'Japanese',input:'おやすみ。',ref_text:'こんにちは',ref_audio:'data:audio/wav;base64,'+voiceWav().toString('base64')});
+ expect(calls[0]).not.toHaveProperty('voice');
+ await expect(consent).not.toBeChecked();
+ await generate.click();expect(calls).toHaveLength(1);
+ await d.getByLabel('配音角色').selectOption('b');await expect(d.getByLabel('參考音訊預覽')).toBeHidden();
+ await d.getByRole('button',{name:'關閉',exact:true}).click();
+ const data=await page.evaluate(()=>({storage:JSON.stringify(localStorage),chat:JSON.stringify(Chat.messages)}));
+ expect(JSON.stringify(data)).not.toContain('REF-PRIVATE');expect(JSON.stringify(data)).not.toContain(voiceWav().toString('base64'));expect(data.chat).not.toContain('こんにちは');
+});
