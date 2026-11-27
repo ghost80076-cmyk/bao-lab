@@ -1075,3 +1075,31 @@ test('shared BYOK voice is authorized once and used directly in story and Phone 
  expect(await page.evaluate(()=>JSON.stringify(Chat.messages))).toBe(before);
  expect(await page.evaluate(()=>JSON.stringify(localStorage))).not.toContain('SHARED-PRIVATE');
 });
+
+
+test('NPC chooses a Phone voice message in the existing story turn and playback remains player initiated',async({page})=>{
+ await setup(page,390);
+ const before=await page.evaluate(()=>{
+   App.activeCharacter.phone_ui={enabled:true,userName:'旅人',contactName:'A',contacts:[{id:'a',name:'A'},{id:'b',name:'B'}],threads:[{id:'private-a',name:'A 私訊',participants:['a'],messages:[]},{id:'group-ab',name:'AB 群聊',participants:['a','b'],messages:[]}]};
+   localStorage.setItem('yorubay-device-voice-v1',JSON.stringify({[JSON.stringify(['voice-test','a'])]:{language:'ja-JP',voiceURI:'ja',rate:.9,pitch:1,volume:1}}));
+   Chat.add('user','我繼續看書。');
+   const Core=BAOPhoneStoryCore;
+   const reply=Chat.add('assistant','手機亮了一下。'+Core.OPEN+JSON.stringify({threads:[{id:'private-a',messages:[{from:'them',senderId:'a',kind:'voice',text:'おやすみ。'},{from:'them',senderId:'a',text:'普通文字'}]},{id:'group-ab',messages:[{from:'them',senderId:'a',kind:'voice',text:'また明日。'}]}]})+Core.CLOSE);
+   App.renderChatShell(false);App.saveStory(false);
+   return {text:reply.content,messages:JSON.stringify(Chat.messages),patch:reply.phonePatch};
+ });
+ expect(before.text).toBe('手機亮了一下。');expect(before.patch.threads[0].messages[0].kind).toBe('voice');
+ const requests=[];await page.route(/https:\/\/(?:text|tts)\.example\.invalid\//,route=>{requests.push(route.request().url());return route.abort();});
+ async function enter(name){await page.locator('#bao-phone-launch').click();await page.locator('.bp-home-handle').click();await page.locator('.bp-apps .bp-icon-kakao').click();await page.locator('[data-phone-action^="thread:"]').filter({hasText:name}).click();}
+ await enter('A 私訊');await expect(page.locator('[data-voice-message]')).toHaveCount(1);await expect(page.locator('[data-voice-message]')).toContainText('おやすみ。');
+ expect(await page.evaluate(()=>window.__voiceCalls)).toEqual([]);
+ await page.getByRole('button',{name:'播放語音訊息（裝置）'}).click();
+ await expect.poll(()=>page.evaluate(()=>window.__voiceCalls)).toEqual([{text:'おやすみ。',lang:'ja-JP',rate:.9,voice:'ja'}]);
+ await page.getByRole('button',{name:'關閉手機'}).click();await enter('AB 群聊');
+ await expect(page.locator('[data-voice-message]')).toHaveCount(1);await expect(page.locator('[data-voice-message]')).not.toContainText('おやすみ。');
+ await page.getByRole('button',{name:'播放語音訊息（裝置）'}).click();
+ await expect.poll(()=>page.evaluate(()=>window.__voiceCalls.length)).toBe(2);
+ expect(await page.evaluate(()=>window.__voiceCalls.at(-1).text)).toBe('また明日。');
+ await page.getByRole('button',{name:'關閉手機'}).click();
+ expect(await page.evaluate(()=>JSON.stringify(Chat.messages))).toBe(before.messages);expect(requests).toEqual([]);
+});

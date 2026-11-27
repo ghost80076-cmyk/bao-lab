@@ -931,7 +931,7 @@
  App.wrapRenderChatShell('story-voice:optional-tools',function(next,...args){const result=next(...args);if(automatic&&!same(automatic))disableAutomatic();mount();return result;});
  function syncQuick(){
    const source=playbackSource();
-   document.querySelectorAll('[data-voice-phone-play]').forEach(b=>{b.setAttribute('aria-label','朗讀角色訊息（'+source+'）');b.title='使用目前共用角色聲線（'+source+'）';});
+   document.querySelectorAll('[data-voice-phone-play]').forEach(b=>{b.setAttribute('aria-label',(b.dataset.voicePhoneLabel||'朗讀角色訊息')+'（'+source+'）');b.title='使用目前共用角色聲線（'+source+'）';});
    const bar=document.getElementById('yoru-voice-quick-reply');
    if(!bar)return;
    const toggle=bar.querySelector('[data-voice-auto]'),status=bar.querySelector('[role="status"]'),play=bar.querySelector('[data-voice-play]');

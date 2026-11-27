@@ -126,7 +126,7 @@
       const body=snapshotText(item?.text,180);
       if(!body)return '';
       const time=snapshotText(item?.time,24);
-      return '- '+sender(item)+'：'+body+(time?'（'+time+'）':'');
+      return '- '+sender(item)+'：'+(item.kind==='voice'?'[語音訊息] ':'')+body+(time?'（'+time+'）':'');
     };
 
     const mainReadable=readNoticeTarget(story,'kakao','');
