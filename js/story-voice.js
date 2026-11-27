@@ -211,7 +211,7 @@
      if(!customConsent.input.checked){setStatus('請先確認錄音傳送及可能費用。');return;}
      const raw={endpoint:endpoint.input.value,model:model.input.value,key:apiKey.input.value,language:inputLang.input.value};
      try{Core.sttConfig(raw);}catch(e){setStatus(e.message);return;}
-     disableAutomatic();auto.input.checked=false;cancelSpeech();cancelRecognition();clearLocal();clearLocal();
+     disableAutomatic();auto.input.checked=false;cancelSpeech();cancelRecognition();clearLocal();
      const capturedDraft=sourceInput.value;customConsent.input.checked=false;
      const job={controller:new AbortController(),chunks:[],bytes:0,phase:'permission',stream:null,rec:null,timer:null};externalJob=job;syncControls();
      const live=()=>externalJob===job&&valid()&&inStory()&&!App.__requestPending;
@@ -245,7 +245,7 @@
      if(selected()){void startExternal();return;}
      if(!Recognition){setStatus('此瀏覽器不支援語音辨識，可使用裝置鍵盤的語音輸入。');return;}
      if(!consent.input.checked){setStatus('請先確認瀏覽器語音辨識的資料傳送說明。');return;}
-     disableAutomatic();auto.input.checked=false;cancelSpeech();cancelRecognition();
+     disableAutomatic();auto.input.checked=false;cancelSpeech();cancelRecognition();clearLocal();
      startingText=sourceInput.value;consent.input.checked=false;
      const rec=new Recognition();recognition=rec;rec.lang=inputLang.input.value;rec.continuous=false;rec.interimResults=false;rec.maxAlternatives=1;
      rec.onresult=e=>{if(recognition===rec&&valid())draft.input.value=Core.finalTranscript(e.results);};
