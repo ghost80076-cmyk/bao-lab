@@ -244,3 +244,7 @@
 .bp-x-photo{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-top:8px;min-width:0;overflow-wrap:anywhere}
 .bp-x-photo img{width:min(240px,100%);height:auto;border-radius:10px;object-fit:contain}
 .bp-x-photo button{min-height:44px;max-width:100%;white-space:normal}
+
+.bp-voice-message-button{min-height:44px;align-self:flex-start;margin:2px 0}
+.bp-voice-messages:empty{display:none}
+.bp-voice-messages .yoru-story-voice-message{border-color:#e5cb00;background:#fff7c3;color:#25220b}

@@ -25,7 +25,7 @@
     return node;
   };
 
-  async function send(blob, duration, sourceIsCurrent) {
+  async function send(blob, duration, sourceIsCurrent, phoneTarget) {
     const current = scope();
     const index = Chat.messages.length - 1;
     const message = Chat.messages[index];
@@ -36,9 +36,10 @@
       && Core.storyVoiceSource(Chat.messages[index]) === source;
     const delivery = {
       id: crypto.randomUUID(),
-      conversation: 'story',
+      conversation: phoneTarget ? 'phone' : 'story',
       sender: 'player',
       recipient: current.characterId,
+      ...(phoneTarget ? {thread: phoneScope(phoneTarget)} : {}),
       after: {id: message.id, index, revision: await Core.storyVoiceRevision(message)}
     };
     if (!valid() || !await library().flush(current.storyId))
@@ -47,7 +48,7 @@
     if (!await Core.storyVoiceMatches(delivery, saved?.characterId, saved?.chat?.messages))
       throw Error('書庫中的故事訊息版本已變更。');
     const row = await Assets.save(current, blob, duration, valid, delivery);
-    void refresh();
+    if (!phoneTarget) void refresh();
     return row;
   }
 
@@ -59,7 +60,7 @@
     rows.delete(id);
   }
 
-  function render(current, asset, anchor) {
+  function playback(current, asset, isCurrent) {
     const node = element('details');
     node.className = 'yoru-story-voice-message';
     const player = element('audio');
@@ -87,7 +88,7 @@
     node.addEventListener('toggle', async () => {
       if (!node.open) { release(); return; }
       const ticket = ++request;
-      const matches = () => ticket === request && node.isConnected && node.open && same(current);
+      const matches = () => ticket === request && node.isConnected && node.open && isCurrent();
       try {
         if (!await Core.storyVoiceMatches(asset.delivery, current.characterId, Chat.messages) || !matches()) return;
         const result = await Assets.get(current, asset.id);
@@ -103,8 +104,7 @@
       }
     });
     player.addEventListener('error', () => { if (url) status.textContent = '此瀏覽器無法播放這個音檔。'; });
-    anchor.append(node);
-    rows.set(asset.id, {node, release, scope: current});
+    return {node, release};
   }
 
   async function refresh(stream = document.getElementById('chat-stream')) {
@@ -116,19 +116,87 @@
       const assets = await Assets.list(current);
       const present = new Set();
       for (const asset of [...assets].reverse()) {
-        if (!asset.delivery || !await Core.storyVoiceMatches(asset.delivery, current.characterId, Chat.messages)) continue;
+        if (asset.delivery?.conversation !== 'story' || !await Core.storyVoiceMatches(asset.delivery, current.characterId, Chat.messages)) continue;
         if (ticket !== revision || !same(current)) return;
         const anchor = stream.querySelector(':scope > .message[data-message-index="' + asset.delivery.after.index + '"]');
         if (!anchor) continue;
         present.add(asset.id);
         if (rows.get(asset.id)?.node.parentElement === anchor) continue;
         clear(asset.id);
-        render(current, asset, anchor);
+        const record = playback(current, asset, () => same(current));
+        anchor.append(record.node);
+        rows.set(asset.id, {...record, scope: current});
       }
       if (ticket === revision) for (const id of rows.keys()) if (!present.has(id)) clear(id);
     } catch (_) {
       if (ticket === revision) for (const id of rows.keys()) clear(id);
     }
+  }
+
+  const phoneScope = target => ({
+    id: target.threadId,
+    members: target.group ? [...target.members].sort() : [target.senderId]
+  });
+
+  function mountPhone({form, thread, target, active: targetIsCurrent}) {
+    const current = scope();
+    if (!current.storyId || !current.chapterId || !current.characterId) return null;
+    const audience = JSON.stringify(phoneScope(target));
+    const button = element('button', '語音訊息');
+    button.type = 'button';
+    button.className = 'bp-voice-message-button';
+    form.insertAdjacentElement('afterend', button);
+    const list = element('div');
+    list.className = 'bp-voice-messages';
+    thread.append(list);
+    const records = new Map();
+    let ticket = 0;
+    let closed = false;
+    const active = () => !closed && same(current) && form.isConnected && targetIsCurrent();
+    async function paint() {
+      const attempt = ++ticket;
+      try {
+        const assets = await Assets.list(current);
+        const present = new Set();
+        for (const asset of [...assets].reverse()) {
+          if (asset.delivery?.conversation !== 'phone' || JSON.stringify(asset.delivery.thread) !== audience ||
+              !await Core.storyVoiceMatches(asset.delivery, current.characterId, Chat.messages)) continue;
+          if (attempt !== ticket || !active()) return;
+          present.add(asset.id);
+          if (records.has(asset.id)) continue;
+          const record = playback(current, asset, active);
+          list.append(record.node);
+          records.set(asset.id, record);
+        }
+        if (attempt !== ticket || !active()) return;
+        for (const [id, record] of records) {
+          if (present.has(id)) continue;
+          record.release();
+          record.node.remove();
+          records.delete(id);
+        }
+        const empty = thread.querySelector(':scope > .bp-empty');
+        if (empty) empty.hidden = present.size > 0;
+      } catch (_) {}
+    }
+    const release = () => { for (const {node} of records.values()) node.open = false; };
+    const onVisibility = () => { if (document.hidden) release(); };
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('pagehide', release);
+    button.addEventListener('click', () => {
+      if (active() && !App.__requestPending) window.BAOStoryVoice?.open({phoneVoice: {target, active, refresh: paint}});
+    });
+    void paint();
+    function cleanup() {
+      closed = true;
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('pagehide', release);
+      for (const record of records.values()) record.release();
+      records.clear();
+      button.remove();
+      list.remove();
+    }
+    return {current: active, refresh: paint, cleanup};
   }
 
   App.wrapShowView('story-voice-messages:lifecycle', (next, view, ...args) => {
@@ -141,5 +209,8 @@
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) for (const {node} of rows.values()) node.open = false;
   });
-  window.BAOStoryVoiceMessages = Object.freeze({send, refresh});
+  document.getElementById('chat-view')?.addEventListener('bao:phone-stage-visibility', event => {
+    if (event.detail?.open) for (const {node} of rows.values()) node.open = false;
+  });
+  window.BAOStoryVoiceMessages = Object.freeze({send, refresh, mountPhone});
 })();

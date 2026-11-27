@@ -237,13 +237,21 @@
    return {blob:new Blob([blob],{type:format[0]}),extension:format[1]};
  }
  function storyVoiceDelivery(value){
-   const {id,sender,recipient,conversation,after}=value||{};
+   const {id,sender,recipient,conversation,thread,after}=value||{};
    const key=text=>typeof text==='string'&&text.length>0&&text.length<=300;
-   if(typeof id!=='string'||!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(id)||sender!=='player'||conversation!=='story'||!key(recipient)||
+   if(typeof id!=='string'||!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(id)||sender!=='player'||!['story','phone'].includes(conversation)||!key(recipient)||
       !key(after?.id)||!Number.isSafeInteger(after.index)||after.index<0||
       typeof after.revision!=='string'||!/^[a-f0-9]{64}$/.test(after.revision))
      throw Error('故事語音訊息的發送範圍無效。');
-   return {id,sender,recipient,conversation,after:{id:after.id,index:after.index,revision:after.revision}};
+   const delivery={id,sender,recipient,conversation,after:{id:after.id,index:after.index,revision:after.revision}};
+   if(conversation==='phone'){
+     const {id:threadId,members}=thread||{};
+     if(typeof threadId!=='string'||threadId.length>300||!Array.isArray(members)||!members.length||members.length>30||
+       members.some(member=>!key(member))||new Set(members).size!==members.length||(!threadId&&members.length!==1))
+       throw Error('Phone 語音訊息的會話或收件成員無效。');
+     delivery.thread={id:threadId,members:[...members].sort()};
+   }
+   return delivery;
  }
  function storyVoiceSource(message){
    return JSON.stringify([message?.id,message?.role,message?.content||'',message?.context_content||'',message?.activeVariant||0]);

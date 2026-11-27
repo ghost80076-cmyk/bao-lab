@@ -177,19 +177,23 @@
    }
    return turn;
  });
- function open(){
+ function open(settings={}){
+   const phone=settings.phoneVoice;
    if(active||!GameState.current||!App.activeCharacter)return;
    const current=scope(),sourceInput=document.getElementById('user-input');
    if(!sourceInput)return;
    const synth=window.speechSynthesis,Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
-   const modal=el('dialog');modal.className='yoru-voice-dialog';modal.setAttribute('aria-label','角色語音與語音輸入');
+   const modal=el('dialog');modal.className='yoru-voice-dialog';modal.setAttribute('aria-label',phone?'Phone 語音訊息':'角色語音與語音輸入');
    if(typeof modal.showModal!=='function')return;
    const focus=document.activeElement;
-   const title=el('h2','角色語音與語音輸入'),note=el('p','選配工具。語音輸入只填入文字，不會送出；可開啟角色台詞自動配音。語音與故事原文互不改寫。');
+   const title=el('h2',phone?'Phone 語音訊息':'角色語音與語音輸入');
+   const note=el('p',phone
+     ? '傳給 '+phone.target.name+(phone.target.group?'（'+phone.target.audience+'）':'')+'。音訊會保存於此會話和此裝置，模型不會收到音訊。'
+     : '選配工具。語音輸入只填入文字，不會送出；可開啟角色台詞自動配音。語音與故事原文互不改寫。');
    const status=el('p');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
    const setStatus=t=>{status.textContent=t;};
    let recognition=null,recognitionTimer=null,utterance=null,playTimer=null,closed=false,externalJob=null,ttsJob=null,localJob=null,localURL=null,localEpoch=0;
-   const valid=()=>!closed&&modal.isConnected&&same(current)&&document.getElementById('user-input')===sourceInput;
+   const valid=()=>!closed&&modal.isConnected&&same(current)&&(!phone||phone.active())&&document.getElementById('user-input')===sourceInput;
    const cancelSpeech=()=>{if(utterance){utterance.onend=utterance.onerror=null;synth?.cancel();utterance=null;}clearTimeout(playTimer);cancelTTS();};
    const cancelRecognition=()=>{if(recognition){const rec=recognition;recognition=null;rec.onresult=rec.onerror=rec.onend=null;try{rec.abort();}catch(_){}}clearTimeout(recognitionTimer);cancelExternal();};
    const cleanup=()=>{if(closed)return;closed=true;notify=null;window.removeEventListener('pagehide',close);document.removeEventListener('visibilitychange',onVisibility);cancelSpeech();cancelRecognition();clearLocal();clearInterval(watch);synth?.removeEventListener?.('voiceschanged',refreshVoices);modal.remove();active=null;if(focus?.isConnected)focus.focus();};
@@ -497,7 +501,7 @@
    output.append(ttsProvider.wrap,speaker.wrap,lang.wrap,voice.wrap,...sliders.map(s=>s.wrap),remember,pack,source.wrap,quotes.wrap,text.wrap,el('small','手動配音可選句、編輯或貼上翻譯。'),remote.wrap,ttsAdvanced,speak,btn('停止播放',()=>{if(automatic?.custom)disableAutomatic();else stopSequence();cancelSpeech();setStatus('已停止播放。');}));
    syncTTS();
    load();refreshQuotes();synth?.addEventListener?.('voiceschanged',refreshVoices);
-   const localSection=el('details');localSection.append(el('summary','玩家錄音／音檔預覽（本機）'),el('p','錄音與語音轉文字分開。可明確保存至本章節音訊庫，未保存的音檔關閉工具即捨棄。可將預覽音檔加入本機故事對話。只留在此裝置，模型不會收到音訊，也不會觸發回覆。最多 60 秒、8 MiB。'));
+   const localSection=el('details');localSection.append(el('summary','玩家錄音／音檔預覽（本機）'),el('p',phone?'錄製或選擇音檔，預覽確認後再送出。最多 60 秒、8 MiB。':'錄音與語音轉文字分開。可明確保存至本章節音訊庫，未保存的音檔關閉工具即捨棄。可將預覽音檔加入本機故事對話。只留在此裝置，模型不會收到音訊，也不會觸發回覆。最多 60 秒、8 MiB。'));
    const localFile=field('選擇本機音檔','input');localFile.input.type='file';localFile.input.accept='audio/wav,audio/x-wav,audio/mpeg,audio/mp4,audio/ogg,audio/webm,.wav,.mp3,.m4a,.ogg,.webm';
    const localAudio=el('audio');localAudio.controls=true;localAudio.preload='metadata';localAudio.hidden=true;localAudio.setAttribute('aria-label','本機音檔預覽');
    const localInfo=el('p');localInfo.setAttribute('aria-live','polite');
@@ -633,11 +637,12 @@
      }catch(e){if(localLive()&&epoch===localEpoch)localInfo.textContent=e.message||'保存失敗，音檔仍可下載。';}
      finally{localSaving=false;if(valid())syncLocal();}
    });
-   const localSend=btn('加入故事語音訊息',async()=>{
+   const localSend=btn(phone?'傳送本機語音':'加入故事語音訊息',async()=>{
      if(!localLive()||!localReady||localSaving||!localBlob)return;
      const epoch=localEpoch,blob=localBlob,duration=localDuration;localSaving=true;syncLocal();
      try{
-       await window.BAOStoryVoiceMessages.send(blob,duration,()=>localLive()&&epoch===localEpoch);
+       await window.BAOStoryVoiceMessages.send(blob,duration,()=>localLive()&&epoch===localEpoch,phone?.target);
+       if(phone&&localLive()){void phone.refresh();close();return;}
        if(localLive()&&epoch===localEpoch){clearLocal();localInfo.textContent='語音訊息已加入本機故事。';}
      }catch(e){if(localLive()&&epoch===localEpoch)localInfo.textContent=e.message||'無法加入，本機音檔仍可下載。';}
      finally{localSaving=false;if(valid())syncLocal();}
@@ -683,7 +688,14 @@
    localSection.append(localFile.wrap,localStart,localStop,btn('捨棄本機音檔／取消錄音',()=>{clearLocal();localInfo.textContent='已捨棄本機音檔。';}),localAudio,localDownload,localSave,localSend,localInfo,collection);
    localSection.addEventListener('toggle',()=>{if(!localSection.open){if(localJob){clearLocal();localInfo.textContent='已停止並捨棄本機錄音。';}else localAudio.pause();}});
    syncLocal();
-   modal.append(title,note,inputSection,output,localSection,status,btn('關閉',close));document.body.append(modal);active=modal;
+   if(phone){
+     localSection.open=true;
+     localSave.remove();
+     collection.remove();
+   }
+   modal.append(title,note);
+   if(!phone)modal.append(inputSection,output);
+   modal.append(localSection,status,btn('關閉',close));document.body.append(modal);active=modal;
    window.addEventListener('pagehide',close);document.addEventListener('visibilitychange',onVisibility);modal.addEventListener('cancel',e=>{e.preventDefault();close();});modal.addEventListener('close',cleanup);
    const watch=setInterval(()=>{if(!valid()||!inStory()||((externalJob||ttsJob||audioURL||localJob||localURL)&&App.__requestPending))close();},250);
    try{modal.showModal();}catch(_){cleanup();}

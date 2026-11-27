@@ -597,3 +597,70 @@ test('player voice message follows its exact story reply and travels only in the
  await expect(voice).toHaveCount(0);
  expect(requests).toEqual([]);
 });
+
+test('Phone voice messages stay in the addressed private or group conversation', async ({page}) => {
+ const requests=[];
+ await page.route(/https:\/\/(?:text|stt|tts)\.example\.invalid\//, route => {
+   requests.push(route.request().url());
+   return route.abort();
+ });
+ await setup(page,390);
+ const before=await page.evaluate(()=>{
+   App.activeCharacter.phone_ui={
+     enabled:true,userName:'旅人',contactName:'A',
+     contacts:[{id:'a',name:'A'},{id:'b',name:'B'},{id:'c',name:'C'}],
+     threads:[
+       {id:'private-a',name:'A 的私訊',participants:['a'],messages:[]},
+       {id:'group-ab',name:'AB 群組',participants:['a','b'],messages:[]},
+       {id:'group-ac',name:'AC 群組',participants:['a','c'],messages:[]}
+     ]
+   };
+   App.renderChatShell(false);
+   return JSON.stringify(Chat.messages);
+ });
+ const messages=page.locator('.bp-voice-messages .yoru-story-voice-message');
+ async function enter(name){
+   await page.locator('#bao-phone-launch').click();
+   await page.locator('.bp-home-handle').click();
+   await page.locator('.bp-apps .bp-icon-kakao').click();
+   await page.locator('[data-phone-action^="thread:"]').filter({hasText:name}).click();
+ }
+ async function send(recipient){
+   await page.getByRole('button',{name:'語音訊息',exact:true}).click();
+   const dialog=page.getByRole('dialog',{name:'Phone 語音訊息'});
+   await expect(dialog).toContainText(recipient);
+   await dialog.getByLabel('選擇本機音檔').setInputFiles({name:'sample.wav',mimeType:'audio/wav',buffer:voiceWav()});
+   await dialog.getByRole('button',{name:'傳送本機語音'}).click();
+   await expect(dialog).toHaveCount(0);
+   await expect(messages).toHaveCount(1);
+ }
+ const closePhone=()=>page.getByRole('button',{name:'關閉手機'}).click();
+ await enter('A 的私訊');
+ await page.getByLabel('手機訊息').fill('尚未送出的文字');
+ await send('傳給 A 的私訊');
+ await expect(page.getByLabel('手機訊息')).toHaveValue('尚未送出的文字');
+ await messages.locator('summary').click();
+ await expect(messages.getByRole('link',{name:'下載語音'})).toHaveAttribute('href',/^blob:/);
+ await closePhone();
+ await enter('AB 群組');
+ await expect(messages).toHaveCount(0);
+ await send('AB 群組（A、B）');
+ await closePhone();
+ await enter('AC 群組');
+ await expect(messages).toHaveCount(0);
+ await closePhone();
+ await enter('A 的私訊');
+ await expect(messages).toHaveCount(1);
+ await closePhone();
+ await enter('AB 群組');
+ await expect(messages).toHaveCount(1);
+ await page.evaluate(()=>{
+   App.activeCharacter.phone_ui.threads.find(thread=>thread.id==='group-ab').participants=['a','c'];
+   BAOPhoneUI.refreshFromState();
+ });
+ await expect(messages).toHaveCount(0);
+ await closePhone();
+ await expect(page.locator('#chat-stream .yoru-story-voice-message')).toHaveCount(0);
+ expect(await page.evaluate(()=>JSON.stringify(Chat.messages))).toBe(before);
+ expect(requests).toEqual([]);
+});
