@@ -323,3 +323,49 @@ test('custom automatic TTS grants only future dialogue to mapped roles and can b
  expect(await page.evaluate(()=>window.__voiceCalls.length)).toBe(0);
  expect(await page.evaluate(()=>JSON.stringify(localStorage))).not.toContain('AUTO-TTS-PRIVATE');
 });
+
+test('local audio recording and file preview remain separate from STT and the story',async({page})=>{
+ const wav=Buffer.alloc(44+1600);wav.write('RIFF',0);wav.writeUInt32LE(wav.length-8,4);wav.write('WAVEfmt ',8);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);wav.writeUInt32LE(8000,24);wav.writeUInt32LE(16000,28);wav.writeUInt16LE(2,32);wav.writeUInt16LE(16,34);wav.write('data',36);wav.writeUInt32LE(1600,40);
+ await page.addInitScript(bytes=>{
+   window.__localMic=0;window.__localStopped=0;
+   Object.defineProperty(navigator,'mediaDevices',{configurable:true,value:{getUserMedia:async()=>{window.__localMic++;return {getTracks:()=>[{stop:()=>window.__localStopped++}]};}}});
+   Object.defineProperty(window,'MediaRecorder',{configurable:true,value:class{
+     static isTypeSupported(){return false;}
+     constructor(){this.mimeType='audio/wav';this.state='inactive';}
+     start(){this.state='recording';}
+     stop(){this.state='inactive';this.ondataavailable?.({data:new Blob([new Uint8Array(bytes)],{type:'audio/wav'})});this.onstop?.();}
+   }});
+ },Array.from(wav));
+ let external=0;
+ await page.route(/https:\/\/(?:text|stt|tts)\.example\.invalid\//,route=>{external++;return route.abort();});
+ await setup(page,390);
+ const before=await page.evaluate(()=>({messages:JSON.stringify(Chat.messages),state:JSON.stringify(GameState.current)}));
+ await page.locator('#user-input').fill('原草稿');
+ await openVoice(page,390);
+ const d=page.getByRole('dialog',{name:'角色語音與語音輸入'});
+ const details=d.locator('details').filter({hasText:'玩家錄音／音檔預覽（本機）'});
+ await details.locator('summary').click();
+ const start=details.getByRole('button',{name:'開始本機錄音'}),stop=details.getByRole('button',{name:'停止本機錄音'}),discard=details.getByRole('button',{name:'捨棄本機音檔／取消錄音'});
+ const audio=details.locator('audio[aria-label="本機音檔預覽"]'),file=details.getByLabel('選擇本機音檔');
+ expect(await page.evaluate(()=>window.__localMic)).toBe(0);
+ await start.click();await expect(details.getByText('本機錄音中；停止後可預覽，不會傳送。')).toBeVisible();
+ await discard.click();await expect(audio).toBeHidden();
+ expect(await page.evaluate(()=>window.__localStopped)).toBe(1);
+ await start.click();await expect(stop).toBeEnabled();await stop.click();
+ await expect(audio).toBeVisible();await expect(audio).toHaveAttribute('src',/^blob:/);
+ await expect(details.getByRole('button',{name:'下載本機音檔'})).toBeEnabled();
+ expect(await page.evaluate(()=>window.__localStopped)).toBe(2);
+ await file.setInputFiles({name:'fake.wav',mimeType:'audio/wav',buffer:Buffer.from('<html>invalid audio</html>')});
+ await expect(details.getByText('音檔格式不支援或與內容不符。')).toBeVisible();await expect(audio).toBeHidden();
+ await file.setInputFiles({name:'sample.wav',mimeType:'audio/wav',buffer:wav});
+ await expect(audio).toBeVisible();await expect(audio).toHaveAttribute('src',/^blob:/);
+ await discard.click();await expect(audio).not.toHaveAttribute('src',/./);
+ await start.click();await expect(stop).toBeEnabled();
+ await d.getByRole('button',{name:'關閉',exact:true}).click();
+ expect(await page.evaluate(()=>window.__localStopped)).toBe(3);
+ expect(await page.evaluate(()=>window.__recognitions)).toBe(0);
+ expect(await page.evaluate(()=>window.__voiceCalls.length)).toBe(0);
+ expect(external).toBe(0);
+ await expect(page.locator('#user-input')).toHaveValue('原草稿');
+ expect(await page.evaluate(()=>({messages:JSON.stringify(Chat.messages),state:JSON.stringify(GameState.current)}))).toEqual(before);
+});
