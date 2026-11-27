@@ -55,3 +55,31 @@ assert.deepEqual(solo('*她心想：*「不要說出口。」'),[]);
 assert.deepEqual(solo('*她看見門上寫著*「公休。」'),[]);
 assert.deepEqual(solo('*路人說：*「借過。」'),[]);
 assert.deepEqual(group('*她微笑著*「不知道誰在說話。」'),[]);
+
+async function testSTT(){
+ const cfg={endpoint:'https://stt.example.invalid/v1/audio/transcriptions',model:'player-model',key:'STT-ONLY',language:'zh-TW'};
+ assert.equal(C.sttConfig(cfg).language,'zh');
+ assert.equal(C.sttConfig({...cfg,endpoint:'http://127.0.0.1:8080/v1/audio/transcriptions',key:''}).key,'');
+ for(const endpoint of ['http://example.com/v1/audio/transcriptions','https://user:pass@example.com/audio/transcriptions','https://example.com/audio/transcriptions?key=123','https://example.com/audio/transcriptions#x','javascript:alert(1)','https://example.com/v1/chat/completions'])assert.throws(()=>C.sttConfig({...cfg,endpoint}));
+ assert.throws(()=>C.sttConfig({...cfg,model:''}));
+ const blob=new Blob(['fixture'],{type:'audio/webm;codecs=opus'});
+ let requests=0;
+ const fetcher=async(url,opts)=>{
+   requests++;assert.equal(url,cfg.endpoint);assert.equal(opts.method,'POST');assert.equal(opts.headers.Authorization,'Bearer STT-ONLY');assert.equal(opts.credentials,'omit');assert.equal(opts.redirect,'error');assert.equal(opts.referrerPolicy,'no-referrer');
+   assert.equal(opts.body.get('model'),'player-model');assert.equal(opts.body.get('language'),'zh');assert.equal(await opts.body.get('file').text(),'fixture');
+   assert.deepEqual([...opts.body.keys()],['file','model','language']);
+   return new Response(JSON.stringify({text:'繁體中文測試'}));
+ };
+ assert.equal(await C.transcribe(cfg,blob,{fetcher}),'繁體中文測試');assert.equal(requests,1);
+ await assert.rejects(C.transcribe(cfg,new Blob([],{type:'audio/webm'}),{fetcher}),/格式/);
+ await assert.rejects(C.transcribe(cfg,new Blob(['x'],{type:'text/plain'}),{fetcher}),/格式/);
+ await assert.rejects(C.transcribe(cfg,new Blob([new Uint8Array(C.STT_MAX_BYTES+1)],{type:'audio/webm'}),{fetcher}),/格式/);
+ assert.equal(requests,1);
+ await assert.rejects(C.transcribe(cfg,blob,{fetcher:async()=>new Response('secret error',{status:401})}),/回應失敗/);
+ await assert.rejects(C.transcribe(cfg,blob,{fetcher:async()=>new Response('x'.repeat(131073))}),/超過限制/);
+ await assert.rejects(C.transcribe(cfg,blob,{fetcher:async()=>new Response('{"text":""}')}),/有效文字/);
+ const controller=new AbortController();controller.abort();
+ await assert.rejects(C.transcribe(cfg,blob,{signal:controller.signal,fetcher:async(_,opts)=>{assert.equal(opts.signal,controller.signal);throw Error('aborted');}}),/aborted/);
+ console.log('Custom STT: explicit endpoint, separated key, bounded audio and response, no redirect, editable text contract passed.');
+}
+testSTT().catch(e=>{console.error(e);process.exitCode=1;});

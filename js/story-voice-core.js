@@ -129,5 +129,33 @@
  function finalTranscript(results){
    return Array.from(results||[]).filter(r=>r.isFinal).map(r=>String(r[0]?.transcript||'').trim()).filter(Boolean).join(' ').slice(0,12000);
  }
- return Object.freeze({LANGUAGES,MAX_TEXT,profile,PACK_LIMIT,exportPack,importPack,profileKey,voicesFor,selectVoice,candidates,directDialogue,script,mergeDraft,finalTranscript});
+ // Explicit player-supplied OpenAI-compatible transcription endpoint.
+ const STT_MAX_BYTES=8*1024*1024,STT_MAX_RESPONSE=128*1024;
+ function sttConfig(raw){
+   let url;try{url=new URL(String(raw?.endpoint||'').trim());}catch(_){throw Error('請輸入有效的 STT 接口網址。');}
+   const loopback=['localhost','127.0.0.1','[::1]'].includes(url.hostname);
+   if((url.protocol!=='https:'&&!(url.protocol==='http:'&&loopback))||url.username||url.password||url.search||url.hash||!url.pathname.endsWith('/audio/transcriptions'))throw Error('請使用 HTTPS 或本機 HTTP 的 /audio/transcriptions 接口，不含帳密或查詢參數。');
+   const model=String(raw?.model||'').trim(),key=String(raw?.key||'').trim();
+   if(!model||model.length>200||/[\x00-\x1f\x7f]/.test(model)||key.length>4096||/[\x00-\x1f\x7f]/.test(key))throw Error('請確認模型 ID 及 STT 金鑰格式。');
+   return {endpoint:url.href,model,key,language:LANGUAGES.includes(raw?.language)?raw.language.split('-')[0]:'zh'};
+ }
+ async function transcribe(raw,blob,{signal,fetcher=globalThis.fetch}={}){
+   const config=sttConfig(raw);
+   const type=String(blob?.type||'').split(';')[0].toLowerCase();
+   const ext=({'audio/webm':'webm','audio/ogg':'ogg','audio/mp4':'m4a','audio/wav':'wav','audio/mpeg':'mp3'})[type];
+   if(!ext||!blob.size||blob.size>STT_MAX_BYTES)throw Error('錄音格式不支援或超過 8 MiB。');
+   const body=new FormData();body.append('file',blob,'speech.'+ext);body.append('model',config.model);body.append('language',config.language);
+   const headers=config.key?{Authorization:'Bearer '+config.key}:{};
+   const response=await fetcher(config.endpoint,{method:'POST',body,headers,signal,credentials:'omit',redirect:'error',referrerPolicy:'no-referrer',cache:'no-store'});
+   if(!response.ok)throw Error('STT 接口回應失敗，請確認服務設定及額度。');
+   const reader=response.body?.getReader();
+   if(!reader)throw Error('無法讀取 STT 回應。');
+   let count=0,content='';const decoder=new TextDecoder();
+   try{while(true){const {done,value}=await reader.read();if(done)break;count+=value.byteLength;if(count>STT_MAX_RESPONSE)throw Error('STT 回應超過限制。');content+=decoder.decode(value,{stream:true});}content+=decoder.decode();}
+   finally{try{await reader.cancel();}catch(_){}reader.releaseLock();}
+   let parsed;try{parsed=JSON.parse(content);}catch(_){throw Error('STT 回應不是有效 JSON。');}
+   if(typeof parsed?.text!=='string'||!parsed.text.trim()||parsed.text.length>12000)throw Error('STT 未回傳有效文字，或文字過長。');
+   return parsed.text.trim();
+ }
+ return Object.freeze({LANGUAGES,MAX_TEXT,profile,PACK_LIMIT,exportPack,importPack,profileKey,voicesFor,selectVoice,candidates,directDialogue,script,mergeDraft,finalTranscript,sttConfig,transcribe,STT_MAX_BYTES});
 });
