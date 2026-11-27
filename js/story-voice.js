@@ -509,12 +509,12 @@
        };
        clearTimeout(job.timer);job.phase='recording';job.start=performance.now();rec.start(250);syncLocal();
        localInfo.textContent='本機錄音中；停止後可預覽，不會傳送。';
-       job.timer=setTimeout(()=>{if(live())finishLocal();},Core.AUDIO_DRAFT_MAX_SECONDS*1000);
+       job.timer=setTimeout(()=>{if(live())finishLocal();},Core.AUDIO_DRAFT_MAX_SECONDS*1000-250);
      }catch(_){if(localJob===job)localFail('無法啟動本機錄音，請確認麥克風權限。');}
    });
    function finishLocal(){
      const job=localJob;if(!job||job.phase!=='recording')return;
-     clearTimeout(job.timer);job.seconds=Math.min(Core.AUDIO_DRAFT_MAX_SECONDS,Math.max(.001,(performance.now()-job.start)/1000));job.phase='stopping';syncLocal();
+     clearTimeout(job.timer);job.seconds=Math.max(.001,(performance.now()-job.start)/1000);job.phase='stopping';syncLocal();
      job.timer=setTimeout(()=>{if(localJob===job)localFail('錄音停止逾時，已捨棄。');},5000);
      try{job.rec.stop();}catch(_){localFail('無法停止錄音。');}
    }
@@ -528,6 +528,7 @@
      localInfo.textContent='正在驗證本機音檔…';void previewLocal(file,localEpoch);
    });
    localSection.append(localFile.wrap,localStart,localStop,btn('捨棄本機音檔／取消錄音',()=>{clearLocal();localInfo.textContent='已捨棄本機音檔。';}),localAudio,localDownload,localInfo);
+   localSection.addEventListener('toggle',()=>{if(!localSection.open){if(localJob){clearLocal();localInfo.textContent='已停止並捨棄本機錄音。';}else localAudio.pause();}});
    syncLocal();
    modal.append(title,note,inputSection,output,localSection,status,btn('關閉',close));document.body.append(modal);active=modal;
    window.addEventListener('pagehide',close);document.addEventListener('visibilitychange',onVisibility);modal.addEventListener('cancel',e=>{e.preventDefault();close();});modal.addEventListener('close',cleanup);
