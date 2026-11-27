@@ -199,5 +199,21 @@
      remaining(){return {requests:AUTO_TTS_LIMITS.requests-requests,characters:AUTO_TTS_LIMITS.characters-characters};}
    });
  }
- return Object.freeze({LANGUAGES,MAX_TEXT,profile,PACK_LIMIT,exportPack,importPack,profileKey,voicesFor,selectVoice,candidates,directDialogue,script,mergeDraft,finalTranscript,sttConfig,transcribe,STT_MAX_BYTES,ttsConfig,synthesize,TTS_MAX_BYTES,AUTO_TTS_LIMITS,autoTTSBudget});
+ // Local preview only; never handed to STT/RP or saved as story media.
+ const AUDIO_DRAFT_MAX_BYTES=8*1024*1024,AUDIO_DRAFT_MAX_SECONDS=60;
+ async function localAudioDraft(blob){
+   if(!blob||!Number.isSafeInteger(blob.size)||blob.size<12||blob.size>AUDIO_DRAFT_MAX_BYTES||typeof blob.slice!=='function')throw Error('音檔須為 8 MiB 以內的有效音訊。');
+   const type=String(blob.type||'').split(';')[0].toLowerCase();
+   const bytes=new Uint8Array(await blob.slice(0,16).arrayBuffer());
+   const at=(n,str)=>[...str].every((c,i)=>bytes[n+i]===c.charCodeAt(0));
+   let format;
+   if(at(0,'RIFF')&&at(8,'WAVE'))format=['audio/wav','wav',['audio/wav','audio/x-wav','audio/wave']];
+   else if(at(0,'ID3')||(bytes[0]===255&&(bytes[1]&224)===224&&(bytes[1]&24)!==8&&(bytes[1]&6)!==0))format=['audio/mpeg','mp3',['audio/mpeg','audio/mp3']];
+   else if(at(0,'OggS'))format=['audio/ogg','ogg',['audio/ogg']];
+   else if(at(4,'ftyp'))format=['audio/mp4','m4a',['audio/mp4','audio/x-m4a','audio/m4a']];
+   else if(bytes[0]===26&&bytes[1]===69&&bytes[2]===223&&bytes[3]===163)format=['audio/webm','webm',['audio/webm']];
+   if(!format||(type&&!format[2].includes(type)))throw Error('音檔格式不支援或與內容不符。');
+   return {blob:new Blob([blob],{type:format[0]}),extension:format[1]};
+ }
+ return Object.freeze({LANGUAGES,MAX_TEXT,profile,PACK_LIMIT,exportPack,importPack,profileKey,voicesFor,selectVoice,candidates,directDialogue,script,mergeDraft,finalTranscript,sttConfig,transcribe,STT_MAX_BYTES,ttsConfig,synthesize,TTS_MAX_BYTES,AUTO_TTS_LIMITS,autoTTSBudget,localAudioDraft,AUDIO_DRAFT_MAX_BYTES,AUDIO_DRAFT_MAX_SECONDS});
 });
