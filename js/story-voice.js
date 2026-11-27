@@ -173,11 +173,11 @@
    const title=el('h2','角色語音與語音輸入'),note=el('p','選配工具。語音輸入只填入文字，不會送出；可開啟角色台詞自動配音。語音與故事原文互不改寫。');
    const status=el('p');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
    const setStatus=t=>{status.textContent=t;};
-   let recognition=null,recognitionTimer=null,utterance=null,playTimer=null,closed=false,externalJob=null,ttsJob=null;
+   let recognition=null,recognitionTimer=null,utterance=null,playTimer=null,closed=false,externalJob=null,ttsJob=null,localJob=null,localURL=null,localEpoch=0;
    const valid=()=>!closed&&modal.isConnected&&same(current)&&document.getElementById('user-input')===sourceInput;
    const cancelSpeech=()=>{if(utterance){utterance.onend=utterance.onerror=null;synth?.cancel();utterance=null;}clearTimeout(playTimer);cancelTTS();};
    const cancelRecognition=()=>{if(recognition){const rec=recognition;recognition=null;rec.onresult=rec.onerror=rec.onend=null;try{rec.abort();}catch(_){}}clearTimeout(recognitionTimer);cancelExternal();};
-   const cleanup=()=>{if(closed)return;closed=true;notify=null;window.removeEventListener('pagehide',close);document.removeEventListener('visibilitychange',onVisibility);cancelSpeech();cancelRecognition();clearInterval(watch);synth?.removeEventListener?.('voiceschanged',refreshVoices);modal.remove();active=null;if(focus?.isConnected)focus.focus();};
+   const cleanup=()=>{if(closed)return;closed=true;notify=null;window.removeEventListener('pagehide',close);document.removeEventListener('visibilitychange',onVisibility);cancelSpeech();cancelRecognition();clearLocal();clearInterval(watch);synth?.removeEventListener?.('voiceschanged',refreshVoices);modal.remove();active=null;if(focus?.isConnected)focus.focus();};
    const close=()=>{if(closed)return;modal.close();cleanup();};
    const onVisibility=()=>{if(document.hidden)close();};
    const inputSection=el('section');inputSection.append(el('h3','玩家語音轉文字（STT）'));
@@ -211,7 +211,7 @@
      if(!customConsent.input.checked){setStatus('請先確認錄音傳送及可能費用。');return;}
      const raw={endpoint:endpoint.input.value,model:model.input.value,key:apiKey.input.value,language:inputLang.input.value};
      try{Core.sttConfig(raw);}catch(e){setStatus(e.message);return;}
-     disableAutomatic();auto.input.checked=false;cancelSpeech();cancelRecognition();
+     disableAutomatic();auto.input.checked=false;cancelSpeech();cancelRecognition();clearLocal();clearLocal();
      const capturedDraft=sourceInput.value;customConsent.input.checked=false;
      const job={controller:new AbortController(),chunks:[],bytes:0,phase:'permission',stream:null,rec:null,timer:null};externalJob=job;syncControls();
      const live=()=>externalJob===job&&valid()&&inStory()&&!App.__requestPending;
@@ -241,7 +241,7 @@
    }
    advanced.append(el('p','只支援相容 /audio/transcriptions 的服務。玩家自行申請或架設、確認格式與費用；需 HTTPS（本機可用 loopback HTTP）、CORS 與瀏覽器權限。設定只保留至本工具關閉，金鑰不寫入故事或聲線包。'),endpoint.wrap,model.wrap,apiKey.wrap,customConsent.wrap);
    const start=btn('開始語音辨識',()=>{
-     if(!valid()||App.__requestPending||externalJob||recognition)return;
+     if(!valid()||App.__requestPending||externalJob||recognition||localJob)return;
      if(selected()){void startExternal();return;}
      if(!Recognition){setStatus('此瀏覽器不支援語音辨識，可使用裝置鍵盤的語音輸入。');return;}
      if(!consent.input.checked){setStatus('請先確認瀏覽器語音辨識的資料傳送說明。');return;}
@@ -285,8 +285,8 @@
    const autoStatus=el('p',notice);autoStatus.setAttribute('aria-live','polite');
    notify=t=>{autoStatus.textContent=t;auto.input.checked=Boolean(automatic&&!automatic.custom);};
    auto.input.addEventListener('change',()=>{
-     if(!auto.input.checked||!valid()){disableAutomatic();return;}
-     cancelRecognition();syncControls();cancelSpeech();
+     if(!auto.input.checked||!valid()||localJob){disableAutomatic();return;}
+     cancelRecognition();syncControls();cancelSpeech();clearLocal();
      disableAutomatic();automatic=current;
      tell('已開啟本章節角色配音。');
      playReply(Chat.messages.at(-1));
@@ -387,7 +387,7 @@
      if(!ttsConsent.input.checked){setStatus('請先確認台詞傳送及可能費用。');return;}
      const raw={endpoint:ttsEndpoint.input.value,model:ttsModel.input.value,voice:ttsVoice.input.value,key:ttsKey.input.value,speed:Number(sliders[0].input.value)};
      let line;try{Core.ttsConfig(raw);line=Core.script(text.input.value);}catch(e){setStatus(e.message);return;}
-     disableAutomatic();cancelSpeech();ttsConsent.input.checked=false;
+     disableAutomatic();cancelSpeech();clearLocal();ttsConsent.input.checked=false;
      const job={controller:new AbortController(),timer:null};ttsJob=job;
      job.timer=setTimeout(()=>{if(ttsJob===job){cancelTTS();setStatus('TTS 連線逾時，請手動重試。');}},60000);
      setStatus('正在生成指定角色語音…');
@@ -400,7 +400,7 @@
      }catch(_){if(ttsJob===job){cancelTTS();setStatus('TTS 生成失敗，請檢查接口、CORS、聲線或額度；可手動切回裝置聲線。');}}
    }
    const startAutoTTS=btn('啟用本章節自訂自動配音',()=>{
-     if(!valid()||!inStory()||App.__requestPending||recognition||externalJob||!customTTS())return;
+     if(!valid()||!inStory()||App.__requestPending||recognition||externalJob||localJob||!customTTS())return;
      if(automatic?.custom){setStatus('自訂自動配音已啟用，請先停止。');return;}
      if(!autoConsent.input.checked){setStatus('請先確認自動傳送台詞及可能費用。');return;}
      const raw={endpoint:ttsEndpoint.input.value,model:ttsModel.input.value,key:ttsKey.input.value,speed:Number(sliders[0].input.value)};
@@ -410,7 +410,7 @@
        for(const [id,voice] of voices){if(!id||!people.has(id)||!voice.trim())continue;cfg=Core.ttsConfig({...raw,voice});selected.set(id,cfg.voice);}
        if(!cfg||!selected.size)throw Error('請至少為一個角色設定有效聲線 ID。');
      }catch(e){setStatus(e.message);return;}
-     disableAutomatic();cancelSpeech();autoConsent.input.checked=false;ttsConsent.input.checked=false;
+     disableAutomatic();cancelSpeech();clearLocal();autoConsent.input.checked=false;ttsConsent.input.checked=false;
      const custom={cfg,voices:selected,budget:Core.autoTTSBudget(),expiry:null,watch:null};
      const session={...current,custom};automatic=session;
      custom.expiry=setTimeout(()=>{if(automatic===session){disableAutomatic();tell('本次自訂配音授權已到期。');}},Core.AUTO_TTS_LIMITS.durationMs);
@@ -420,7 +420,7 @@
    });
    ttsAdvanced.append(el('p','相容 /audio/speech 的自架或自帶 API。手動生成只傳確認台詞；聲線 ID 與語速由服務處理。設定及金鑰僅在工具或本章節授權期間留在記憶體。'),ttsEndpoint.wrap,ttsModel.wrap,ttsVoice.wrap,ttsKey.wrap,ttsConsent.wrap,audio,el('p','自動配音為另外選配，僅讀後續成功回覆、已設定聲線的角色台詞。每次授權最多 20 次請求、6000 字元或 30 分鐘；不代表實際費用。關閉工具可繼續播放，切換故事／章節、離開、背景化或停止即失效。'),autoConsent.wrap,startAutoTTS);
    const speak=btn('播放確認的台詞',()=>{
-     if(!valid()||recognition||externalJob)return;
+     if(!valid()||recognition||externalJob||localJob)return;
      if(customTTS()){if(!speaker.input.value){setStatus('請先選擇角色。');return;}void generateTTS();return;}
      if(!synth||typeof window.SpeechSynthesisUtterance!=='function'){setStatus('此瀏覽器不支援語音播放。');return;}
      if(!speaker.input.value){setStatus('請先選擇角色。');return;}
@@ -428,7 +428,7 @@
      const v=Core.selectVoice(synth.getVoices(),p);
      if(!v){setStatus('此語言沒有可用的本地或指定聲線。請安裝語言包或手動選擇聲線，不會自動改用其他語言。');return;}
      if(v.localService!==true&&!remote.input.checked){setStatus('此聲線可能連網，請先確認資料傳送。');return;}
-     remote.input.checked=false;disableAutomatic();cancelSpeech();
+     remote.input.checked=false;disableAutomatic();cancelSpeech();clearLocal();
      const u=new SpeechSynthesisUtterance(script);utterance=u;u.voice=v;u.lang=p.language;u.rate=p.rate;u.pitch=p.pitch;u.volume=p.volume;
      u.onend=()=>{if(utterance===u){utterance=null;clearTimeout(playTimer);setStatus('播放完成。');}};
      u.onerror=()=>{if(utterance===u){utterance=null;clearTimeout(playTimer);setStatus('語音播放失敗，請確認裝置聲線。');}};
@@ -437,9 +437,101 @@
    output.append(ttsProvider.wrap,speaker.wrap,lang.wrap,voice.wrap,...sliders.map(s=>s.wrap),remember,pack,source.wrap,quotes.wrap,text.wrap,el('small','手動配音可選句、編輯或貼上翻譯。'),remote.wrap,ttsAdvanced,speak,btn('停止播放',()=>{if(automatic?.custom)disableAutomatic();else stopSequence();cancelSpeech();setStatus('已停止播放。');}));
    syncTTS();
    load();refreshQuotes();synth?.addEventListener?.('voiceschanged',refreshVoices);
-   modal.append(title,note,inputSection,output,status,btn('關閉',close));document.body.append(modal);active=modal;
+   const localSection=el('details');localSection.append(el('summary','玩家錄音／音檔預覽（本機）'),el('p','此處錄音與音檔只在本機暫存，與語音轉文字分開。不傳送給 AI 或語音服務，也不加入故事、Phone 或備份。支援的格式依瀏覽器而異；最多 60 秒、8 MiB，關閉工具即捨棄。'));
+   const localFile=field('選擇本機音檔','input');localFile.input.type='file';localFile.input.accept='audio/wav,audio/x-wav,audio/mpeg,audio/mp4,audio/ogg,audio/webm,.wav,.mp3,.m4a,.ogg,.webm';
+   const localAudio=el('audio');localAudio.controls=true;localAudio.preload='metadata';localAudio.hidden=true;localAudio.setAttribute('aria-label','本機音檔預覽');
+   const localInfo=el('p');localInfo.setAttribute('aria-live','polite');
+   let localReady=false,localDuration=null,localExtension='',metadataTimer=null;
+   function releaseRecording(){
+     const job=localJob;localJob=null;if(!job)return;
+     clearTimeout(job.timer);
+     if(job.rec){job.rec.ondataavailable=job.rec.onstop=job.rec.onerror=null;try{if(job.rec.state!=='inactive')job.rec.stop();}catch(_){}}
+     job.stream?.getTracks().forEach(t=>t.stop());job.chunks.length=0;
+   }
+   function clearLocal(){
+     localEpoch++;releaseRecording();clearTimeout(metadataTimer);
+     localAudio.onloadedmetadata=localAudio.onerror=null;localAudio.pause();
+     localAudio.removeAttribute('src');localAudio.load();
+     if(localURL)URL.revokeObjectURL(localURL);localURL=null;
+     localAudio.hidden=true;localReady=false;localDuration=null;localExtension='';localInfo.textContent='';
+     syncLocal();
+   }
+   function syncLocal(){
+     localStart.disabled=Boolean(localJob)||!supported();
+     localStop.disabled=localJob?.phase!=='recording';
+     localFile.input.disabled=Boolean(localJob);
+     localDownload.disabled=!localReady;
+   }
+   const localLive=()=>valid()&&inStory()&&!App.__requestPending;
+   function localFail(message){clearLocal();if(valid())localInfo.textContent=message;}
+   async function previewLocal(blob,epoch,recordedSeconds=null){
+     try{
+       const result=await Core.localAudioDraft(blob);
+       if(epoch!==localEpoch||!localLive())return;
+       localURL=URL.createObjectURL(result.blob);localExtension=result.extension;
+       localAudio.onloadedmetadata=()=>{
+         if(epoch!==localEpoch||!localLive())return;
+         const seconds=Number.isFinite(localAudio.duration)?localAudio.duration:recordedSeconds;
+         if(!Number.isFinite(seconds)||seconds<=0||seconds>Core.AUDIO_DRAFT_MAX_SECONDS){localFail('音檔須為可辨識長度且不超過 60 秒。');return;}
+         clearTimeout(metadataTimer);localDuration=seconds;localReady=true;localAudio.hidden=false;
+         localInfo.textContent='本機音檔已就緒（'+Math.ceil(localDuration)+' 秒）；尚未傳送。';syncLocal();
+       };
+       localAudio.onerror=()=>{if(epoch===localEpoch)localFail('瀏覽器無法解碼此音檔。');};
+       metadataTimer=setTimeout(()=>{if(epoch===localEpoch&&!localReady)localFail('無法讀取音檔長度或格式。');},10000);
+       localAudio.src=localURL;localAudio.load();
+     }catch(e){if(epoch===localEpoch&&localLive())localFail(e.message||'無法讀取本機音檔。');}
+   }
+   function beginLocal(){
+     if(!localLive()||recognition||externalJob||ttsJob||localJob)return false;
+     disableAutomatic();cancelSpeech();clearLocal();return true;
+   }
+   const localStart=btn('開始本機錄音',async()=>{
+     if(!supported()||!beginLocal())return;
+     const epoch=localEpoch,job={phase:'permission',chunks:[],bytes:0,rec:null,stream:null,timer:null,start:0};
+     localJob=job;syncLocal();localInfo.textContent='等待麥克風權限…';
+     const live=()=>localJob===job&&epoch===localEpoch&&localLive();
+     job.timer=setTimeout(()=>{if(localJob===job)localFail('麥克風權限等待逾時。');},60000);
+     try{
+       const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+       if(!live()){stream.getTracks().forEach(t=>t.stop());return;}
+       job.stream=stream;
+       const mime=['audio/webm;codecs=opus','audio/ogg;codecs=opus','audio/mp4'].find(t=>MediaRecorder.isTypeSupported?.(t));
+       const rec=mime?new MediaRecorder(stream,{mimeType:mime}):new MediaRecorder(stream);job.rec=rec;
+       rec.ondataavailable=e=>{if(!live()||!e.data?.size)return;job.bytes+=e.data.size;if(job.bytes>Core.AUDIO_DRAFT_MAX_BYTES){localFail('錄音超過 8 MiB，已捨棄。');return;}job.chunks.push(e.data);};
+       rec.onerror=()=>{if(live())localFail('本機錄音失敗。');};
+       rec.onstop=()=>{
+         if(!live())return;
+         if(job.phase!=='stopping'){localFail('錄音意外停止，已捨棄。');return;}
+         const seconds=job.seconds;
+         const blob=new Blob(job.chunks,{type:rec.mimeType||job.chunks[0]?.type});
+         releaseRecording();syncLocal();localInfo.textContent='正在驗證本機音檔…';
+         void previewLocal(blob,epoch,seconds);
+       };
+       clearTimeout(job.timer);job.phase='recording';job.start=performance.now();rec.start(250);syncLocal();
+       localInfo.textContent='本機錄音中；停止後可預覽，不會傳送。';
+       job.timer=setTimeout(()=>{if(live())finishLocal();},Core.AUDIO_DRAFT_MAX_SECONDS*1000);
+     }catch(_){if(localJob===job)localFail('無法啟動本機錄音，請確認麥克風權限。');}
+   });
+   function finishLocal(){
+     const job=localJob;if(!job||job.phase!=='recording')return;
+     clearTimeout(job.timer);job.seconds=Math.min(Core.AUDIO_DRAFT_MAX_SECONDS,Math.max(.001,(performance.now()-job.start)/1000));job.phase='stopping';syncLocal();
+     job.timer=setTimeout(()=>{if(localJob===job)localFail('錄音停止逾時，已捨棄。');},5000);
+     try{job.rec.stop();}catch(_){localFail('無法停止錄音。');}
+   }
+   const localStop=btn('停止本機錄音',finishLocal);
+   const localDownload=btn('下載本機音檔',()=>{
+     if(!localLive()||!localReady||!localURL)return;
+     const a=el('a');a.href=localURL;a.download='yorubay-recording.'+localExtension;document.body.append(a);a.click();a.remove();
+   });
+   localFile.input.addEventListener('change',()=>{
+     const file=localFile.input.files?.[0];localFile.input.value='';if(!file||!beginLocal())return;
+     localInfo.textContent='正在驗證本機音檔…';void previewLocal(file,localEpoch);
+   });
+   localSection.append(localFile.wrap,localStart,localStop,btn('捨棄本機音檔／取消錄音',()=>{clearLocal();localInfo.textContent='已捨棄本機音檔。';}),localAudio,localDownload,localInfo);
+   syncLocal();
+   modal.append(title,note,inputSection,output,localSection,status,btn('關閉',close));document.body.append(modal);active=modal;
    window.addEventListener('pagehide',close);document.addEventListener('visibilitychange',onVisibility);modal.addEventListener('cancel',e=>{e.preventDefault();close();});modal.addEventListener('close',cleanup);
-   const watch=setInterval(()=>{if(!valid()||!inStory()||((externalJob||ttsJob||audioURL)&&App.__requestPending))close();},250);
+   const watch=setInterval(()=>{if(!valid()||!inStory()||((externalJob||ttsJob||audioURL||localJob||localURL)&&App.__requestPending))close();},250);
    try{modal.showModal();}catch(_){cleanup();}
  }
  function mount(){
