@@ -233,3 +233,15 @@ test('invalid X reply cannot publish model-echoed player attachment after target
  assert.equal(blocked.tweets[0].id,'other');
  assert.equal(Core.xPhotoRows([user,{role:'assistant',id:'m',phonePatch:blocked}],[root,...blocked.tweets]).length,0);
 });
+
+
+test('NPC voice message transcript survives patch, revision replay and save without accepting media or player voice',()=>{
+ const state={};const patch=Core.normalizePatch({threads:[{id:'g',participants:['a','b'],messages:[{from:'them',senderId:'a',kind:'voice',text:'晚安。',url:'https://example.invalid/audio.mp3',voiceId:'fake'},{from:'me',senderId:'a',kind:'voice',text:'玩家'},{from:'them',kind:'voice',text:'未知'},{from:'them',senderId:'b',kind:'voice',text:'x'.repeat(1201)},{from:'them',senderId:'b',text:'普通文字'}]}]});
+ assert.equal(patch.threads[0].messages[0].kind,'voice');assert.equal(patch.threads[0].messages[0].url,undefined);assert.equal(patch.threads[0].messages[0].voiceId,undefined);
+ assert.ok(patch.threads[0].messages.slice(1).every(m=>m.kind===undefined));
+ assert.equal(Core.apply(state,patch,'voice-turn'),true);assert.equal(Core.apply(state,patch,'voice-turn'),false);
+ const saved=JSON.parse(JSON.stringify(state));const view=Core.mergeDisplay({threads:[{id:'g',participants:['a','b']}]},saved.phoneUI);
+ assert.equal(view.threads[0].messages[0].kind,'voice');assert.equal(view.threads[0].messages[0].text,'晚安。');
+ const scoped=Core.restrictVoiceReply(patch,{id:'g',members:['a']});assert.equal(scoped.threads[0].messages[0].kind,'voice');
+ assert.match(Core.PROMPT,/kind:"voice"/);
+});

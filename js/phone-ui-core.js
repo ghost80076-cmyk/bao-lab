@@ -24,7 +24,9 @@
   const messages = value => arr(value, 150).filter(obj).map(item => ({
     from: ['me', '我', '나'].includes(item.from) ? 'me' : 'them',
     time: txt(item.time, 30), text: txt(item.text, 1600),
-    senderId: id(item.senderId), senderName: txt(item.senderName, 80)
+    senderId: id(item.senderId), senderName: txt(item.senderName, 80),
+    // Voice is an incoming fictional message with a spoken transcript, not a media URL.
+    ...(item.kind==='voice' && item.from==='them' && typeof item.senderId==='string' && item.senderId.trim() && item.senderId.trim().length<=80 && typeof item.text==='string' && item.text.trim() && item.text.trim().length<=1200 ? {kind:'voice'} : {})
   }));
   // IDs are compared as values, never used as object properties or HTML.
   function mergeRecords(base, updates, max, thread = false) {
