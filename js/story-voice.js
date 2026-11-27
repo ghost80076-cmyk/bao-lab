@@ -191,7 +191,7 @@
    const focus=document.activeElement;
    const title=el('h2',phone?'Phone 語音訊息':'角色語音與語音輸入');
    const note=el('p',phone
-     ? '傳給 '+phone.target.name+(phone.target.group?'（'+phone.target.audience+'）':'')+'。可只保存本機語音，或選用 Gemini 原生音訊讓角色回覆；只有後者會傳至模型。'
+     ? '傳給 '+phone.target.name+(phone.target.group?'（'+phone.target.audience+'）':'')+'。可只保存本機語音，或選用支援的原生音訊模型讓角色回覆；只有後者會傳至模型。'
      : '選配工具。語音輸入只填入文字，不會送出；可開啟角色台詞自動配音。語音與故事原文互不改寫。');
    const status=el('p');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
    const setStatus=t=>{status.textContent=t;};
@@ -542,7 +542,7 @@
    let nativeRoute=null;
    try{nativeRoute=Core.nativeAudioRoute(App.config?.api);}catch(_){}
    const routeStillCurrent=()=>{
-     try{const next=Core.nativeAudioRoute(App.config?.api);return !!nativeRoute&&next.endpoint===nativeRoute.endpoint&&next.model===nativeRoute.model&&next.key===nativeRoute.key;}catch(_){return false;}
+     try{const next=Core.nativeAudioRoute(App.config?.api);return !!nativeRoute&&next.endpoint===nativeRoute.endpoint&&next.provider===nativeRoute.provider&&next.model===nativeRoute.model&&next.key===nativeRoute.key;}catch(_){return false;}
    };
    function releaseRecording(){
      const job=localJob;localJob=null;if(!job)return;
@@ -565,8 +565,8 @@
      localDownload.disabled=!localReady;
      localSave.disabled=!localReady||localSaving||Boolean(nativeJob)||!window.BAOStoryVoiceAssets||!current.storyId||!current.chapterId;
      localSend.disabled=localSave.disabled||!window.BAOStoryVoiceMessages||!Chat.messages.at(-1)?.id;
-     nativeAnalyze.disabled=!!phone||!localReady||localSaving||Boolean(nativeJob)||!routeStillCurrent()||!['audio/wav','audio/mpeg','audio/ogg'].includes(localBlob?.type);
-     stageStory.disabled=!window.BAOStoryNativeTurn||!localReady||localSaving||Boolean(nativeJob)||!routeStillCurrent()||!['audio/wav','audio/mpeg','audio/ogg'].includes(localBlob?.type);
+     nativeAnalyze.disabled=!!phone||!localReady||localSaving||Boolean(nativeJob)||!routeStillCurrent()||!Core.nativeAudioFormats(nativeRoute).includes(localBlob?.type);
+     stageStory.disabled=!window.BAOStoryNativeTurn||!localReady||localSaving||Boolean(nativeJob)||!routeStillCurrent()||!Core.nativeAudioFormats(nativeRoute).includes(localBlob?.type);
      nativeCancel.hidden=!nativeJob;
      nativeConsent.input.disabled=Boolean(nativeJob)||!routeStillCurrent();
    }
@@ -690,7 +690,7 @@
      finally{localSaving=false;if(valid())syncLocal();}
    });
    const nativeSection=el('details');
-   nativeSection.append(el('summary','原始音訊理解（進階 BYOK）'),el('p',nativeRoute?'目前模型：'+nativeRoute.model+'。只有你明確確認後，原始音檔才會送到 Gemini 官方 API，可能收費。不傳送故事正文、角色設定、記憶或 Phone 對話。此處是獨立分析預覽，不是角色已聽見的訊息。':'目前未使用符合條件的 Gemini 官渠自帶 API。仍可使用裝置語音轉文字、本機音訊和既有配音。'),el('p','第一版支援 WAV、MP3、OGG（8 MiB／60 秒以內）。模型能力依實際供應商版本；錄音為其他格式時，可自行轉檔。'));
+   nativeSection.append(el('summary','原始音訊理解（進階 BYOK）'),el('p',nativeRoute?'目前模型：'+nativeRoute.model+'。只有你明確確認後，原始音檔才會送到 '+Core.nativeAudioLabel(nativeRoute)+'，可能收費。不傳送故事正文、角色設定、記憶或 Phone 對話。此處是獨立分析預覽，不是角色已聽見的訊息。':'目前未使用符合條件的 Gemini、OpenAI 或 OpenRouter 自帶 API。仍可使用裝置語音轉文字、本機音訊和既有配音。'),el('p','支援 WAV、MP3；Gemini 另支援 OGG（8 MiB／60 秒以內）。模型能力依實際供應商版本；錄音為其他格式時，可自行轉檔。'));
    const nativeConsent=field('我已確認目前模型支援音訊輸入，並同意本次原始音檔傳送與可能費用','input');nativeConsent.input.type='checkbox';
    const nativeResult=field('音訊理解結果（可編輯，不會自動送出）','textarea');nativeResult.input.rows=5;nativeResult.input.maxLength=12000;
    const nativeStatus=el('p');nativeStatus.setAttribute('aria-live','polite');nativeStatus.dataset.nativeAudioStatus='1';
@@ -706,7 +706,7 @@
      const epoch=localEpoch,blob=localBlob,duration=localDuration;
      const job={controller:new AbortController(),timer:null};nativeJob=job;
      const live=()=>nativeJob===job&&localLive()&&epoch===localEpoch&&routeStillCurrent();
-     nativeResult.input.value='';nativeStatus.textContent='正在使用目前 Gemini API 理解原始音訊…';syncLocal();
+     nativeResult.input.value='';nativeStatus.textContent='正在使用目前模型 API 理解原始音訊…';syncLocal();
      job.timer=setTimeout(()=>{if(nativeJob===job){cancelNative();nativeStatus.textContent='音訊理解逾時，請自行決定是否重試；已送出的請求可能計費。';syncLocal();}},60000);
      try{
        const result=await Core.understandAudio(App.config.api,blob,duration,{signal:job.controller.signal,isCurrent:live,confirmed:true});
@@ -714,7 +714,7 @@
      }catch(_){if(live())nativeStatus.textContent='音訊理解失敗，請確認模型能力、音訊格式、連線或額度；未自動重試。';}
      finally{if(nativeJob===job){cancelNative();if(valid())syncLocal();}}
    });
-   const storyConsent=field('我已確認模型支援音訊輸入，並同意將原始音訊與本輪故事上下文送至目前 Gemini 模型及可能費用','input');storyConsent.input.type='checkbox';
+   const storyConsent=field('我已確認模型支援音訊輸入，並同意將原始音訊與本輪故事上下文送至目前模型供應商及可能費用','input');storyConsent.input.type='checkbox';
    const phoneCaption=field('語音附註（選填）','textarea');phoneCaption.input.maxLength=1600;phoneCaption.input.rows=2;
    const stageStory=btn(phone?'傳送原始音訊並取得角色回覆':'準備故事原始音訊',async()=>{
      if(!storyConsent.input.checked||!localLive()||!localReady||localSaving||nativeJob||!routeStillCurrent()){nativeStatus.textContent='請確認音訊及故事傳送授權。';return;}
@@ -734,7 +734,7 @@
      }catch(e){if(valid())nativeStatus.textContent=e.message||'無法準備本輪音訊。';}
      finally{localSaving=false;if(valid())syncLocal();}
    });
-   if(phone)nativeSection.replaceChildren(el('summary','原始音訊角色回覆（進階 BYOK）'),el('p',nativeRoute?'目前模型：'+nativeRoute.model+'。只會把音訊傳給已確認的 Gemini 官方 API；模型將收到本輪故事上下文，可能增加費用。收件範圍固定為此聊天室及原成員。':'目前未使用符合條件的 Gemini 官渠自帶 API。仍可傳送本機語音。'),el('p','WAV、MP3、OGG，最多 60 秒、8 MiB。若有未送出的文字、圖片或其他音訊，請先處理。'),phoneCaption.wrap,storyConsent.wrap,stageStory,nativeStatus);
+   if(phone)nativeSection.replaceChildren(el('summary','原始音訊角色回覆（進階 BYOK）'),el('p',nativeRoute?'目前模型：'+nativeRoute.model+'。只會把音訊傳給 '+Core.nativeAudioLabel(nativeRoute)+'；模型將收到本輪故事上下文，可能增加費用。收件範圍固定為此聊天室及原成員。':'目前未使用符合條件的 Gemini、OpenAI 或 OpenRouter 自帶 API。仍可傳送本機語音。'),el('p','WAV、MP3；Gemini 另支援 OGG，最多 60 秒、8 MiB。若有未送出的文字、圖片或其他音訊，請先處理。'),phoneCaption.wrap,storyConsent.wrap,stageStory,nativeStatus);
    else nativeSection.append(nativeConsent.wrap,nativeAnalyze,nativeCancel,nativeResult.wrap,
      el('p','也可附到故事本輪，而非獨立分析。先在故事輸入框寫明誰能聽見及本輪行動，再選擇音檔、確認模型支援與可能費用。準備後回到故事，按專用送出才會傳送。沿用既有故事上下文；本輪不使用顯式快取或自動重試。成功後才保存音訊。'),
      storyConsent.wrap,stageStory,nativeStatus);

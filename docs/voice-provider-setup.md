@@ -45,3 +45,7 @@ Speaches 提供 OpenAI-compatible 的 faster-whisper STT，以及 Piper/Kokoro T
 先確認服務端以單句生成或單次錄音回應成功，再在瀏覽器測試短句。401/403 查獨立 key；404 查完整 endpoint 及模型 ID；格式錯誤查是否返回 SSE/JSON 而非指定音訊；CORS 查網站 origin/預檢及瀏覽器本機網路權限；逾時查服務是否已載入模型。不要將金鑰、原始私人錄音或錯誤中的敏感服務回應貼到公共 issue。
 
 正式支援標示前須有版本化實際協議、裝置瀏覽器與語言測試證據；授權參考音訊、模型包、專用 adapter 只按需增補。不重新建立 #993 的模型研究門檻，也不新增夜灣推論成本。
+
+## 原生音訊理解（不同於 STT/TTS）
+
+使用玩家目前故事 BYOK 模型與完整官方端點。Gemini GenerateContent 接受 WAV/MP3/OGG；OpenAI `https://api.openai.com/v1/chat/completions` 的 GPT Audio 系列或相容 audio-preview，及 OpenRouter `https://openrouter.ai/api/v1/chat/completions` 的明確音訊模型 ID，使用 WAV/MP3。OpenRouter 例 `xiaomi/mimo-v2.5`（官方模型頁 https://openrouter.ai/xiaomi/mimo-v2.5 ，仍需確認當前供應商能力）。不選 auto、preset 或路由別名。確認模型、音訊能力、服務費及資料政策後才傳送；OpenRouter 會將資料送給上游服務。夜灣不自動重試、不改模型、不代付費用。非原生音訊模型仍可使用 STT 或本機語音。真實服務及裝置尚未驗收。

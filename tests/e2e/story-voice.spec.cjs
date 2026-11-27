@@ -769,7 +769,7 @@ test('native story turn sends reviewed audio once, stores local attachment and n
  await d.getByText('玩家錄音／音檔預覽（本機）',{exact:true}).click();
  await d.getByLabel('選擇本機音檔').setInputFiles({name:'sample.wav',mimeType:'audio/wav',buffer:voiceWav()});
  await d.getByText('原始音訊理解（進階 BYOK）',{exact:true}).click();
- await d.getByLabel('我已確認模型支援音訊輸入，並同意將原始音訊與本輪故事上下文送至目前 Gemini 模型及可能費用').check();
+ await d.getByLabel('我已確認模型支援音訊輸入，並同意將原始音訊與本輪故事上下文送至目前模型供應商及可能費用').check();
  const stage=d.getByRole('button',{name:'準備故事原始音訊'});await expect(stage).toBeEnabled();await stage.click();
  await expect(d).toHaveCount(0);expect(requests).toHaveLength(0);
  const send=page.getByRole('button',{name:'送出音訊與文字'});await expect(send).toBeEnabled();await send.click();
@@ -813,7 +813,7 @@ test('Phone native audio sends to exact private/group recipients and discards un
    const button=d.getByRole('button',{name:'傳送原始音訊並取得角色回覆'});
    await expect(button).toBeEnabled();
    const before=requests.length;await button.click();expect(requests).toHaveLength(before);
-   await d.getByLabel('我已確認模型支援音訊輸入，並同意將原始音訊與本輪故事上下文送至目前 Gemini 模型及可能費用').check();
+   await d.getByLabel('我已確認模型支援音訊輸入，並同意將原始音訊與本輪故事上下文送至目前模型供應商及可能費用').check();
    await button.click();await expect(d).toHaveCount(0);
    await expect.poll(()=>page.evaluate(()=>Boolean(App.__requestPending))).toBe(false);
    await expect(messages).toHaveCount(1);
@@ -835,3 +835,40 @@ test('Phone native audio sends to exact private/group recipients and discards un
  expect(JSON.stringify(requests[0])).toContain('private-a');expect(JSON.stringify(requests[1])).toContain('群聊成員 ID');
  await enter('AB 群組');await page.evaluate(()=>{App.activeCharacter.phone_ui.threads.find(t=>t.id==='group-ab').participants=['a','c'];BAOPhoneUI.refreshFromState();});await expect(messages).toHaveCount(0);
 });
+
+for(const provider of [
+ {type:'openai',route:'official',baseUrl:'https://api.openai.com/v1/chat/completions',model:'gpt-audio-1.5'},
+ {type:'openrouter',route:'aggregator',baseUrl:'https://openrouter.ai/api/v1/chat/completions',model:'xiaomi/mimo-v2.5'}
+]){
+ test(provider.type+' native audio story transport sends one reviewed clip with text output',async({page})=>{
+   const requests=[];
+   await page.route(provider.baseUrl+'*',async route=>{
+     const headers={'access-control-allow-origin':'*','access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'authorization, content-type'};
+     if(route.request().method()==='OPTIONS')return route.fulfill({status:204,headers});
+     requests.push(route.request().postDataJSON());
+     await route.fulfill({headers,json:{choices:[{finish_reason:'stop',message:{content:'A：「聽到了。」'}}],usage:{prompt_tokens:20,completion_tokens:10}}});
+   });
+   await setup(page,390);
+   await page.evaluate(cfg=>Object.assign(App.config.api,cfg,{protocol:'openai',key:'NATIVE-PRIVATE'}),provider);
+   await page.locator('#user-input').fill('我播放錄音給 A。');await openVoice(page,390);
+   const d=page.getByRole('dialog',{name:'角色語音與語音輸入'});
+   await d.getByText('玩家錄音／音檔預覽（本機）',{exact:true}).click();
+   await d.getByLabel('選擇本機音檔').setInputFiles({name:'sample.wav',mimeType:'audio/wav',buffer:voiceWav()});
+   await d.getByText('原始音訊理解（進階 BYOK）',{exact:true}).click();
+   await d.getByLabel('我已確認模型支援音訊輸入，並同意將原始音訊與本輪故事上下文送至目前模型供應商及可能費用').check();
+   const stage=d.getByRole('button',{name:'準備故事原始音訊'});await expect(stage).toBeEnabled();await stage.click();await expect(d).toHaveCount(0);expect(requests).toHaveLength(0);
+   await page.getByRole('button',{name:'送出音訊與文字'}).click();
+   await expect.poll(()=>page.evaluate(()=>Chat.messages.filter(m=>m.role==='user').length)).toBe(1);
+   await expect.poll(()=>page.evaluate(()=>Boolean(App.__requestPending))).toBe(false);
+   const clips=()=>requests.flatMap(req=>req.messages.flatMap(m=>Array.isArray(m.content)?m.content.filter(p=>p.type==='input_audio'):[]));
+   expect(clips()).toEqual([{type:'input_audio',input_audio:{format:'wav',data:voiceWav().toString('base64')}}]);
+   const request=requests.find(req=>req.messages.some(m=>Array.isArray(m.content)&&m.content.some(p=>p.type==='input_audio')));
+   expect(request.modalities).toEqual(['text']);expect(request.stream).toBe(false);
+   if(provider.type==='openai')expect(request.store).toBe(false);else expect(request.provider).toEqual({allow_fallbacks:false,require_parameters:true});
+   expect(await page.evaluate(async()=> (await BAOStoryVoiceAssets.list(BAOStoryLibrary.refs())).length)).toBe(1);
+   await page.locator('#user-input').fill('謝謝。');await page.locator('[data-send-message]').click();
+   await expect.poll(()=>page.evaluate(()=>Chat.messages.filter(m=>m.role==='user').length)).toBe(2);
+   await expect.poll(()=>page.evaluate(()=>Boolean(App.__requestPending))).toBe(false);
+   expect(clips()).toHaveLength(1);
+ });
+}

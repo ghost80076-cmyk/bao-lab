@@ -272,8 +272,10 @@ const API = {
     window.BAOStoryNativeTurn?.guardTransport(config);
     if (config.__storyNativeAudioTicket) {
       try {
-        if (protocol !== "gemini" || !window.BAOStoryNativeTurn) throw new Error("native route unavailable");
-        return await this.sendGeminiDirect(config, messages);
+        if (!window.BAOStoryNativeTurn) throw new Error("native route unavailable");
+        if (protocol === "gemini") return await this.sendGeminiDirect(config, messages);
+        if (protocol === "openai") return await this.sendOpenAICompatible(config, messages);
+        throw new Error("native route unavailable");
       } catch (error) {
         if (error?.code === "BAO_ABORTED") throw error;
         throw Object.assign(new Error("原始音訊故事請求未完成；請確認模型支援、連線及額度，未自動重試。"), { code: error?.code === "BAO_PROVIDER_BLOCKED" ? "BAO_PROVIDER_BLOCKED" : "BAO_NATIVE_AUDIO_FAILED" });
@@ -311,12 +313,14 @@ const API = {
   async sendOpenAICompatible(config, messages) {
     if (!config.baseUrl) throw new Error("請填入連線網址（Base URL）。");
     const openRouter = this.isOpenRouter(config);
-    const explicitCache = openRouter && config.cacheEnabled !== false && config.cacheMode === "explicit" && config.explicitCacheModel === config.model;
+    const nativeAudio = Boolean(config.__storyNativeAudioTicket);
+    const explicitCache = !nativeAudio && openRouter && config.cacheEnabled !== false && config.cacheMode === "explicit" && config.explicitCacheModel === config.model;
     const requestMessages = explicitCache ? messages.map((message, index) => index === 0 && message.role === "system"
       ? { ...message, content: [{ type: "text", text: this.contentToText(message.content), cache_control: { type: "ephemeral", ttl: "1h" } }] }
       : message) : messages;
-    const streaming = this.shouldStream(config);
-    const body = { model: config.model, messages: requestMessages };
+    const streaming = !nativeAudio && this.shouldStream(config);
+    const nativePayload = nativeAudio ? window.BAOStoryNativeTurn.materializeChat(config, requestMessages) : null;
+    const body = { model: config.model, messages: nativePayload?.messages || requestMessages, ...(nativePayload?.options || {}), ...(nativeAudio ? {stream:false} : {}) };
     if (streaming) {
       body.stream = true;
       // Some custom OpenAI-compatible gateways reject unknown stream_options.
@@ -324,10 +328,10 @@ const API = {
       if (openRouter || config.type === "openai") body.stream_options = { include_usage: true };
     }
     const sessionId = config.sessionId || window.BAOPromptCache?.storySessionId?.();
-    if (openRouter && sessionId) body.session_id = String(sessionId).slice(0, 256);
+    if (!nativeAudio && openRouter && sessionId) body.session_id = String(sessionId).slice(0, 256);
     const limit = Number(config.maxOutputTokens || 0);
     if (limit > 0) {
-      const parameter = this.usesOpenAIMaxCompletionTokens(config) ? "max_completion_tokens" : "max_tokens";
+      const parameter = (nativeAudio && !openRouter || this.usesOpenAIMaxCompletionTokens(config)) ? "max_completion_tokens" : "max_tokens";
       body[parameter] = Math.floor(limit);
     }
     let response;
@@ -336,7 +340,8 @@ const API = {
         method: "POST",
         headers: { "Authorization": `Bearer ${config.key}`, "Content-Type": "application/json" },
         body: JSON.stringify(body),
-        signal: config.signal || this.activeSignal
+        signal: config.signal || this.activeSignal,
+        ...(nativeAudio ? {credentials:"omit",redirect:"error",cache:"no-store",referrerPolicy:"no-referrer"} : {})
       }, config);
     } catch (err) { throw this.networkError(err); }
     if (streaming && response.ok && this.isEventStream(response)) return this.readOpenAIStream(response, config);

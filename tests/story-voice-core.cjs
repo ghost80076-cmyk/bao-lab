@@ -178,3 +178,26 @@ async function testNativeAudio(){
 testNativeAudio().catch(e=>{console.error(e);process.exitCode=1;});
 
 assert.equal(C.nativeAudioRoute({type:'gemini',protocol:'gemini',route:'official',baseUrl:'https://generativelanguage.googleapis.com/v1beta/models',model:'gemini-3.8-flash',key:'fixture'}).model,'gemini-3.8-flash');
+
+async function testNativeChatAudio(){
+ const oa={type:'openai',route:'official',protocol:'openai',baseUrl:'https://api.openai.com/v1/chat/completions',model:'gpt-audio-1.5',key:'test-key'};
+ const or={...oa,type:'openrouter',route:'aggregator',baseUrl:'https://openrouter.ai/api/v1/chat/completions',model:'xiaomi/mimo-v2.5'};
+ const wav=new Uint8Array(44);wav.set(Buffer.from('RIFF'),0);wav.set(Buffer.from('WAVE'),8);
+ const blob=new Blob([wav],{type:'audio/wav'});
+ for(const cfg of [oa,or]){
+   const route=C.nativeAudioRoute(cfg);
+   const fetcher=async(url,opts)=>{
+     assert.equal(url,cfg.baseUrl);assert.equal(opts.headers.Authorization,'Bearer test-key');assert.equal(opts.redirect,'error');
+     const body=JSON.parse(opts.body);
+     assert.equal(body.model,cfg.model);assert.deepEqual(body.modalities,['text']);assert.equal(body.stream,false);
+     assert.deepEqual(body.messages[0].content[1],{type:'input_audio',input_audio:{data:Buffer.from(wav).toString('base64'),format:'wav'}});
+     if(route.provider==='openai')assert.equal(body.store,false);else assert.deepEqual(body.provider,{allow_fallbacks:false,require_parameters:true});
+     return new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:'音訊內容'}}]}));
+   };
+   assert.equal(await C.understandAudio(cfg,blob,.1,{fetcher,confirmed:true}),'音訊內容');
+   await assert.rejects(C.understandAudio(cfg,blob,.1,{fetcher,confirmed:false}));
+   await assert.rejects(C.nativeAudioPart(new Blob(['OggS123456789'],{type:'audio/ogg'}),.1,route));
+ }
+ for(const bad of [{...oa,model:'gpt-5'},{...oa,baseUrl:'https://api.openai.com.evil.invalid/v1/chat/completions'},{...or,model:'openrouter/auto'},{...or,model:'google/gemini-3.8-flash:free'},{...or,type:'bao-credits'}])assert.throws(()=>C.nativeAudioRoute(bad));
+}
+testNativeChatAudio().catch(e=>{console.error(e);process.exitCode=1;});

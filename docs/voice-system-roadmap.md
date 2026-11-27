@@ -161,3 +161,7 @@ P3b [#996](https://github.com/ghost80076-cmyk/bao-lab/pull/996) 已合併，17/1
 ### P5b-2 Phone 私訊及群聊原始音訊回覆（本 PR）
 
 #1005 已合併 `e8b81d1299201ac908df28348c5118205f37ff8f`，20/20 PR CI、Pages 部署及基礎 Smoke 成功。本 PR 沿用單輪 native adapter 與既有 KakaoTalk 收件解析及權限，玩家可維持本機語音或明確送原始音訊取得回覆。拒絕覆蓋未送出文字、照片與其他音訊，原會話及成員、模型、歷史、章節全程綁定；失敗不自動重送，回到故事保留原收件者的待送音訊，重新驗證權限及成員。成功後音訊只顯示於原會話及原成員集合，不出現在一般故事播放器；原生音訊回合的結構化 Phone 更新限定原會話及成員的角色回覆，不允許模型代玩家發言、改群組成員或發到 X 等其他位置。此隔離限制本機資產及結構化更新，不代表模型無法在正文產生錯誤內容；既有故事模型仍收到完整上下文。先支援 Gemini 官渠，未新增平台推論成本。JS 語法檢查及新增 mock 測試；完整 CI、實機及真實模型待驗證。
+
+### P5c-1 其他原生音訊供應商：OpenAI 與 OpenRouter（本 PR）
+
+#1006 已合併 `b3f9d3fe1863bf20d2db35ce31559b1c2b154d11`，18/18 PR CI；正式 Pages 部署最後查詢仍排隊。擴充既有原生音訊預覽及故事／Phone 單輪 transport：OpenAI 官方 Chat Completions GPT Audio/相容 audio-preview，以及 OpenRouter 官方 Chat Completions 明確模型 ID（不接受 auto、free router 或 preset）；使用 input_audio 的 WAV/MP3 base64，文字輸出，非串流，不新增 TTS／代管服務。OpenRouter 仍需玩家確認實際模型支援音訊，資料會交由 OpenRouter 與其上游；請求設定 require_parameters:true、allow_fallbacks:false，不代表上游絕不重試或資料零留存。只在 provider boundary materialize，不使用顯式快取、不重送歷史音訊；原有 Gemini 和本機語音保留。OpenAI 送 store:false。參考 https://developers.openai.com/api/docs/guides/audio-chat-completions 、https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create 、https://openrouter.ai/blog/announcements/audio-inputs-and-pdf-urls-for-apps/ 。不宣稱未實測供應商全面相容；新增核心與故事 E2E mock，Phone 共用 adapter，真實 API/實機/完整 CI 待驗證。
