@@ -122,3 +122,18 @@ assert.equal(characterBudget.reserve('字'),false);
 assert.deepEqual(characterBudget.remaining(),{requests:15,characters:0});
 assert.throws(()=>characterBudget.reserve(''));
 console.log('Automatic TTS grant: separate request and character limits, no implicit reset.');
+
+async function testLocalAudioDraft(){
+ const wav=new Uint8Array(44);wav.set(Buffer.from('RIFF'),0);wav.set(Buffer.from('WAVE'),8);
+ const audio=await C.localAudioDraft(new Blob([wav],{type:'audio/x-wav'}));
+ assert.equal(audio.blob.type,'audio/wav');assert.equal(audio.extension,'wav');
+ assert.deepEqual(new Uint8Array(await audio.blob.arrayBuffer()),wav);
+ await assert.rejects(C.localAudioDraft(new Blob([wav],{type:'text/html'})),/格式/);
+ await assert.rejects(C.localAudioDraft(new Blob(['<html>not audio</html>'],{type:'audio/wav'})),/格式/);
+ await assert.rejects(C.localAudioDraft(new Blob([])),/8 MiB/);
+ await assert.rejects(C.localAudioDraft(new Blob([new Uint8Array(C.AUDIO_DRAFT_MAX_BYTES+1)])),/8 MiB/);
+ const mp4=await C.localAudioDraft(new Blob([Buffer.from('\x00\x00\x00\x18ftypM4A ')]));
+ assert.equal(mp4.extension,'m4a');
+ console.log('Local audio draft: container sniffing, normalized MIME and size ceiling passed.');
+}
+testLocalAudioDraft().catch(e=>{console.error(e);process.exitCode=1;});
