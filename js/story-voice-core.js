@@ -157,5 +157,34 @@
    if(typeof parsed?.text!=='string'||!parsed.text.trim()||parsed.text.length>12000)throw Error('STT 未回傳有效文字，或文字過長。');
    return parsed.text.trim();
  }
- return Object.freeze({LANGUAGES,MAX_TEXT,profile,PACK_LIMIT,exportPack,importPack,profileKey,voicesFor,selectVoice,candidates,directDialogue,script,mergeDraft,finalTranscript,sttConfig,transcribe,STT_MAX_BYTES});
+ // First external TTS adapter: explicit, one-shot, OpenAI-compatible audio/speech.
+ const TTS_MAX_BYTES=16*1024*1024;
+ function ttsConfig(raw){
+   let url;try{url=new URL(String(raw?.endpoint||'').trim());}catch(_){throw Error('請輸入有效的 TTS 接口網址。');}
+   const loopback=['localhost','127.0.0.1','[::1]'].includes(url.hostname);
+   if((url.protocol!=='https:'&&!(url.protocol==='http:'&&loopback))||url.username||url.password||url.search||url.hash||!url.pathname.endsWith('/audio/speech'))throw Error('請使用 HTTPS 或本機 HTTP 的 /audio/speech 接口，不含帳密或查詢參數。');
+   const model=String(raw?.model||'').trim(),voice=String(raw?.voice||'').trim(),key=String(raw?.key||'').trim();
+   if(!model||!voice||model.length>200||voice.length>200||key.length>4096||[model,voice,key].some(x=>/[\x00-\x1f\x7f]/.test(x)))throw Error('請確認 TTS 模型、聲線 ID 與金鑰格式。');
+   const speed=bounded(raw?.speed,.5,1.5,1);
+   return {endpoint:url.href,model,voice,key,speed};
+ }
+ async function synthesize(raw,text,{signal,fetcher=globalThis.fetch}={}){
+   const cfg=ttsConfig(raw),input=script(text);
+   const headers={'Content-Type':'application/json',...(cfg.key?{Authorization:'Bearer '+cfg.key}:{})};
+   const response=await fetcher(cfg.endpoint,{method:'POST',headers,body:JSON.stringify({model:cfg.model,voice:cfg.voice,input,speed:cfg.speed,response_format:'mp3'}),signal,credentials:'omit',redirect:'error',referrerPolicy:'no-referrer',cache:'no-store'});
+   if(!response.ok){try{await response.body?.cancel();}catch(_){}throw Error('TTS 接口回應失敗。');}
+   const type=String(response.headers.get('content-type')||'').split(';')[0].trim().toLowerCase();
+   if(!['audio/mpeg','audio/mp3','audio/wav','audio/x-wav','application/octet-stream'].includes(type)){try{await response.body?.cancel();}catch(_){}throw Error('TTS 未回傳相容音訊。');}
+   const reader=response.body?.getReader();if(!reader)throw Error('無法讀取 TTS 音訊。');
+   let count=0;const chunks=[];
+   try{while(true){const {done,value}=await reader.read();if(done)break;count+=value.byteLength;if(count>TTS_MAX_BYTES)throw Error('TTS 音訊超過 16 MiB。');chunks.push(value);}}
+   finally{try{await reader.cancel();}catch(_){}reader.releaseLock();}
+   if(count<4)throw Error('TTS 音訊無效。');
+   const data=new Uint8Array(count);let offset=0;for(const chunk of chunks){data.set(chunk,offset);offset+=chunk.byteLength;}
+   const wav=count>=12&&data[0]===82&&data[1]===73&&data[2]===70&&data[3]===70&&data[8]===87&&data[9]===65&&data[10]===86&&data[11]===69;
+   const mp3=(data[0]===73&&data[1]===68&&data[2]===51)||(data[0]===255&&(data[1]&224)===224);
+   if(!wav&&!mp3)throw Error('TTS 音訊格式不相容。');
+   return new Blob([data],{type:wav?'audio/wav':'audio/mpeg'});
+ }
+ return Object.freeze({LANGUAGES,MAX_TEXT,profile,PACK_LIMIT,exportPack,importPack,profileKey,voicesFor,selectVoice,candidates,directDialogue,script,mergeDraft,finalTranscript,sttConfig,transcribe,STT_MAX_BYTES,ttsConfig,synthesize,TTS_MAX_BYTES});
 });
