@@ -192,7 +192,7 @@
    const modal=el('dialog');modal.className='yoru-voice-dialog';modal.setAttribute('aria-label',phone?'Phone 語音訊息':'角色語音與語音輸入');
    if(typeof modal.showModal!=='function')return;
    const focus=document.activeElement;
-   const title=el('h2',phone?'Phone 語音訊息':quick==='input'?'語音輸入':quick==='settings'?'角色語音設定':'角色語音與語音輸入');
+   const title=el('h2',phone?'Phone 語音訊息':quick==='input'?'語音輸入':quick==='settings'?'角色語音設定':quick==='custom'?'自訂角色配音':'角色語音與語音輸入');
    const note=el('p',phone
      ? '傳給 '+phone.target.name+(phone.target.group?'（'+phone.target.audience+'）':'')+'。可只保存本機語音，或選用支援的原生音訊模型讓角色回覆；只有後者會傳至模型。'
      : '選配工具。語音輸入只填入文字，不會送出；可開啟角色台詞自動配音。語音與故事原文互不改寫。');
@@ -851,7 +851,18 @@
      basic.append(auto.wrap,autoStatus,speaker.wrap,lang.wrap,voice.wrap,...sliders.map(s=>s.wrap),remember);
      const cast=castFor(current);
      if(cast.defaultId){speaker.input.value=cast.defaultId;load();}
-     modal.append(basic,btn('進階語音工具',()=>{close();open();}));
+     modal.append(basic,btn('自訂角色配音（BYOK）',()=>{close();open({quickVoice:'custom'});}),btn('進階語音工具',()=>{close();open();}));
+   }else if(quick==='custom'&&!phone){
+     // Reuse the existing one-shot and chapter authorization paths. Merely
+     // opening this shortcut must not grant permission or contact a service.
+     const latest=Chat.messages.at(-1),index=messages.indexOf(latest);
+     const line=index>=0?replyDialogue(current,latest).find(item=>people.has(item.speakerId)):null;
+     if(line){
+       speaker.input.value=line.speakerId;speaker.input.dispatchEvent(new Event('change'));
+       source.input.value=String(index);refreshQuotes();text.input.value=line.text;
+     }
+     ttsProvider.input.value='custom';syncTTS();showCustomSpeed();
+     modal.append(el('p','使用自己取得的 TTS 服務。已辨識的角色台詞可直接確認；尚未送出任何請求。每次生成仍須確認資料與可能費用。'),output,btn('進階語音工具',()=>{close();open();}));
    }else{
      modal.append(note);
      if(!phone)modal.append(inputSection,output);
