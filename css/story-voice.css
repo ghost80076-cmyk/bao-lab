@@ -7,3 +7,7 @@
 .yoru-voice-dialog input[type=range]{width:100%}
 .yoru-voice-dialog button{min-height:44px;white-space:normal}
 .yoru-voice-dialog :focus-visible{outline:2px solid #c1b3ff;outline-offset:3px}
+
+/* Provider-specific controls must remain hidden even when label/grid styles apply. */
+.yoru-voice-dialog [hidden]{display:none!important}
+.yoru-voice-dialog input[type=url],.yoru-voice-dialog input[type=text],.yoru-voice-dialog input[type=password],.yoru-voice-dialog input:not([type]){width:100%;min-width:0;box-sizing:border-box;color:inherit;background:var(--panel,#20212b);padding:8px;border:1px solid #647082;border-radius:8px}
