@@ -333,13 +333,14 @@
      ttsConsent.input.checked=false;cancelTTS();
    });
    function syncTTS(){
-     ttsAdvanced.hidden=!customTTS();remote.wrap.hidden=customTTS();voice.wrap.hidden=customTTS();
+     ttsAdvanced.hidden=!customTTS();remote.wrap.hidden=customTTS();voice.wrap.hidden=lang.wrap.hidden=customTTS();
+     auto.input.disabled=customTTS()||!synth||typeof window.SpeechSynthesisUtterance!=='function';
      for(const slider of sliders.filter(x=>x.name!=='rate'))slider.wrap.hidden=customTTS();
      remember.hidden=pack.hidden=customTTS();
      speak.disabled=!customTTS()&&(!synth||typeof window.SpeechSynthesisUtterance!=='function');
      speak.textContent=customTTS()?'生成確認的台詞':'播放確認的台詞';
    }
-   ttsProvider.input.addEventListener('change',()=>{cancelSpeech();remote.input.checked=false;ttsConsent.input.checked=false;syncTTS();});
+   ttsProvider.input.addEventListener('change',()=>{cancelSpeech();if(customTTS())disableAutomatic();remote.input.checked=false;ttsConsent.input.checked=false;syncTTS();});
    for(const n of [ttsEndpoint.input,ttsModel.input,ttsVoice.input,ttsKey.input,speaker.input,lang.input,text.input,source.input,quotes.input,...sliders.map(s=>s.input)])n.addEventListener('input',()=>{ttsConsent.input.checked=false;cancelTTS();});
    audio.addEventListener('error',()=>{if(audioURL){cancelTTS();setStatus('裝置無法解碼此語音，請確認服務回傳格式。');}});
    async function generateTTS(){
