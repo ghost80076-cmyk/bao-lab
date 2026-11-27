@@ -152,13 +152,14 @@ test('custom STT is opt-in, cancel-safe and only fills editable draft',async({pa
      stop(){this.state='inactive';this.ondataavailable?.({data:new Blob(['audio-fixture'],{type:'audio/webm'})});this.onstop?.();}
    }});
  });
- let requests=0;
+ let requests=0,failNext=false;
  await page.route('https://stt.example.invalid/**',async route=>{
    if(route.request().method()==='OPTIONS')return route.fulfill({status:204,headers:{'access-control-allow-origin':'*','access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'authorization'}});
    requests++;expect(route.request().headers().authorization).toBe('Bearer STT-PRIVATE');
    expect(route.request().postData()).toContain('audio-fixture');
    expect(route.request().postData()).not.toContain('TEXT-PRIVATE');
    expect(route.request().postData()).toContain('player-model');
+   if(failNext)return route.fulfill({status:503,body:'PRIVATE-SERVICE-ERROR',headers:{'access-control-allow-origin':'*'}});
    await route.fulfill({json:{text:'繁體中文測試'},headers:{'access-control-allow-origin':'*'}});
  });
  await setup(page,390);
@@ -183,6 +184,16 @@ test('custom STT is opt-in, cancel-safe and only fills editable draft',async({pa
  await expect(d.getByLabel('辨識文字預覽（可修改）')).toHaveValue('繁體中文測試');
  expect(requests).toBe(1);
  await d.getByLabel('辨識文字預覽（可修改）').fill('修改後');
+ failNext=true;
+ await consent.check();await d.getByRole('button',{name:'開始語音辨識'}).click();
+ await expect(d.getByRole('status')).toContainText('錄音中');
+ await d.getByRole('button',{name:'停止辨識',exact:true}).click();
+ await expect(d.getByRole('status')).toContainText('STT 辨識失敗');
+ await expect(d.getByRole('status')).not.toContainText('PRIVATE-SERVICE-ERROR');
+ await expect(d.getByLabel('辨識文字預覽（可修改）')).toHaveValue('修改後');
+ expect(requests).toBe(2);
+ expect(await page.evaluate(()=>window.__recognitions)).toBe(0);
+ await expect(page.locator('#user-input')).toHaveValue('原稿');
  await d.getByRole('button',{name:'將文字填入故事輸入框'}).click();
  await expect(page.locator('#user-input')).toHaveValue('原稿\n修改後');
  expect(await page.evaluate(()=>Chat.messages.filter(m=>m.role==='user').length)).toBe(0);
