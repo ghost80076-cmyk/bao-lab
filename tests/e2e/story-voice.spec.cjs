@@ -752,3 +752,34 @@ test('native audio understanding sends only a reviewed clip to direct Gemini and
  await expect(page.locator('#user-input')).toHaveValue('原草稿');
  expect(await page.evaluate(()=>({messages:JSON.stringify(Chat.messages),state:JSON.stringify(GameState.current)}))).toEqual(before);
 });
+
+test('native story turn sends reviewed audio once, stores local attachment and never replays on next text turn',async({page})=>{
+ const requests=[];
+ await page.route('https://generativelanguage.googleapis.com/**',async route=>{
+   const headers={'access-control-allow-origin':'*','access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'x-goog-api-key, content-type'};
+   if(route.request().method()==='OPTIONS')return route.fulfill({status:204,headers});
+   requests.push(route.request().postDataJSON());
+   await route.fulfill({headers,json:{candidates:[{finishReason:'STOP',content:{parts:[{text:'A：「聽到了。」'}]}}],usageMetadata:{promptTokenCount:20,candidatesTokenCount:10}}});
+ });
+ await setup(page,390);
+ await page.evaluate(()=>Object.assign(App.config.api,{type:'gemini',protocol:'gemini',route:'official',baseUrl:'https://generativelanguage.googleapis.com/v1beta/models',model:'gemini-3.8-flash',key:'NATIVE-PRIVATE',stream:false,streaming:false}));
+ await page.locator('#user-input').fill('我把這段錄音播放給 A 聽。');
+ await openVoice(page,390);
+ const d=page.getByRole('dialog',{name:'角色語音與語音輸入'});
+ await d.getByText('玩家錄音／音檔預覽（本機）',{exact:true}).click();
+ await d.getByLabel('選擇本機音檔').setInputFiles({name:'sample.wav',mimeType:'audio/wav',buffer:voiceWav()});
+ await d.getByText('原始音訊理解（進階 BYOK）',{exact:true}).click();
+ await d.getByLabel('我已確認模型支援音訊輸入，並同意將原始音訊與本輪故事上下文送至目前 Gemini 模型及可能費用').check();
+ const stage=d.getByRole('button',{name:'準備故事原始音訊'});await expect(stage).toBeEnabled();await stage.click();
+ await expect(d).toHaveCount(0);expect(requests).toHaveLength(0);
+ const send=page.getByRole('button',{name:'送出音訊與文字'});await expect(send).toBeEnabled();await send.click();
+ await expect.poll(()=>page.evaluate(()=>Chat.messages.filter(m=>m.role==='user').length)).toBe(1);
+ await expect.poll(()=>page.evaluate(()=>Boolean(App.__requestPending))).toBe(false);
+ const clips=()=>requests.flatMap(req=>(req.contents||[]).flatMap(c=>(c.parts||[]).filter(p=>p.inlineData)));
+ expect(clips()).toEqual([{inlineData:{mimeType:'audio/wav',data:voiceWav().toString('base64')}}]);
+ const saved=await page.evaluate(async()=>{const rows=await BAOStoryVoiceAssets.list(BAOStoryLibrary.refs());return {rows,messages:JSON.stringify(Chat.messages),player:Chat.messages.find(m=>m.role==='user')?.id};});
+ expect(saved.rows).toHaveLength(1);expect(saved.rows[0].delivery.after.id).toBe(saved.player);expect(saved.messages).not.toContain(voiceWav().toString('base64'));
+ await page.locator('#user-input').fill('謝謝。');await page.locator('[data-send-message]').click();
+ await expect.poll(()=>page.evaluate(()=>Chat.messages.filter(m=>m.role==='user').length)).toBe(2);
+ await expect.poll(()=>page.evaluate(()=>Boolean(App.__requestPending))).toBe(false);expect(clips()).toHaveLength(1);
+});

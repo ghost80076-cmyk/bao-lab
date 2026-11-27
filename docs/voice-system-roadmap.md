@@ -153,3 +153,7 @@ P3b [#996](https://github.com/ghost80076-cmyk/bao-lab/pull/996) 已合併，17/1
 ### P5a 原始音訊理解預覽（本 PR）
 
 沿用玩家現有 Gemini 官方 BYOK 連線，明確確認模型音訊輸入能力及單次傳送、8 MiB/60 秒 WAV/MP3/OGG 限制，使用 GenerateContent inlineData；不使用 Files API、後端、燈火、中轉、模型權重或額外付費帳號。固定音訊分析指令只傳本段原始音訊，不夾帶角色卡、故事、Phone、記憶或歷史音訊；非串流、取消／逾時、路由及章節變更 guard、無自動重試或 fallback。分析結果僅本機可編輯預覽，不自動加入故事、保存、送出或讓 NPC 假裝已收到音訊。普通 STT、本機語音訊息、TTS 保持原狀。P5b 再將經驗證的單次音訊輸入接入真正故事回覆流程，Phone 收件範圍另驗證。協議參考 https://ai.google.dev/gemini-api/docs/generate-content/audio 及 https://ai.google.dev/api/generate-content 。本次僅以 mock 驗證契約，實際模型能力與付費、實機需獨立驗證。
+
+### P5b-1 原始音訊故事回覆（本 PR）
+
+#1004 已合併 `8e5c4cb7106440dc1262c33044355736505257cd`，17/17 PR CI 與 Pages 部署成功。此階段限官方 Gemini BYOK，玩家先寫明聽者／行動，再預覽音檔、獨立確認模型能力及費用，以專用按鈕送出。待送音訊只在記憶體，綁定故事、章節、歷史、文字、模型、金鑰；本輪只在 Gemini transport materialize，沿用故事流程、回覆與 usage；不經顯式快取、不自動 retry、不寫入 prompt/Chat/診斷。拒絕同輪圖片與原始音訊；普通送出不得默默夾帶待送音訊。成功後以本輪玩家訊息保存音訊，保存失敗不重送成功的模型請求；後續文字及記憶不重新上傳原音訊。第一版需文字說明；Phone 原生音訊、其他協議、即時通話另開 PR。新增 core/E2E mock；完整 CI、實體裝置與真實供應商待驗證。

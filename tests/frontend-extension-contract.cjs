@@ -16,7 +16,7 @@ assert(siteUI.includes('js/provider-policy-guard.js?v=1'), 'policy circuit must 
 assert(siteUI.indexOf('js/provider-policy-guard.js?v=1') < siteUI.indexOf('js/credits-pilot.js?v=10'));
 assert(index.includes('src="js/site-ui.js?v=218"'), 'story lifecycle loader must use refreshed site UI');
 assert(siteUI.includes('loadBAOScript("js/story-branches.js?v=7")'), 'reader positioning must use the refreshed branch script');
-assert(index.includes('src="js/app.js?v=18"'));
+assert(index.includes('src="js/app.js?v=19"'));
 assert(siteUI.includes('loadBAOOptionalGroup("chapter-memory"'), 'chapter workbench must not block story sends');
 assert(siteUI.includes('loadBAOOptionalGroup("chapter-recall"'), 'optional recall must not block story sends');
 assert(siteUI.indexOf('js/episodic-memory.js?v=5') < siteUI.indexOf('js/chapter-memory-recall.js?v=1'), 'chapter recall must follow knowledge resolver');

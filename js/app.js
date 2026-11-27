@@ -202,12 +202,15 @@ const App = {
   renderStoryMessage(content,role="assistant",greeting=false){const source=String(content||"");if(role!=="assistant")return window.BAOAvatarChat?.enabled?.()?window.BAOAvatarChat.render(source,role):this.formatMessage(source);const scene=typeof window!=="undefined"?window.BAOSceneHTML:null;if(scene?.render)return scene.render(source,Boolean(greeting));const markup=typeof window!=="undefined"?window.BAOChatMarkup:null;if(markup?.sanitize&&/<[a-z!/]/i.test(source))return markup.sanitize(source);return this.formatMessage(source)},
   renderChatShell(fresh=false){const c=this.activeCharacter;document.getElementById("chat-title").textContent=c.name;document.getElementById("chat-narrative").textContent=this.config.narrativeMode==="world"?"世界模擬":"單角色沉浸";document.getElementById("chat-display").textContent=this.config.displayMode==="ui"?"互動 UI":"純文本";document.getElementById("chat-persona").textContent=this.config.persona.name;document.getElementById("chat-model").textContent=this.config.api.model;document.getElementById("chat-character-card").innerHTML=`<div class="eyebrow">ACTIVE CHARACTER</div><h3>${this.escapeHTML(c.name)}</h3>`;const stream=document.getElementById("chat-stream");if(fresh||!Chat.messages.length)stream.innerHTML=`<div class="message assistant"><div class="bubble">${this.renderStoryMessage(c.greeting,"assistant",true)}</div></div>`;else stream.innerHTML=Chat.messages.map(m=>`<div class="message ${m.role==="user"?"user":"assistant"}"><div class="bubble">${this.renderStoryMessage(m.content,m.role,Boolean(m.greeting))}${window.BAOStoryImages?.html?.(m.storyImage) || ""}</div></div>`).join("");document.getElementById("game-ui").classList.toggle("hidden",this.config.displayMode!=="ui");document.getElementById("usage-memory").textContent=Chat.memoryStatus(this.config.memory.maxRounds);Chat.renderUsage({});this.renderUIPanel("npc");setTimeout(()=>{stream.scrollTop=stream.scrollHeight},0)}, saveStory(notify=false){const ok=Storage.saveStory();window.BAORefreshSaveUI?.();if(notify)alert(ok?"進度已儲存在這台裝置的瀏覽器中。":"目前沒有可儲存的故事。");return ok}, async resumeSavedStory(){const save=Storage.loadStory();if(!save){alert("目前沒有存檔。");return}try{await this.loadCharacter?.(save.characterId)}catch(error){console.warn("BAO/LAB saved character preload failed; falling back to story snapshot:",error)}if(!Storage.restoreStory(save)){alert("無法讀取這份存檔，角色資料可能已變更。");return}if(!window.BAOCreditsPilot?.prepareAccountConfig?.(this.config.api)){const key=window.prompt("為了安全，API Key 不會存進故事存檔。請重新貼上 API Key 才能繼續：","");if(key===null)return;this.config.api.key=key.trim()}if(GameState.current)GameState.current.config=this.config;this.renderChatShell(false);this.showView("chat")},
   renderUIPanel(panel){const s=GameState.current;if(!s)return;const ui=document.getElementById("ui-panel");if(panel==="npc")ui.innerHTML=`<div class="npc-grid">${(s.npcs||[]).map(n=>`<div class="npc-card"><strong>${this.escapeHTML(n.name)}</strong><br><span>${this.escapeHTML(n.role||"NPC")}</span><br><span>情緒：${this.escapeHTML(this.displayStatusValue(n.mood||"未知"))}</span><br><span>位置：${this.escapeHTML(this.displayStatusValue(n.location||"未知"))}</span><br><span>關係：${this.escapeHTML(this.displayStatusValue(String(n.relationship??"未設定")))}</span></div>`).join("")||"目前沒有 NPC。"}</div>`;else if(panel==="status")ui.innerHTML=`<div class="state-grid"><div class="state-box"><small>時間</small><b>${this.escapeHTML(this.displayStatusValue(s.time))}</b></div><div class="state-box"><small>地點</small><b>${this.escapeHTML(this.displayStatusValue(s.location))}</b></div><div class="state-box"><small>敘事</small><b>${this.config.narrativeMode==="world"?"世界模擬":"單角色沉浸"}</b></div></div>`;else if(panel==="events")ui.innerHTML=(s.events||[]).map(x=>`• ${this.escapeHTML(x)}`).join("<br>");else if(panel==="memory")ui.innerHTML=this.config.memory.mode==="smart"?(Chat.summary?`<b>長期記憶摘要</b><div style="margin-top:8px">${this.formatMessage(Chat.summary)}</div>`:`<span class="note">智慧記憶已啟用，舊內容會自動整理。</span>`):(s.memory?.length?s.memory.map(x=>`• ${this.escapeHTML(x)}`).join("<br>"):`目前尚無長期記憶。`)}, buildSystemPrompt(){const c=this.activeCharacter,p=this.config.persona,m=this.prompts[this.config.narrativeMode];return[c.system_prompt,"","【敘事模式】",m.prompt,"","【玩家 Persona】",`名稱：${p.name}`,`性別：${p.gender}`,`身分：${p.identity||"未指定"}`,`個性：${p.personality||"未指定"}`,`與角色的初始關係：${p.relationship||"未指定"}`,`其他設定：${p.extra||"無"}`,"",window.BAONarrativeSettings ? "玩家角色的日常演繹依本故事授權，重要決策仍由玩家決定。" : "不得替玩家決定台詞、心理或行動。",this.config.displayMode==="ui"?"目前使用互動 UI。不要每輪重新輸出完整 UI HTML，敘事正常輸出即可。":"目前使用純文本模式。不要輸出 RPG 狀態面板。"].join("\n")},
-  async sendMessage() {
+  async sendMessage(nativeTicket) {
     const input = document.getElementById("user-input");
     let image;
     try { image = window.BAOStoryImages?.prepare?.(); }
     catch (error) { window.BAOStoryImages?.sync?.(); window.BAOStoryImages?.status?.(error.message, true); return; }
     const originalText = input.value.trim(), text = originalText || (image ? '【玩家提供一張圖片】' : '');
+    let nativeAudio;
+    try { nativeAudio = window.BAOStoryNativeTurn?.prepare(nativeTicket, originalText, image); }
+    catch (error) { window.BAOStoryNativeTurn?.status(error.message); return; }
     if (!text) return;
     const owner = GameState.current, config = this.config, requestSignal = API.activeSignal;
     window.BAOCreditsPilot?.prepareAccountConfig?.(config.api);
@@ -239,8 +242,11 @@ const App = {
       if (requestSignal?.aborted) throw Object.assign(new Error("已取消生成。"), { code: "BAO_ABORTED" });
       if (!isCurrent()) return;
       const apiConfig = this.applyProviderContext ? this.applyProviderContext(config.api) : config.api;
-      const result = await API.send(window.BAOStoryImages?.bindRequest?.(apiConfig, image) || apiConfig, messages);
+      const imageConfig = window.BAOStoryImages?.bindRequest?.(apiConfig, image) || apiConfig;
+      const requestConfig = nativeAudio ? window.BAOStoryNativeTurn.bind(imageConfig, nativeAudio, pendingUser) : imageConfig;
+      const result = await API.send(requestConfig, messages);
       if (!isCurrent()) return;
+      if (nativeAudio) window.BAOStoryNativeTurn.assertDelivered(nativeAudio);
       const assistant = Chat.add("assistant", result.text);
       if (image) window.BAOStoryImages?.finish?.(image);
       window.BAOChatSystemNotices?.reportCompletion?.(result, owner);
@@ -251,6 +257,7 @@ const App = {
       document.getElementById("usage-memory").textContent = Chat.memoryStatus(config.memory.maxRounds);
       if (config.displayMode === "ui" && document.querySelector('.ui-tab[data-panel="memory"]')?.classList.contains("active")) this.renderUIPanel("memory");
       this.saveStory(false);
+      if (nativeAudio) await window.BAOStoryNativeTurn.finish(nativeAudio, pendingUser.id, isCurrent);
       stream.scrollTop = stream.scrollHeight;
       const previousSummary = Chat.summary, previousEpisodes = owner?.episodicMemory;
       try {

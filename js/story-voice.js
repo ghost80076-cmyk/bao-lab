@@ -551,7 +551,7 @@
      job.stream?.getTracks().forEach(t=>t.stop());job.chunks.length=0;
    }
    function clearLocal(){
-     localEpoch++;cancelNative();nativeConsent.input.checked=false;nativeResult.input.value='';nativeStatus.textContent='';releaseRecording();clearTimeout(metadataTimer);
+     localEpoch++;cancelNative();nativeConsent.input.checked=false;storyConsent.input.checked=false;nativeResult.input.value='';nativeStatus.textContent='';releaseRecording();clearTimeout(metadataTimer);
      localAudio.onloadedmetadata=localAudio.onerror=null;localAudio.pause();
      localAudio.removeAttribute('src');localAudio.load();
      if(localURL)URL.revokeObjectURL(localURL);localURL=null;
@@ -566,6 +566,7 @@
      localSave.disabled=!localReady||localSaving||Boolean(nativeJob)||!window.BAOStoryVoiceAssets||!current.storyId||!current.chapterId;
      localSend.disabled=localSave.disabled||!window.BAOStoryVoiceMessages||!Chat.messages.at(-1)?.id;
      nativeAnalyze.disabled=!!phone||!localReady||localSaving||Boolean(nativeJob)||!routeStillCurrent()||!['audio/wav','audio/mpeg','audio/ogg'].includes(localBlob?.type);
+     stageStory.disabled=nativeAnalyze.disabled||!window.BAOStoryNativeTurn;
      nativeCancel.hidden=!nativeJob;
      nativeConsent.input.disabled=Boolean(nativeJob)||!routeStillCurrent();
    }
@@ -713,8 +714,20 @@
      }catch(_){if(live())nativeStatus.textContent='音訊理解失敗，請確認模型能力、音訊格式、連線或額度；未自動重試。';}
      finally{if(nativeJob===job){cancelNative();if(valid())syncLocal();}}
    });
-   nativeSection.append(nativeConsent.wrap,nativeAnalyze,nativeCancel,nativeResult.wrap,nativeStatus);
-   nativeSection.addEventListener('toggle',()=>{if(!nativeSection.open){cancelNative();nativeConsent.input.checked=false;syncLocal();}});
+   const storyConsent=field('我已確認模型支援音訊輸入，並同意將原始音訊與本輪故事上下文送至目前 Gemini 模型及可能費用','input');storyConsent.input.type='checkbox';
+   const stageStory=btn('準備故事原始音訊',async()=>{
+     if(!storyConsent.input.checked||!localLive()||!localReady||localSaving||nativeJob||!routeStillCurrent()||phone){nativeStatus.textContent='請確認音訊及故事傳送授權。';return;}
+     const epoch=localEpoch;storyConsent.input.checked=false;localSaving=true;syncLocal();
+     try{
+       await window.BAOStoryNativeTurn.stage(localBlob,localDuration,()=>localLive()&&localEpoch===epoch&&routeStillCurrent(),true);
+       if(valid())close();
+     }catch(e){if(valid())nativeStatus.textContent=e.message||'無法準備本輪音訊。';}
+     finally{localSaving=false;if(valid())syncLocal();}
+   });
+   nativeSection.append(nativeConsent.wrap,nativeAnalyze,nativeCancel,nativeResult.wrap,
+     el('p','也可附到故事本輪，而非獨立分析。先在故事輸入框寫明誰能聽見及本輪行動，再選擇音檔、確認模型支援與可能費用。準備後回到故事，按專用送出才會傳送。沿用既有故事上下文；本輪不使用顯式快取或自動重試。成功後才保存音訊。'),
+     storyConsent.wrap,stageStory,nativeStatus);
+   nativeSection.addEventListener('toggle',()=>{if(!nativeSection.open){cancelNative();nativeConsent.input.checked=false;storyConsent.input.checked=false;syncLocal();}});
    const backup=el('details');
    backup.append(el('summary','故事＋本機音訊備份'),el('p','備份包含所有仍存在章節的本機音訊與故事資料，可能包含私人錄音。普通 JSON／TXT／Drive 及生成圖集備份不含音訊；此備份也不含生成圖集。請妥善保存。匯入建立新故事副本。'));
    const backupStatus=el('p');backupStatus.setAttribute('aria-live','polite');
@@ -755,7 +768,7 @@
    collection.addEventListener('toggle',()=>{if(collection.open&&localSection.open)void refreshCollection();else if(!collection.open)collectionEpoch++;});
    localSection.append(localFile.wrap,localStart,localStop,btn('捨棄本機音檔／取消錄音',()=>{clearLocal();localInfo.textContent='已捨棄本機音檔。';}),localAudio,localDownload,localSave,localSend,localInfo,collection);
    if(!phone)localSection.append(nativeSection);
-   localSection.addEventListener('toggle',()=>{if(!localSection.open){if(localJob){clearLocal();localInfo.textContent='已停止並捨棄本機錄音。';}else localAudio.pause();cancelNative();nativeConsent.input.checked=false;syncLocal();}});
+   localSection.addEventListener('toggle',()=>{if(!localSection.open){if(localJob){clearLocal();localInfo.textContent='已停止並捨棄本機錄音。';}else localAudio.pause();cancelNative();nativeConsent.input.checked=false;storyConsent.input.checked=false;syncLocal();}});
    syncLocal();
    if(phone){
      localSection.open=true;

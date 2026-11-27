@@ -176,3 +176,5 @@ async function testNativeAudio(){
  console.log('Native audio: official BYOK only, confirmed one-shot, bounded visible text, no story context.');
 }
 testNativeAudio().catch(e=>{console.error(e);process.exitCode=1;});
+
+assert.equal(C.nativeAudioRoute({type:'gemini',protocol:'gemini',route:'official',baseUrl:'https://generativelanguage.googleapis.com/v1beta/models',model:'gemini-3.8-flash',key:'fixture'}).model,'gemini-3.8-flash');
