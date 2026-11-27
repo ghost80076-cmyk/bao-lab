@@ -14,7 +14,9 @@ function score(ref,hyp,unit){const a=tokens(ref,unit),b=tokens(hyp,unit);assert.
 async function main(){
   candidateFor(profile);
   const corpus=JSON.parse(fs.readFileSync(path.join(dir,'corpus.json'),'utf8'));
-  assert.equal(corpus.samples.length,5);
+  const privateOnly=corpus.privateOnly===true;
+  assert.equal(corpus.samples.length,privateOnly?30:5);
+  if(privateOnly&&process.env.GITHUB_ACTIONS==='true')throw Error('Private corpus cannot run on public CI');
   if(profile==='moonshine-tiny'&&corpus.language!=='english')throw Error('English-only candidate');
   const blocked=[],samples=[];
   const browser=await chromium.launch({headless:true});
@@ -49,11 +51,12 @@ async function main(){
           empty:!result.text.trim()};
       }catch(e){record.error=String(e.message||e);await page.reload();await page.locator('#language').selectOption(corpus.language);}
       samples.push(record);
-      console.log(JSON.stringify({profile,config:corpus.config,row:entry.row,cer:record.cer,wer:record.wer,error:record.error,loadMs:record.loadMs,inferenceMs:record.inferenceMs}));
+      if(!privateOnly)console.log(JSON.stringify({profile,config:corpus.config,row:entry.row,cer:record.cer,wer:record.wer,error:record.error,loadMs:record.loadMs,inferenceMs:record.inferenceMs}));
     }
     function aggregate(key){const scored=samples.filter(s=>s[key]);const edits=scored.reduce((n,s)=>n+s[key].edits,0),units=scored.reduce((n,s)=>n+s[key].referenceUnits,0);return {scored:scored.length,edits,units,rate:units?edits/units:null};}
     const report={profile,engine:'chromium',version:browser.version(),corpus,blocked,samples,cer:aggregate('cer'),wer:aggregate('wer'),runtimeFailures:samples.filter(s=>s.error).length,empty:samples.filter(s=>s.empty).length,scope:'5 deterministic clean public test rows per locale, no Taiwan accent, warm cache, device RAM, noisy or mixed-language claim'};
-    fs.writeFileSync(out,JSON.stringify(report,null,2));
+    const exported=privateOnly?{profile,engine:report.engine,version:report.version,locale:'zh-TW',count:samples.length,cer:report.cer,wer:report.wer,runtimeFailures:report.runtimeFailures,empty:report.empty,blockedCount:blocked.length,scope:'private 30-sample Taiwan Mandarin test; strict Traditional script; no recordings, references or transcripts exported'}:report;
+    fs.writeFileSync(out,JSON.stringify(exported,null,2));
     assert.deepEqual(blocked,[]);
     assert.equal(report.runtimeFailures,0);
   }finally{await browser.close();}
