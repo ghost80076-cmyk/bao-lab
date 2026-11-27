@@ -388,7 +388,7 @@
             };
             if(window.BAOStoryVoice?.playPhoneMessage){
               const rows=thread.querySelectorAll(':scope > .bp-chat-row');
-              const voiceStatus=$('small','bp-muted');voiceStatus.setAttribute('role','status');voiceStatus.setAttribute('aria-live','polite');
+              const voiceStatus=$('small','bp-muted');voiceStatus.setAttribute('role','status');voiceStatus.setAttribute('aria-live','polite');voiceStatus.classList.add('bp-voice-status');
               const settings=$('button','bp-voice-read-button','聲線');settings.type='button';settings.setAttribute('aria-label','角色語音設定');
               settings.onclick=()=>window.BAOStoryVoice.openSettings({actorId:target.group?null:target.senderId,active});
               area.querySelector('.bp-app-header')?.append(settings);

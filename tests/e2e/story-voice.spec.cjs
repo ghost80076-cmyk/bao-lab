@@ -1053,6 +1053,13 @@ test('shared BYOK voice is authorized once and used directly in story and Phone 
  await expect(page.getByRole('button',{name:'關閉自動配音',exact:true})).toBeVisible();
  await page.getByRole('button',{name:'關閉自動配音',exact:true}).click();
  await expect(page.getByRole('button',{name:'播放角色台詞（自訂）'})).toBeVisible();expect(calls).toHaveLength(0);
+ // Using the microphone must pause playback without losing the same chapter grant.
+ await page.evaluate(()=>BAOStoryVoice.openInput());
+ await d.getByLabel('我同意使用瀏覽器語音辨識服務').check();
+ await d.getByRole('button',{name:'開始語音辨識'}).click();
+ await expect(d.getByLabel('辨識文字預覽（可修改）')).toHaveValue('今天好累');
+ await d.getByRole('button',{name:'關閉',exact:true}).click();
+ await expect(page.getByRole('button',{name:'播放角色台詞（自訂）'})).toBeVisible();expect(calls).toHaveLength(0);
  await page.getByRole('button',{name:'播放角色台詞（自訂）'}).click();
  await expect.poll(()=>calls.length).toBe(1);expect(calls[0].input).toBe('要一起點嗎？');
  await expect.poll(()=>page.evaluate(()=>window.__sharedAudio.length)).toBe(1);
@@ -1130,8 +1137,29 @@ test('one-to-one push to talk sends a confirmed transcript through the existing 
  await expect(d).toContainText('晚安，早點休息。',{timeout:20000});
  await expect.poll(()=>page.evaluate(()=>window.__voiceCalls.length)).toBe(1);
  expect(await page.evaluate(()=>window.__voiceCalls[0].text)).toBe('晚安，早點休息。');
+ await page.evaluate(()=>{Chat.messages.at(-1).phonePatch.threads[0].messages[0].text='已改寫回覆';});
+ await expect(d.getByRole('button',{name:'播放角色回覆'})).toBeDisabled();
+ await expect(d).toContainText('回覆已變更');
  expect(await page.evaluate(()=>GameState.current.phoneUI.threads.map(t=>t.id))).toEqual(['private-a']);
  expect(await page.evaluate(()=>GameState.current.phoneUI.tweets)).toEqual([]);
  await d.getByRole('button',{name:'掛斷'}).click();await expect(d).toHaveCount(0);expect(requests).toBe(1);
  await page.getByRole('button',{name:'關閉手機'}).click();await enter('AB 群聊');await expect(page.getByRole('button',{name:'開始角色語音通話'})).toHaveCount(0);
+});
+
+
+for(const width of [320,390,1440])test('call closure keeps narrow controls reachable and canceled recognition sends nothing at '+width,async({page})=>{
+ await setup(page,width);
+ await page.evaluate(()=>{
+   window.__abortedRecognition=0;
+   Object.defineProperty(window,'SpeechRecognition',{configurable:true,value:class{start(){window.__recognitions++;}stop(){this.onend?.();}abort(){window.__abortedRecognition++;}}});
+   App.activeCharacter.phone_ui={enabled:true,userName:'旅人',contactName:'A',contacts:[{id:'a',name:'A'}],threads:[{id:'private-a',name:'A 私訊',participants:['a'],messages:[]}]};App.renderChatShell(false);
+ });
+ let requests=0;await page.route('https://text.example.invalid/**',route=>{requests++;return route.abort();});
+ await page.locator('#bao-phone-launch').click();await page.locator('.bp-home-handle').click();await page.locator('.bp-apps .bp-icon-kakao').click();await page.locator('[data-phone-action^="thread:"]').filter({hasText:'A 私訊'}).click();
+ await page.getByRole('button',{name:'開始角色語音通話'}).click();const d=page.getByRole('dialog',{name:'角色語音通話'});
+ await expect(d).toBeVisible();await expect(d.getByRole('button',{name:'掛斷'})).toBeVisible();
+ const geometry=await d.evaluate(n=>({w:n.clientWidth,sw:n.scrollWidth,hang:n.querySelector('.yoru-call-hangup').getBoundingClientRect().height}));expect(geometry.sw).toBeLessThanOrEqual(geometry.w+1);expect(geometry.hang).toBeGreaterThanOrEqual(44);
+ await d.getByLabel('我同意使用瀏覽器語音辨識服務（可能連網）').check();
+ await d.getByRole('button',{name:'按住說話'}).focus();await page.keyboard.down('Space');await expect(d.getByRole('button',{name:'正在聆聽 · 放開停止'})).toBeVisible();
+ await d.getByRole('button',{name:'掛斷'}).click();await page.keyboard.up('Space');await expect(d).toHaveCount(0);expect(await page.evaluate(()=>window.__abortedRecognition)).toBe(1);expect(requests).toBe(0);
 });
