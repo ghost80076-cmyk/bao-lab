@@ -1,6 +1,6 @@
 # YoruBay · Codex project guidance
 
-These instructions apply to Codex working in this repository. They coordinate the project-local Skills imported in PR #871 and PR #873; they are **not** instructions for the YoruBay website runtime. For details and upstream provenance, see [`.agents/skills/README.md`](.agents/skills/README.md).
+These instructions apply to Codex working in this repository. They coordinate the project-local Skills (including the imports in PR #871 and PR #873); they are **not** instructions for the YoruBay website runtime. For details and upstream provenance, see [`.agents/skills/README.md`](.agents/skills/README.md).
 
 ## Authority and scope
 
@@ -15,12 +15,14 @@ These instructions apply to Codex working in this repository. They coordinate th
 | --- | --- | --- |
 | Story/Stage/Phone/RPG HUD, menus, interaction, focus and return paths | `game-ui-ux` (use `router` if selection is unclear) | Add `impeccable` for visual hierarchy, readability, responsive critique, and polish |
 | Existing website layout, typography, colors, visual QA, onboarding, accessibility review | `impeccable` | Add `game-ui-ux` only if gameplay states/navigation are affected |
+| Explicit AI-template/brand-distinctiveness review or a distinct second visual opinion | `unslop` (review-only by default) | Keep `impeccable` the default presentation Skill; do not run both for the same audit question |
 | Optional Visual Novel Stage behavior | `visual-novel` plus existing Stage contracts | Add `game-ui-ux` for controls and `impeccable` for presentation, only when needed |
 | Image and game assets | `create-game-assets` | Add `impeccable` only for placement and presentation in actual UI |
 | Small feature prototype | `prototype-fast` | Add the relevant domain Skill; do not use a prototype to justify replacing runtime |
 | Measured performance problem | `performance-optimization` | Use `impeccable optimize` only for front-end presentation/perceived performance concerns |
 
 - For combined UI work, **first** establish YoruBay's existing interactions and data/state contracts with `game-ui-ux`; **then** use `impeccable` for design review. Do not let either Skill independently overwrite the other's area of responsibility.
+- Use `unslop` only for an explicit request or a distinct AI-template/brand-character question that the default visual review does not cover. Review rendered evidence and classify findings as keep, scoped polish, or proposed redesign; do not apply changes during review-only work. Preserve the established night/purple/lantern palette, `--yoru-*` semantic tokens, Poster-first Explore, reading hierarchy, author HTML, Stage/Phone contracts, accessible contrast, touch targets and responsive behavior. Upstream generic spacing, color, typography and hero rules are advisory, not overrides. A redesign or implementation needs separate task scope and normal regressions.
 - Prefer one focused review per phase. Existing Playwright runs, screenshots, geometry records, and CI are evidence; avoid repeating equivalent audits with no distinct question.
 - Do not edit vendored upstream Skill files just to coordinate them. Keep any repo-specific cross-Skill rules here and in `.agents/skills/README.md`.
 
@@ -28,6 +30,7 @@ These instructions apply to Codex working in this repository. They coordinate th
 
 - Keep UI changes scoped; verify relevant Chromium/Firefox/WebKit tests, desktop/mobile viewports, keyboard/focus/overlay behavior, theme contrast, and affected screenshot evidence. Report what was run; browser viewport simulation is **not** physical Android/iPhone keyboard validation.
 - `.codex/hooks.json` comes from Impeccable. Its local execution/trust is controlled by the developer's Codex environment; simply storing it in GitHub does not imply Hooks or downloaded executables have run on Windows.
+- Unslop's snapshot and story-video scripts are vendored optional tools, not hooks. Do not execute them, capture authenticated/live player data, install dependencies or browsers, add MCP connections, call image services, or generate paid assets without explicit task authorization. Use existing Playwright and synthetic local fixtures by default; never send player data, API keys, author-private settings or story content to external services. The upstream render-count suggestion must not limit required YoruBay testing.
 - Do not run optional asset-generation scripts, alter production infrastructure, deploy, or merge solely because a Skill suggests doing so. Follow the explicit user request and normal review/CI process.
 
 ## Cross-PR correctness and completion
