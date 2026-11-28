@@ -249,11 +249,40 @@
     const currentWords = new Set(terms(input));
     return terms(prior.content).filter(word => !currentWords.has(word));
   }
+  // Only explicit, registered names: no identity inference from nearby words.
+  // Ambiguous or multiple mentioned identities disable this ranking signal.
+  function actorFocus(state, resolve, input) {
+    if (typeof input !== 'string' || input.length > 120) return null;
+    const npcs = Array.isArray(state?.npcs) ? state.npcs : [];
+    if (npcs.length > 50) return null;
+    const names = new Set();
+    for (const npc of npcs) {
+      for (const name of [text(npc?.name,100),...list(npc?.aliases)]) {
+        if (/^[\u3400-\u9fff]{2,20}$/.test(name) || /^[A-Za-z][A-Za-z0-9_]{2,39}$/.test(name)) names.add(name);
+        if (names.size > 150) return null;
+      }
+    }
+    const entries = [...names].map(name => ({name,actor:resolve(name),
+      matches: /^[A-Za-z]/.test(name) ? value => value.split(/[^A-Za-z0-9_]+/).includes(name) : value => value.includes(name)}));
+    const mention = value => {
+      const found = entries.filter(entry => entry.matches(value));
+      if (!found.length || found.some(entry => !entry.actor)) return null;
+      const identities = new Set(found.map(entry => entry.actor));
+      return identities.size === 1 ? [...identities][0] : null;
+    };
+    const actor = mention(input);
+    if (!actor) return null;
+    const nameWords = new Set(entries.filter(entry => entry.matches(input)).flatMap(entry => terms(entry.name)));
+    const topicWords = terms(input).filter(word => !nameWords.has(word) && ![...nameWords].some(name => word.includes(name)));
+    if (!topicWords.length) return null;
+    return {actor,mention,topicWords,hasMention:value => entries.some(entry => entry.matches(value))};
+  }
   function recall({ state, messages = [], input = '', actors = [], exclude = '', maxChars = 2400, hybrid = false, onDecision = () => {} }) {
     const proof = evidenceProof(messages), {sources,valid,scene} = proof;
     const resolve = actorResolver(state), words = terms(input), audience = resolveCast(state,actors,resolve);
     const excluded = String(exclude), seen = new Set(), candidates = [];
     const continuity = hybrid ? continuityTerms(messages, input, sources) : [];
+    const focus = hybrid ? actorFocus(state,resolve,input) : null;
     const events = memoryEvents(state, hybrid), superseded = supersededEvents(events, proof);
     for (const event of events) {
       if (!object(event)) continue;
@@ -296,9 +325,26 @@
       const visibleLower = visibleText.toLowerCase();
       const overlap = continuity.reduce((n,word) => n + Number(visibleLower.includes(word)),0);
       const continuityScore = overlap >= 2 ? Math.min(4,overlap) : 0;
-      candidates.push({ event, score, ...(match ? {match} : {}), index, lines, shared, lexical: terms(visibleText), continuityScore, proofs: visibleClaims.map((claim,i) => ({line:lines[i],evidence:claim.evidence})) });
+      const lexical = terms(visibleText);
+      const topical = !!focus && focus.topicWords.some(word => lexical.includes(word));
+      const actorScore = topical && focus.mention(visibleText) === focus.actor ? 1 : 0;
+      const proofs = visibleClaims.map((claim,i) => ({line:lines[i],evidence:claim.evidence}));
+      const sceneAnchor = actorScore && event.scene && !withdrawn &&
+        (shared || knowledge.every(group => group.every(k => ['witnessed','told'].includes(k.mode))));
+      const linkEligible = topical && (actorScore || !focus.hasMention(visibleText));
+      candidates.push({ event, score, ...(match ? {match} : {}), index, lines, shared, lexical, continuityScore, actorScore, linkEligible, sceneAnchor, proofs });
     }
-    candidates.sort((a, b) => b.score - a.score || b.continuityScore - a.continuityScore || b.index - a.index || String(a.event.id).localeCompare(String(b.event.id)));
+    // Link a scene only through actual visible claim sources, never its hidden
+    // objective span or presence. Both sides already passed all recall gates.
+    const sceneSources = new Set();
+    for (const candidate of candidates) if (candidate.sceneAnchor)
+      for (const proof of candidate.proofs) for (const e of proof.evidence) sceneSources.add(e.id);
+    for (const candidate of candidates) {
+      candidate.sceneScore = !candidate.event.scene && candidate.linkEligible && candidate.proofs.some(proof =>
+        proof.evidence.some(e => sceneSources.has(e.id))) ? 1 : 0;
+    }
+    const focusTie = (a,b) => b.actorScore-a.actorScore || b.sceneScore-a.sceneScore || b.continuityScore-a.continuityScore;
+    candidates.sort((a, b) => b.score - a.score || focusTie(a,b) || b.index - a.index || String(a.event.id).localeCompare(String(b.event.id)));
     if (hybrid && candidates.length) {
       // Fuse the existing tag/relationship ranking with visible-claim full-text
       // rarity. Authorization and provenance run BEFORE either ranking list.
@@ -308,9 +354,9 @@
       const average = candidates.reduce((n,c) => n+c.lexical.length,0)/candidates.length || 1;
       for (const c of candidates) c.fulltext = words.reduce((n,word) => n + (c.lexical.includes(word)
         ? Math.log(1+(candidates.length-(df.get(word)||0)+0.5)/((df.get(word)||0)+0.5)) * 2.2/(1+1.2*(0.25+0.75*c.lexical.length/average)) : 0),0);
-      const fulltext = candidates.filter(c => c.fulltext > 0).slice().sort((a,b) => b.fulltext-a.fulltext || b.continuityScore-a.continuityScore || b.index-a.index || String(a.event.id).localeCompare(String(b.event.id)));
+      const fulltext = candidates.filter(c => c.fulltext > 0).slice().sort((a,b) => b.fulltext-a.fulltext || focusTie(a,b) || b.index-a.index || String(a.event.id).localeCompare(String(b.event.id)));
       candidates.forEach((c,i) => { const rank = fulltext.indexOf(c); c.fused = 1/(60+i+1)+(rank<0?0:1/(60+rank+1)); });
-      candidates.sort((a,b) => b.fused-a.fused || b.score-a.score || b.continuityScore-a.continuityScore || b.index-a.index || String(a.event.id).localeCompare(String(b.event.id)));
+      candidates.sort((a,b) => b.fused-a.fused || b.score-a.score || focusTie(a,b) || b.index-a.index || String(a.event.id).localeCompare(String(b.event.id)));
     }
     const selected = []; let used = 0;
     for (const candidate of candidates) {
