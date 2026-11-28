@@ -627,11 +627,14 @@ test('Phone voice messages stay in the addressed private or group conversation',
  }
  async function send(recipient){
    await page.getByRole('button',{name:'語音訊息',exact:true}).click();
-   const dialog=page.getByRole('dialog',{name:'Phone 語音訊息'});
+   const dialog=page.getByRole('region',{name:'Phone 語音訊息'});
    await expect(dialog).toContainText(recipient);
+   await expect(page.getByRole('dialog',{name:'Phone 語音訊息'})).toHaveCount(0);
+   await expect(page.getByRole('button',{name:'語音訊息',exact:true})).toHaveAttribute('aria-expanded','true');
    await dialog.getByLabel('選擇本機音檔').setInputFiles({name:'sample.wav',mimeType:'audio/wav',buffer:voiceWav()});
    await dialog.getByRole('button',{name:'傳送本機語音'}).click();
    await expect(dialog).toHaveCount(0);
+   await expect(page.getByRole('button',{name:'語音訊息',exact:true})).toHaveAttribute('aria-expanded','false');
    await expect(messages).toHaveCount(1);
  }
  const closePhone=()=>page.getByRole('button',{name:'關閉手機'}).click();
@@ -807,7 +810,7 @@ test('Phone native audio sends to exact private/group recipients and discards un
  const closePhone=()=>page.getByRole('button',{name:'關閉手機'}).click();
  async function send(){
    await page.getByRole('button',{name:'語音訊息',exact:true}).click();
-   const d=page.getByRole('dialog',{name:'Phone 語音訊息'});
+   const d=page.getByRole('region',{name:'Phone 語音訊息'});
    await d.getByLabel('選擇本機音檔').setInputFiles({name:'sample.wav',mimeType:'audio/wav',buffer:voiceWav()});
    await d.getByText('原始音訊角色回覆（進階 BYOK）',{exact:true}).click();
    const button=d.getByRole('button',{name:'傳送原始音訊並取得角色回覆'});
