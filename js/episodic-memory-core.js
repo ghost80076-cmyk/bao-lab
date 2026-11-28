@@ -253,8 +253,10 @@
   // Ambiguous or multiple mentioned identities disable this ranking signal.
   function actorFocus(state, resolve, input) {
     if (typeof input !== 'string' || input.length > 120) return null;
+    const npcs = Array.isArray(state?.npcs) ? state.npcs : [];
+    if (npcs.length > 50) return null;
     const names = new Set();
-    for (const npc of (Array.isArray(state?.npcs) ? state.npcs : []).slice(0,50)) {
+    for (const npc of npcs) {
       for (const name of [text(npc?.name,100),...list(npc?.aliases)]) {
         if (/^[\u3400-\u9fff]{2,20}$/.test(name) || /^[A-Za-z][A-Za-z0-9_]{2,39}$/.test(name)) names.add(name);
         if (names.size > 150) return null;
@@ -273,7 +275,7 @@
     const nameWords = new Set(entries.filter(entry => entry.matches(input)).flatMap(entry => terms(entry.name)));
     const topicWords = terms(input).filter(word => !nameWords.has(word) && ![...nameWords].some(name => word.includes(name)));
     if (!topicWords.length) return null;
-    return {actor,mention,topicWords};
+    return {actor,mention,topicWords,hasMention:value => entries.some(entry => entry.matches(value))};
   }
   function recall({ state, messages = [], input = '', actors = [], exclude = '', maxChars = 2400, hybrid = false, onDecision = () => {} }) {
     const proof = evidenceProof(messages), {sources,valid,scene} = proof;
@@ -329,7 +331,8 @@
       const proofs = visibleClaims.map((claim,i) => ({line:lines[i],evidence:claim.evidence}));
       const sceneAnchor = actorScore && event.scene && !withdrawn &&
         (shared || knowledge.every(group => group.every(k => ['witnessed','told'].includes(k.mode))));
-      candidates.push({ event, score, ...(match ? {match} : {}), index, lines, shared, lexical, continuityScore, actorScore, topical, sceneAnchor, proofs });
+      const linkEligible = topical && (actorScore || !focus.hasMention(visibleText));
+      candidates.push({ event, score, ...(match ? {match} : {}), index, lines, shared, lexical, continuityScore, actorScore, linkEligible, sceneAnchor, proofs });
     }
     // Link a scene only through actual visible claim sources, never its hidden
     // objective span or presence. Both sides already passed all recall gates.
@@ -337,7 +340,7 @@
     for (const candidate of candidates) if (candidate.sceneAnchor)
       for (const proof of candidate.proofs) for (const e of proof.evidence) sceneSources.add(e.id);
     for (const candidate of candidates) {
-      candidate.sceneScore = !candidate.event.scene && candidate.topical && candidate.proofs.some(proof =>
+      candidate.sceneScore = !candidate.event.scene && candidate.linkEligible && candidate.proofs.some(proof =>
         proof.evidence.some(e => sceneSources.has(e.id))) ? 1 : 0;
     }
     const focusTie = (a,b) => b.actorScore-a.actorScore || b.sceneScore-a.sceneScore || b.continuityScore-a.continuityScore;
