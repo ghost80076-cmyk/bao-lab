@@ -27,7 +27,7 @@ No production runtime, billing, cloud deployment, website assets, or user conten
 
 ## Checks
 
-Verify that Codex lists these six project skills when opening a checkout containing this PR. If Codex does not detect them, inspect its project skill discovery settings; do not assume a global Windows install. Validate any subsequent product changes in separate PRs with core and browser regressions.
+Verify that Codex lists the six game-development skills, `impeccable`, and `unslop` when opening a checkout containing their imports. If Codex does not detect them, inspect its project skill discovery settings; do not assume a global Windows install. Validate any subsequent product changes in separate PRs with core and browser regressions.
 
 ## Working with Impeccable (PR #873)
 
@@ -50,3 +50,12 @@ Keep Skill loading minimal. An Impeccable `audit` is not a substitute for Playwr
 The official `.codex/hooks.json` may invoke Impeccable's detector after UI edits. Whether Codex trusts/runs those Hooks on a local computer is separate from installing files in GitHub. Do not report Windows execution or Hook activation as verified without observing it. For the first combined task, prefer review-only `impeccable critique` / `impeccable audit`; require a separate, scoped implementation and tests for any fixes.
 
 Use existing `tests/e2e/`, GitHub Actions, screenshot and geometry audits, and the relevant Stage/Phone/Reader contracts as the acceptance baseline. Real-device virtual-keyboard checks remain separate from simulated viewport tests.
+
+## Working with Unslop (optional independent design review)
+
+- Upstream: https://github.com/heydamir/unslop, created by Damir Sokolovsky ([@heydamir](https://x.com/heydamir)).
+- Pinned source commit: `620163eedb3529d9cd23a3994ed8d287d06f760d`; CC BY 4.0. See [`unslop/LICENSE`](unslop/LICENSE), [`unslop/CITATION.cff`](unslop/CITATION.cff), and [`unslop/NOTICE.md`](unslop/NOTICE.md).
+- The complete upstream `skills/unslop/` subtree is copied unchanged, including references, images, agent metadata and optional scripts. Root license and citation are copied beside it. No plugin installer, examples, upstream test suite, global configuration, package changes or hooks are imported.
+- `impeccable` remains the default visual Skill; `game-ui-ux` owns interactions and gameplay state. Select `unslop` for explicit anti-template/brand-character review or a separate, well-defined second opinion, not as a mandatory second audit for every PR.
+- Default to review-only: use local synthetic screenshots and existing Playwright evidence, report concrete findings with screen/selector and impact, keep good screens unchanged, and propose scoped fixes. Implement only when the user's task authorizes changes. Preserve the night/purple/lantern brand, semantic tokens, author HTML isolation, Poster-first layout and gameplay/Phone/Reader contracts. Never adopt a generic SaaS palette or desktop density at the expense of mobile accessibility.
+- Do not run upstream snapshot or story-video scripts, install Playwright/Chromium/ffmpeg, connect image MCPs, generate paid assets, or capture authenticated or private content merely because the Skill suggests it. No new CI hooks or runtime dependency; use existing regression checks. See [`AGENTS.md`](../../AGENTS.md) for precedence and verification boundaries.
