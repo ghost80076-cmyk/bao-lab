@@ -1,7 +1,14 @@
 const assert = require("node:assert/strict");
 const core = require("../js/story-quick-commands-core.js");
 
-assert.equal(core.BUILT_INS.length, 7);
+assert.equal(core.BUILT_INS.length, 14);
+assert.equal(core.DIRECTOR_IDS.length, 7);
+for (const id of core.DIRECTOR_IDS) {
+  const item = core.BUILT_INS.find(entry => entry.id === id);
+  assert.ok(item && item.text.length <= core.MAX_TEXT);
+  assert.match(item.text, /僅限本輪/);
+}
+assert.equal(new Set(core.BUILT_INS.map(item => item.id)).size, core.BUILT_INS.length);
 const clarify = core.BUILT_INS.find(item => item.id === "clarify");
 assert.equal(clarify?.label, "釐清目前局勢");
 assert.match(clarify.text, /【本輪故事內釐清】/);
@@ -62,7 +69,7 @@ assert.equal(core.BUILT_INS[0].label, "繼續描寫");
     { quick_commands: [{ label: "作品限定", text: "作品限定文字" }] },
     [{ label: "我的指令", text: "我的文字" }]
   );
-  assert.equal(info.title, "9 個快捷指令");
+  assert.equal(info.title, "16 個快捷指令");
   assert.match(info.detail, /作品 1/);
   assert.match(info.detail, /我的 1/);
   assert.match(info.detail, /不會自動送出/);
@@ -110,4 +117,25 @@ assert.equal(core.BUILT_INS[0].label, "繼續描寫");
   assert.throws(()=>core.parsePack({schema:core.PACK_SCHEMA,version:1,commands:[{label:"x",text:"a"}],extra:"x".repeat(core.MAX_IMPORT_BYTES)}),/大小上限/);
 }
 
+{
+  const data = new Map();
+  const storage = { getItem: key => data.get(key) ?? null, setItem: (key, value) => data.set(key, value) };
+  assert.deepEqual(core.readLibrary(storage), []);
+  const shared = [{ id: "shared-1", label: "跨故事", text: "保持角色語氣。" }];
+  core.writeLibrary(storage, shared);
+  assert.deepEqual(core.readLibrary(storage), shared.map(item => ({ ...item, source: "library" })));
+  const a = core.grouped({}, [], core.readLibrary(storage));
+  assert.equal(a.library.length, 1);
+  const b = core.grouped({ quick_commands: [] }, [{ id: "story", label: "故事", text: shared[0].text }], core.readLibrary(storage));
+  assert.equal(b.library.length, 0);
+  assert.equal(b.player.length, 1);
+  assert.equal(core.readLibrary(storage).length, 1);
+  assert.match(core.summary({}, [], core.readLibrary(storage)).detail, /個人庫 1/);
+  assert.deepEqual(core.parsePack(core.exportPack(core.readLibrary(storage))).commands, [{ label: "跨故事", text: "保持角色語氣。" }]);
+  data.set(core.LIBRARY_KEY, "{invalid");
+  assert.throws(() => core.writeLibrary(storage, []));
+  assert.equal(data.get(core.LIBRARY_KEY), "{invalid");
+  const denied = {getItem: () => null, setItem: () => { throw Error("quota"); }};
+  assert.throws(() => core.writeLibrary(denied, shared), /quota/);
+}
 console.log("story quick commands core test passed");
