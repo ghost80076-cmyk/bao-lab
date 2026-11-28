@@ -58,7 +58,7 @@ increasing(index, [
   'src="js/state.js?v=3"',
   'src="js/api.js',
   'src="js/helper-data.js?v=7"',
-  'src="js/episodic-memory-core.js?v=11"',
+  'src="js/episodic-memory-core.js?v=12"',
   'src="js/memory-core.js',
   'src="js/chat.js',
   'src="js/character.js?v=11"',
