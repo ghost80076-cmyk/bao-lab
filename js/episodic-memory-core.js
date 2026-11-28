@@ -235,10 +235,25 @@
     }
     return matches;
   }
+  // A bounded continuity signal for the existing opt-in hybrid ranking.
+  // Only a literal, adjacent player turn may break ties; it cannot make an
+  // irrelevant event eligible or act as a source of character knowledge.
+  function continuityTerms(messages, input, sources) {
+    if (!Array.isArray(messages) || messages.length < 3 || typeof input !== 'string'
+      || input.length > 120 || !/^(?:那(?:個|件|把|封|張|段|筆|位|次|份|條|本|台|輛|間|場|項)|剛才(?:提到|說的|那)|先前提到的|what about (?:that|the)\b)/i.test(input.trim())) return [];
+    const [prior, reply, current] = messages.slice(-3);
+    if (prior?.role !== 'user' || reply?.role !== 'assistant' || current?.role !== 'user'
+      || current.content !== input || typeof prior.content !== 'string' || !prior.content.trim()
+      || prior.content.length > 180 || typeof reply.content !== 'string' || !reply.content.trim()) return [];
+    if ([prior, reply, current].some((m,i) => sources.get(m.id)?.index !== messages.length - 3 + i)) return [];
+    const currentWords = new Set(terms(input));
+    return terms(prior.content).filter(word => !currentWords.has(word));
+  }
   function recall({ state, messages = [], input = '', actors = [], exclude = '', maxChars = 2400, hybrid = false, onDecision = () => {} }) {
     const proof = evidenceProof(messages), {sources,valid,scene} = proof;
     const resolve = actorResolver(state), words = terms(input), audience = resolveCast(state,actors,resolve);
     const excluded = String(exclude), seen = new Set(), candidates = [];
+    const continuity = hybrid ? continuityTerms(messages, input, sources) : [];
     const events = memoryEvents(state, hybrid), superseded = supersededEvents(events, proof);
     for (const event of events) {
       if (!object(event)) continue;
@@ -277,9 +292,13 @@
       }
       if (!score) { decision('irrelevant'); continue; }
       const index = Math.max(...event.evidence.map(e => sources.get(e.id).index));
-      candidates.push({ event, score, ...(match ? {match} : {}), index, lines, shared, lexical: terms(visibleClaims.map(c => c.text).join("\n")), proofs: visibleClaims.map((claim,i) => ({line:lines[i],evidence:claim.evidence})) });
+      const visibleText = visibleClaims.map(c => c.text).join("\n");
+      const visibleLower = visibleText.toLowerCase();
+      const overlap = continuity.reduce((n,word) => n + Number(visibleLower.includes(word)),0);
+      const continuityScore = overlap >= 2 ? Math.min(4,overlap) : 0;
+      candidates.push({ event, score, ...(match ? {match} : {}), index, lines, shared, lexical: terms(visibleText), continuityScore, proofs: visibleClaims.map((claim,i) => ({line:lines[i],evidence:claim.evidence})) });
     }
-    candidates.sort((a, b) => b.score - a.score || b.index - a.index || String(a.event.id).localeCompare(String(b.event.id)));
+    candidates.sort((a, b) => b.score - a.score || b.continuityScore - a.continuityScore || b.index - a.index || String(a.event.id).localeCompare(String(b.event.id)));
     if (hybrid && candidates.length) {
       // Fuse the existing tag/relationship ranking with visible-claim full-text
       // rarity. Authorization and provenance run BEFORE either ranking list.
@@ -289,9 +308,9 @@
       const average = candidates.reduce((n,c) => n+c.lexical.length,0)/candidates.length || 1;
       for (const c of candidates) c.fulltext = words.reduce((n,word) => n + (c.lexical.includes(word)
         ? Math.log(1+(candidates.length-(df.get(word)||0)+0.5)/((df.get(word)||0)+0.5)) * 2.2/(1+1.2*(0.25+0.75*c.lexical.length/average)) : 0),0);
-      const fulltext = candidates.filter(c => c.fulltext > 0).slice().sort((a,b) => b.fulltext-a.fulltext || b.index-a.index || String(a.event.id).localeCompare(String(b.event.id)));
+      const fulltext = candidates.filter(c => c.fulltext > 0).slice().sort((a,b) => b.fulltext-a.fulltext || b.continuityScore-a.continuityScore || b.index-a.index || String(a.event.id).localeCompare(String(b.event.id)));
       candidates.forEach((c,i) => { const rank = fulltext.indexOf(c); c.fused = 1/(60+i+1)+(rank<0?0:1/(60+rank+1)); });
-      candidates.sort((a,b) => b.fused-a.fused || b.score-a.score || b.index-a.index || String(a.event.id).localeCompare(String(b.event.id)));
+      candidates.sort((a,b) => b.fused-a.fused || b.score-a.score || b.continuityScore-a.continuityScore || b.index-a.index || String(a.event.id).localeCompare(String(b.event.id)));
     }
     const selected = []; let used = 0;
     for (const candidate of candidates) {
