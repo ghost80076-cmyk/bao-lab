@@ -277,10 +277,11 @@ const Chat = {
         const transcript = chunk.map(m => `[${m.id}] ${m.role === "user" ? "玩家" : "角色/系統"}：${this.modelContent(m)}`).join("\n\n");
         const prompt = [
           "你是角色扮演長期記憶整理器。",
-          "請把舊對話壓縮成精簡但可延續劇情的記憶。",
+          "請把舊對話壓縮成精簡但可延續劇情的記憶。各欄位用中性、精簡的事實表述，不仿寫正文文風、不添加修辭或臆測；保留原文的重要用語、專名及有證據的認知，不把原文比喻當作客觀事實。",
           "保留已發生事件、已知資訊、明確關係、承諾、物品與目標。玩家偏好只能記錄玩家明說的內容；不得把 AI 推測的心理當作事實。",
           window.BAOHelperData.memoryRules,
           config?.memory?.episodicRecall === false ? "" : window.BAOEpisodicMemory?.rules,
+          config?.memory?.episodicRecall === false || !window.BAOEpisodicMemory ? "" : "【事件索引提取優先序】優先保留有證據的承諾、未解伏筆、持續後果、關係轉折與重要物品去向；已完成與未完成、意圖與實際結果不可混淆。keywords 僅為本機檢索索引，沿用既有三項上限，優先使用有原文依據的具體用語，不要求產生同義詞，不替換成文藝詞彙；此規則優先於前述 keywords 格式說明。私密事件的檢索詞限各相關角色共同有證據的 claim，不得使用其未知的客觀秘密；沒有適合的詞就少列。text／claim 不因檢索詞而改寫文風或改變事實，不推測玩家情緒或角色知情。",
           config?.memory?.episodicRecall !== false && config?.memory?.hybridRecall === true ? window.BAOEpisodicMemory?.sceneRules : "",
           config?.memory?.episodicRecall === false || !window.BAOEpisodicMemory ? "" : `【近期事件索引（僅供明確更正時引用 ID，不可當作本次新證據）】\n${JSON.stringify(window.BAOEpisodicMemory.updateContext(owner, this.messages, config?.memory?.hybridRecall === true))}`,
           "刪除重複修辭、寒暄與不影響後續的細節。不要加入原文沒有的資訊，不要寫分析過程。",
