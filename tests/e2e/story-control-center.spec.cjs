@@ -211,8 +211,10 @@ for (const width of [390, 1280]) {
     const more = dialog.locator('.story-control-more');
     const card = dialog.locator('.story-control-card');
     await expect(card).toHaveCount(12);
-    await expect(dialog.locator('.story-control-primary .story-control-card')).toHaveCount(6);
-    await expect(dialog.locator('.story-control-secondary .story-control-card')).toHaveCount(6);
+    await expect(dialog.locator('.story-control-primary .story-control-card')).toHaveCount(8);
+    await expect(dialog.locator('.story-control-secondary .story-control-card')).toHaveCount(4);
+    await expect(dialog.locator('.story-control-primary [data-story-control-action="quick"]')).toBeVisible();
+    await expect(dialog.locator('.story-control-primary [data-story-control-action="narrative"]')).toBeVisible();
     await expect(more).not.toHaveAttribute('open','');
     await expect(dialog.locator('[data-story-control-action="model"]')).toBeVisible();
     await expect(dialog.locator('[data-story-control-action="token"]')).toBeVisible();
