@@ -88,6 +88,44 @@ scopedKeys.episodicMemory.events[0].knowledge=[{actor:'艾琳',mode:'witnessed',
 assert.match(keyRecall({state:scopedKeys,actors:['艾琳']})[0].block,/碼頭倉庫/);
 assert.ok(!keyRecall({state:scopedKeys,actors:['艾琳','守衛']}).some(x=>x.block.includes('碼頭倉庫')),'context cannot unlock private claims');
 const keyBefore=JSON.stringify(keysState);keyRecall();assert.equal(JSON.stringify(keysState),keyBefore);
+// P2b: an explicitly registered alias and a scene with visible source
+// overlap break ties, without turning the scene's whole span into knowledge.
+const focusState={npcs:[{npc_id:'focus-a',name:'艾琳',aliases:['阿琳'],presence:'away'}]};
+const focusMessages=[{id:'focus-u',role:'user',content:'木盒放在哪？'},
+ {id:'focus-a',role:'assistant',content:'艾琳的鑰匙在碼頭。木盒的鑰匙在櫃台。'},
+ ...['城門','旅館','商店','小屋','公園'].map((place,i)=>({id:'focus-d'+i,role:'assistant',content:place+' 鑰匙 留在櫃台'}))];
+const focusEpisode=(text,evidenceIds)=>({text,evidenceIds,visibility:'public',certainty:'confirmed'});
+core.ingest(focusState,{scenes:[focusEpisode('艾琳 鑰匙 留在碼頭',['focus-u','focus-a'])],
+ episodes:[focusEpisode('木盒 鑰匙 留在櫃台',['focus-a']),...focusMessages.slice(2).map(m=>focusEpisode(m.content,[m.id]))]},focusMessages,focusMessages);
+const focused=(over={})=>clone(core.recall({state:focusState,messages:focusMessages,input:'阿琳 鑰匙',actors:[],hybrid:true,...over}));
+const focusedOutput=focused();
+assert.equal(focusedOutput.length,4);
+assert.match(focusedOutput[0].block,/艾琳 鑰匙 留在碼頭/,'registered alias focuses visible scene');
+assert.match(focusedOutput[1].block,/木盒 鑰匙 留在櫃台/,'visible shared evidence ranks associated event');
+assert.match(focusedOutput[1].block,/來源：focus-a/);
+assert.doesNotMatch(JSON.stringify(focusedOutput),/阿琳|focus-u.*focus-a.*focus-d/,'alias is search metadata, not newly written story text');
+assert.ok(!focused({hybrid:false}).some(x=>x.block.includes('木盒')),'ordinary mode retains original ordering');
+assert.ok(!focused({input:'鑰匙'}).some(x=>x.block.includes('木盒')),'no explicit actor: original ordering');
+assert.equal(focused({input:'阿琳'}).length,0,'name alone cannot introduce candidates');
+const collision=clone(focusState);collision.npcs.push({npc_id:'focus-b',name:'小夏',aliases:['阿琳']});
+assert.ok(!focused({state:collision}).some(x=>x.block.includes('木盒')),'ambiguous alias cannot steer ranking');
+const multiple=clone(focusState);multiple.npcs.push({npc_id:'focus-b',name:'小夏'});
+assert.ok(!focused({state:multiple,input:'阿琳 小夏 鑰匙'}).some(x=>x.block.includes('木盒')),'multiple explicitly mentioned identities abstain');
+const restrictedFocus=clone(focusState);
+const focusScene=restrictedFocus.episodicMemory.scenes[0];
+focusScene.visibility='restricted';focusScene.knowledge=[{actor:'艾琳',mode:'witnessed',claim:'艾琳 鑰匙 留在碼頭',evidence:[focusScene.evidence[0]]}];
+assert.ok(!focused({state:restrictedFocus}).some(x=>/艾琳 鑰匙|木盒/.test(x.block)),'unreadable scene provides no ranking anchor');
+const partialFocus=focused({state:restrictedFocus,actors:['艾琳']});
+assert.ok(partialFocus.some(x=>x.block.includes('艾琳 鑰匙')));
+assert.ok(!partialFocus.some(x=>x.block.includes('木盒')),'hidden objective scene span cannot link another event');
+const rumorFocus=clone(restrictedFocus);
+rumorFocus.episodicMemory.scenes[0].knowledge[0].mode='rumor';
+rumorFocus.episodicMemory.scenes[0].knowledge[0].evidence=[focusScene.evidence[1]];
+assert.ok(!focused({state:rumorFocus,actors:['艾琳']}).some(x=>x.block.includes('木盒')),'rumor scene is not an evidence-link anchor');
+assert.ok(!focused({messages:focusMessages.map(m=>m.id==='focus-u'?{...m,content:'改寫場景'}:m)}).some(x=>x.block.includes('木盒')),'invalid scene source removes association');
+assert.ok(!focused({exclude:'艾琳 鑰匙 留在碼頭'}).some(x=>x.block.includes('木盒')),'excluded scene cannot boost a linked claim');
+const focusBefore=JSON.stringify(focusState);focused();assert.equal(JSON.stringify(focusState),focusBefore);
+console.log('PASS P2b registered actor focus and visible scene-source ranking guards');
 const duplicate={npcs:clone(state.npcs)};core.ingest(duplicate,{episodes:[{...scene,evidenceIds:['a']}],scenes:[scene]},messages.slice(0,4),messages);
 assert.equal(recall({state:duplicate}).length,1,'same visible content in event and scene is sent once');
 const bounded={};for(let i=0;i<8;i++)core.ingest(bounded,{scenes:[{...scene,text:'橋邊'+i,visibility:'public',knowledge:[]}]},messages.slice(0,4),messages);
