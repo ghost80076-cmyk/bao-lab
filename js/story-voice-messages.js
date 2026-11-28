@@ -167,6 +167,13 @@
     button.type = 'button';
     button.className = 'bp-voice-message-button';
     form.insertAdjacentElement('afterend', button);
+    const inlineHost = element('div');
+    inlineHost.className = 'bp-voice-inline-host';
+    inlineHost.id = 'bp-voice-inline-' + crypto.randomUUID();
+    button.setAttribute('aria-controls', inlineHost.id);
+    button.setAttribute('aria-expanded', 'false');
+    button.insertAdjacentElement('afterend', inlineHost);
+    let closeInline = null;
     const list = element('div');
     list.className = 'bp-voice-messages';
     thread.append(list);
@@ -205,16 +212,27 @@
     document.addEventListener('visibilitychange', onVisibility);
     window.addEventListener('pagehide', release);
     button.addEventListener('click', () => {
-      if (active() && !App.__requestPending) window.BAOStoryVoice?.open({phoneVoice: {target, active, refresh: paint, recipientValid, draftClear, refreshPhone, closePhone}});
+      if (!active() || App.__requestPending) return;
+      if (inlineHost.firstElementChild) { closeInline?.(); return; }
+      closeInline = window.BAOStoryVoice?.open({phoneVoice: {target, active, refresh: paint, recipientValid, draftClear, refreshPhone, closePhone,
+        inlineHost, onInlineClose: () => {
+          closeInline = null;
+          button.setAttribute('aria-expanded', 'false');
+        }
+      }});
+      button.setAttribute('aria-expanded', String(!!inlineHost.firstElementChild));
     });
     void paint();
     function cleanup() {
       closed = true;
+      closeInline?.();
+      closeInline = null;
       document.removeEventListener('visibilitychange', onVisibility);
       window.removeEventListener('pagehide', release);
       for (const record of records.values()) record.release();
       records.clear();
       button.remove();
+      inlineHost.remove();
       list.remove();
     }
     return {current: active, refresh: paint, cleanup};

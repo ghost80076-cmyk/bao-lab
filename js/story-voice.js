@@ -197,13 +197,16 @@
  });
  function open(settings={}){
    const phone=settings.phoneVoice,quick=settings.quickVoice,settingsContext=settings.settingsContext;
+   const inline=!!phone?.inlineHost;
+   if(inline&&(!phone.inlineHost.isConnected||!phone.active()))return;
    if(active||!GameState.current||!App.activeCharacter)return;
    cancelQuickInput();
    const current=scope(),sourceInput=document.getElementById('user-input');
    if(!sourceInput)return;
    const synth=window.speechSynthesis,Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
-   const modal=el('dialog');modal.className='yoru-voice-dialog';modal.setAttribute('aria-label',phone?'Phone 語音訊息':'角色語音與語音輸入');
-   if(typeof modal.showModal!=='function')return;
+   const modal=el(inline?'section':'dialog');modal.className=inline?'yoru-voice-dialog yoru-voice-inline':'yoru-voice-dialog';modal.setAttribute('aria-label',phone?'Phone 語音訊息':'角色語音與語音輸入');
+   if(inline)modal.setAttribute('role','region');
+   else if(typeof modal.showModal!=='function')return;
    const focus=document.activeElement;
    const title=el('h2',phone?'Phone 語音訊息':quick==='input'?'語音輸入':quick==='settings'?'角色語音設定':quick==='custom'?'自訂角色配音':'角色語音與語音輸入');
    const note=el('p',phone
@@ -212,11 +215,12 @@
    const status=el('p');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
    const setStatus=t=>{status.textContent=t;};
    let recognition=null,recognitionTimer=null,utterance=null,playTimer=null,closed=false,externalJob=null,ttsJob=null,localJob=null,localURL=null,localEpoch=0;
-   const valid=()=>!closed&&modal.isConnected&&same(current)&&(!phone||phone.active())&&(!settingsContext||settingsContext.active())&&document.getElementById('user-input')===sourceInput;
+   const inlineAnchor=inline?JSON.stringify([Chat.messages.length,Core.storyVoiceSource(Chat.messages.at(-1))]):null;
+   const valid=()=>!closed&&modal.isConnected&&same(current)&&(!phone||phone.active())&&(!settingsContext||settingsContext.active())&&document.getElementById('user-input')===sourceInput&&(!inline||(!document.hidden&&inlineAnchor===JSON.stringify([Chat.messages.length,Core.storyVoiceSource(Chat.messages.at(-1))])));
    const cancelSpeech=()=>{if(utterance){utterance.onend=utterance.onerror=null;synth?.cancel();utterance=null;}clearTimeout(playTimer);cancelTTS();};
    const cancelRecognition=()=>{if(recognition){const rec=recognition;recognition=null;rec.onresult=rec.onerror=rec.onend=null;try{rec.abort();}catch(_){}}clearTimeout(recognitionTimer);cancelExternal();};
-   const cleanup=()=>{if(closed)return;closed=true;notify=null;window.removeEventListener('pagehide',close);document.removeEventListener('visibilitychange',onVisibility);cancelSpeech();cancelRecognition();clearReference();clearLocal();clearInterval(watch);synth?.removeEventListener?.('voiceschanged',refreshVoices);modal.remove();active=null;if(focus?.isConnected)focus.focus();};
-   const close=()=>{if(closed)return;modal.close();cleanup();};
+   const cleanup=()=>{if(closed)return;closed=true;notify=null;window.removeEventListener('pagehide',close);document.removeEventListener('visibilitychange',onVisibility);cancelSpeech();cancelRecognition();clearReference();clearLocal();clearInterval(watch);synth?.removeEventListener?.('voiceschanged',refreshVoices);modal.remove();active=null;if(inline)phone.onInlineClose?.();if(focus?.isConnected)focus.focus({preventScroll:inline});};
+   const close=()=>{if(closed)return;if(!inline)modal.close();cleanup();};
    const onVisibility=()=>{if(document.hidden)close();};
    const inputSection=el('section');inputSection.append(el('h3','玩家語音轉文字（STT）'));
    const inputLang=field('輸入語言');options(inputLang.input,languageOptions);
@@ -603,7 +607,7 @@
    output.append(ttsProvider.wrap,speaker.wrap,lang.wrap,voice.wrap,...sliders.map(s=>s.wrap),remember,pack,source.wrap,quotes.wrap,text.wrap,el('small','手動配音可選句、編輯或貼上翻譯。'),remote.wrap,ttsAdvanced,speak,btn('停止播放',()=>{if(automatic?.custom)disableAutomatic();else stopSequence();cancelSpeech();setStatus('已停止播放。');}));
    syncTTS();
    load();refreshQuotes();synth?.addEventListener?.('voiceschanged',refreshVoices);
-   const localSection=el('details');localSection.append(el('summary','玩家錄音／音檔預覽（本機）'),el('p',phone?'錄製或選擇音檔，預覽確認後再送出。最多 60 秒、8 MiB。':'錄音與語音轉文字分開。可明確保存至本章節音訊庫，未保存的音檔關閉工具即捨棄。可將預覽音檔加入本機故事對話。只留在此裝置，模型不會收到音訊，也不會觸發回覆。最多 60 秒、8 MiB。'));
+   const localSection=el('details');localSection.append(el('summary','玩家錄音／音檔預覽（本機）'),el('p',phone?'錄音或選擇音檔，最多 60 秒、8 MiB。傳送本機語音只保存到此聊天室，不會讓模型收到或觸發回覆。需要角色理解時，請選用原始音訊角色回覆。':'錄音與語音轉文字分開。可明確保存至本章節音訊庫，未保存的音檔關閉工具即捨棄。可將預覽音檔加入本機故事對話。只留在此裝置，模型不會收到音訊，也不會觸發回覆。最多 60 秒、8 MiB。'));
    const localFile=field('選擇本機音檔','input');localFile.input.type='file';localFile.input.accept='audio/wav,audio/x-wav,audio/mpeg,audio/mp4,audio/ogg,audio/webm,.wav,.mp3,.m4a,.ogg,.webm';
    const localAudio=el('audio');localAudio.controls=true;localAudio.preload='metadata';localAudio.hidden=true;localAudio.setAttribute('aria-label','本機音檔預覽');
    const localInfo=el('p');localInfo.setAttribute('aria-live','polite');
@@ -914,10 +918,13 @@
      if(settingsContext)modal.append(output);
      else{if(!phone)modal.append(inputSection,output);modal.append(localSection);}
    }
-   modal.append(status,btn('關閉',close));document.body.append(modal);active=modal;
+   modal.append(status,btn('關閉',close));
+   (inline?phone.inlineHost:document.body).append(modal);active=modal;
    window.addEventListener('pagehide',close);document.addEventListener('visibilitychange',onVisibility);modal.addEventListener('cancel',e=>{e.preventDefault();close();});modal.addEventListener('close',cleanup);
    const watch=setInterval(()=>{if(!valid()||!inStory()||((externalJob||ttsJob||audioURL||localJob||localURL||nativeJob)&&App.__requestPending)){close();return;}if(nativeJob&&!routeStillCurrent()){cancelNative();nativeStatus.textContent='模型或金鑰已變更，理解請求已取消。';syncLocal();}},250);
-   try{modal.showModal();}catch(_){cleanup();}
+   if(!inline)try{modal.showModal();}catch(_){cleanup();}
+   else localStart.focus({preventScroll:true});
+   return close;
  }
  function mount(){
    // Keep the existing mobile composer geometry untouched. The Control Center

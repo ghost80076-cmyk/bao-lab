@@ -598,6 +598,38 @@ test('player voice message follows its exact story reply and travels only in the
  expect(requests).toEqual([]);
 });
 
+test('inline Phone voice closes on navigation and releases a late microphone permission',async({page})=>{
+ await setup(page,390);
+ await page.evaluate(()=>{
+   App.activeCharacter.phone_ui={enabled:true,userName:'旅人',contactName:'A',contacts:[{id:'a',name:'A'}],threads:[{id:'private-a',name:'A 的私訊',participants:['a'],messages:[]}]};
+   App.renderChatShell(false);
+   window.__phoneMicRequests=0;window.__phoneMicStops=0;
+   // Use the same complete navigator.mediaDevices fixture as the existing
+   // recorder tests; WebKit may not retain an instance-level method override.
+   Object.defineProperty(navigator,'mediaDevices',{configurable:true,value:{getUserMedia:()=>new Promise(resolve=>{
+     window.__phoneMicRequests++;window.__resolvePhoneMic=()=>resolve({getTracks:()=>[{stop:()=>window.__phoneMicStops++}]});
+   })}});
+   Object.defineProperty(window,'MediaRecorder',{configurable:true,value:class{}});
+ });
+ const before=await page.evaluate(()=>JSON.stringify(Chat.messages));
+ await page.locator('#bao-phone-launch').click();await page.locator('.bp-home-handle').click();await page.locator('.bp-apps .bp-icon-kakao').click();await page.locator('[data-phone-action^="thread:"]').filter({hasText:'A 的私訊'}).click();
+ const toggle=page.getByRole('button',{name:'語音訊息',exact:true}),panel=page.getByRole('region',{name:'Phone 語音訊息'});
+ await toggle.click();await expect(panel).toBeVisible();
+ expect(await page.evaluate(()=>window.__phoneMicRequests)).toBe(0);
+ await expect(page.getByLabel('手機訊息')).toBeVisible();
+ await panel.getByRole('button',{name:'開始本機錄音'}).click();
+ await expect.poll(()=>page.evaluate(()=>window.__phoneMicRequests)).toBe(1);
+ await toggle.click();await expect(panel).toHaveCount(0);
+ await expect(toggle).toHaveAttribute('aria-expanded','false');
+ await page.evaluate(()=>window.__resolvePhoneMic());
+ await expect.poll(()=>page.evaluate(()=>window.__phoneMicStops)).toBe(1);
+ await toggle.click();await expect(panel).toBeVisible();
+ await page.getByRole('button',{name:'關閉手機'}).click();
+ await expect(panel).toHaveCount(0);
+ expect(await page.evaluate(()=>JSON.stringify(Chat.messages))).toBe(before);
+ expect(await page.evaluate(async()=> (await BAOStoryVoiceAssets.list(BAOStoryLibrary.refs())).length)).toBe(0);
+});
+
 test('Phone voice messages stay in the addressed private or group conversation', async ({page}) => {
  const requests=[];
  await page.route(/https:\/\/(?:text|stt|tts)\.example\.invalid\//, route => {
@@ -627,11 +659,14 @@ test('Phone voice messages stay in the addressed private or group conversation',
  }
  async function send(recipient){
    await page.getByRole('button',{name:'語音訊息',exact:true}).click();
-   const dialog=page.getByRole('dialog',{name:'Phone 語音訊息'});
+   const dialog=page.getByRole('region',{name:'Phone 語音訊息'});
    await expect(dialog).toContainText(recipient);
+   await expect(page.getByRole('dialog',{name:'Phone 語音訊息'})).toHaveCount(0);
+   await expect(page.getByRole('button',{name:'語音訊息',exact:true})).toHaveAttribute('aria-expanded','true');
    await dialog.getByLabel('選擇本機音檔').setInputFiles({name:'sample.wav',mimeType:'audio/wav',buffer:voiceWav()});
    await dialog.getByRole('button',{name:'傳送本機語音'}).click();
    await expect(dialog).toHaveCount(0);
+   await expect(page.getByRole('button',{name:'語音訊息',exact:true})).toHaveAttribute('aria-expanded','false');
    await expect(messages).toHaveCount(1);
  }
  const closePhone=()=>page.getByRole('button',{name:'關閉手機'}).click();
@@ -807,7 +842,7 @@ test('Phone native audio sends to exact private/group recipients and discards un
  const closePhone=()=>page.getByRole('button',{name:'關閉手機'}).click();
  async function send(){
    await page.getByRole('button',{name:'語音訊息',exact:true}).click();
-   const d=page.getByRole('dialog',{name:'Phone 語音訊息'});
+   const d=page.getByRole('region',{name:'Phone 語音訊息'});
    await d.getByLabel('選擇本機音檔').setInputFiles({name:'sample.wav',mimeType:'audio/wav',buffer:voiceWav()});
    await d.getByText('原始音訊角色回覆（進階 BYOK）',{exact:true}).click();
    const button=d.getByRole('button',{name:'傳送原始音訊並取得角色回覆'});
