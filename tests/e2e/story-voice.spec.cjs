@@ -992,20 +992,26 @@ test('desktop dictation respects denied permission, cancellation and an edited d
  await input.fill('原稿');
  page.once('dialog',dialog=>dialog.dismiss());
  await mic.click();expect(await page.evaluate(()=>window.__recognitions)).toBe(0);
- await page.evaluate(()=>{window.SpeechRecognition=class{
-   start(){window.__recognitions++;window.__inlineRecognition=this;}
-   stop(){this.onend?.();}
-   abort(){window.__inlineAborted=true;}
- };});
+ // setup installs a configurable but non-writable property. Redefine it rather
+ // than assigning to it, which silently retains the auto-finishing mock.
+ await page.evaluate(()=>{
+   window.__inlineRecognition=null;window.__inlineAborted=false;
+   Object.defineProperty(window,'SpeechRecognition',{configurable:true,value:class{
+     start(){window.__recognitions++;window.__inlineRecognition=this;window.__lateInlineResult=this.onresult;window.__lateInlineEnd=this.onend;}
+     stop(){this.onend?.();}
+     abort(){window.__inlineAborted=true;}
+   }});
+ });
  page.once('dialog',dialog=>dialog.accept());
- await mic.click();await expect(mic).toHaveAttribute('aria-pressed','true');
+ await mic.click();await expect.poll(()=>page.evaluate(()=>!!window.__inlineRecognition)).toBe(true);
+ await expect(mic).toHaveAttribute('aria-pressed','true');
  await page.keyboard.press('Escape');
  await expect(mic).toHaveAttribute('aria-pressed','false');
  expect(await page.evaluate(()=>window.__inlineAborted)).toBe(true);
  await mic.click();await expect(mic).toHaveAttribute('aria-pressed','true');
  await input.fill('玩家修改');
  await expect(mic).toHaveAttribute('aria-pressed','false');
- await page.evaluate(()=>{window.__inlineRecognition.onresult?.({results:[{isFinal:true,0:{transcript:'不可覆蓋'}}]});window.__inlineRecognition.onend?.();});
+ await page.evaluate(()=>{window.__lateInlineResult?.({results:[{isFinal:true,0:{transcript:'不可覆蓋'}}]});window.__lateInlineEnd?.();});
  await expect(input).toHaveValue('玩家修改');
  await mic.click();await page.evaluate(()=>{window.__inlineRecognition.onerror?.({error:'not-allowed'});});
  await expect(mic).toHaveAttribute('aria-pressed','false');
