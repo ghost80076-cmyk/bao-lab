@@ -1,0 +1,48 @@
+name: Memory longplay comparison P3
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/memory-longplay-p3.cjs'
+      - '.github/workflows/memory-longplay-p3.yml'
+      - 'js/episodic-memory*.js'
+      - 'js/memory-core.js'
+permissions:
+  contents: read
+jobs:
+  longplay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compare pre-P2 baseline against current recall
+        run: |
+          set -euo pipefail
+          mkdir -p research-results "$RUNNER_TEMP/p2-baseline"
+          git show ae6d305e14d250a15c80e8eabe5d281186b6da2b:js/episodic-memory-core.js > "$RUNNER_TEMP/p2-baseline/episodic-memory-core.js"
+          git show ae6d305e14d250a15c80e8eabe5d281186b6da2b:js/episodic-memory.js > "$RUNNER_TEMP/p2-baseline/episodic-memory.js"
+          node scripts/memory-longplay-p3.cjs "$RUNNER_TEMP/p2-baseline" research-results/longplay.json 2>&1 | tee research-results/longplay.log
+      - name: Publish comparison
+        if: success()
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs');
+          const r=JSON.parse(fs.readFileSync('research-results/longplay.json','utf8'));
+          const lines=['Synthetic indexed recall only; no provider tokens or live billing.','', '|Scenario|Rounds|Index entries|Target rank before → after|P95 ms before → after|Estimated added tokens before → after|','|---|---:|---:|---|---|---|'];
+          for(const x of r.rows)lines.push('|'+[x.kind,x.rounds,x.events,(x.before.targetRank??'miss')+' → '+(x.after.targetRank??'miss'),x.before.latencyMs.p95+' → '+x.after.latencyMs.p95,x.before.addedTokensEstimate+' → '+x.after.addedTokensEstimate].join('|')+'|');
+          lines.push('','Controls: '+r.controls.length+'; capacity test: '+r.capacity.retainedEvents+' retained / '+r.capacity.attemptedEvents+' attempted, original target retained: '+r.capacity.targetRetained);
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,lines.join('\n')+'\n');
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: memory-longplay-p3
+          path: research-results/
+          if-no-files-found: error
+          retention-days: 14
