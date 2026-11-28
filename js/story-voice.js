@@ -31,6 +31,7 @@
  const read=()=>{try{const data=JSON.parse(localStorage.getItem(STORE)||'{}');return data&&typeof data==='object'&&!Array.isArray(data)?data:{};}catch(_){return {};}};
  const save=(id,p)=>{const data=read();delete data[id];data[id]=Core.profile(p);localStorage.setItem(STORE,JSON.stringify(Object.fromEntries(Object.entries(data).slice(-100))));};
  let active=null;
+ let quickInputJob=null,quickInputConsent=null;
  // A session belongs to this open story/chapter. Only successful story turns
  // enter the queue. Repainting history and reopening a save never enqueue it.
  let automatic=null, sequence=null, notice='', notify=null;
@@ -176,13 +177,14 @@
    seq.watch=setInterval(()=>{if(!current())stopSequence();},250);
    next();
  }
- document.addEventListener('visibilitychange',()=>{if(document.hidden)disableAutomatic();});
- window.addEventListener('pagehide',disableAutomatic);
+ document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelQuickInput();quickInputConsent=null;disableAutomatic();}});
+ window.addEventListener('pagehide',()=>{cancelQuickInput();quickInputConsent=null;disableAutomatic();});
  App.wrapShowView('story-voice:leave',function(next,name,...args){
-   if(name!=='chat')disableAutomatic();
+   if(name!=='chat'){cancelQuickInput();quickInputConsent=null;disableAutomatic();}
    return next(name,...args);
  });
  App.wrapSendMessage('story-voice:read-dialogue',async function(next,...args){
+   cancelQuickInput();
    const session=automatic;
    if(sequence)stopSequence();
    const turn=await next(...args);
@@ -196,6 +198,7 @@
  function open(settings={}){
    const phone=settings.phoneVoice,quick=settings.quickVoice,settingsContext=settings.settingsContext;
    if(active||!GameState.current||!App.activeCharacter)return;
+   cancelQuickInput();
    const current=scope(),sourceInput=document.getElementById('user-input');
    if(!sourceInput)return;
    const synth=window.speechSynthesis,Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -931,7 +934,7 @@
    if(b.parentElement!==host)host.append(b);
    mountQuick();
  }
- App.wrapRenderChatShell('story-voice:optional-tools',function(next,...args){const result=next(...args);if(automatic&&!same(automatic))disableAutomatic();mount();return result;});
+ App.wrapRenderChatShell('story-voice:optional-tools',function(next,...args){const result=next(...args);if(automatic&&!same(automatic))disableAutomatic();if(quickInputConsent&&!same(quickInputConsent.scope))quickInputConsent=null;if(quickInputJob&&!quickInputValid(quickInputJob))cancelQuickInput();mount();return result;});
  function syncQuick(){
    const source=playbackSource();
    document.querySelectorAll('[data-voice-phone-play]').forEach(b=>{b.setAttribute('aria-label',(b.dataset.voicePhoneLabel||'朗讀角色訊息')+'（'+source+'）');b.title='使用目前共用角色聲線（'+source+'）';});
@@ -942,21 +945,91 @@
    if(toggle){toggle.textContent=storyAuto()?'關閉自動配音':'開啟自動配音';toggle.setAttribute('aria-pressed',String(storyAuto()));}
    if(status)status.textContent=notice;
  }
+ // Desktop dictation is an input method, never a story turn.
+ function quickInputReady(input){
+   return !!input&&input.isConnected&&!input.disabled&&!input.readOnly&&inStory()&&
+     window.innerWidth>820&&!active&&!App.__requestPending&&!!GameState.current&&!!App.activeCharacter&&
+     !document.getElementById('bao-phone-stage')&&!window.BAOStoryImages?.hasDraft?.()&&!window.BAOStoryNativeTurn?.hasDraft?.();
+ }
+ function quickInputValid(job){
+   return quickInputJob===job&&same(job.scope)&&quickInputReady(job.input)&&
+     document.getElementById('user-input')===job.input&&job.input.value===job.draft&&
+     Chat.messages.length===job.count&&Core.storyVoiceSource(Chat.messages.at(-1))===job.last;
+ }
+ function syncInputMic(){
+   const mic=document.getElementById('yoru-voice-mic');if(!mic)return;
+   const running=!!quickInputJob;
+   mic.textContent=running?'■':'🎙';
+   mic.title=running?'停止語音輸入（Esc 取消）':'語音輸入';
+   mic.setAttribute('aria-label',running?'停止語音輸入':'語音輸入');
+   mic.setAttribute('aria-pressed',String(running));
+ }
+ function cancelQuickInput(message='',abort=true){
+   const job=quickInputJob;quickInputJob=null;
+   if(!job)return;
+   clearTimeout(job.timer);clearInterval(job.watch);
+   job.input.removeEventListener('input',job.edited);
+   document.removeEventListener('keydown',job.escape,true);
+   job.rec.onresult=job.rec.onerror=job.rec.onend=null;
+   if(abort)try{job.rec.abort();}catch(_){}
+   syncInputMic();
+   if(message)window.BAOFeedback?.notify?.(message);
+ }
  function openInput(){
-   if(!inStory()||App.__requestPending||window.BAOStoryNativeTurn?.hasDraft?.()){
-     window.BAOFeedback?.notify?.('請先完成目前的回覆或待送音訊，再使用語音輸入。','error');return;
+   if(quickInputJob){
+     const job=quickInputJob;
+     if(!quickInputValid(job)){cancelQuickInput();return;}
+     try{job.rec.stop();}catch(_){cancelQuickInput('無法停止語音辨識，未變更草稿。');}
+     return;
    }
-   open({quickVoice:'input'});
+   const input=document.getElementById('user-input'),Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+   if(!Recognition||!quickInputReady(input)){
+     window.BAOFeedback?.notify?.('請使用鍵盤輸入，或先完成目前的回覆與待送附件。','error');return;
+   }
+   const current=scope(),preferred=readCustom().stt?.language;
+   const language=languageOptions.some(([id])=>id===preferred)?preferred:
+     (languageOptions.find(([id])=>id.split('-')[0]===String(navigator.language||'').split('-')[0])?.[0]||'zh-TW');
+   if(!quickInputConsent||!same(quickInputConsent.scope)||quickInputConsent.language!==language){
+     if(!window.confirm('使用瀏覽器語音辨識（'+language+'，可能連網）？本章節內可直接聽寫，文字只會填入草稿，不會自動送出。'))return;
+     if(!same(current)||!quickInputReady(input))return;
+     quickInputConsent={scope:current,language};
+   }
+   let rec;try{rec=makeRecognition(Recognition,language);}catch(_){quickInputConsent=null;window.BAOFeedback?.notify?.('無法啟動語音辨識。','error');return;}
+   const job={rec,scope:current,input,draft:input.value,count:Chat.messages.length,last:Core.storyVoiceSource(Chat.messages.at(-1)),text:'',timer:null,watch:null};
+   job.edited=()=>cancelQuickInput('草稿已變更，本次語音辨識已取消。');
+   job.escape=e=>{if(e.key==='Escape'){e.preventDefault();cancelQuickInput('已取消語音輸入。');}};
+   quickInputJob=job;input.addEventListener('input',job.edited);document.addEventListener('keydown',job.escape,true);
+   rec.onresult=e=>{if(quickInputValid(job))job.text=Core.finalTranscript(e.results);else if(quickInputJob===job)cancelQuickInput();};
+   rec.onerror=()=>{if(quickInputJob===job){quickInputConsent=null;cancelQuickInput('語音辨識失敗，請確認麥克風權限或使用鍵盤。');}};
+   rec.onend=()=>{
+     if(quickInputJob!==job)return;
+     if(!quickInputValid(job)){cancelQuickInput();return;}
+     const text=job.text.trim();cancelQuickInput('',false);
+     if(!text){window.BAOFeedback?.notify?.('未辨識到語句，原草稿未變更。');return;}
+     try{
+       input.value=Core.mergeDraft(job.draft,text,input.maxLength>0?input.maxLength:12000);
+       input.dispatchEvent(new Event('input',{bubbles:true}));
+       if(document.activeElement===document.getElementById('yoru-voice-mic'))input.focus();
+     }catch(e){window.BAOFeedback?.notify?.(e.message||'無法填入辨識文字。','error');}
+   };
+   pauseForInput();syncInputMic();
+   try{
+     job.timer=setTimeout(()=>{if(quickInputJob===job)cancelQuickInput('語音辨識已逾時，原草稿未變更。');},60000);
+     job.watch=setInterval(()=>{if(!quickInputValid(job))cancelQuickInput();},200);
+     rec.start();
+   }catch(_){quickInputConsent=null;cancelQuickInput('無法啟動語音辨識。');}
  }
  function mountQuick(){
    const composer=document.querySelector('#chat-view .composer'),input=document.getElementById('user-input');
    if(!composer||!input)return;
    let mic=document.getElementById('yoru-voice-mic');
-   if(!mic){
+   if(!window.SpeechRecognition&&!window.webkitSpeechRecognition){mic?.remove();}
+   else if(!mic){
      mic=btn('🎙',openInput);
-     mic.id='yoru-voice-mic';mic.className='secondary yoru-voice-quick-mic';mic.title='語音輸入';mic.setAttribute('aria-label','語音輸入');
+     mic.id='yoru-voice-mic';mic.className='secondary yoru-voice-quick-mic';
      input.before(mic);
    }
+   syncInputMic();
    const latest=Chat.messages.at(-1),stream=document.getElementById('chat-stream');
    const row=stream?.querySelector('.message.assistant:last-child')||Array.from(stream?.querySelectorAll('.message.assistant')||[]).at(-1);
    const old=document.getElementById('yoru-voice-quick-reply');
@@ -983,6 +1056,7 @@
  // continuous microphone, additional RP model, or background conversation.
  function openCall({target,active:targetActive,draftClear,refreshPhone}){
    if(active||target.group||!inStory()||App.__requestPending||!targetActive()||!draftClear())return;
+   cancelQuickInput();
    const current=scope(),sourceInput=document.getElementById('user-input'),focus=document.activeElement;
    const prefix=window.BAOPhoneStoryCore?.callPrefix(target.threadId,target.senderId);
    if(!sourceInput||!prefix||sourceInput.value.trim()||window.BAOStoryImages?.hasDraft?.()||window.BAOStoryNativeTurn?.hasDraft?.()){
@@ -1093,7 +1167,7 @@
    if(!session.shared&&Core.selectVoice(window.speechSynthesis?.getVoices?.()||[],profile)?.localService!==true){report('此角色沒有可用的本地聲線，請在角色語音設定中調整。');return;}
    playLines(session,[{speakerId:actor.id,text:line}],()=>same(current)&&inStory()&&!App.__requestPending&&valid()&&(!session.shared||(automatic===session&&sharedConfigCurrent(session))),report);
  }
- document.getElementById('chat-view')?.addEventListener('bao:phone-stage-visibility',()=>stopSequence());
+ document.getElementById('chat-view')?.addEventListener('bao:phone-stage-visibility',()=>{cancelQuickInput();stopSequence();});
  window.addEventListener('storage',event=>{if(event.key===CUSTOM_STORE&&automatic?.shared&&!sharedConfigCurrent(automatic))disableAutomatic();});
  window.BAOStoryVoice=Object.freeze({open,openInput,openCall,mount,playPhoneMessage,playbackSource,openSettings:settingsContext=>{if(inStory()&&!App.__requestPending&&(!settingsContext||settingsContext.active()))open({quickVoice:'settings',settingsContext});},stopPlayback:()=>{stopSequence();tell('已停止播放。');}});
 })();
