@@ -8,6 +8,7 @@ on:
       - 'js/episodic-memory*.js'
       - 'js/chat.js'
       - 'tests/episodic-memory-core.cjs'
+      - 'tests/episodic-memory-scenes-core.cjs'
       - 'tests/memory-completed-turns-core.cjs'
       - 'scripts/evaluate-episodic-recall.cjs'
       - '.github/workflows/semantic-memory-research.yml'
@@ -29,6 +30,7 @@ jobs:
           node scripts/evaluate-episodic-recall.cjs --report research-results/v3.json || status=1
           node scripts/evaluate-episodic-recall.cjs --fixture tests/fixtures/recall-acceptance/trust-heldout.json --report research-results/trust-heldout.json || status=1
           node tests/episodic-memory-core.cjs || status=1
+          node tests/episodic-memory-scenes-core.cjs || status=1
           node tests/memory-completed-turns-core.cjs || status=1
           exit "$status"
       - name: Publish measured baseline

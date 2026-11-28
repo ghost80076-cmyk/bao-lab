@@ -71,7 +71,13 @@ const withCurrent=input=>keyHistory.map(m=>m.id==='next-key'?{...m,content:input
 assert.ok(!keyRecall({input:'鑰匙呢？',messages:withCurrent('鑰匙呢？')}).some(x=>x.block.includes('碼頭倉庫')),'no explicit continuation: ordinary ranking');
 assert.equal(keyRecall({input:'那件事呢？',messages:withCurrent('那件事呢？')}).length,0,'context alone cannot create candidates');
 assert.ok(!keyRecall({messages:keyHistory.map(m=>m.id==='prior-key'?{...m,content:'其他話題'}:m.id==='reply-key'?{...m,content:'碼頭倉庫'}:m)}).some(x=>x.block.includes('碼頭倉庫')),'assistant text cannot steer continuity');
-assert.ok(!keyRecall({messages:keyHistory.map(m=>m.id==='prior-key'?{...m,content:'碼頭倉庫'.repeat(40)}:m)}).some(x=>x.block.includes('碼頭倉庫')),'oversize context ignored');
+const priorAtLimit='碼頭倉庫'.repeat(45);
+const priorOverLimit=priorAtLimit+'字';
+assert.equal(priorAtLimit.length,180);
+assert.equal(priorOverLimit.length,181);
+const withPrior=content=>keyHistory.map(m=>m.id==='prior-key'?{...m,content}:m);
+assert.match(keyRecall({messages:withPrior(priorAtLimit)})[0].block,/碼頭倉庫/,'180-code-unit prior context remains eligible');
+assert.ok(!keyRecall({messages:withPrior(priorOverLimit)}).some(x=>x.block.includes('碼頭倉庫')),'181-code-unit prior context ignored');
 assert.ok(!keyRecall({messages:[...keyHistory.slice(0,-2),{id:'interrupt',role:'user',content:'別的話題'},...keyHistory.slice(-2)]}).some(x=>x.block.includes('碼頭倉庫')),'only immediately preceding player turn');
 assert.ok(!keyRecall({messages:[{...keyHistory.at(-3)},...keyHistory]}).some(x=>x.block.includes('碼頭倉庫')),'ambiguous message ID disables continuity');
 assert.ok(!keyRecall({messages:keyHistory.filter(m=>m.id!=='key0')}).some(x=>x.block.includes('碼頭倉庫')),'missing source still denies recall');
