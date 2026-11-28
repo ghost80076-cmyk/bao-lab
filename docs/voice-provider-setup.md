@@ -4,7 +4,7 @@
 
 ## 基礎及進階路徑
 
-1. 故事控制中心開啟「語音工具」。裝置聲線與語音辨識可直接使用（語言及服務可用性依瀏覽器/OS）。
+1. 故事最新回覆點「播放台詞」或「聲線」，手機從既有 + 控制中心進入「語音輸入」；Phone 私訊及群聊直接點播放與聲線。裝置聲線不需 API（實際本地聲線、辨識語言及服務可用性依瀏覽器/OS；辨識可能連網）。不需要修改角色卡。
 2. 進階使用者選自訂 STT 或 TTS，填寫完整接口網址、服務實際模型 ID、TTS 角色聲線 ID 及選填獨立金鑰。不要只填 /v1 或文字聊天 API。
 3. 設定可按保存，API key 與授權不保存；先測試一段無私人資訊的短句，再啟用自動配音。選擇授權額度不是價格估算。
 4. 接口需 HTTPS 或同裝置 loopback HTTP，且允許 https://yorubay.com 的 CORS；依瀏覽器確認 local-network access 與麥克風權限。localhost 在手機上指手機本身，不是玩家桌機。不同裝置或遠端連線須自行設置安全 HTTPS 服務、驗證及存取控制，不建議直接暴露未驗證的推論服務到公網。避免 CORS 全開。
@@ -53,3 +53,11 @@ Speaches 提供 OpenAI-compatible 的 faster-whisper STT，以及 Piper/Kokoro T
 ## 參考音訊配音（Qwen3-TTS Base）
 
 依 [vLLM-Omni Speech API](https://docs.vllm.ai/projects/vllm-omni/en/stable/serving/speech_api/) 的 Base task：玩家自行取得 `Qwen/Qwen3-TTS-12Hz-1.7B-Base` 或 `Qwen/Qwen3-TTS-12Hz-0.6B-Base` 相容服務；填完整 `/v1/audio/speech`（同裝置例 `http://localhost:8091/v1/audio/speech`），依服務配置 HTTPS/CORS/驗證。選定角色與台詞，開啟參考音訊模式，選 WAV/MP3（4 MiB/30 秒內），填寫真實逐字稿、選輸出語言並確認聲音權利及本次傳送。夜灣使用 `task_type:Base`、`ref_audio` data URL、`ref_text`、`language` 及非串流 WAV；不傳供應商本機檔案路徑、遠端參考網址或模型權重。此階段每次生成都須確認，不保存參考音檔或永久聲線，也不呼叫 `/audio/voices`。若玩家已在服務端合法建立可使用的聲線 ID，仍可使用原有一般 TTS 模式。上游可依其政策保留輸入，取消不保證免收費。真實引擎、語言與音質尚未實測。
+
+
+## 日常操作驗收與限制
+
+- 故事、Phone 私訊及群聊共用角色聲線。進階 TTS 設定保存後回到共用聲線頁，明確同意當前章節範圍及用量，才可使用自帶服務；金鑰及授權不跨重新載入／章節。語音輸入不需要重新填寫仍有效的授權。
+- NPC 語音訊息保存逐字稿，點擊時合成，而非保存不可變錄音檔。重播自訂服務可能再次計費。
+- Phone 一對一點「通話」，確認瀏覽器辨識同意後按住說話、放開停止、確認逐字稿再送出。可另勾選回覆自動播放；未勾選則手動播放。掛斷後不再錄音或播放，已送出的故事回合可能完成。尚非全雙工、群組通話或自訂 STT 通話。
+- 實機驗收清單（待實測，不宣稱已通過）：Android Chrome 與 iOS Safari 各測權限允許／拒絕、實際可用本地聲線、鍵盤語音輸入替代、320/390px 通話與掛斷、背景化／鎖屏、語音訊息及自訂服務短句／逾時、切換章節後重新授權。自架服務由玩家自行測試 HTTPS/loopback、CORS 與音訊格式。
