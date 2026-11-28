@@ -1,0 +1,388 @@
+{
+  "version": 1,
+  "description": "語意召回 P0 合成研究集；人工 oracle 與待驗證詞彙基線，不是模型品質或玩家統計。",
+  "stories": {
+    "trust": {
+      "messages": [
+        {
+          "id": "t1",
+          "role": "assistant",
+          "content": "艾琳親眼見到玩家隱瞞身分，兩人在雨夜爭吵。"
+        }
+      ],
+      "batches": [
+        {
+          "ids": [
+            "t1"
+          ],
+          "episodes": [
+            {
+              "key": "trust",
+              "text": "雨夜因玩家隱瞞身分爭吵。",
+              "entities": [
+                "艾琳"
+              ],
+              "keywords": [
+                "信任",
+                "雨天"
+              ],
+              "evidenceIds": [
+                "t1"
+              ],
+              "knowledge": [
+                {
+                  "actor": "艾琳",
+                  "mode": "witnessed",
+                  "claim": "雨夜因玩家隱瞞身分爭吵。",
+                  "evidenceIds": [
+                    "t1"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "promise": {
+      "messages": [
+        {
+          "id": "p1",
+          "role": "assistant",
+          "content": "洛恩與玩家約好生日時一起到海岸看日出。"
+        }
+      ],
+      "batches": [
+        {
+          "ids": [
+            "p1"
+          ],
+          "episodes": [
+            {
+              "key": "promise",
+              "text": "洛恩與玩家約好生日時一起到海岸看日出。",
+              "entities": [
+                "洛恩"
+              ],
+              "keywords": [
+                "生日",
+                "海岸",
+                "約定"
+              ],
+              "evidenceIds": [
+                "p1"
+              ],
+              "knowledge": [
+                {
+                  "actor": "洛恩",
+                  "mode": "witnessed",
+                  "claim": "我們約好生日時一起到海岸看日出。",
+                  "evidenceIds": [
+                    "p1"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "secret": {
+      "messages": [
+        {
+          "id": "s1",
+          "role": "assistant",
+          "content": "米拉獨自看到王室把寶石藏入地窖。"
+        }
+      ],
+      "batches": [
+        {
+          "ids": [
+            "s1"
+          ],
+          "episodes": [
+            {
+              "key": "gem",
+              "text": "王室把寶石藏入地窖。",
+              "entities": [
+                "米拉",
+                "王室"
+              ],
+              "keywords": [
+                "寶石",
+                "地窖"
+              ],
+              "evidenceIds": [
+                "s1"
+              ],
+              "knowledge": [
+                {
+                  "actor": "米拉",
+                  "mode": "witnessed",
+                  "claim": "王室把寶石藏入地窖。",
+                  "evidenceIds": [
+                    "s1"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "correction": {
+      "messages": [
+        {
+          "id": "c1",
+          "role": "assistant",
+          "content": "公告：渡船今日停航。"
+        },
+        {
+          "id": "c2",
+          "role": "assistant",
+          "content": "更正公告：渡船今日正常開航。"
+        }
+      ],
+      "batches": [
+        {
+          "ids": [
+            "c1"
+          ],
+          "episodes": [
+            {
+              "key": "old",
+              "text": "渡船今日停航。",
+              "visibility": "public",
+              "certainty": "confirmed",
+              "evidenceIds": [
+                "c1"
+              ]
+            }
+          ]
+        },
+        {
+          "ids": [
+            "c2"
+          ],
+          "episodes": [
+            {
+              "key": "new",
+              "text": "渡船今日正常開航。",
+              "visibility": "public",
+              "certainty": "confirmed",
+              "evidenceIds": [
+                "c2"
+              ],
+              "supersedesKeys": [
+                "old"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "id": "trust-literal-control",
+      "story": "trust",
+      "primary": "艾琳",
+      "input": "雨夜爭吵",
+      "expected": [
+        "trust"
+      ],
+      "refs": {
+        "trust": [
+          "t1"
+        ]
+      }
+    },
+    {
+      "id": "trust-paraphrase-gap",
+      "story": "trust",
+      "primary": "艾琳",
+      "input": "為何對我築起心牆？",
+      "expected": [
+        "trust"
+      ],
+      "refs": {
+        "trust": [
+          "t1"
+        ]
+      },
+      "diagnostic": "lexical-gap",
+      "knownMissing": [
+        "trust"
+      ]
+    },
+    {
+      "id": "trust-unrelated-control",
+      "story": "trust",
+      "primary": "艾琳",
+      "input": "三角形的面積怎麼算？",
+      "expected": []
+    },
+    {
+      "id": "trust-unknown-speaker",
+      "story": "trust",
+      "primary": "守衛",
+      "input": "雨夜爭吵",
+      "expected": [],
+      "forbidden": [
+        "隱瞞身分"
+      ]
+    },
+    {
+      "id": "trust-mixed-audience",
+      "story": "trust",
+      "primary": "艾琳",
+      "npcs": [
+        {
+          "name": "守衛",
+          "presence": "present"
+        }
+      ],
+      "input": "雨夜爭吵",
+      "expected": [],
+      "forbidden": [
+        "隱瞞身分"
+      ]
+    },
+    {
+      "id": "trust-rewrite",
+      "story": "trust",
+      "primary": "艾琳",
+      "edits": {
+        "t1": {
+          "content": "艾琳在晴天散步。"
+        }
+      },
+      "input": "雨夜爭吵",
+      "expected": [],
+      "forbidden": [
+        "隱瞞身分"
+      ]
+    },
+    {
+      "id": "promise-literal-control",
+      "story": "promise",
+      "primary": "洛恩",
+      "input": "生日去海岸",
+      "fillerMessages": 400,
+      "expected": [
+        "promise"
+      ],
+      "refs": {
+        "promise": [
+          "p1"
+        ]
+      }
+    },
+    {
+      "id": "promise-paraphrase-gap",
+      "story": "promise",
+      "primary": "洛恩",
+      "input": "誕辰那天能陪我迎接晨曦嗎？",
+      "expected": [
+        "promise"
+      ],
+      "refs": {
+        "promise": [
+          "p1"
+        ]
+      },
+      "diagnostic": "lexical-gap",
+      "knownMissing": [
+        "promise"
+      ]
+    },
+    {
+      "id": "secret-owner",
+      "story": "secret",
+      "primary": "米拉",
+      "input": "寶石在哪個地窖",
+      "expected": [
+        "gem"
+      ],
+      "refs": {
+        "gem": [
+          "s1"
+        ]
+      }
+    },
+    {
+      "id": "secret-denied",
+      "story": "secret",
+      "primary": "守衛",
+      "input": "寶石在哪個地窖",
+      "expected": [],
+      "forbidden": [
+        "王室把寶石藏入地窖"
+      ]
+    },
+    {
+      "id": "secret-branch-removal",
+      "story": "secret",
+      "primary": "米拉",
+      "dropIds": [
+        "s1"
+      ],
+      "input": "寶石在哪個地窖",
+      "expected": [],
+      "forbidden": [
+        "王室把寶石藏入地窖"
+      ]
+    },
+    {
+      "id": "correction-current",
+      "story": "correction",
+      "input": "渡船今日",
+      "expected": [
+        "new"
+      ],
+      "refs": {
+        "new": [
+          "c2"
+        ]
+      }
+    },
+    {
+      "id": "correction-rollback",
+      "story": "correction",
+      "dropIds": [
+        "c2"
+      ],
+      "input": "渡船今日",
+      "expected": [
+        "old"
+      ],
+      "refs": {
+        "old": [
+          "c1"
+        ]
+      }
+    },
+    {
+      "id": "recall-disabled",
+      "story": "secret",
+      "primary": "米拉",
+      "input": "寶石在哪個地窖",
+      "recallEnabled": false,
+      "expected": [],
+      "forbidden": [
+        "王室把寶石藏入地窖"
+      ]
+    },
+    {
+      "id": "full-history",
+      "story": "secret",
+      "primary": "米拉",
+      "input": "寶石在哪個地窖",
+      "memoryMode": "full",
+      "expected": [],
+      "forbidden": [
+        "王室把寶石藏入地窖"
+      ]
+    }
+  ]
+}
