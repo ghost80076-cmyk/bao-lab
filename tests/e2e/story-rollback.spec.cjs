@@ -229,13 +229,58 @@ test('reader corrects late scroll offset changes without resizing and releases a
 
   // Once positioning resolves, deliberate scrolling must remain untouched.
   // The resize observer still releases immediately on user input.
-  await page.evaluate(() => {
+  const assigned = await page.evaluate(() => {
     document.dispatchEvent(new KeyboardEvent('keydown', { key:'PageUp', bubbles:true }));
-    document.getElementById('chat-stream').scrollTop = 500;
+    const stream = document.getElementById('chat-stream');
+    stream.scrollTop = 500;
+    return stream.scrollTop;
   });
+  // Some engines quantize the requested CSS pixel offset. Verify the actual
+  // assignment is within one pixel, then require that the reader stays there.
+  expect(Math.abs(assigned - 500)).toBeLessThanOrEqual(1);
   await page.waitForTimeout(200);
   expect(await page.evaluate(() => document.getElementById('chat-stream').scrollTop))
-    .toBe(500);
+    .toBe(assigned);
+});
+
+test('failed branch reader recovery settles late offsets and yields to input', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openDemoStory(page);
+  const result = await page.evaluate(async () => {
+    Chat.messages = [];
+    for (let round = 0; round < 30; round++) {
+      Chat.add('user', '選擇 ' + round);
+      Chat.add('assistant', '長篇故事閱讀定位。'.repeat(30));
+    }
+    App.renderChatShell(false);
+    await new Promise(resolve => setTimeout(resolve, 0));
+    const stream = document.getElementById('chat-stream');
+    stream.scrollTop = 600;
+    const previous = BAOStoryBranches.captureReadingPosition();
+    const positioning = BAOStoryBranches.positionReader(previous);
+    let displaced = false;
+    setTimeout(() => {
+      stream.scrollTop = 900;
+      displaced = Math.abs(stream.scrollTop - previous.streamTop) > 100;
+    }, 120);
+    await positioning;
+    const recovered = stream.scrollTop;
+    // No further restoration is allowed once the player takes over.
+    const second = BAOStoryBranches.positionReader(previous);
+    let manual;
+    setTimeout(() => {
+      document.dispatchEvent(new KeyboardEvent('keydown', { key:'PageUp', bubbles:true }));
+      stream.scrollTop = 1000;
+      manual = stream.scrollTop;
+    }, 120);
+    await second;
+    await new Promise(resolve => setTimeout(resolve, 400));
+    return { displaced, expected: previous.streamTop, recovered, manual, final:stream.scrollTop };
+  });
+  expect(result.displaced).toBe(true);
+  expect(Math.abs(result.recovered - result.expected)).toBeLessThanOrEqual(2);
+  expect(result.manual).toBeDefined();
+  expect(Math.abs(result.final - result.manual)).toBeLessThanOrEqual(2);
 });
 
 for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
