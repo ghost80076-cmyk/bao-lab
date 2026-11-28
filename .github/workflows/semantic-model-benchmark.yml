@@ -1,0 +1,39 @@
+name: Semantic model research P1a
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/semantic-model-benchmark.mjs'
+      - 'tests/fixtures/recall-acceptance/semantic-model-benchmark-v1.json'
+      - '.github/workflows/semantic-model-benchmark.yml'
+permissions:
+  contents: read
+jobs:
+  offline-model-ranking:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install research dependency outside website
+        run: |
+          mkdir -p "$RUNNER_TEMP/semantic-lab" research-results
+          npm install --prefix "$RUNNER_TEMP/semantic-lab" --save-exact @huggingface/transformers@3.8.1
+          cp "$RUNNER_TEMP/semantic-lab/package-lock.json" research-results/dependency-lock.json
+          cp scripts/semantic-model-benchmark.mjs "$RUNNER_TEMP/semantic-lab/benchmark.mjs"
+      - name: Measure real local embedding model on synthetic text
+        env:
+          MODEL_CACHE: ${{ runner.temp }}/semantic-model-cache
+        run: |
+          node "$RUNNER_TEMP/semantic-lab/benchmark.mjs" "$GITHUB_WORKSPACE/tests/fixtures/recall-acceptance/semantic-model-benchmark-v1.json" "$GITHUB_WORKSPACE/research-results/model-ranking.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: semantic-model-p1a
+          path: research-results/
+          if-no-files-found: error
+          retention-days: 14
