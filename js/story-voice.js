@@ -215,10 +215,11 @@
    const status=el('p');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
    const setStatus=t=>{status.textContent=t;};
    let recognition=null,recognitionTimer=null,utterance=null,playTimer=null,closed=false,externalJob=null,ttsJob=null,localJob=null,localURL=null,localEpoch=0;
-   const valid=()=>!closed&&modal.isConnected&&same(current)&&(!phone||phone.active())&&(!settingsContext||settingsContext.active())&&document.getElementById('user-input')===sourceInput;
+   const inlineAnchor=inline?JSON.stringify([Chat.messages.length,Core.storyVoiceSource(Chat.messages.at(-1))]):null;
+   const valid=()=>!closed&&modal.isConnected&&same(current)&&(!phone||phone.active())&&(!settingsContext||settingsContext.active())&&document.getElementById('user-input')===sourceInput&&(!inline||(!document.hidden&&inlineAnchor===JSON.stringify([Chat.messages.length,Core.storyVoiceSource(Chat.messages.at(-1))])));
    const cancelSpeech=()=>{if(utterance){utterance.onend=utterance.onerror=null;synth?.cancel();utterance=null;}clearTimeout(playTimer);cancelTTS();};
    const cancelRecognition=()=>{if(recognition){const rec=recognition;recognition=null;rec.onresult=rec.onerror=rec.onend=null;try{rec.abort();}catch(_){}}clearTimeout(recognitionTimer);cancelExternal();};
-   const cleanup=()=>{if(closed)return;closed=true;notify=null;window.removeEventListener('pagehide',close);document.removeEventListener('visibilitychange',onVisibility);cancelSpeech();cancelRecognition();clearReference();clearLocal();clearInterval(watch);synth?.removeEventListener?.('voiceschanged',refreshVoices);modal.remove();active=null;if(focus?.isConnected)focus.focus();};
+   const cleanup=()=>{if(closed)return;closed=true;notify=null;window.removeEventListener('pagehide',close);document.removeEventListener('visibilitychange',onVisibility);cancelSpeech();cancelRecognition();clearReference();clearLocal();clearInterval(watch);synth?.removeEventListener?.('voiceschanged',refreshVoices);modal.remove();active=null;if(inline)phone.onInlineClose?.();if(focus?.isConnected)focus.focus({preventScroll:inline});};
    const close=()=>{if(closed)return;if(!inline)modal.close();cleanup();};
    const onVisibility=()=>{if(document.hidden)close();};
    const inputSection=el('section');inputSection.append(el('h3','玩家語音轉文字（STT）'));
