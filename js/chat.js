@@ -281,6 +281,7 @@ const Chat = {
           "保留已發生事件、已知資訊、明確關係、承諾、物品與目標。玩家偏好只能記錄玩家明說的內容；不得把 AI 推測的心理當作事實。",
           window.BAOHelperData.memoryRules,
           config?.memory?.episodicRecall === false ? "" : window.BAOEpisodicMemory?.rules,
+          config?.memory?.episodicRecall === false || !window.BAOEpisodicMemory ? "" : "【事件索引提取優先序】優先保留有證據的承諾、未解伏筆、持續後果、關係轉折與重要物品去向；已完成與未完成、意圖與實際結果不可混淆。keywords 在既有三項上限內，優先選具體線索、自然近義短語與事件概念，避免同義重複及泛詞（例如故事、事情）。私密事件的檢索詞只能依各相關角色共同有證據的 claim 產生，不得用其未知的客觀秘密；沒有適合的詞就少列。檢索詞不是新增事實，不可推測玩家情緒或角色知情。",
           config?.memory?.episodicRecall !== false && config?.memory?.hybridRecall === true ? window.BAOEpisodicMemory?.sceneRules : "",
           config?.memory?.episodicRecall === false || !window.BAOEpisodicMemory ? "" : `【近期事件索引（僅供明確更正時引用 ID，不可當作本次新證據）】\n${JSON.stringify(window.BAOEpisodicMemory.updateContext(owner, this.messages, config?.memory?.hybridRecall === true))}`,
           "刪除重複修辭、寒暄與不影響後續的細節。不要加入原文沒有的資訊，不要寫分析過程。",

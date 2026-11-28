@@ -58,6 +58,15 @@ function setup() {
     assert.ok(s.chat.summarizedUntil >= 4, 'next pass can safely consume previously deferred complete exchange');
     assert.equal(s.chat.messages.length, rounds * 2, 'source history must never be truncated');
 
+    // Disabling event recall must omit the additional extraction guidance and
+    // retain the normal one-call summary path.
+    const disabled = setup(); disabled.seed(rounds);
+    disabled.config.memory.episodicRecall = false;
+    await disabled.chat.maybeSummarize(disabled.config);
+    assert.equal(disabled.sent.length, 1);
+    assert.doesNotMatch(disabled.sent[0].at(-1).content, /事件索引提取優先序/);
+    assert.equal(disabled.chat.summarizedUntil, 2);
+
     // If the first full user+assistant exchange exceeds budget, retain both
     // without falsely certifying the player's plan as completed.
     const stalled = setup(); stalled.seed(rounds, true);
