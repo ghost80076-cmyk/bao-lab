@@ -604,9 +604,11 @@ test('inline Phone voice closes on navigation and releases a late microphone per
    App.activeCharacter.phone_ui={enabled:true,userName:'旅人',contactName:'A',contacts:[{id:'a',name:'A'}],threads:[{id:'private-a',name:'A 的私訊',participants:['a'],messages:[]}]};
    App.renderChatShell(false);
    window.__phoneMicRequests=0;window.__phoneMicStops=0;
-   Object.defineProperty(navigator.mediaDevices,'getUserMedia',{configurable:true,value:()=>new Promise(resolve=>{
+   // Use the same complete navigator.mediaDevices fixture as the existing
+   // recorder tests; WebKit may not retain an instance-level method override.
+   Object.defineProperty(navigator,'mediaDevices',{configurable:true,value:{getUserMedia:()=>new Promise(resolve=>{
      window.__phoneMicRequests++;window.__resolvePhoneMic=()=>resolve({getTracks:()=>[{stop:()=>window.__phoneMicStops++}]});
-   })});
+   })}});
    Object.defineProperty(window,'MediaRecorder',{configurable:true,value:class{}});
  });
  const before=await page.evaluate(()=>JSON.stringify(Chat.messages));
