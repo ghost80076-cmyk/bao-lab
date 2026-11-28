@@ -1,0 +1,55 @@
+name: Semantic memory research baseline
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tests/fixtures/recall-acceptance/semantic-research-v1.json'
+      - 'docs/audits/semantic-memory-recall-p0-2026-11-28.md'
+      - 'js/episodic-memory*.js'
+      - 'scripts/evaluate-episodic-recall.cjs'
+      - '.github/workflows/semantic-memory-research.yml'
+permissions:
+  contents: read
+jobs:
+  semantic-research-baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Run all three frozen recall suites
+        run: |
+          mkdir -p research-results
+          status=0
+          node scripts/evaluate-episodic-recall.cjs --fixture tests/fixtures/recall-acceptance/semantic-research-v1.json --report research-results/semantic-p0.json || status=1
+          node scripts/evaluate-episodic-recall.cjs --report research-results/v3.json || status=1
+          node scripts/evaluate-episodic-recall.cjs --fixture tests/fixtures/recall-acceptance/trust-heldout.json --report research-results/trust-heldout.json || status=1
+          exit "$status"
+      - name: Publish measured baseline
+        if: always()
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const summary = process.env.GITHUB_STEP_SUMMARY;
+          for (const file of ['semantic-p0','v3','trust-heldout']) {
+            const path = 'research-results/'+file+'.json';
+            if (!fs.existsSync(path)) {
+              fs.appendFileSync(summary, '### '+file+' — no report\n');
+              continue;
+            }
+            const r = JSON.parse(fs.readFileSync(path,'utf8'));
+            fs.appendFileSync(summary, '### '+file+'\n\n'+
+              'Exact matches: '+r.all.exactMatches+'/'+r.all.cases+'; true positives: '+r.all.truePositives+
+              '; false positives: '+r.all.falsePositives+'; false negatives: '+r.all.falseNegatives+
+              '; source errors: '+r.all.sourceErrors+'; forbidden content cases: '+r.all.forbiddenContentCases+
+              '; failed cases: '+r.failedCases+'; model calls: '+r.modelCalls+'\n\n');
+          }
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: semantic-memory-baseline
+          path: research-results/*.json
+          if-no-files-found: error
+          retention-days: 14
