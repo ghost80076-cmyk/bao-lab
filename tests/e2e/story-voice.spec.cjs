@@ -917,18 +917,13 @@ test('everyday voice controls use the composer and saved device voice without op
  await page.locator('#user-input').fill('原有文字');
  await page.locator('#bao-mobile-composer-tools').click();
  const drawer=page.locator('#bao-chat-tool-drawer');
- const mic=drawer.getByRole('button',{name:'語音輸入',exact:true});
- await expect(mic).toBeVisible();
- await mic.click();
- await expect(drawer).toHaveCount(0);
+ await expect(drawer.getByRole('button',{name:'語音輸入',exact:true})).toHaveCount(0);
+ await drawer.getByRole('searchbox',{name:'搜尋故事工具'}).fill('語音工具');
+ await drawer.getByRole('button',{name:'語音工具',exact:true}).click();
  const dialog=page.getByRole('dialog',{name:'角色語音與語音輸入'});
- await expect(dialog.getByRole('heading',{name:'語音輸入',exact:true})).toBeVisible();
- await expect(dialog.getByLabel('TTS 接口網址')).toHaveCount(0);
- await dialog.getByLabel('我同意使用瀏覽器語音辨識服務').check();
- await dialog.getByRole('button',{name:'開始語音辨識'}).click();
- await expect(dialog.getByLabel('辨識文字預覽（可修改）')).toHaveValue('今天好累');
- await dialog.getByRole('button',{name:'將文字填入故事輸入框'}).click();
- await expect(page.locator('#user-input')).toHaveValue('原有文字\n今天好累');
+ await expect(dialog.getByLabel('辨識文字預覽（可修改）')).toBeVisible();
+ await dialog.getByRole('button',{name:'關閉',exact:true}).click();
+ await expect(page.locator('#user-input')).toHaveValue('原有文字');
  expect(await page.evaluate(()=>JSON.stringify(Chat.messages))).toBe(before);
  await page.getByRole('button',{name:'角色語音設定',exact:true}).click();
  await expect(dialog.getByLabel('配音角色')).toHaveValue('voice-test');
@@ -962,27 +957,61 @@ test('Phone device playback shares the story actor profile and excludes player o
  await page.getByRole('button',{name:'關閉手機'}).click();
 });
 
-for(const width of [320,390,1440])test('voice shortcut preserves composer geometry at '+width+'px',async({page})=>{
+for(const width of [320,390,834,1440])test('voice shortcut preserves composer geometry at '+width+'px',async({page})=>{
  await setup(page,width,true);
  const input=page.locator('#user-input');
  await input.fill('保留草稿');
+ const before=await page.evaluate(()=>JSON.stringify(Chat.messages));
  const rect=await input.boundingBox();
  expect(rect.width).toBeGreaterThan(95);
  const mic=page.locator('#yoru-voice-mic');
  if(width<=820){
    await expect(mic).toBeHidden();
    await page.locator('#bao-mobile-composer-tools').click();
-   await page.locator('#bao-chat-tool-drawer').getByRole('button',{name:'語音輸入',exact:true}).click();
+   const drawer=page.locator('#bao-chat-tool-drawer');
+   await expect(drawer.getByRole('button',{name:'語音輸入',exact:true})).toHaveCount(0);
+   await expect(input).toHaveValue('保留草稿');
  }else{
+   let confirmations=0;
+   page.on('dialog',async dialog=>{confirmations++;await dialog.accept();});
    await expect(mic).toBeVisible();await mic.click();
+   await expect(input).toHaveValue('保留草稿\n今天好累');
+   await mic.click();
+   await expect(input).toHaveValue('保留草稿\n今天好累\n今天好累');
+   expect(confirmations).toBe(1);
  }
- const dialog=page.getByRole('dialog',{name:'角色語音與語音輸入'});
- await expect(dialog.getByRole('heading',{name:'語音輸入',exact:true})).toBeVisible();
- await dialog.getByRole('button',{name:'關閉',exact:true}).click();
- await expect(input).toHaveValue('保留草稿');
+ await expect(page.getByRole('dialog',{name:'角色語音與語音輸入'})).toHaveCount(0);
+ expect(await page.evaluate(()=>JSON.stringify(Chat.messages))).toBe(before);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });
 
+test('desktop dictation respects denied permission, cancellation and an edited draft',async({page})=>{
+ await setup(page,1440,true);
+ const input=page.locator('#user-input'),mic=page.locator('#yoru-voice-mic');
+ const before=await page.evaluate(()=>JSON.stringify(Chat.messages));
+ await input.fill('原稿');
+ page.once('dialog',dialog=>dialog.dismiss());
+ await mic.click();expect(await page.evaluate(()=>window.__recognitions)).toBe(0);
+ await page.evaluate(()=>{window.SpeechRecognition=class{
+   start(){window.__recognitions++;window.__inlineRecognition=this;}
+   stop(){this.onend?.();}
+   abort(){window.__inlineAborted=true;}
+ };});
+ page.once('dialog',dialog=>dialog.accept());
+ await mic.click();await expect(mic).toHaveAttribute('aria-pressed','true');
+ await page.keyboard.press('Escape');
+ await expect(mic).toHaveAttribute('aria-pressed','false');
+ expect(await page.evaluate(()=>window.__inlineAborted)).toBe(true);
+ await mic.click();await expect(mic).toHaveAttribute('aria-pressed','true');
+ await input.fill('玩家修改');
+ await expect(mic).toHaveAttribute('aria-pressed','false');
+ await page.evaluate(()=>{window.__inlineRecognition.onresult?.({results:[{isFinal:true,0:{transcript:'不可覆蓋'}}]});window.__inlineRecognition.onend?.();});
+ await expect(input).toHaveValue('玩家修改');
+ await mic.click();await page.evaluate(()=>{window.__inlineRecognition.onerror?.({error:'not-allowed'});});
+ await expect(mic).toHaveAttribute('aria-pressed','false');
+ await expect(input).toHaveValue('玩家修改');
+ expect(await page.evaluate(()=>JSON.stringify(Chat.messages))).toBe(before);
+});
 
 test('quick BYOK TTS reuses saved role settings and requires per-request consent',async({page})=>{
  await setup(page,390,true);
@@ -1054,7 +1083,7 @@ test('shared BYOK voice is authorized once and used directly in story and Phone 
  await page.getByRole('button',{name:'關閉自動配音',exact:true}).click();
  await expect(page.getByRole('button',{name:'播放角色台詞（自訂）'})).toBeVisible();expect(calls).toHaveLength(0);
  // Using the microphone must pause playback without losing the same chapter grant.
- await page.evaluate(()=>BAOStoryVoice.openInput());
+ await page.evaluate(()=>BAOStoryVoice.open());
  await d.getByLabel('我同意使用瀏覽器語音辨識服務').check();
  await d.getByRole('button',{name:'開始語音辨識'}).click();
  await expect(d.getByLabel('辨識文字預覽（可修改）')).toHaveValue('今天好累');
