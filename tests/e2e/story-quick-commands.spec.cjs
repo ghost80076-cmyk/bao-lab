@@ -95,6 +95,38 @@ test('story quick commands fill the composer without sending and persist custom 
   await expect(page.locator('#user-input')).toHaveValue('放慢節奏，多寫人物反應，不替我做決定。');
   expect(await page.evaluate(() => Chat.messages.length)).toBe(beforeMessages);
 
+  // Explicit library scope: not copied into the story state or automatically sent.
+  await page.evaluate(() => window.BAOStoryQuickCommands.open());
+  dialog = page.getByRole('dialog', { name: '快捷指令' });
+  await expect(dialog.getByRole('button', { name: /校正角色演繹/ })).toBeVisible();
+  await dialog.getByText('＋ 新增我的快捷指令').click();
+  await dialog.locator('[data-quick-scope="library"]').click();
+  await dialog.locator('input[name="label"]').fill('跨故事測試');
+  await dialog.locator('textarea[name="text"]').fill('依照人物自身語氣說話。');
+  await dialog.getByRole('button', { name: '儲存快捷指令' }).click();
+  await expect(dialog.getByRole('button', { name: /跨故事測試/ })).toBeVisible();
+  expect(await page.evaluate(() => GameState.current.quickCommands.length)).toBe(1);
+  expect(await page.evaluate(() => window.BAOStoryQuickCommands.libraryState().length)).toBe(1);
+  // A different story owner with no local commands sees the library but not the old story's command.
+  await page.evaluate(() => {
+    const previous = GameState.current;
+    window.__quickTestPreviousStory = previous;
+    GameState.create(App.activeCharacter, App.config);
+    window.BAOStoryQuickCommands.open();
+  });
+  await expect(dialog.getByRole('button', { name: /跨故事測試/ })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: /慢慢推進/ })).toHaveCount(0);
+  await page.evaluate(() => {
+    document.getElementById('user-input').value = '';
+  });
+  await dialog.getByRole('button', { name: /跨故事測試/ }).click();
+  await expect(page.locator('#user-input')).toHaveValue('依照人物自身語氣說話。');
+  expect(await page.evaluate(() => Chat.messages.length)).toBe(beforeMessages);
+  await page.evaluate(() => {
+    GameState.current = window.__quickTestPreviousStory;
+    delete window.__quickTestPreviousStory;
+  });
+
   await page.evaluate(() => window.BAOStoryControlCenter.open());
   const control = page.getByRole('dialog', { name: '故事總覽' });
   await expect(control).toContainText('快捷指令');

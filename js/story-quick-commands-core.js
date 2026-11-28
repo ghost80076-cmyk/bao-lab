@@ -10,6 +10,9 @@
   const MAX_TEXT = 600;
   const clean = value => String(value ?? "").replace(/\s+/g, " ").trim();
 
+  const LIBRARY_KEY = "bao-lab:quick-command-library-v1";
+  const DIRECTOR_IDS = Object.freeze(["cast", "incident", "conflict", "independent", "character-check", "relationship-check", "variation"]);
+
   const BUILT_INS = Object.freeze([
     { id: "continue", label: "繼續描寫", text: "繼續目前情境，保持既有角色行為與世界狀態，不替我做決定。" },
     { id: "advance", label: "推進時間", text: "讓時間自然往前推進一小段，交代合理變化，並停在可以讓我回應的位置。" },
@@ -17,7 +20,14 @@
     { id: "clarify", label: "釐清目前局勢", text: "【本輪故事內釐清】我對當前局勢有點困惑。請依玩家角色此刻能看到、聽到或已被告知的資訊，先透過在場人物合乎其知情範圍的自然對話、可觀察線索或簡短場景敘述，說清楚目前位置、在場者、已知前因及眼前可選擇的方向。不能知道的就保留未知，不讀取或洩露幕後真相、導演筆記、未公開記憶，不讓 NPC 突然全知，不改寫既有事實，也不為了釐清而製造新危機；不替我做決定，釐清後停在可回應的位置。僅限本輪。" },
     { id: "npc", label: "NPC 自主行動", text: "讓目前場景中的 NPC 依自己的目標與已知資訊自然行動，不替我決定。" },
     { id: "atmosphere", label: "加強環境描寫", text: "這一輪加強場景、動作與感官細節，但不要拖慢事件本身。" },
-    { id: "concise", label: "縮短回覆", text: "接下來一輪請縮短回覆，只保留關鍵事件、必要對話與可供我回應的部分。" }
+    { id: "concise", label: "縮短回覆", text: "接下來一輪請縮短回覆，只保留關鍵事件、必要對話與可供我回應的部分。" },
+    { id: "cast", label: "自然引入配角", text: "【本輪劇情引導】若當前場景有合理契機，讓符合世界設定的配角依自身身分、目標與已知資訊自然參與；不強制登場或搶走主線，不替玩家決定。僅限本輪。" },
+    { id: "incident", label: "引入意外事件", text: "【本輪劇情引導】依當前時間、地點、已建立的因果及人物動機，引入一項合理且可回應的變數；若缺乏合理契機，不強制製造危機、跳時或改寫既有事實。保留玩家選擇，僅限本輪。" },
+    { id: "conflict", label: "引入人物矛盾", text: "【本輪劇情引導】依已有的價值觀、利益、界線或未解決事項，讓合理的立場分歧浮現；不為衝突扭曲人設、強制爭吵或預設玩家反應。若無合理契機，保留原本互動。僅限本輪。" },
+    { id: "independent", label: "角色自主生活", text: "【本輪劇情引導】角色可以依既有身分、行程、責任及目標處理自己的事，適時沉默、離場或繼續日常；不要求所有角色圍繞玩家，不跳過未完成的重要互動，不替玩家決定。僅限本輪。" },
+    { id: "character-check", label: "校正角色演繹", text: "【本輪演繹校正】核對目前有效的角色設定、作者規則、已確認經歷與最近對話，讓後續言行符合人物個性、價值觀、語氣及動機。區分合理成長與無依據的人格偏移，不重置關係或已確認事實，不揭露隱藏設定、不代演玩家。直接自然延續故事；僅限本輪。" },
+    { id: "relationship-check", label: "校正關係與情感", text: "【本輪演繹校正】核對已確認的關係方向、承諾、互動經歷、人物界線及當前情感進度，依角色設定與已發生事件自然延續。不得把單向感情補成雙向，不強制親密、同意、疏離或和好，不改寫歷史、不替玩家決定。僅限本輪。" },
+    { id: "variation", label: "減少敘事重複", text: "【本輪演繹校正】依當下情境改變描寫焦點、句式、對話節奏與行為細節，避免重複近期固定動作、開場、收尾或情緒解釋；保留角色獨特語氣，不為變化而強塞事件或改寫事實。僅限本輪。" }
   ]);
 
   function normalizeCommand(input, index = 0, source = "player") {
@@ -46,11 +56,32 @@
     return list.map((item, index) => normalizeCommand(item, index, "player")).filter(Boolean).slice(0, MAX_CUSTOM);
   }
 
-  function allCommands(character = {}, custom = []) {
+  function libraryCommands(value) {
+    return customCommands(value).map(item => ({ ...item, source: "library" }));
+  }
+
+  function readLibrary(storage) {
+    const raw = storage.getItem(LIBRARY_KEY);
+    if (raw === null) return [];
+    const value = JSON.parse(raw);
+    if (!Array.isArray(value) || value.length > MAX_CUSTOM || value.some(item => !item || typeof item.id !== "string" || typeof item.label !== "string" || typeof item.text !== "string"))
+      throw new Error("個人指令庫格式無效；原資料保留。");
+    return libraryCommands(value);
+  }
+
+  function writeLibrary(storage, commands) {
+    readLibrary(storage); // Do not overwrite malformed or unreadable existing data.
+    const normalized = libraryCommands(commands).map(({ id, label, text }) => ({ id, label, text }));
+    storage.setItem(LIBRARY_KEY, JSON.stringify(normalized));
+    return normalized;
+  }
+
+  function allCommands(character = {}, custom = [], library = []) {
     const groups = [
       BUILT_INS.map(item => ({ ...item, source: "built_in" })),
       authorCommands(character),
-      customCommands(custom)
+      customCommands(custom),
+      libraryCommands(library)
     ];
     const seen = new Set();
     return groups.flat().filter(item => {
@@ -61,12 +92,13 @@
     });
   }
 
-  function grouped(character = {}, custom = []) {
-    const all = allCommands(character, custom);
+  function grouped(character = {}, custom = [], library = []) {
+    const all = allCommands(character, custom, library);
     return {
       builtIn: all.filter(item => item.source === "built_in"),
       author: all.filter(item => item.source === "author"),
-      player: all.filter(item => item.source === "player")
+      player: all.filter(item => item.source === "player"),
+      library: all.filter(item => item.source === "library")
     };
   }
 
@@ -131,13 +163,14 @@
     return { commands: result, added, duplicates, overflow };
   }
 
-  function summary(character = {}, custom = []) {
-    const groups = grouped(character, custom);
+  function summary(character = {}, custom = [], library = []) {
+    const groups = grouped(character, custom, library);
     return {
-      title: `${groups.builtIn.length + groups.author.length + groups.player.length} 個快捷指令`,
+      title: `${groups.builtIn.length + groups.author.length + groups.player.length + groups.library.length} 個快捷指令`,
       detail: [
         groups.author.length ? `作品 ${groups.author.length}` : "",
         groups.player.length ? `我的 ${groups.player.length}` : "",
+        groups.library.length ? `個人庫 ${groups.library.length}` : "",
         "點一下填入，不會自動送出"
       ].filter(Boolean).join(" · "),
       groups
@@ -152,6 +185,11 @@
     PACK_SCHEMA,
     PACK_VERSION,
     BUILT_INS,
+    DIRECTOR_IDS,
+    LIBRARY_KEY,
+    readLibrary,
+    writeLibrary,
+    libraryCommands,
     exportPack,
     parsePack,
     mergePack,
