@@ -248,7 +248,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(() => loadBAOScript("js/chat-tool-navigation.js?v=18"))
     .then(() => loadBAOScript("js/chat-experience-repairs.js?v=6"))
     .then(() => loadBAOOptionalGroup("story-quick-commands", ["js/story-quick-commands-core.js?v=4", "js/story-quick-commands.js?v=10"]))
-    .then(() => loadBAOOptionalGroup("mobile-reading-layout", ["js/mobile-reading-layout.js?v=27"]))
+    .then(() => loadBAOOptionalGroup("mobile-reading-layout", ["js/mobile-reading-layout.js?v=28"]))
     .then(() => loadBAOScript("js/story-actor-pack-core.js?v=3"))
     .then(() => loadBAOScript("js/story-actors-general-pack.js?v=1"))
     .then(() => loadBAOScript("js/three-realms-story-actor-pack.js?v=1"))

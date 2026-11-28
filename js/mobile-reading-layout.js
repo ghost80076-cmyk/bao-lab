@@ -268,7 +268,7 @@
       if (window.BAOStorySurface?.openStatus) BAOStorySurface.openStatus();
       else togglePanels();
     }, { 'data-bao-mobile-panel-toggle': '', 'aria-expanded': String(main.classList.contains('bao-mobile-panel-open')) });
-    if (window.BAOStoryVoice?.openInput) makeAction(quick, '語音輸入', () => window.BAOStoryVoice.openInput(), { 'aria-label': '語音輸入' });
+    // Normal phone dictation belongs to the OS keyboard; advanced STT remains in 語音工具.
     makeAction(quick, '🧠 記憶', openMemory);
     makeAction(quick, '模型連線／切換', () => {
       if (window.BAOChatAPISettings?.open) BAOChatAPISettings.open();
