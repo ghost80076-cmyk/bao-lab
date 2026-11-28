@@ -41,8 +41,38 @@
     const stream = document.querySelector("#chat-stream");
     if (!stream || !document.querySelector("#chat-view.active")) return;
     if (previous) {
-      stream.scrollTop = previous.streamTop;
-      window.scrollTo({ top: previous.pageTop, behavior: "instant" });
+      // Failed branch/rewind recovery rerenders the original story. Deferred
+      // shell work or browser scroll anchoring can shift the old offset again.
+      // Restore during a bounded awaited settle window, never after it returns.
+      const owner = GameState.current;
+      const events = ["wheel", "touchstart", "pointerdown", "keydown"];
+      let cancelled = false;
+      const cleanup = () => {
+        cancelled = true;
+        events.forEach(type => document.removeEventListener(type, cleanup, true));
+        if (stopReaderPositioning === cleanup) stopReaderPositioning = () => {};
+      };
+      stopReaderPositioning = cleanup;
+      events.forEach(type => document.addEventListener(type, cleanup, { capture:true, passive:true }));
+      const restoreOffset = () => {
+        if (cancelled || GameState.current !== owner || !stream.isConnected
+            || document.querySelector("#chat-stream") !== stream || !document.querySelector("#chat-view.active")) return false;
+        stream.scrollTo({ top: previous.streamTop, behavior: "instant" });
+        window.scrollTo({ top: previous.pageTop, behavior: "instant" });
+        return true;
+      };
+      try {
+        if (!restoreOffset()) return;
+        for (let pass = 0; pass < 2; pass++) {
+          await new Promise(resolve => window.requestAnimationFrame(resolve));
+          if (!restoreOffset()) return;
+        }
+        const passes = window.matchMedia("(max-width: 820px)").matches ? 4 : 2;
+        for (let pass = 0; pass < passes; pass++) {
+          await new Promise(resolve => setTimeout(resolve, 80));
+          if (!restoreOffset()) return;
+        }
+      } finally { cleanup(); }
       return;
     }
     const target = [...stream.querySelectorAll(":scope > .message.assistant")].at(-1);
