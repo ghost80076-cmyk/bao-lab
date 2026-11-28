@@ -145,6 +145,8 @@
         <section class="story-control-section" aria-labelledby="story-control-primary-title">
           <div class="story-control-section-heading"><h3 id="story-control-primary-title">目前故事</h3><span>常用設定</span></div>
           <div class="story-control-grid story-control-primary">
+            ${card("quick", "快捷指令", data.quick, "劇情引導與演繹校正")}
+            ${card("narrative", "今晚的故事", data.narrative, "調整文風與篇幅")}
             ${card("discussion", "戲外討論", {title:"故事討論",detail:"獨立討論劇情，不會自動寫入正文或記憶"}, "打開討論")}
             ${card("model", "故事模型", data.model, "切換模型")}
             ${card("persona", "玩家身份", data.persona, "調整人物")}
@@ -159,11 +161,9 @@
           <div class="settings-effects-body" data-world-director-result></div>
         </details>` : ""}
         <details class="story-control-more">
-          <summary>更多故事設定 <span>敘事、快捷指令與進階管理</span></summary>
+          <summary>更多故事設定 <span>長期指令與進階管理</span></summary>
           <div class="story-control-grid story-control-secondary">
             ${card("instructions", "AI 與指令", data.instructions, "編輯長期指令")}
-            ${card("narrative", "今晚的故事", data.narrative, "調整敘事")}
-            ${card("quick", "快捷指令", data.quick, "打開指令")}
             ${card("context", "上下文狀態", data.context, "查看前情")}
             ${card("extensions", "故事擴充", data.extensions, "查看作用範圍")}
             ${card("timeline", "NPC 個別時間線", {title:"人物的經歷與日程",detail:"查看知情來源，安排離場活動"}, "查看時間線")}

@@ -274,6 +274,12 @@
       if (window.BAOChatAPISettings?.open) BAOChatAPISettings.open();
       else clickOriginal('#bao-chat-api-aside');
     });
+    if (window.BAOStoryQuickCommands?.open) makeAction(quick, '⌁ 快捷指令', () => window.BAOStoryQuickCommands.open(), {
+      'data-tool-route': 'quick-commands', 'data-search-keywords': '劇情引導 演繹校正 人設校正 角色校正 關係校正 意外事件 配角 人物矛盾 自主生活 減少重複 個人指令庫'
+    });
+    if (window.BAONarrativeSettings?.open) makeAction(quick, '✦ 敘事設定', () => window.BAONarrativeSettings.open(), {
+      'data-tool-route': 'narrative', 'data-search-keywords': '今晚的故事 文風 風格 字數 篇幅 節奏 描寫 對話 旁白 玩家主控'
+    });
     const more = document.createElement('details');
     more.className = 'bao-mobile-more';
     more.open = window.YoruExperience?.get?.().level === 'pro';
@@ -288,10 +294,7 @@
       if (window.BAOContextHealth?.open) BAOContextHealth.open();
       else window.alert('上下文狀態仍在載入，請稍後再試。');
     });
-    makeAction(advanced, '⌁ 快捷指令', () => {
-      if (window.BAOStoryQuickCommands?.open) BAOStoryQuickCommands.open();
-      else window.alert('快捷指令仍在載入，請稍後再試。');
-    });
+
     makeAction(advanced, '◈ 世界狀態', openStatus);
     makeAction(advanced, '快速儲存', () => App.saveStory?.(true));
     makeAction(advanced, '✦ 聊天外觀', () => clickOriginal('[data-bao-open="appearance"]'), { 'data-bao-open': 'appearance' });
@@ -311,8 +314,10 @@
     // should only appear once in the same tool drawer.
     const canonicalToolLabel = text => String(text || '').trim().replace(/\s*·\s*常用$/u, '').trim();
     const quickNames = new Set([...quick.querySelectorAll('button')].map(button => canonicalToolLabel(button.textContent)));
+    const quickRoutes = new Set([...quick.querySelectorAll('[data-tool-route]')].map(button => button.dataset.toolRoute));
     body.querySelectorAll('.bao-chat-tool-proxy').forEach(button => {
-      if (quickNames.has(canonicalToolLabel(button.textContent))) button.remove();
+      if ((button.dataset.toolRoute && quickRoutes.has(button.dataset.toolRoute))
+          || quickNames.has(canonicalToolLabel(button.textContent))) button.remove();
     });
     const connection = document.createElement('small');
     connection.setAttribute('aria-live', 'polite');

@@ -40,7 +40,20 @@ test('story quick commands fill the composer without sending and persist custom 
 
   const drawer = page.getByRole('dialog', { name: '故事功能選單' });
   await expect(drawer).toBeVisible();
-  await drawer.locator('.bao-mobile-more > summary').click();
+  const common = drawer.locator('.bao-mobile-quick');
+  await expect(drawer.locator('.bao-mobile-more')).not.toHaveAttribute('open', '');
+  await expect(common.getByRole('button', { name: '⌁ 快捷指令', exact: true })).toBeVisible();
+  await expect(common.getByRole('button', { name: '✦ 敘事設定', exact: true })).toBeVisible();
+  await expect(drawer.locator('[data-tool-route="quick-commands"]')).toHaveCount(1);
+  await expect(drawer.locator('[data-tool-route="narrative"]')).toHaveCount(1);
+  const toolSearch = drawer.getByRole('searchbox', { name: '搜尋故事工具' });
+  await toolSearch.fill('人設校正');
+  await expect(common.getByRole('button', { name: '⌁ 快捷指令', exact: true })).toBeVisible();
+  await expect(common.getByRole('button', { name: '✦ 敘事設定', exact: true })).toBeHidden();
+  await toolSearch.fill('文風');
+  await expect(common.getByRole('button', { name: '✦ 敘事設定', exact: true })).toBeVisible();
+  await expect(common.getByRole('button', { name: '⌁ 快捷指令', exact: true })).toBeHidden();
+  await toolSearch.fill('');
   await expect(drawer.getByRole('button', { name: '⌁ 快捷指令' })).toBeVisible();
   await drawer.getByRole('button', { name: '⌁ 快捷指令' }).click();
 
