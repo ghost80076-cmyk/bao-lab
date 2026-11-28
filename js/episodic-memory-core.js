@@ -284,6 +284,14 @@
     const continuity = hybrid ? continuityTerms(messages, input, sources) : [];
     const focus = hybrid ? actorFocus(state,resolve,input) : null;
     const events = memoryEvents(state, hybrid), superseded = supersededEvents(events, proof);
+    // A public correction can only gain priority from a valid earlier public
+    // fact. Never let a hidden or ambiguous target influence visible ranking.
+    const publicPrior = new Map(), duplicateIds = new Set();
+    if (hybrid) for (const event of events) {
+      if (!object(event) || !event.id) continue;
+      if (publicPrior.has(event.id)) duplicateIds.add(event.id);
+      else publicPrior.set(event.id,event);
+    }
     for (const event of events) {
       if (!object(event)) continue;
       const decision = reason => onDecision({id: event.id, reason});
@@ -332,7 +340,22 @@
       const sceneAnchor = actorScore && event.scene && !withdrawn &&
         (shared || knowledge.every(group => group.every(k => ['witnessed','told'].includes(k.mode))));
       const linkEligible = topical && (actorScore || !focus.hasMention(visibleText));
-      candidates.push({ event, score, ...(match ? {match} : {}), index, lines, shared, lexical, continuityScore, actorScore, linkEligible, sceneAnchor, proofs });
+      // A single bounded significance signal, only after ordinary eligibility
+      // and a literal topic hit in the visible claim. No genre-specific labels,
+      // age bonus, repetition counts, inferred emotion or new knowledge.
+      let evidencePriority = 0;
+      if (hybrid && !withdrawn && words.some(word => lexical.includes(word))) {
+        const updatedKnowledge = !shared && knowledge.every(group => group.length &&
+          group.every(k => k.afterEvent === true && ['witnessed','told'].includes(k.mode)));
+        const publicCorrection = shared && !duplicateIds.has(event.id) && list(event.supersedes).some(id => {
+          const old = publicPrior.get(id);
+          return old && !duplicateIds.has(id) && old !== event && old.visibility === 'public'
+            && old.certainty === 'confirmed' && (old.scene ? scene(old.evidence) : valid(old.evidence))
+            && proof.first(event.evidence) > proof.last(old.evidence);
+        });
+        if (updatedKnowledge || publicCorrection) evidencePriority = 1;
+      }
+      candidates.push({ event, score, ...(match ? {match} : {}), index, lines, shared, lexical, continuityScore, actorScore, linkEligible, sceneAnchor, evidencePriority, proofs });
     }
     // Link a scene only through actual visible claim sources, never its hidden
     // objective span or presence. Both sides already passed all recall gates.
@@ -343,7 +366,7 @@
       candidate.sceneScore = !candidate.event.scene && candidate.linkEligible && candidate.proofs.some(proof =>
         proof.evidence.some(e => sceneSources.has(e.id))) ? 1 : 0;
     }
-    const focusTie = (a,b) => b.actorScore-a.actorScore || b.sceneScore-a.sceneScore || b.continuityScore-a.continuityScore;
+    const focusTie = (a,b) => b.actorScore-a.actorScore || b.sceneScore-a.sceneScore || b.continuityScore-a.continuityScore || b.evidencePriority-a.evidencePriority;
     candidates.sort((a, b) => b.score - a.score || focusTie(a,b) || b.index - a.index || String(a.event.id).localeCompare(String(b.event.id)));
     if (hybrid && candidates.length) {
       // Fuse the existing tag/relationship ranking with visible-claim full-text
