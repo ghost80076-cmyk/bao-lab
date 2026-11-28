@@ -21,15 +21,18 @@ jobs:
           node-version: '22'
       - name: Install research dependency outside website
         run: |
+          set -o pipefail
           mkdir -p "$RUNNER_TEMP/semantic-lab" research-results
-          npm install --prefix "$RUNNER_TEMP/semantic-lab" --save-exact @huggingface/transformers@3.8.1
+          # CPU-only research: skip the optional CUDA binary downloader, not the native CPU runtime.
+          npm install --prefix "$RUNNER_TEMP/semantic-lab" --save-exact --onnxruntime-node-install-cuda=skip @huggingface/transformers@3.8.1 2>&1 | tee research-results/install.log
           cp "$RUNNER_TEMP/semantic-lab/package-lock.json" research-results/dependency-lock.json
           cp scripts/semantic-model-benchmark.mjs "$RUNNER_TEMP/semantic-lab/benchmark.mjs"
       - name: Measure real local embedding model on synthetic text
         env:
           MODEL_CACHE: ${{ runner.temp }}/semantic-model-cache
         run: |
-          node "$RUNNER_TEMP/semantic-lab/benchmark.mjs" "$GITHUB_WORKSPACE/tests/fixtures/recall-acceptance/semantic-model-benchmark-v1.json" "$GITHUB_WORKSPACE/research-results/model-ranking.json"
+          set -o pipefail
+          node "$RUNNER_TEMP/semantic-lab/benchmark.mjs" "$GITHUB_WORKSPACE/tests/fixtures/recall-acceptance/semantic-model-benchmark-v1.json" "$GITHUB_WORKSPACE/research-results/model-ranking.json" 2>&1 | tee research-results/benchmark.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:
