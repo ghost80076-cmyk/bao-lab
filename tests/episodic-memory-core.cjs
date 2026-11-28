@@ -46,18 +46,20 @@ assert.doesNotMatch(query(['守衛'], '戒指')[0].block, /隱瞞身分/);
 assert.equal(query(['艾琳'], '妳是不是還在怪我？').length, 1, 'relational cue without original keywords');
 assert.equal(query(['艾琳'], '不相干的星際航行').length, 0);
 assert.equal(query(['艾琳'], '雨天').length, 1, 'explicit synonym keyword');
-// Synthetic extraction output: useful search cues fit the existing three-tag
-// budget and can match a paraphrase without any additional model request.
-// This does not assert that real LLMs reliably generate these cues.
+// Existing indexes may already contain synonyms. Preserve compatibility,
+// but never serialize search-only words as story facts or writing guidance.
+// The literal index remains the default; the paraphrase gap is not fixed here.
 const promiseSource = [{ id: 'promise1', role: 'assistant', content: '洛恩與玩家約好生日去海岸看日出。' }];
 const promiseState = {};
 const promise = { text: '洛恩與玩家約好生日去海岸看日出。', entities: ['洛恩'], keywords: ['生日', '海岸', '約定'], evidenceIds: ['promise1'], visibility: 'restricted', certainty: 'confirmed', knowledge: [{ actor: '洛恩', mode: 'witnessed', claim: '我們約好生日去海岸看日出。', evidenceIds: ['promise1'] }] };
 const promiseQuery = (actors = ['洛恩'], messages = promiseSource, input = '誕辰那天能陪我迎接晨曦嗎？', extra = {}) => core.recall({ state: promiseState, messages, input, actors, ...extra });
 core.ingest(promiseState, { episodes: [promise] }, promiseSource);
-assert.equal(promiseQuery().length, 0, 'original literal tags miss the paraphrase');
+assert.match(promiseQuery(['洛恩'], promiseSource, '生日去海岸')[0].block, /生日去海岸看日出/);
+assert.equal(promiseQuery().length, 0, 'literal tags still miss the paraphrase; do not conceal the gap');
 core.ingest(promiseState, { episodes: [{ ...promise, keywords: ['誕辰', '晨曦', '約定'] }] }, promiseSource);
 assert.match(promiseQuery()[0].block, /生日去海岸看日出/);
 assert.match(promiseQuery()[0].block, /來源：promise1/);
+assert.doesNotMatch(promiseQuery()[0].block, /誕辰|晨曦/, 'legacy search-only synonyms must not be serialized');
 assert.equal(promiseQuery(['洛恩', '守衛']).length, 0, 'new search cues cannot bypass common knowledge');
 assert.equal(promiseQuery(['守衛']).length, 0);
 assert.equal(promiseQuery(['洛恩'], []).length, 0, 'branch without evidence cannot recall');
@@ -123,7 +125,9 @@ ctx.API = { async send(api, messages) {
   assert.match(JSON.stringify(messages), /\[s0\]/);
   assert.match(JSON.stringify(messages), /A 信任 B.*B 信任 A.*彼此信任/, "episode extraction preserves relationship direction");
   assert.match(messages.at(-1).content, /事件索引提取優先序.*承諾、未解伏筆、持續後果、關係轉折/);
-  assert.match(messages.at(-1).content, /keywords 在既有三項上限內.*自然近義短語/);
+  assert.match(messages.at(-1).content, /各欄位用中性、精簡的事實表述.*不仿寫正文文風.*不添加修辭/);
+  assert.match(messages.at(-1).content, /keywords 僅為本機檢索索引.*既有三項上限.*有原文依據.*不要求產生同義詞.*不替換成文藝詞彙/);
+  assert.match(messages.at(-1).content, /text／claim 不因檢索詞而改寫文風或改變事實/);
   assert.match(messages.at(-1).content, /共同有證據的 claim.*未知的客觀秘密/);
   assert.match(messages.at(-1).content, /entities／keywords／evidenceIds 各最多 3 項/);
   return { text: JSON.stringify({ events: ['雨夜爭吵'], episodes: [{ ...event, evidenceIds: ['s0'], knowledge: [{ ...event.knowledge[0], evidenceIds: ['s1'] }] }] }) };
@@ -140,6 +144,7 @@ ctx.API = { async send(api, messages) {
   let output = await ctx.App.buildMessages(config);
   assert.equal(output[0].content, '固定前綴');
   assert.match(output[1].content, /本輪事件回憶/);
+  assert.doesNotMatch(output[1].content, /雨天|事件索引提取優先序/, 'search metadata and extraction instructions must not enter the story prompt');
   assert.equal(calls, 1, 'retrieval must never call a model');
   output = await ctx.App.buildMessages({ ...config, memory: { ...config.memory, episodicRecall: false } });
   assert.doesNotMatch(output[1].content, /本輪事件回憶/);

@@ -65,6 +65,7 @@ function setup() {
     await disabled.chat.maybeSummarize(disabled.config);
     assert.equal(disabled.sent.length, 1);
     assert.doesNotMatch(disabled.sent[0].at(-1).content, /事件索引提取優先序/);
+    assert.match(disabled.sent[0].at(-1).content, /各欄位用中性、精簡的事實表述.*不仿寫正文文風/, 'ordinary summary must also remain style-neutral');
     assert.equal(disabled.chat.summarizedUntil, 2);
 
     // If the first full user+assistant exchange exceeds budget, retain both
