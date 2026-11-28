@@ -275,6 +275,7 @@
     button.className = 'bao-chat-tool-proxy';
     button.textContent = source.id === 'bao-actor-entry' ? '我的人物／加入 NPC' : source.textContent.trim();
     button.disabled = source.disabled;
+    if (['quick-commands', 'narrative'].includes(source.dataset.baoOpen)) button.dataset.toolRoute = source.dataset.baoOpen;
     const keywords = {
       'bao-actor-entry': '我的人物 人物庫 玩家身份 玩家角色 NPC AI人物 角色',
       'bao-long-instructions-entry': '長期指令 自訂指令 提示詞 prompt 系統提示詞 AI規則',
@@ -285,7 +286,8 @@
     button.dataset.searchKeywords = [
       source.dataset.searchKeywords || '',
       keywords[source.id] || '',
-      source.dataset.baoOpen === 'narrative' ? '今晚的故事 夜色 潮汐 同行者 沿途風景 敘事 風格 描寫 文風 長期指令' : '',
+      source.dataset.baoOpen === 'narrative' ? '今晚的故事 夜色 潮汐 同行者 沿途風景 敘事設定 風格 描寫 文風 長期指令 字數 篇幅 節奏 對話 旁白 玩家主控' : '',
+      source.dataset.baoOpen === 'quick-commands' ? '劇情引導 演繹校正 人設校正 角色校正 關係校正 意外事件 配角 人物矛盾 自主生活 減少重複 個人指令庫' : '',
       source.dataset.baoOpen === 'memory' ? '故事記憶 記憶管理 前情' : '',
       source.dataset.baoOpen === 'appearance' ? '畫面 外觀 字體 顏色 聊天背景' : ''
     ].filter(Boolean).join(' ').toLocaleLowerCase();
@@ -425,7 +427,7 @@
     searchInput.type = 'search';
     searchInput.id = 'bao-tool-search';
     searchInput.autocomplete = 'off';
-    searchInput.placeholder = '搜尋人物、長期指令、記憶、模型、世界書…';
+    searchInput.placeholder = '搜尋人設校正、文風、記憶、模型、世界書…';
     searchInput.setAttribute('aria-label', '搜尋故事工具');
     searchWrap.append(searchCaption, searchInput);
     const sections = document.createElement('nav');
@@ -510,7 +512,7 @@
       if (mobile) {
         const buttons = [...mobile.querySelectorAll('button, a.bao-mobile-support-link')];
         buttons.forEach(button => {
-          const show = !q || matches(button.textContent);
+          const show = !q || matches(button.textContent) || matches(button.dataset.searchKeywords);
           button.hidden = !show;
           if (q && show) found++;
         });
