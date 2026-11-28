@@ -598,6 +598,36 @@ test('player voice message follows its exact story reply and travels only in the
  expect(requests).toEqual([]);
 });
 
+test('inline Phone voice closes on navigation and releases a late microphone permission',async({page})=>{
+ await setup(page,390);
+ await page.evaluate(()=>{
+   App.activeCharacter.phone_ui={enabled:true,userName:'旅人',contactName:'A',contacts:[{id:'a',name:'A'}],threads:[{id:'private-a',name:'A 的私訊',participants:['a'],messages:[]}]};
+   App.renderChatShell(false);
+   window.__phoneMicRequests=0;window.__phoneMicStops=0;
+   Object.defineProperty(navigator.mediaDevices,'getUserMedia',{configurable:true,value:()=>new Promise(resolve=>{
+     window.__phoneMicRequests++;window.__resolvePhoneMic=()=>resolve({getTracks:()=>[{stop:()=>window.__phoneMicStops++}]});
+   })});
+   Object.defineProperty(window,'MediaRecorder',{configurable:true,value:class{}});
+ });
+ const before=await page.evaluate(()=>JSON.stringify(Chat.messages));
+ await page.locator('#bao-phone-launch').click();await page.locator('.bp-home-handle').click();await page.locator('.bp-apps .bp-icon-kakao').click();await page.locator('[data-phone-action^="thread:"]').filter({hasText:'A 的私訊'}).click();
+ const toggle=page.getByRole('button',{name:'語音訊息',exact:true}),panel=page.getByRole('region',{name:'Phone 語音訊息'});
+ await toggle.click();await expect(panel).toBeVisible();
+ expect(await page.evaluate(()=>window.__phoneMicRequests)).toBe(0);
+ await expect(page.getByLabel('手機訊息')).toBeVisible();
+ await panel.getByRole('button',{name:'開始本機錄音'}).click();
+ await expect.poll(()=>page.evaluate(()=>window.__phoneMicRequests)).toBe(1);
+ await toggle.click();await expect(panel).toHaveCount(0);
+ await expect(toggle).toHaveAttribute('aria-expanded','false');
+ await page.evaluate(()=>window.__resolvePhoneMic());
+ await expect.poll(()=>page.evaluate(()=>window.__phoneMicStops)).toBe(1);
+ await toggle.click();await expect(panel).toBeVisible();
+ await page.getByRole('button',{name:'關閉手機'}).click();
+ await expect(panel).toHaveCount(0);
+ expect(await page.evaluate(()=>JSON.stringify(Chat.messages))).toBe(before);
+ expect(await page.evaluate(async()=> (await BAOStoryVoiceAssets.list(BAOStoryLibrary.refs())).length)).toBe(0);
+});
+
 test('Phone voice messages stay in the addressed private or group conversation', async ({page}) => {
  const requests=[];
  await page.route(/https:\/\/(?:text|stt|tts)\.example\.invalid\//, route => {
